@@ -1,0 +1,910 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doutor Paladar · Relatórios e Analytics</title>
+    
+    <!-- Bibliotecas -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Nossos arquivos -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* Estilos específicos para relatórios */
+        .filtros-container {
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+        }
+        
+        .periodo-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+        
+        .periodo-btn {
+            padding: 0.8rem;
+            border: 2px solid var(--gray-200);
+            background: white;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+        }
+        
+        .periodo-btn:hover {
+            border-color: var(--primary);
+            background: var(--secondary);
+        }
+        
+        .periodo-btn.ativo {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .date-range {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .ranking-posicao {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+        }
+        
+        .ranking-posicao.top1 {
+            background: #ffd700;
+            color: #000;
+        }
+        
+        .ranking-posicao.top2 {
+            background: #c0c0c0;
+            color: #000;
+        }
+        
+        .ranking-posicao.top3 {
+            background: #cd7f32;
+            color: white;
+        }
+        
+        .ranking-info {
+            flex: 1;
+        }
+        
+        .ranking-nome {
+            font-weight: 600;
+        }
+        
+        .ranking-quantidade {
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+        
+        .ranking-valor {
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .tabs-relatorio {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 0.5rem;
+        }
+        
+        .tab-relatorio {
+            padding: 0.8rem 1.5rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray-600);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            transition: all 0.2s;
+        }
+        
+        .tab-relatorio:hover {
+            background: var(--gray-100);
+        }
+        
+        .tab-relatorio.ativo {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .resumo-card {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 1rem;
+        }
+        
+        .resumo-card h3 {
+            font-size: 1rem;
+            opacity: 0.9;
+            margin-bottom: 0.5rem;
+        }
+        
+        .resumo-card .valor {
+            font-size: 2rem;
+            font-weight: 700;
+        }
+        
+        .export-btn {
+            background: var(--success);
+            color: white;
+        }
+        
+        @media print {
+            .app-header, .nav-menu, .filtros-container, .export-btn, .btn {
+                display: none !important;
+            }
+            
+            .chart-container {
+                break-inside: avoid;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header Padrão -->
+        <header class="app-header">
+            <div class="header-title">
+                <h1><i class="fas fa-chart-line"></i> Doutor Paladar</h1>
+                <p>Relatórios e Analytics | Olá, <span id="nomeUsuario"></span></p>
+            </div>
+            
+            <!-- Navegação -->
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> PDV</a>
+                <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> Estoque</a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> Fiado</a>
+                <a href="relatorios.html" class="nav-link active"><i class="fas fa-chart-bar"></i> Relatórios</a>
+                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> Despesas</a>
+                <button class="btn btn-secondary btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </nav>
+        </header>
+        
+        <!-- Conteúdo Principal -->
+        <main id="mainContent">
+            <!-- Filtros de Período -->
+            <div class="filtros-container">
+                <div class="flex-between">
+                    <h2><i class="fas fa-filter"></i> Filtros de Período</h2>
+                    <button class="btn btn-success export-btn" onclick="imprimirRelatorio()">
+                        <i class="fas fa-print"></i> Imprimir Relatório
+                    </button>
+                </div>
+                
+                <div class="periodo-selector">
+                    <button class="periodo-btn ativo" data-periodo="hoje" onclick="mudarPeriodo('hoje')">
+                        <i class="fas fa-calendar-day"></i> Hoje
+                    </button>
+                    <button class="periodo-btn" data-periodo="semana" onclick="mudarPeriodo('semana')">
+                        <i class="fas fa-calendar-week"></i> Esta Semana
+                    </button>
+                    <button class="periodo-btn" data-periodo="mes" onclick="mudarPeriodo('mes')">
+                        <i class="fas fa-calendar-alt"></i> Este Mês
+                    </button>
+                    <button class="periodo-btn" data-periodo="ano" onclick="mudarPeriodo('ano')">
+                        <i class="fas fa-calendar"></i> Este Ano
+                    </button>
+                </div>
+                
+                <div class="date-range">
+                    <div class="form-group" style="flex:1;">
+                        <label><i class="fas fa-calendar"></i> Data Início</label>
+                        <input type="date" id="dataInicio" class="form-control" onchange="atualizarPeriodoPersonalizado()">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label><i class="fas fa-calendar"></i> Data Fim</label>
+                        <input type="date" id="dataFim" class="form-control" onchange="atualizarPeriodoPersonalizado()">
+                    </div>
+                    <button class="btn btn-primary" onclick="aplicarFiltroPersonalizado()">
+                        <i class="fas fa-search"></i> Aplicar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Resumo do Período -->
+            <div class="stats-grid" id="resumoPeriodo">
+                <!-- Preenchido via JavaScript -->
+            </div>
+            
+            <!-- Tabs de Relatórios -->
+            <div class="tabs-relatorio">
+                <button class="tab-relatorio ativo" onclick="mudarTab('vendas')">
+                    <i class="fas fa-shopping-cart"></i> Vendas
+                </button>
+                <button class="tab-relatorio" onclick="mudarTab('produtos')">
+                    <i class="fas fa-trophy"></i> Mais Vendidos
+                </button>
+                <button class="tab-relatorio" onclick="mudarTab('fiado')">
+                    <i class="fas fa-hand-holding-usd"></i> Relatório Fiado
+                </button>
+                <button class="tab-relatorio" onclick="mudarTab('financeiro')">
+                    <i class="fas fa-chart-pie"></i> Financeiro
+                </button>
+            </div>
+            
+            <!-- Conteúdo das Tabs -->
+            <div id="tabContent">
+                <!-- Preenchido dinamicamente -->
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // Variáveis globais
+        let periodoAtual = 'hoje';
+        let dataInicioAtual = new Date();
+        let dataFimAtual = new Date();
+        let tabAtual = 'vendas';
+        let graficoVendas = null;
+        let graficoCategorias = null;
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            if (!verificarAutenticacao()) {
+                return;
+            }
+            
+            document.getElementById('nomeUsuario').textContent = getUsuarioLogado();
+            
+            // Configurar datas padrão
+            const hoje = new Date().toISOString().split('T')[0];
+            document.getElementById('dataInicio').value = hoje;
+            document.getElementById('dataFim').value = hoje;
+            
+            // Inicializar página
+            inicializarRelatorios();
+        });
+        
+        function inicializarRelatorios() {
+            mudarPeriodo('hoje');
+        }
+        
+        function mudarPeriodo(periodo) {
+            periodoAtual = periodo;
+            
+            // Atualizar botões
+            document.querySelectorAll('.periodo-btn').forEach(btn => {
+                btn.classList.remove('ativo');
+            });
+            document.querySelector(`[data-periodo="${periodo}"]`).classList.add('ativo');
+            
+            const hoje = new Date();
+            let inicio, fim;
+            
+            switch(periodo) {
+                case 'hoje':
+                    inicio = new Date(hoje);
+                    fim = new Date(hoje);
+                    break;
+                case 'semana':
+                    inicio = new Date(hoje);
+                    inicio.setDate(hoje.getDate() - hoje.getDay());
+                    fim = new Date(hoje);
+                    break;
+                case 'mes':
+                    inicio = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+                    fim = new Date(hoje);
+                    break;
+                case 'ano':
+                    inicio = new Date(hoje.getFullYear(), 0, 1);
+                    fim = new Date(hoje);
+                    break;
+            }
+            
+            dataInicioAtual = inicio;
+            dataFimAtual = fim;
+            
+            document.getElementById('dataInicio').value = inicio.toISOString().split('T')[0];
+            document.getElementById('dataFim').value = fim.toISOString().split('T')[0];
+            
+            atualizarRelatorios();
+        }
+        
+        function atualizarPeriodoPersonalizado() {
+            periodoAtual = 'personalizado';
+            document.querySelectorAll('.periodo-btn').forEach(btn => {
+                btn.classList.remove('ativo');
+            });
+        }
+        
+        function aplicarFiltroPersonalizado() {
+            const inicio = document.getElementById('dataInicio').value;
+            const fim = document.getElementById('dataFim').value;
+            
+            if (inicio && fim) {
+                dataInicioAtual = new Date(inicio);
+                dataFimAtual = new Date(fim);
+                atualizarRelatorios();
+            }
+        }
+        
+        function atualizarRelatorios() {
+            atualizarResumo();
+            mudarTab(tabAtual);
+        }
+        
+        function atualizarResumo() {
+            const inicio = dataInicioAtual.toISOString().split('T')[0];
+            const fim = dataFimAtual.toISOString().split('T')[0];
+            
+            const vendas = getVendasPorPeriodo(inicio, fim);
+            const totalVendas = vendas.reduce((sum, v) => sum + v.total, 0);
+            const despesas = getTotalDespesasPeriodo(inicio, fim);
+            const lucro = totalVendas - despesas;
+            
+            // Contar vendas por forma de pagamento
+            const vendasDinheiro = vendas.filter(v => v.formaPagamento === 'dinheiro').length;
+            const vendasCartao = vendas.filter(v => v.formaPagamento === 'cartao').length;
+            const vendasFiado = vendas.filter(v => v.formaPagamento === 'fiado').length;
+            
+            const html = `
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-shopping-cart"></i> Total Vendas</div>
+                    <div class="stat-value">${formatarMoeda(totalVendas)}</div>
+                    <small>${vendas.length} vendas realizadas</small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-receipt"></i> Despesas</div>
+                    <div class="stat-value">${formatarMoeda(despesas)}</div>
+                    <small>no período</small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-chart-line"></i> Lucro</div>
+                    <div class="stat-value" style="color: ${lucro >= 0 ? '#10b981' : '#dc2626'}">
+                        ${formatarMoeda(lucro)}
+                    </div>
+                    <small>${((lucro/totalVendas)*100 || 0).toFixed(1)}% de margem</small>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label"><i class="fas fa-credit-card"></i> Formas Pgto</div>
+                    <div class="stat-value">${vendas.length}</div>
+                    <small>💵 ${vendasDinheiro} | 💳 ${vendasCartao} | 📝 ${vendasFiado}</small>
+                </div>
+            `;
+            
+            document.getElementById('resumoPeriodo').innerHTML = html;
+        }
+        
+        function mudarTab(tab) {
+            tabAtual = tab;
+            
+            // Atualizar botões
+            document.querySelectorAll('.tab-relatorio').forEach(btn => {
+                btn.classList.remove('ativo');
+            });
+            event.target.classList.add('ativo');
+            
+            const content = document.getElementById('tabContent');
+            
+            switch(tab) {
+                case 'vendas':
+                    mostrarRelatorioVendas();
+                    break;
+                case 'produtos':
+                    mostrarRelatorioProdutos();
+                    break;
+                case 'fiado':
+                    mostrarRelatorioFiado();
+                    break;
+                case 'financeiro':
+                    mostrarRelatorioFinanceiro();
+                    break;
+            }
+        }
+        
+        function mostrarRelatorioVendas() {
+            const inicio = dataInicioAtual.toISOString().split('T')[0];
+            const fim = dataFimAtual.toISOString().split('T')[0];
+            
+            const vendas = getVendasPorPeriodo(inicio, fim);
+            
+            // Agrupar vendas por dia para o gráfico
+            const vendasPorDia = {};
+            vendas.forEach(venda => {
+                const data = venda.data.split('T')[0];
+                if (!vendasPorDia[data]) {
+                    vendasPorDia[data] = 0;
+                }
+                vendasPorDia[data] += venda.total;
+            });
+            
+            const labels = Object.keys(vendasPorDia).sort();
+            const valores = labels.map(d => vendasPorDia[d]);
+            
+            let html = `
+                <div class="chart-container">
+                    <h3><i class="fas fa-chart-line"></i> Evolução de Vendas</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="graficoVendas"></canvas>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-list"></i> Histórico de Vendas</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data/Hora</th>
+                                    <th>Itens</th>
+                                    <th>Forma Pgto</th>
+                                    <th>Total</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            vendas.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(venda => {
+                html += `
+                    <tr>
+                        <td>${formatarDataHora(venda.data)}</td>
+                        <td>${venda.itens.length} itens</td>
+                        <td>
+                            ${venda.formaPagamento === 'dinheiro' ? '💵 Dinheiro' : 
+                              venda.formaPagamento === 'cartao' ? '💳 Cartão' : '📝 Fiado'}
+                        </td>
+                        <td><strong>${formatarMoeda(venda.total)}</strong></td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('tabContent').innerHTML = html;
+            
+            // Criar gráfico
+            setTimeout(() => {
+                const ctx = document.getElementById('graficoVendas').getContext('2d');
+                if (graficoVendas) graficoVendas.destroy();
+                graficoVendas = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels.map(d => formatarData(d)),
+                        datasets: [{
+                            label: 'Vendas (R$)',
+                            data: valores,
+                            borderColor: '#1e4a3b',
+                            backgroundColor: 'rgba(30, 74, 59, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }, 100);
+        }
+        
+        function mostrarRelatorioProdutos() {
+            const inicio = dataInicioAtual.toISOString().split('T')[0];
+            const fim = dataFimAtual.toISOString().split('T')[0];
+            
+            const vendas = getVendasPorPeriodo(inicio, fim);
+            const produtos = getProdutos();
+            
+            // Contabilizar produtos vendidos
+            const produtosVendidos = {};
+            vendas.forEach(venda => {
+                venda.itens.forEach(item => {
+                    if (!produtosVendidos[item.produtoId]) {
+                        produtosVendidos[item.produtoId] = {
+                            quantidade: 0,
+                            valor: 0
+                        };
+                    }
+                    produtosVendidos[item.produtoId].quantidade += item.quantidade;
+                    produtosVendidos[item.produtoId].valor += item.precoUnitario * item.quantidade;
+                });
+            });
+            
+            // Criar ranking
+            const ranking = Object.entries(produtosVendidos)
+                .map(([id, dados]) => {
+                    const produto = produtos.find(p => p.id === parseInt(id));
+                    return {
+                        ...dados,
+                        nome: produto ? produto.nome : 'Produto não encontrado',
+                        categoria: produto ? produto.categoria : '-'
+                    };
+                })
+                .sort((a, b) => b.quantidade - a.quantidade);
+            
+            // Dados para gráfico
+            const top10 = ranking.slice(0, 10);
+            
+            let html = `
+                <div class="grid-2">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-bar"></i> Top 10 Produtos</h3>
+                        <div class="chart-wrapper">
+                            <canvas id="graficoProdutos"></canvas>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-trophy"></i> Ranking Completo</h3>
+                        </div>
+                        <div style="max-height: 400px; overflow-y: auto;">
+            `;
+            
+            ranking.forEach((produto, index) => {
+                const posicao = index + 1;
+                const classePosicao = posicao === 1 ? 'top1' : posicao === 2 ? 'top2' : posicao === 3 ? 'top3' : '';
+                
+                html += `
+                    <div class="ranking-item">
+                        <div class="ranking-posicao ${classePosicao}">${posicao}º</div>
+                        <div class="ranking-info">
+                            <div class="ranking-nome">${produto.nome}</div>
+                            <div class="ranking-quantidade">
+                                ${produto.categoria} • ${produto.quantidade} unidades
+                            </div>
+                        </div>
+                        <div class="ranking-valor">${formatarMoeda(produto.valor)}</div>
+                    </div>
+                `;
+            });
+            
+            html += `
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-info-circle"></i> Resumo por Categoria</h3>
+                    </div>
+                    <div class="chart-wrapper" style="height: 250px;">
+                        <canvas id="graficoCategorias"></canvas>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('tabContent').innerHTML = html;
+            
+            // Criar gráficos
+            setTimeout(() => {
+                // Gráfico de produtos
+                const ctx1 = document.getElementById('graficoProdutos').getContext('2d');
+                if (graficoVendas) graficoVendas.destroy();
+                graficoVendas = new Chart(ctx1, {
+                    type: 'bar',
+                    data: {
+                        labels: top10.map(p => p.nome),
+                        datasets: [{
+                            label: 'Quantidade Vendida',
+                            data: top10.map(p => p.quantidade),
+                            backgroundColor: '#1e4a3b'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        indexAxis: 'y'
+                    }
+                });
+                
+                // Agrupar por categoria
+                const categorias = {};
+                ranking.forEach(p => {
+                    if (!categorias[p.categoria]) {
+                        categorias[p.categoria] = 0;
+                    }
+                    categorias[p.categoria] += p.quantidade;
+                });
+                
+                const ctx2 = document.getElementById('graficoCategorias').getContext('2d');
+                if (graficoCategorias) graficoCategorias.destroy();
+                graficoCategorias = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: Object.keys(categorias),
+                        datasets: [{
+                            data: Object.values(categorias),
+                            backgroundColor: [
+                                '#1e4a3b', '#2d6a4f', '#40916c', 
+                                '#52b788', '#74c69d', '#95d5b2'
+                            ]
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false
+                    }
+                });
+            }, 100);
+        }
+        
+        function mostrarRelatorioFiado() {
+            const fiado = getFiado();
+            
+            let totalPendente = 0;
+            let totalRecebido = 0;
+            
+            fiado.clientes.forEach(cliente => {
+                cliente.dividas.forEach(divida => {
+                    if (divida.pago) {
+                        totalRecebido += divida.total;
+                    } else {
+                        totalPendente += (divida.total - divida.valorPago);
+                    }
+                });
+            });
+            
+            let html = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Pendente</div>
+                        <div class="stat-value" style="color: #dc2626;">${formatarMoeda(totalPendente)}</div>
+                        <small>a receber</small>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Recebido</div>
+                        <div class="stat-value" style="color: #10b981;">${formatarMoeda(totalRecebido)}</div>
+                        <small>já pago</small>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-users"></i> Clientes com Fiado Ativo</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Turma</th>
+                                    <th>Compras</th>
+                                    <th>Valor Pendente</th>
+                                    <th>Última Compra</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            fiado.clientes
+                .filter(cliente => cliente.dividas.some(d => !d.pago))
+                .forEach(cliente => {
+                    const dividasAtivas = cliente.dividas.filter(d => !d.pago);
+                    const totalPendenteCliente = dividasAtivas.reduce((sum, d) => sum + (d.total - d.valorPago), 0);
+                    const ultimaCompra = dividasAtivas.length > 0 
+                        ? formatarData(dividasAtivas[dividasAtivas.length - 1].data)
+                        : '-';
+                    
+                    html += `
+                        <tr>
+                            <td><strong>${cliente.nome}</strong></td>
+                            <td>${cliente.turma || '-'}</td>
+                            <td>${dividasAtivas.length}</td>
+                            <td><strong style="color: #dc2626;">${formatarMoeda(totalPendenteCliente)}</strong></td>
+                            <td>${ultimaCompra}</td>
+                        </tr>
+                    `;
+                });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+                <div class="card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-history"></i> Histórico de Pagamentos</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Data</th>
+                                    <th>Cliente</th>
+                                    <th>Valor Pago</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+            `;
+            
+            fiado.historicoPagamentos
+                .sort((a, b) => new Date(b.data) - new Date(a.data))
+                .slice(0, 20)
+                .forEach(pagamento => {
+                    html += `
+                        <tr>
+                            <td>${formatarDataHora(pagamento.data)}</td>
+                            <td>${pagamento.clienteNome}</td>
+                            <td><strong style="color: #10b981;">${formatarMoeda(pagamento.valor)}</strong></td>
+                        </tr>
+                    `;
+                });
+            
+            html += `
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('tabContent').innerHTML = html;
+        }
+        
+        function mostrarRelatorioFinanceiro() {
+            const inicio = dataInicioAtual.toISOString().split('T')[0];
+            const fim = dataFimAtual.toISOString().split('T')[0];
+            
+            const vendas = getVendasPorPeriodo(inicio, fim);
+            const despesas = getDespesas().filter(d => {
+                const data = d.data.split('T')[0];
+                return data >= inicio && data <= fim;
+            });
+            
+            const receitaTotal = vendas.reduce((sum, v) => sum + v.total, 0);
+            const despesaTotal = despesas.reduce((sum, d) => sum + d.valor, 0);
+            const lucro = receitaTotal - despesaTotal;
+            
+            let html = `
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Receita Total</div>
+                        <div class="stat-value" style="color: #10b981;">${formatarMoeda(receitaTotal)}</div>
+                        <small>vendas no período</small>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Despesas Totais</div>
+                        <div class="stat-value" style="color: #dc2626;">${formatarMoeda(despesaTotal)}</div>
+                        <small>gastos no período</small>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Lucro Líquido</div>
+                        <div class="stat-value" style="color: ${lucro >= 0 ? '#10b981' : '#dc2626'};">
+                            ${formatarMoeda(lucro)}
+                        </div>
+                        <small>${((lucro/receitaTotal)*100 || 0).toFixed(1)}% de margem</small>
+                    </div>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-chart-pie"></i> Distribuição de Despesas</h3>
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr>
+                                        <th>Data</th>
+                                        <th>Descrição</th>
+                                        <th>Categoria</th>
+                                        <th>Valor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+            `;
+            
+            despesas.sort((a, b) => new Date(b.data) - new Date(a.data)).forEach(despesa => {
+                html += `
+                    <tr>
+                        <td>${formatarData(despesa.data)}</td>
+                        <td>${despesa.descricao}</td>
+                        <td>${despesa.categoria}</td>
+                        <td><strong>${formatarMoeda(despesa.valor)}</strong></td>
+                    </tr>
+                `;
+            });
+            
+            html += `
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    <div class="card">
+                        <div class="card-header">
+                            <h3 class="card-title"><i class="fas fa-calculator"></i> Resumo Financeiro</h3>
+                        </div>
+                        <div style="padding: 1rem;">
+                            <div class="flex-between" style="margin-bottom: 1rem;">
+                                <span>Receita Bruta:</span>
+                                <strong style="color: #10b981;">${formatarMoeda(receitaTotal)}</strong>
+                            </div>
+                            <div class="flex-between" style="margin-bottom: 1rem;">
+                                <span>Despesas:</span>
+                                <strong style="color: #dc2626;">- ${formatarMoeda(despesaTotal)}</strong>
+                            </div>
+                            <hr style="margin: 1rem 0;">
+                            <div class="flex-between" style="font-size: 1.2rem;">
+                                <span><strong>Lucro Líquido:</strong></span>
+                                <strong style="color: ${lucro >= 0 ? '#10b981' : '#dc2626'};">
+                                    ${formatarMoeda(lucro)}
+                                </strong>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('tabContent').innerHTML = html;
+        }
+        
+        function imprimirRelatorio() {
+            window.print();
+        }
+        
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

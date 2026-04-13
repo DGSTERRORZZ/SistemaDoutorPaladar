@@ -1,0 +1,724 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doutor Paladar · Gestão de Estoque</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        /* Estilos específicos do Estoque */
+        .filtros-container {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-600);
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 30px;
+            font-size: 1rem;
+        }
+        
+        .categoria-filter {
+            min-width: 200px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(3px);
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: white;
+            border-radius: 24px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s ease-out;
+        }
+        
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        .modal-header h2 {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .close-btn {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray-600);
+            transition: color 0.2s;
+        }
+        
+        .close-btn:hover {
+            color: var(--danger);
+        }
+        
+        .estoque-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn-icon {
+            padding: 0.4rem 0.6rem;
+            border-radius: 8px;
+            border: 1px solid var(--gray-200);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-icon:hover {
+            background: var(--gray-100);
+        }
+        
+        .estoque-cell {
+            font-weight: 600;
+        }
+        
+        .estoque-normal {
+            color: var(--success);
+        }
+        
+        .estoque-medio {
+            color: var(--warning);
+        }
+        
+        .estoque-baixo {
+            color: var(--danger);
+            font-weight: 700;
+        }
+        
+        .alertas-container {
+            margin-bottom: 2rem;
+        }
+        
+        .categoria-badge {
+            background: var(--gray-100);
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            color: var(--gray-600);
+        }
+        
+        .quick-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .quick-stat {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%);
+            color: white;
+            padding: 1.2rem;
+            border-radius: var(--radius);
+            text-align: center;
+        }
+        
+        .quick-stat i {
+            font-size: 1.8rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .quick-stat .value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+        
+        .quick-stat .label {
+            font-size: 0.85rem;
+            opacity: 0.9;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-title">
+                <h1><i class="fas fa-boxes"></i> Doutor Paladar</h1>
+                <p>Gestão de Estoque · Cantina IF</p>
+            </div>
+            
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> PDV</a>
+                <a href="estoque.html" class="nav-link active"><i class="fas fa-boxes"></i> Estoque</a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> Fiado</a>
+                <a href="relatorios.html" class="nav-link"><i class="fas fa-chart-bar"></i> Relatórios</a>
+                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> Despesas</a>
+            </nav>
+            
+            <div>
+                <button class="btn btn-outline" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </div>
+        </header>
+        
+        <!-- Conteúdo Principal -->
+        <main>
+            <!-- Estatísticas Rápidas -->
+            <div class="quick-stats">
+                <div class="quick-stat">
+                    <i class="fas fa-cube"></i>
+                    <div class="value" id="totalProdutos">0</div>
+                    <div class="label">Total de Produtos</div>
+                </div>
+                <div class="quick-stat" style="background: linear-gradient(135deg, #e53e3e 0%, #c53030 100%);">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <div class="value" id="alertasEstoque">0</div>
+                    <div class="label">Estoque Baixo</div>
+                </div>
+                <div class="quick-stat" style="background: linear-gradient(135deg, #dd6b20 0%, #c05621 100%);">
+                    <i class="fas fa-dollar-sign"></i>
+                    <div class="value" id="valorEstoque">R$ 0</div>
+                    <div class="label">Valor em Estoque</div>
+                </div>
+                <div class="quick-stat" style="background: linear-gradient(135deg, #319795 0%, #2c7a7b 100%);">
+                    <i class="fas fa-tags"></i>
+                    <div class="value" id="categoriasCount">0</div>
+                    <div class="label">Categorias</div>
+                </div>
+            </div>
+            
+            <!-- Alertas -->
+            <div id="alertasContainer" class="alertas-container"></div>
+            
+            <!-- Card Principal -->
+            <div class="card">
+                <div class="card-header">
+                    <h2 class="card-title"><i class="fas fa-list"></i> Produtos em Estoque</h2>
+                    <button class="btn btn-primary" onclick="abrirModalNovoProduto()">
+                        <i class="fas fa-plus"></i> Novo Produto
+                    </button>
+                </div>
+                
+                <!-- Filtros -->
+                <div class="filtros-container">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Buscar produto..." onkeyup="filtrarProdutos()">
+                    </div>
+                    
+                    <select id="categoriaFilter" class="form-control categoria-filter" onchange="filtrarProdutos()">
+                        <option value="">Todas as Categorias</option>
+                    </select>
+                    
+                    <button class="btn btn-secondary" onclick="atualizarTabela()">
+                        <i class="fas fa-sync-alt"></i> Atualizar
+                    </button>
+                </div>
+                
+                <!-- Tabela de Produtos -->
+                <div class="table-container">
+                    <table id="tabelaProdutos">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Produto</th>
+                                <th>Categoria</th>
+                                <th>Preço</th>
+                                <th>Estoque</th>
+                                <th>Status</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="produtosTableBody">
+                            <!-- Dados serão inseridos via JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Modal de Cadastro/Edição -->
+    <div id="produtoModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle"><i class="fas fa-plus-circle"></i> Novo Produto</h2>
+                <button class="close-btn" onclick="fecharModal()">&times;</button>
+            </div>
+            
+            <form id="produtoForm">
+                <input type="hidden" id="produtoId">
+                
+                <div class="form-group">
+                    <label><i class="fas fa-tag"></i> Nome do Produto *</label>
+                    <input type="text" id="produtoNome" class="form-control" required placeholder="Ex: Coxinha de Frango">
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-folder"></i> Categoria *</label>
+                    <select id="produtoCategoria" class="form-control" required>
+                        <option value="">Selecione...</option>
+                        <option value="Salgados">Salgados</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Doces">Doces</option>
+                        <option value="Lanches">Lanches</option>
+                        <option value="Sorvetes">Sorvetes</option>
+                        <option value="Saudáveis">Saudáveis</option>
+                        <option value="Refeições">Refeições</option>
+                    </select>
+                </div>
+                
+                <div class="grid-2">
+                    <div class="form-group">
+                        <label><i class="fas fa-dollar-sign"></i> Preço (R$) *</label>
+                        <input type="number" id="produtoPreco" class="form-control" step="0.01" min="0.01" required placeholder="0,00">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><i class="fas fa-box"></i> Quantidade *</label>
+                        <input type="number" id="produtoEstoque" class="form-control" min="0" required placeholder="0">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-exclamation-circle"></i> Estoque Mínimo</label>
+                    <input type="number" id="produtoEstoqueMinimo" class="form-control" min="1" value="10" placeholder="10">
+                </div>
+                
+                <div class="flex" style="justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal()">
+                        <i class="fas fa-times"></i> Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> Salvar Produto
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal de Ajuste de Estoque -->
+    <div id="ajusteModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-edit"></i> Ajustar Estoque</h2>
+                <button class="close-btn" onclick="fecharModalAjuste()">&times;</button>
+            </div>
+            
+            <form id="ajusteForm">
+                <input type="hidden" id="ajusteProdutoId">
+                
+                <div class="form-group">
+                    <label>Produto: <strong id="ajusteProdutoNome"></strong></label>
+                    <p>Estoque atual: <span id="ajusteEstoqueAtual">0</span> unidades</p>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-calculator"></i> Operação</label>
+                    <select id="ajusteOperacao" class="form-control" required>
+                        <option value="add">Adicionar (+)</option>
+                        <option value="subtract">Remover (-)</option>
+                        <option value="set">Definir valor exato</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-hashtag"></i> Quantidade *</label>
+                    <input type="number" id="ajusteQuantidade" class="form-control" min="0" required placeholder="0">
+                </div>
+                
+                <div class="flex" style="justify-content: flex-end; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalAjuste()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-check"></i> Confirmar Ajuste
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script>
+        // =============================================
+        // NICOLAS - GESTÃO DE ESTOQUE
+        // =============================================
+        
+        let todosProdutos = [];
+        let produtosFiltrados = [];
+        
+        // Verificar autenticação
+        if (!verificarAutenticacao()) {
+            window.location.href = 'index.html';
+        }
+        
+        // Inicialização
+        document.addEventListener('DOMContentLoaded', function() {
+            carregarCategorias();
+            carregarProdutos();
+            atualizarEstatisticas();
+            configurarEventos();
+        });
+        
+        function configurarEventos() {
+            // Form de produto
+            document.getElementById('produtoForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                salvarProduto();
+            });
+            
+            // Form de ajuste
+            document.getElementById('ajusteForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                executarAjusteEstoque();
+            });
+        }
+        
+        // =============================================
+        // CARREGAMENTO DE DADOS
+        // =============================================
+        
+        function carregarProdutos() {
+            todosProdutos = getProdutos();
+            produtosFiltrados = [...todosProdutos];
+            atualizarTabela();
+            verificarAlertas();
+            atualizarCategoriasSelect();
+        }
+        
+        function carregarCategorias() {
+            const categorias = [...new Set(todosProdutos.map(p => p.categoria))];
+            document.getElementById('categoriasCount').textContent = categorias.length;
+        }
+        
+        function atualizarCategoriasSelect() {
+            const select = document.getElementById('categoriaFilter');
+            const categorias = [...new Set(todosProdutos.map(p => p.categoria))];
+            
+            select.innerHTML = '<option value="">Todas as Categorias</option>';
+            categorias.sort().forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                select.appendChild(option);
+            });
+        }
+        
+        // =============================================
+        // ESTATÍSTICAS
+        // =============================================
+        
+        function atualizarEstatisticas() {
+            document.getElementById('totalProdutos').textContent = todosProdutos.length;
+            
+            const baixoEstoque = todosProdutos.filter(p => p.estoque <= p.estoqueMinimo);
+            document.getElementById('alertasEstoque').textContent = baixoEstoque.length;
+            
+            const valorTotal = todosProdutos.reduce((sum, p) => sum + (p.preco * p.estoque), 0);
+            document.getElementById('valorEstoque').textContent = formatarMoeda(valorTotal);
+            
+            const categorias = [...new Set(todosProdutos.map(p => p.categoria))];
+            document.getElementById('categoriasCount').textContent = categorias.length;
+        }
+        
+        // =============================================
+        // VERIFICAÇÃO DE ALERTAS
+        // =============================================
+        
+        function verificarAlertas() {
+            const baixoEstoque = todosProdutos.filter(p => p.estoque <= p.estoqueMinimo);
+            const container = document.getElementById('alertasContainer');
+            
+            if (baixoEstoque.length > 0) {
+                container.innerHTML = `
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle" style="font-size: 1.5rem;"></i>
+                        <div>
+                            <strong>Atenção!</strong> Existem ${baixoEstoque.length} produto(s) com estoque baixo:
+                            ${baixoEstoque.slice(0, 3).map(p => p.nome).join(', ')}
+                            ${baixoEstoque.length > 3 ? 'e mais...' : ''}
+                        </div>
+                    </div>
+                `;
+            } else {
+                container.innerHTML = `
+                    <div class="alert alert-success">
+                        <i class="fas fa-check-circle"></i>
+                        <div><strong>Tudo certo!</strong> Nenhum produto com estoque baixo.</div>
+                    </div>
+                `;
+            }
+        }
+        
+        // =============================================
+        // TABELA E FILTROS
+        // =============================================
+        
+        function filtrarProdutos() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const categoria = document.getElementById('categoriaFilter').value;
+            
+            produtosFiltrados = todosProdutos.filter(produto => {
+                const matchSearch = produto.nome.toLowerCase().includes(searchTerm) ||
+                                   produto.id.toString().includes(searchTerm);
+                const matchCategoria = !categoria || produto.categoria === categoria;
+                return matchSearch && matchCategoria;
+            });
+            
+            atualizarTabela();
+        }
+        
+        function atualizarTabela() {
+            const tbody = document.getElementById('produtosTableBody');
+            
+            if (produtosFiltrados.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 3rem;">
+                            <i class="fas fa-box-open" style="font-size: 3rem; color: var(--gray-400); margin-bottom: 1rem;"></i>
+                            <p>Nenhum produto encontrado</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = produtosFiltrados.map(produto => {
+                const statusEstoque = produto.estoque === 0 ? 'estoque-baixo' :
+                                    produto.estoque <= produto.estoqueMinimo ? 'estoque-baixo' :
+                                    produto.estoque <= produto.estoqueMinimo * 2 ? 'estoque-medio' : 'estoque-normal';
+                
+                const statusTexto = produto.estoque === 0 ? 'Esgotado' :
+                                   produto.estoque <= produto.estoqueMinimo ? 'Baixo' :
+                                   produto.estoque <= produto.estoqueMinimo * 2 ? 'Médio' : 'Normal';
+                
+                return `
+                    <tr>
+                        <td>#${produto.id}</td>
+                        <td><strong>${produto.nome}</strong></td>
+                        <td><span class="categoria-badge">${produto.categoria}</span></td>
+                        <td>${formatarMoeda(produto.preco)}</td>
+                        <td class="estoque-cell ${statusEstoque}">
+                            ${produto.estoque} un
+                        </td>
+                        <td>
+                            <span class="badge ${statusEstoque === 'estoque-baixo' ? 'badge-danger' : 
+                                                statusEstoque === 'estoque-medio' ? 'badge-warning' : 'badge-success'}">
+                                ${statusTexto}
+                            </span>
+                        </td>
+                        <td>
+                            <div class="estoque-actions">
+                                <button class="btn-icon" onclick="editarProduto(${produto.id})" title="Editar">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" onclick="abrirModalAjuste(${produto.id})" title="Ajustar Estoque">
+                                    <i class="fas fa-balance-scale"></i>
+                                </button>
+                                <button class="btn-icon" onclick="excluirProduto(${produto.id})" title="Excluir">
+                                    <i class="fas fa-trash" style="color: var(--danger);"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+        
+        // =============================================
+        // MODAL DE PRODUTO
+        // =============================================
+        
+        function abrirModalNovoProduto() {
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Novo Produto';
+            document.getElementById('produtoForm').reset();
+            document.getElementById('produtoId').value = '';
+            document.getElementById('produtoModal').classList.add('active');
+        }
+        
+        function editarProduto(id) {
+            const produto = todosProdutos.find(p => p.id === id);
+            if (!produto) return;
+            
+            document.getElementById('modalTitle').innerHTML = '<i class="fas fa-edit"></i> Editar Produto';
+            document.getElementById('produtoId').value = produto.id;
+            document.getElementById('produtoNome').value = produto.nome;
+            document.getElementById('produtoCategoria').value = produto.categoria;
+            document.getElementById('produtoPreco').value = produto.preco;
+            document.getElementById('produtoEstoque').value = produto.estoque;
+            document.getElementById('produtoEstoqueMinimo').value = produto.estoqueMinimo || 10;
+            
+            document.getElementById('produtoModal').classList.add('active');
+        }
+        
+        function fecharModal() {
+            document.getElementById('produtoModal').classList.remove('active');
+        }
+        
+        function salvarProduto() {
+            const id = document.getElementById('produtoId').value;
+            const nome = document.getElementById('produtoNome').value.trim();
+            const categoria = document.getElementById('produtoCategoria').value;
+            const preco = parseFloat(document.getElementById('produtoPreco').value);
+            const estoque = parseInt(document.getElementById('produtoEstoque').value);
+            const estoqueMinimo = parseInt(document.getElementById('produtoEstoqueMinimo').value);
+            
+            // Validações
+            if (!nome || !categoria || preco <= 0 || estoque < 0) {
+                alert('❌ Preencha todos os campos corretamente!');
+                return;
+            }
+            
+            const dadosProduto = {
+                nome: nome,
+                categoria: categoria,
+                preco: preco,
+                estoque: estoque,
+                estoqueMinimo: estoqueMinimo
+            };
+            
+            if (id) {
+                // Editar
+                if (atualizarProduto(parseInt(id), dadosProduto)) {
+                    alert('✅ Produto atualizado com sucesso!');
+                }
+            } else {
+                // Novo
+                adicionarProduto(dadosProduto);
+                alert('✅ Produto cadastrado com sucesso!');
+            }
+            
+            fecharModal();
+            carregarProdutos();
+            atualizarEstatisticas();
+        }
+        
+        function excluirProduto(id) {
+            const produto = todosProdutos.find(p => p.id === id);
+            if (!produto) return;
+            
+            if (confirm(`Tem certeza que deseja excluir "${produto.nome}"?`)) {
+                deletarProduto(id);
+                carregarProdutos();
+                atualizarEstatisticas();
+                alert('✅ Produto excluído com sucesso!');
+            }
+        }
+        
+        // =============================================
+        // MODAL DE AJUSTE DE ESTOQUE
+        // =============================================
+        
+        function abrirModalAjuste(id) {
+            const produto = todosProdutos.find(p => p.id === id);
+            if (!produto) return;
+            
+            document.getElementById('ajusteProdutoId').value = produto.id;
+            document.getElementById('ajusteProdutoNome').textContent = produto.nome;
+            document.getElementById('ajusteEstoqueAtual').textContent = produto.estoque;
+            document.getElementById('ajusteQuantidade').value = '';
+            
+            document.getElementById('ajusteModal').classList.add('active');
+        }
+        
+        function fecharModalAjuste() {
+            document.getElementById('ajusteModal').classList.remove('active');
+        }
+        
+        function executarAjusteEstoque() {
+            const id = parseInt(document.getElementById('ajusteProdutoId').value);
+            const operacao = document.getElementById('ajusteOperacao').value;
+            const quantidade = parseInt(document.getElementById('ajusteQuantidade').value);
+            
+            if (quantidade < 0) {
+                alert('❌ A quantidade não pode ser negativa!');
+                return;
+            }
+            
+            const produto = todosProdutos.find(p => p.id === id);
+            let novoEstoque;
+            
+            if (operacao === 'add') {
+                novoEstoque = produto.estoque + quantidade;
+            } else if (operacao === 'subtract') {
+                novoEstoque = Math.max(0, produto.estoque - quantidade);
+            } else {
+                novoEstoque = quantidade;
+            }
+            
+            if (atualizarEstoque(id, novoEstoque, 'set')) {
+                alert(`✅ Estoque de "${produto.nome}" ajustado para ${novoEstoque} unidades!`);
+                fecharModalAjuste();
+                carregarProdutos();
+                atualizarEstatisticas();
+            }
+        }
+        
+        // Fechar modais ao clicar fora
+        window.onclick = function(event) {
+            const modal = document.getElementById('produtoModal');
+            const ajusteModal = document.getElementById('ajusteModal');
+            
+            if (event.target === modal) {
+                fecharModal();
+            }
+            if (event.target === ajusteModal) {
+                fecharModalAjuste();
+            }
+        }
+        
+        console.log('📦 Módulo de Estoque carregado - Nicolas');
+    </script>
+</body>
+</html>
