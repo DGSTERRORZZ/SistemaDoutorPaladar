@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doutor Paladar · Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1e4a3b 0%, #2d6a4f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .login-container {
+            max-width: 450px;
+            width: 90%;
+            margin: 2rem;
+        }
+        .login-card {
+            background: white;
+            border-radius: 32px;
+            padding: 3rem 2.5rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        .logo {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+        .logo i {
+            font-size: 3.5rem;
+            color: #1e4a3b;
+            background: #e8f5e9;
+            padding: 1.2rem;
+            border-radius: 24px;
+            margin-bottom: 1rem;
+        }
+        .logo h1 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #1e4a3b;
+        }
+        .logo p {
+            color: #64748b;
+            font-weight: 500;
+            margin-top: 0.3rem;
+        }
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+        .input-group label {
+            display: block;
+            font-weight: 500;
+            color: #334155;
+            margin-bottom: 0.5rem;
+        }
+        .input-group input {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            font-size: 1rem;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        .input-group input:focus {
+            border-color: #1e4a3b;
+            outline: none;
+            box-shadow: 0 0 0 4px rgba(30, 74, 59, 0.1);
+        }
+        .btn-login {
+            width: 100%;
+            padding: 1rem;
+            background: #1e4a3b;
+            color: white;
+            border: none;
+            border-radius: 16px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 1rem;
+        }
+        .btn-login:hover {
+            background: #0f3b2c;
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px -5px rgba(30, 74, 59, 0.3);
+        }
+        .error-message {
+            background: #fee;
+            color: #c33;
+            padding: 0.8rem;
+            border-radius: 12px;
+            margin-top: 1rem;
+            text-align: center;
+            font-size: 0.9rem;
+            display: none;
+        }
+        .support-info {
+            text-align: center;
+            margin-top: 2rem;
+            color: #94a3b8;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo">
+                <i class="fas fa-utensils"></i>
+                <h1>Doutor Paladar</h1>
+                <p>Cantina · Instituto Federal</p>
+            </div>
+            
+            <form id="loginForm">
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> Usuário</label>
+                    <input type="text" id="username" placeholder="Digite seu usuário" required>
+                </div>
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> Senha</label>
+                    <input type="password" id="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn-login">
+                    <i class="fas fa-sign-in-alt"></i> Entrar no Sistema
+                </button>
+                <div id="errorMessage" class="error-message"></div>
+            </form>
+            <div class="support-info">
+                <i class="fas fa-user-shield"></i> Acesso exclusivo: Pablo<br>
+                <i class="fas fa-users"></i> Desenvolvido por: Victor, Valmir, Nicolas, Samuel e Jimenez
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            const sucesso = await autenticarUsuario(username, password);
+            if (sucesso) {
+                window.location.href = 'dashboard.html';
+            } else {
+                document.getElementById('errorMessage').style.display = 'block';
+                document.getElementById('errorMessage').textContent = '❌ Credenciais inválidas';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDV · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .pdv-container {
+            display: grid;
+            grid-template-columns: 1fr 380px;
+            gap: 1.5rem;
+        }
+        
+        .produtos-pdv {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+        }
+        
+        .carrinho-pdv {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 200px);
+        }
+        
+        .categorias-tabs {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            margin-bottom: 1.5rem;
+        }
+        
+        .categoria-tab {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            background: var(--gray-100);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .categoria-tab:hover {
+            background: var(--gray-200);
+        }
+        
+        .categoria-tab.active {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+            gap: 1rem;
+            max-height: 500px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+        
+        .produto-card {
+            background: var(--gray-50);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+            text-align: center;
+        }
+        
+        .produto-card:hover {
+            border-color: var(--primary);
+            background: white;
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .produto-card.sem-estoque {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .produto-card.sem-estoque:hover {
+            transform: none;
+            border-color: transparent;
+        }
+        
+        .produto-icone {
+            font-size: 2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .produto-nome {
+            font-weight: 600;
+            font-size: 0.95rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .produto-preco {
+            color: var(--primary);
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        
+        .produto-estoque {
+            font-size: 0.75rem;
+            color: var(--gray-600);
+            margin-top: 0.3rem;
+        }
+        
+        .carrinho-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .carrinho-itens {
+            flex: 1;
+            overflow-y: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .carrinho-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        
+        .carrinho-item-info {
+            flex: 1;
+        }
+        
+        .carrinho-item-nome {
+            font-weight: 500;
+        }
+        
+        .carrinho-item-preco {
+            font-size: 0.85rem;
+            color: var(--gray-600);
+        }
+        
+        .carrinho-item-controles {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .carrinho-item-qtd {
+            width: 45px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .btn-qtd {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 1px solid var(--gray-200);
+            background: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        
+        .btn-qtd:hover {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .carrinho-total {
+            padding: 1rem 0;
+            border-top: 2px solid var(--gray-200);
+            margin-bottom: 1rem;
+        }
+        
+        .total-linha {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.5rem;
+        }
+        
+        .total-final {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .pagamento-opcoes {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .pagamento-btn {
+            padding: 0.8rem;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+        
+        .pagamento-btn i {
+            display: block;
+            font-size: 1.2rem;
+            margin-bottom: 0.3rem;
+        }
+        
+        .pagamento-btn.active {
+            border-color: var(--primary);
+            background: var(--secondary);
+        }
+        
+        .fiado-selector {
+            margin-bottom: 1rem;
+        }
+        
+        .search-box {
+            margin-bottom: 1rem;
+            position: relative;
+        }
+        
+        .search-box i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-600);
+        }
+        
+        .search-box input {
+            width: 100%;
+            padding: 0.8rem 1rem 0.8rem 2.5rem;
+            border: 1.5px solid var(--gray-200);
+            border-radius: 30px;
+            font-size: 0.95rem;
+        }
+        
+        .venda-realizada {
+            text-align: center;
+            padding: 2rem;
+        }
+        
+        .venda-realizada i {
+            font-size: 4rem;
+            color: var(--success);
+            margin-bottom: 1rem;
+        }
+        
+        .rodape-link {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #e2e8f0;
+            text-align: right;
+        }
+        
+        .rodape-link a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #f1f5f9;
+            color: #1e4a3b;
+            text-decoration: none;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .rodape-link a:hover {
+            background: #1e4a3b;
+            color: white;
+        }
+        
+        @media (max-width: 900px) {
+            .pdv-container {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-title">
+                <h1><i class="fas fa-cash-register"></i> Ponto de Venda</h1>
+                <p>Doutor Paladar · PDV</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pdv.html" class="nav-link active"><i class="fas fa-cash-register"></i> PDV</a>
+                <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> Estoque</a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> Fiado</a>
+                <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> Desempenhos</a>
+                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> Despesas</a>
+                <button class="btn btn-secondary" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </nav>
+        </header>
+
+        <div class="pdv-container">
+            <!-- Área de Produtos -->
+            <div class="produtos-pdv">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="buscaProduto" placeholder="Buscar produto..." onkeyup="filtrarProdutos()">
+                </div>
+                
+                <div class="categorias-tabs" id="categoriasTabs">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+                
+                <div class="produtos-grid" id="produtosGrid">
+                    <!-- Preenchido via JavaScript -->
+                </div>
+            </div>
+
+            <!-- Carrinho -->
+            <div class="carrinho-pdv">
+                <div class="carrinho-header">
+                    <h3><i class="fas fa-shopping-cart"></i> Carrinho</h3>
+                    <button class="btn btn-sm btn-secondary" onclick="limparCarrinho()">
+                        <i class="fas fa-trash"></i> Limpar
+                    </button>
+                </div>
+                
+                <div class="carrinho-itens" id="carrinhoItens">
+                    <p style="text-align: center; color: var(--gray-600); padding: 2rem;">
+                        Nenhum item no carrinho
+                    </p>
+                </div>
+                
+                <div class="carrinho-total">
+                    <div class="total-linha">
+                        <span>Subtotal</span>
+                        <span id="subtotal">R$ 0,00</span>
+                    </div>
+                    <div class="total-linha total-final">
+                        <span>Total</span>
+                        <span id="totalCarrinho">R$ 0,00</span>
+                    </div>
+                </div>
+                
+                <div class="pagamento-opcoes">
+                    <div class="pagamento-btn active" data-pagamento="dinheiro" onclick="selecionarPagamento('dinheiro')">
+                        <i class="fas fa-money-bill"></i>
+                        Dinheiro
+                    </div>
+                    <div class="pagamento-btn" data-pagamento="cartao" onclick="selecionarPagamento('cartao')">
+                        <i class="fas fa-credit-card"></i>
+                        Cartão
+                    </div>
+                    <div class="pagamento-btn" data-pagamento="fiado" onclick="selecionarPagamento('fiado')">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        Fiado
+                    </div>
+                </div>
+                
+                <div id="fiadoSection" style="display: none;">
+                    <div class="fiado-selector">
+                        <select id="clienteFiadoSelect" class="form-control">
+                            <option value="">Selecione o cliente...</option>
+                        </select>
+                        <button class="btn btn-sm btn-secondary mt-2" onclick="abrirModalNovoCliente()" style="width: 100%;">
+                            <i class="fas fa-user-plus"></i> Novo Cliente
+                        </button>
+                    </div>
+                </div>
+                
+                <button class="btn btn-success" onclick="finalizarVenda()" style="width: 100%;" id="btnFinalizar">
+                    <i class="fas fa-check"></i> Finalizar Venda
+                </button>
+            </div>
+        </div>
+        
+        <!-- Modal Venda Realizada -->
+        <div id="modalSucesso" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div style="background: white; border-radius: 32px; padding: 2rem; max-width: 400px; text-align: center;">
+                <i class="fas fa-check-circle" style="font-size: 4rem; color: var(--success);"></i>
+                <h2 style="margin: 1rem 0;">Venda Realizada!</h2>
+                <p id="mensagemVenda"></p>
+                <div style="display: flex; gap: 1rem; margin-top: 1.5rem;">
+                    <button class="btn btn-primary" onclick="novaVenda()" style="flex: 1;">
+                        <i class="fas fa-plus"></i> Nova Venda
+                    </button>
+                    <button class="btn btn-secondary" onclick="fecharModalSucesso()" style="flex: 1;">
+                        Fechar
+                    </button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Modal Novo Cliente -->
+        <div id="modalNovoCliente" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+            <div style="background: white; border-radius: 24px; padding: 2rem; max-width: 400px; width: 90%;">
+                <h3 style="margin-bottom: 1.5rem;"><i class="fas fa-user-plus"></i> Novo Cliente Fiado</h3>
+                <div class="form-group">
+                    <label>Nome do Cliente *</label>
+                    <input type="text" id="novoClienteNome" class="form-control" placeholder="Nome completo">
+                </div>
+                <div class="form-group">
+                    <label>Turma (opcional)</label>
+                    <input type="text" id="novoClienteTurma" class="form-control" placeholder="Ex: INFO3">
+                </div>
+                <div class="flex" style="justify-content: flex-end;">
+                    <button class="btn btn-secondary" onclick="fecharModalNovoCliente()">Cancelar</button>
+                    <button class="btn btn-primary" onclick="cadastrarCliente()">Cadastrar</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rodapé - Acesso aos Desempenhos -->
+        <div class="rodape-link">
+            <a href="desempenhos.html?tab=vendas">
+                <i class="fas fa-chart-line"></i> Ver desempenho de vendas →
+            </a>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/pdv.js"></script>
+</body>
+</html>
