@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .welcome-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 2.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+            overflow: hidden;
+        }
+        .welcome-section::after {
+            content: '';
+            position: absolute;
+            top: -40%;
+            right: -20%;
+            width: 300px;
+            height: 300px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50%;
+        }
+        .welcome-section h2 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        .welcome-section p {
+            opacity: 0.95;
+            position: relative;
+            z-index: 1;
+        }
+        .date-badge {
+            background: rgba(255,255,255,0.2);
+            padding: 0.5rem 1.2rem;
+            border-radius: 30px;
+            display: inline-block;
+            margin-top: 1rem;
+            position: relative;
+            z-index: 1;
+            backdrop-filter: blur(10px);
+        }
+        .stat-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        .quick-action-btn {
+            background: white;
+            border: 2px solid transparent;
+            border-radius: var(--radius-sm);
+            padding: 1.2rem 1rem;
+            text-align: center;
+            text-decoration: none;
+            color: var(--gray-800);
+            transition: var(--transition);
+            cursor: pointer;
+            box-shadow: var(--shadow-sm);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .quick-action-btn:hover {
+            border-color: var(--primary);
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+        .quick-action-btn i {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        .alert-item {
+            padding: 1rem;
+            border-bottom: 1px solid var(--gray-200);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .alert-item:last-child {
+            border-bottom: none;
+        }
+        .recent-sale-item {
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--gray-100);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .recent-sale-item:last-child {
+            border-bottom: none;
+        }
+        .mini-chart {
+            display: flex;
+            align-items: flex-end;
+            height: 150px;
+            gap: 0.5rem;
+            padding: 1rem 0;
+        }
+        .chart-bar {
+            flex: 1;
+            background: linear-gradient(to top, var(--primary), var(--primary-light));
+            border-radius: 8px 8px 0 0;
+            min-height: 20px;
+            transition: height 0.3s;
+            position: relative;
+        }
+        .chart-bar-label {
+            position: absolute;
+            bottom: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 0.75rem;
+            color: var(--gray-600);
+        }
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: var(--gray-200);
+            border-radius: 6px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(to right, var(--primary), var(--primary-light));
+            border-radius: 6px;
+            transition: width 0.5s ease;
+        }
+        .kpi-trend {
+            font-size: 0.85rem;
+            color: var(--success);
+            margin-top: 0.3rem;
+        }
+        .kpi-trend.negative {
+            color: var(--danger);
+        }
+        .rodape-link {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--gray-200);
+            text-align: center;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .rodape-link a {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: var(--primary);
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: var(--transition);
+        }
+        .rodape-link a:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-title">
+                <h1><i class="fas fa-utensils"></i> Doutor Paladar</h1>
+                <p>Cantina · Instituto Federal</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> PDV</a>
+                <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> Estoque</a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> Fiado</a>
+                <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> Desempenhos</a>
+                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> Despesas</a>
+            </nav>
+            <div class="flex">
+                <span class="badge badge-success"><i class="fas fa-user"></i> Pablo</span>
+                <button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </div>
+        </header>
+
+        <main>
+            <div class="welcome-section">
+                <h2>Bem-vindo de volta, Pablo! 👨‍🍳</h2>
+                <p>Gerencie sua cantina com eficiência. Aqui está o resumo de hoje.</p>
+                <div class="date-badge"><i class="far fa-calendar-alt"></i> <span id="currentDate"></span></div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card"><div class="stat-icon" style="background:#e6f9f0;"><i class="fas fa-shopping-cart" style="color:var(--primary);"></i></div><div class="stat-label">Vendas Hoje</div><div class="stat-value" id="vendasHoje">R$ 0,00</div><div class="kpi-trend" id="trendVendas"><i class="fas fa-arrow-up"></i> vs ontem</div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#fff4e5;"><i class="fas fa-hand-holding-heart" style="color:var(--warning);"></i></div><div class="stat-label">Fiado Pendente</div><div class="stat-value" id="fiadoPendente">R$ 0,00</div><div class="kpi-trend"><span id="qtdDevedores">0</span> devedores ativos</div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#e0f2fe;"><i class="fas fa-chart-line" style="color:#0284c7;"></i></div><div class="stat-label">Lucro do Mês</div><div class="stat-value" id="lucroMes">R$ 0,00</div><div class="progress-bar"><div class="progress-fill" id="progressLucro" style="width:0%"></div></div></div>
+                <div class="stat-card"><div class="stat-icon" style="background:#ffeaea;"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i></div><div class="stat-label">Alertas de Estoque</div><div class="stat-value" id="alertasEstoque">0</div><div class="kpi-trend negative" id="alertasMensagem">produtos críticos</div></div>
+            </div>
+
+            <div class="grid-2">
+                <div>
+                    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-clock"></i> Últimas Vendas</h3><a href="pdv.html" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> Nova Venda</a></div><div id="ultimasVendas"><p style="color:var(--gray-600);text-align:center;padding:2rem;">Carregando vendas...</p></div></div>
+                    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-chart-bar"></i> Vendas da Semana</h3></div><div class="mini-chart" id="graficoSemana"></div><p style="text-align:center;color:var(--gray-600);font-size:0.85rem;">Últimos 7 dias</p></div>
+                </div>
+                <div>
+                    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-bell"></i> Estoque Crítico</h3><a href="estoque.html" class="btn btn-secondary btn-sm"><i class="fas fa-box"></i> Gerenciar</a></div><div id="alertasEstoqueLista"><p style="color:var(--gray-600);text-align:center;padding:2rem;">Nenhum alerta crítico</p></div></div>
+                    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-trophy"></i> Mais Vendidos Hoje</h3></div><div id="produtosMaisVendidos"><p style="color:var(--gray-600);text-align:center;padding:2rem;">Carregando ranking...</p></div></div>
+                    <div class="card"><h3 class="card-title" style="margin-bottom:1rem;"><i class="fas fa-bolt"></i> Ações Rápidas</h3><div class="quick-actions">
+                        <a href="pdv.html" class="quick-action-btn"><i class="fas fa-cash-register"></i><span>PDV</span></a>
+                        <a href="estoque.html" class="quick-action-btn"><i class="fas fa-plus-circle"></i><span>Adicionar Produto</span></a>
+                        <a href="fiado.html" class="quick-action-btn"><i class="fas fa-user-plus"></i><span>Novo Fiado</span></a>
+                        <a href="despesas.html" class="quick-action-btn"><i class="fas fa-file-invoice"></i><span>Registrar Despesa</span></a>
+                    </div></div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3 class="card-title"><i class="fas fa-calculator"></i> Resumo Financeiro do Mês</h3></div>
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;text-align:center;">
+                    <div><div style="color:var(--gray-600);font-size:0.9rem;">Receita Total</div><div style="font-size:2rem;font-weight:700;color:var(--success);" id="receitaMes">R$ 0,00</div></div>
+                    <div><div style="color:var(--gray-600);font-size:0.9rem;">Despesas Totais</div><div style="font-size:2rem;font-weight:700;color:var(--danger);" id="despesasMes">R$ 0,00</div></div>
+                    <div><div style="color:var(--gray-600);font-size:0.9rem;">Lucro Líquido</div><div style="font-size:2rem;font-weight:700;color:var(--primary);" id="lucroLiquido">R$ 0,00</div></div>
+                </div>
+            </div>
+
+            <div class="rodape-link">
+                <a href="desempenhos.html"><i class="fas fa-gauge-high"></i> Acessar Central de Desempenhos →</a>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/dashboard.js"></script>
+</body>
+</html>

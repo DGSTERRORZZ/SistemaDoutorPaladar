@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doutor Paladar · Gestão de Fiado</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .fiado-container { max-width: 1400px; margin: 0 auto; }
+        .clientes-grid { display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+        .clientes-list { background: white; border-radius: var(--radius); padding: 1.2rem; max-height: 600px; overflow-y: auto; }
+        .cliente-card { padding: 1rem; border-radius: var(--radius-sm); border: 2px solid var(--gray-200); margin-bottom: 0.8rem; cursor: pointer; transition: all 0.2s; }
+        .cliente-card:hover { border-color: var(--primary); background: var(--gray-50); }
+        .cliente-card.active { border-color: var(--primary); background: var(--secondary); }
+        .cliente-nome { font-weight: 600; color: var(--gray-800); }
+        .cliente-turma { font-size: 0.85rem; color: var(--gray-600); }
+        .cliente-divida { font-size: 1.1rem; font-weight: 700; color: var(--danger); margin-top: 0.3rem; }
+        .detalhes-panel { background: white; border-radius: var(--radius); padding: 1.5rem; }
+        .divida-item { padding: 1rem; border-bottom: 1px solid var(--gray-200); }
+        .divida-item:last-child { border-bottom: none; }
+        .divida-header { display: flex; justify-content: space-between; margin-bottom: 0.5rem; }
+        .status-pago { color: var(--success); font-weight: 600; }
+        .status-pendente { color: var(--warning); font-weight: 600; }
+        .status-atraso { color: var(--danger); font-weight: 600; }
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal.active { display: flex; }
+        .modal-content { background: white; border-radius: var(--radius); padding: 2rem; max-width: 600px; width: 90%; max-height: 80vh; overflow-y: auto; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+        .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-600); }
+        .produto-selector { border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 0.8rem; margin-bottom: 0.5rem; }
+        .total-geral { background: var(--primary); color: white; padding: 1.5rem; border-radius: var(--radius); margin-bottom: 1.5rem; }
+        .total-geral h3 { font-size: 1rem; opacity: 0.9; }
+        .total-geral .valor { font-size: 2.5rem; font-weight: 700; }
+        .search-box { margin-bottom: 1rem; }
+        .search-box input { width: 100%; padding: 0.8rem; border: 2px solid var(--gray-200); border-radius: 30px; font-size: 0.95rem; }
+        .historico-pagamento { background: var(--gray-50); padding: 0.8rem; border-radius: var(--radius-sm); margin-top: 0.5rem; font-size: 0.9rem; }
+        .rodape-link { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: right; display: flex; justify-content: flex-end; gap: 10px; }
+        .rodape-link a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: #f1f5f9; color: #d97706; text-decoration: none; border-radius: 20px; font-size: 13px; font-weight: 500; transition: all 0.2s; }
+        .rodape-link a:hover { background: #d97706; color: white; }
+        @media (max-width: 768px) { .clientes-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+    <div class="app-container fiado-container">
+        <header class="app-header">
+            <div class="header-title">
+                <h1><i class="fas fa-hand-holding-usd"></i> Gestão de Fiado</h1>
+                <p>Controle de dívidas e pagamentos</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> PDV</a>
+                <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> Estoque</a>
+                <a href="fiado.html" class="nav-link active"><i class="fas fa-hand-holding-usd"></i> Fiado</a>
+                <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> Desempenhos</a>
+                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> Despesas</a>
+                <button class="nav-link" onclick="logout()" style="border:none; background:none; cursor:pointer;"><i class="fas fa-sign-out-alt"></i> Sair</button>
+            </nav>
+        </header>
+
+        <div class="total-geral">
+            <h3><i class="fas fa-coins"></i> Total Pendente em Fiado</h3>
+            <div class="valor" id="totalGeralFiado">R$ 0,00</div>
+        </div>
+
+        <div class="clientes-grid">
+            <div class="clientes-list">
+                <div class="flex-between mb-4">
+                    <h3><i class="fas fa-users"></i> Clientes</h3>
+                    <button class="btn btn-primary btn-sm" onclick="abrirModalNovoCliente()"><i class="fas fa-plus"></i> Novo</button>
+                </div>
+                <div class="search-box">
+                    <input type="text" id="buscaCliente" placeholder="🔍 Buscar cliente..." onkeyup="filtrarClientes()">
+                </div>
+                <div id="listaClientes"></div>
+            </div>
+            <div class="detalhes-panel">
+                <div id="painelVazio" style="text-align: center; padding: 3rem; color: var(--gray-600);">
+                    <i class="fas fa-user-circle" style="font-size: 4rem; opacity: 0.3;"></i>
+                    <p style="margin-top: 1rem;">Selecione um cliente para ver os detalhes</p>
+                </div>
+                <div id="painelDetalhes" style="display: none;">
+                    <div class="flex-between mb-4">
+                        <div>
+                            <h2 id="clienteNomeDetalhe">Nome do Cliente</h2>
+                            <p id="clienteTurmaDetalhe" class="cliente-turma"></p>
+                        </div>
+                        <div>
+                            <button class="btn btn-primary btn-sm" onclick="abrirModalNovaCompra()"><i class="fas fa-cart-plus"></i> Nova Compra</button>
+                            <button class="btn btn-success btn-sm" onclick="abrirModalPagamento()"><i class="fas fa-money-bill"></i> Pagamento</button>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <h4><i class="fas fa-info-circle"></i> Resumo</h4>
+                        <div class="stats-grid" style="margin-top: 1rem;">
+                            <div class="stat-card"><div class="stat-label">Total Devido</div><div class="stat-value" id="totalDevidoCliente">R$ 0,00</div></div>
+                            <div class="stat-card"><div class="stat-label">Total Pago</div><div class="stat-value" id="totalPagoCliente">R$ 0,00</div></div>
+                            <div class="stat-card"><div class="stat-label">Compras Realizadas</div><div class="stat-value" id="qtdComprasCliente">0</div></div>
+                        </div>
+                    </div>
+                    <h4 style="margin: 1.5rem 0 1rem;"><i class="fas fa-history"></i> Histórico de Compras</h4>
+                    <div id="historicoCompras" style="max-height: 400px; overflow-y: auto;"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="rodape-link">
+            <a href="desempenhos.html?tab=fiado"><i class="fas fa-hand-holding-usd"></i> Desempenho do fiado →</a>
+            <a href="desempenhos.html?tab=clientes"><i class="fas fa-users"></i> Perfil de clientes →</a>
+        </div>
+    </div>
+
+    <!-- Modal Novo Cliente -->
+    <div id="modalNovoCliente" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-user-plus"></i> Cadastrar Novo Cliente</h3>
+                <button class="close-btn" onclick="fecharModal('modalNovoCliente')">&times;</button>
+            </div>
+            <form id="formNovoCliente" onsubmit="cadastrarCliente(event)">
+                <div class="form-group"><label>Nome Completo *</label><input type="text" id="novoClienteNome" class="form-control" required placeholder="Ex: João Silva"></div>
+                <div class="form-group"><label>Turma/Curso</label><input type="text" id="novoClienteTurma" class="form-control" placeholder="Ex: INFO3, ADM2"></div>
+                <div class="flex" style="justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modalNovoCliente')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Cadastrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Nova Compra Fiado -->
+    <div id="modalNovaCompra" class="modal">
+        <div class="modal-content" style="max-width: 700px;">
+            <div class="modal-header">
+                <h3><i class="fas fa-shopping-cart"></i> Registrar Compra Fiado</h3>
+                <button class="close-btn" onclick="fecharModal('modalNovaCompra')">&times;</button>
+            </div>
+            <div id="clienteSelecionadoInfo" style="margin-bottom: 1rem; padding: 0.8rem; background: var(--gray-50); border-radius: var(--radius-sm);"></div>
+            <div class="form-group"><label>Selecionar Produtos</label><div id="listaProdutosFiado" style="max-height: 300px; overflow-y: auto; border: 1px solid var(--gray-200); border-radius: var(--radius-sm); padding: 0.5rem;"></div></div>
+            <div class="card" style="background: var(--gray-50);">
+                <h4>Resumo da Compra</h4>
+                <div id="resumoCompraFiado" style="margin: 1rem 0;"><p style="color: var(--gray-600);">Nenhum produto selecionado</p></div>
+                <div class="flex-between"><strong>Total:</strong><strong id="totalCompraFiado" style="font-size: 1.3rem; color: var(--primary);">R$ 0,00</strong></div>
+            </div>
+            <div class="flex" style="justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                <button type="button" class="btn btn-secondary" onclick="fecharModal('modalNovaCompra')">Cancelar</button>
+                <button type="button" class="btn btn-primary" onclick="finalizarCompraFiado()"><i class="fas fa-check"></i> Registrar Compra</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Pagamento -->
+    <div id="modalPagamento" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3><i class="fas fa-money-bill-wave"></i> Registrar Pagamento</h3>
+                <button class="close-btn" onclick="fecharModal('modalPagamento')">&times;</button>
+            </div>
+            <form id="formPagamento" onsubmit="registrarPagamento(event)">
+                <div class="form-group"><label>Selecionar Dívida</label><select id="selectDivida" class="form-control" required><option value="">Selecione uma dívida pendente</option></select></div>
+                <div class="form-group"><label>Valor a Pagar (R$) *</label><input type="number" id="valorPagamento" class="form-control" min="0.01" step="0.01" required><small id="valorMaximoInfo" style="color: var(--gray-600);"></small></div>
+                <div class="flex" style="justify-content: flex-end; gap: 1rem; margin-top: 1.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modalPagamento')">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Registrar Pagamento</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/fiado.js"></script>
+</body>
+</html>
