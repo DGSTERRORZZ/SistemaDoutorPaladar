@@ -11,18 +11,19 @@
         .filtros-container { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
         .search-box { flex: 1; min-width: 250px; position: relative; }
         .search-box i { position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); color: var(--gray-600); }
-        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; border: 1.5px solid var(--gray-200); border-radius: 30px; font-size: 1rem; }
+        .search-box input { width: 100%; padding: 0.8rem 1rem 0.8rem 2.5rem; border: 1.5px solid var(--gray-200); border-radius: 30px; font-size: 1rem; transition: var(--transition); }
+        .search-box input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(27,67,50,0.1); outline: none; }
         .categoria-filter { min-width: 200px; }
         .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(3px); }
         .modal.active { display: flex; }
-        .modal-content { background: white; border-radius: 24px; padding: 2rem; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease-out; }
+        .modal-content { background: white; border-radius: 24px; padding: 2rem; max-width: 500px; width: 90%; max-height: 90vh; overflow-y: auto; animation: slideUp 0.3s ease-out; box-shadow: var(--shadow-lg); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
         .modal-header h2 { color: var(--primary); font-size: 1.5rem; }
         .close-btn { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--gray-600); transition: color 0.2s; }
         .close-btn:hover { color: var(--danger); }
         .estoque-actions { display: flex; gap: 0.5rem; }
-        .btn-icon { padding: 0.4rem 0.6rem; border-radius: 8px; border: 1px solid var(--gray-200); background: white; cursor: pointer; transition: all 0.2s; }
+        .btn-icon { padding: 0.4rem 0.6rem; border-radius: 8px; border: 1px solid var(--gray-200); background: white; cursor: pointer; transition: var(--transition); }
         .btn-icon:hover { background: var(--gray-100); }
         .estoque-cell { font-weight: 600; }
         .estoque-normal { color: var(--success); }
@@ -30,14 +31,14 @@
         .estoque-baixo { color: var(--danger); font-weight: 700; }
         .alertas-container { margin-bottom: 2rem; }
         .categoria-badge { background: var(--gray-100); padding: 0.3rem 0.8rem; border-radius: 20px; font-size: 0.85rem; color: var(--gray-600); }
-        .quick-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
-        .quick-stat { background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%); color: white; padding: 1.2rem; border-radius: var(--radius); text-align: center; }
+        .quick-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+        .quick-stat { background: linear-gradient(135deg, var(--primary-light) 0%, var(--primary) 100%); color: white; padding: 1.2rem; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow-sm); }
         .quick-stat i { font-size: 1.8rem; margin-bottom: 0.5rem; }
         .quick-stat .value { font-size: 1.8rem; font-weight: 700; }
         .quick-stat .label { font-size: 0.85rem; opacity: 0.9; }
-        .rodape-link { margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; text-align: right; display: flex; justify-content: flex-end; gap: 10px; }
-        .rodape-link a { display: inline-flex; align-items: center; gap: 8px; padding: 8px 16px; background: #f1f5f9; color: #1e4a3b; text-decoration: none; border-radius: 20px; font-size: 13px; font-weight: 500; transition: all 0.2s; }
-        .rodape-link a:hover { background: #1e4a3b; color: white; }
+        .rodape-link { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--gray-200); text-align: right; display: flex; justify-content: flex-end; gap: 10px; }
+        .rodape-link a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: var(--primary); color: white; text-decoration: none; border-radius: 30px; font-size: 14px; font-weight: 500; transition: var(--transition); }
+        .rodape-link a:hover { background: var(--primary-dark); transform: translateY(-2px); }
     </style>
 </head>
 <body>
@@ -54,10 +55,8 @@
                 <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> Fiado</a>
                 <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> Desempenhos</a>
                 <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> Despesas</a>
+                <button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
             </nav>
-            <div>
-                <button class="btn btn-outline" onclick="logout()"><i class="fas fa-sign-out-alt"></i> Sair</button>
-            </div>
         </header>
 
         <main>
@@ -209,9 +208,9 @@
                     <td class="${statusEstoque}">${p.estoque} un</td>
                     <td><span class="badge ${statusEstoque === 'estoque-baixo' ? 'badge-danger' : 'badge-success'}">${statusTexto}</span></td>
                     <td>
-                        <button onclick="editarProduto(${p.id})"><i class="fas fa-edit"></i></button>
-                        <button onclick="abrirModalAjuste(${p.id})"><i class="fas fa-balance-scale"></i></button>
-                        <button onclick="excluirProduto(${p.id})"><i class="fas fa-trash" style="color:red;"></i></button>
+                        <button class="btn-icon" onclick="editarProduto(${p.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn-icon" onclick="abrirModalAjuste(${p.id})"><i class="fas fa-balance-scale"></i></button>
+                        <button class="btn-icon" onclick="excluirProduto(${p.id})"><i class="fas fa-trash" style="color:var(--danger);"></i></button>
                     </td>
                 </tr>`;
             }).join('');
