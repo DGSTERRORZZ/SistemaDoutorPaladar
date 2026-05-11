@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fornecedores · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .fornecedor-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            border-left: 5px solid var(--primary);
+            transition: var(--transition);
+        }
+        .fornecedor-card:hover { box-shadow: var(--shadow-md); }
+        .compras-list { max-height: 400px; overflow-y: auto; }
+        .compra-item {
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            max-height: 85vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-lg);
+        }
+        .tags {
+            display: flex;
+            gap: 0.3rem;
+            flex-wrap: wrap;
+        }
+        .tag {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-title">
+                <h1><i class="fas fa-truck"></i> <span data-translate="fornecedores">Fornecedores</span></h1>
+                <p>Doutor Paladar · Gestão de Compras</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> <span data-translate="dashboard">Dashboard</span></a>
+                <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> <span data-translate="pdv">PDV</span></a>
+                <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> <span data-translate="estoque">Estoque</span></a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> <span data-translate="fiado">Fiado</span></a>
+                <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> <span data-translate="desempenhos">Desempenhos</span></a>
+                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> <span data-translate="despesas">Despesas</span></a>
+                <a href="pedidos-admin.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span data-translate="pedidos">Pedidos</span></a>
+                <a href="agendamentos.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span data-translate="agenda">Agenda</span></a>
+                <a href="fornecedores.html" class="nav-link active"><i class="fas fa-truck"></i> <span data-translate="fornecedores">Fornecedores</span></a>
+                <a href="configuracoes.html" class="nav-link"><i class="fas fa-cog"></i> <span data-translate="config">Config</span></a>
+                <button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span data-translate="logout">Sair</span></button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-list"></i> Fornecedores</h3>
+                    <button class="btn btn-primary btn-sm" onclick="abrirModalFornecedor()"><i class="fas fa-plus"></i> Novo Fornecedor</button>
+                </div>
+                <div class="grid-2" id="listaFornecedores"></div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Modal Fornecedor -->
+    <div class="modal-overlay" id="modalFornecedor">
+        <div class="modal-box">
+            <h3 id="modalTitulo"><i class="fas fa-plus-circle"></i> Novo Fornecedor</h3>
+            <form id="formFornecedor" onsubmit="salvarFornecedor(event)">
+                <input type="hidden" id="fornecedorId">
+                <div class="form-group"><label>Nome *</label><input type="text" id="nomeFor" class="form-control" required></div>
+                <div class="form-group"><label>CNPJ</label><input type="text" id="cnpjFor" class="form-control"></div>
+                <div class="form-group"><label>Telefone</label><input type="text" id="telFor" class="form-control"></div>
+                <div class="form-group"><label>Email</label><input type="email" id="emailFor" class="form-control"></div>
+                <div class="form-group"><label>Endereço</label><input type="text" id="endFor" class="form-control"></div>
+                <div class="flex" style="justify-content: flex-end; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modalFornecedor')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal Compra -->
+    <div class="modal-overlay" id="modalCompra">
+        <div class="modal-box">
+            <h3><i class="fas fa-shopping-cart"></i> Registrar Compra</h3>
+            <form id="formCompra" onsubmit="registrarCompra(event)">
+                <input type="hidden" id="compraFornecedorId">
+                <div class="form-group"><label>Fornecedor: <strong id="compraFornecedorNome"></strong></label></div>
+                <div class="form-group"><label>Produtos</label><div id="listaProdutosCompra" style="max-height: 250px; overflow-y: auto; border: 1px solid var(--border-color); border-radius: var(--radius-sm); padding: 0.5rem;"></div></div>
+                <div style="text-align: right; font-size: 1.3rem; font-weight: 700; margin: 1rem 0;">Total: <span id="totalCompra">R$ 0,00</span></div>
+                <div class="flex" style="justify-content: flex-end; gap: 0.5rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modalCompra')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let fornecedores = [];
+        let produtos = [];
+        let carrinhoCompra = [];
+
+        if (!verificarAutenticacao()) window.location.href = 'index.html';
+
+        async function carregar() {
+            try {
+                const [resF, resP] = await Promise.all([
+                    fetch('http://localhost:3000/api/fornecedores', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }),
+                    fetch('http://localhost:3000/api/produtos', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } })
+                ]);
+                fornecedores = await resF.json();
+                produtos = await resP.json();
+                renderFornecedores();
+            } catch (e) {
+                console.error('Erro ao carregar:', e);
+            }
+        }
+
+        function renderFornecedores() {
+            const container = document.getElementById('listaFornecedores');
+            if (!fornecedores.length) {
+                container.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:2rem;">Nenhum fornecedor cadastrado.</p>';
+                return;
+            }
+            container.innerHTML = fornecedores.map(f => `
+                <div class="fornecedor-card">
+                    <h4 style="margin-bottom: 0.3rem;">${f.nome}</h4>
+                    ${f.cnpj ? `<small>CNPJ: ${f.cnpj}</small><br>` : ''}
+                    ${f.telefone ? `<small><i class="fas fa-phone"></i> ${f.telefone}</small><br>` : ''}
+                    ${f.email ? `<small><i class="fas fa-envelope"></i> ${f.email}</small><br>` : ''}
+                    <div style="margin-top: 0.8rem; display: flex; gap: 0.3rem;">
+                        <button class="btn btn-sm btn-secondary" onclick="editarFornecedor(${f.id})"><i class="fas fa-edit"></i></button>
+                        <button class="btn btn-sm btn-primary" onclick="abrirCompra(${f.id})"><i class="fas fa-cart-plus"></i> Compra</button>
+                        <button class="btn btn-sm btn-danger" onclick="excluirFornecedor(${f.id})"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function abrirModalFornecedor() {
+            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-plus-circle"></i> Novo Fornecedor';
+            document.getElementById('formFornecedor').reset();
+            document.getElementById('fornecedorId').value = '';
+            document.getElementById('modalFornecedor').classList.add('active');
+        }
+
+        function editarFornecedor(id) {
+            const f = fornecedores.find(f => f.id === id);
+            if (!f) return;
+            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-edit"></i> Editar Fornecedor';
+            document.getElementById('fornecedorId').value = f.id;
+            document.getElementById('nomeFor').value = f.nome;
+            document.getElementById('cnpjFor').value = f.cnpj || '';
+            document.getElementById('telFor').value = f.telefone || '';
+            document.getElementById('emailFor').value = f.email || '';
+            document.getElementById('endFor').value = f.endereco || '';
+            document.getElementById('modalFornecedor').classList.add('active');
+        }
+
+        function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        async function salvarFornecedor(event) {
+            event.preventDefault();
+            const id = document.getElementById('fornecedorId').value;
+            const body = {
+                nome: document.getElementById('nomeFor').value.trim(),
+                cnpj: document.getElementById('cnpjFor').value.trim(),
+                telefone: document.getElementById('telFor').value.trim(),
+                email: document.getElementById('emailFor').value.trim(),
+                endereco: document.getElementById('endFor').value.trim()
+            };
+            if (!body.nome) return alert('Nome obrigatório!');
+            try {
+                const url = id ? `http://localhost:3000/api/fornecedores/${id}` : 'http://localhost:3000/api/fornecedores';
+                await fetch(url, {
+                    method: id ? 'PUT' : 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` },
+                    body: JSON.stringify(body)
+                });
+                fecharModal('modalFornecedor');
+                carregar();
+            } catch (e) { alert('Erro ao salvar.'); }
+        }
+
+        async function excluirFornecedor(id) {
+            if (!confirm('Excluir este fornecedor?')) return;
+            await fetch(`http://localhost:3000/api/fornecedores/${id}`, {
+                method: 'DELETE',
+                headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+            });
+            carregar();
+        }
+
+        function abrirCompra(id) {
+            const f = fornecedores.find(f => f.id === id);
+            if (!f) return;
+            document.getElementById('compraFornecedorId').value = id;
+            document.getElementById('compraFornecedorNome').textContent = f.nome;
+            carrinhoCompra = [];
+            renderProdutosCompra();
+            atualizarTotalCompra();
+            document.getElementById('modalCompra').classList.add('active');
+        }
+
+        function renderProdutosCompra() {
+            const container = document.getElementById('listaProdutosCompra');
+            container.innerHTML = produtos.map(p => `
+                <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.4rem 0; border-bottom: 1px solid var(--border-color);">
+                    <span>${p.nome} (R$ ${p.preco?.toFixed(2) || '0,00'})</span>
+                    <input type="number" id="qtdCompra_${p.id}" min="0" value="0" style="width: 70px; text-align: center; border: 1px solid var(--border-color); border-radius: 8px; padding: 0.3rem;" onchange="atualizarCarrinhoCompra(${p.id}, this.value)">
+                </div>
+            `).join('');
+        }
+
+        function atualizarCarrinhoCompra(produtoId, qtd) {
+            qtd = parseInt(qtd) || 0;
+            carrinhoCompra = carrinhoCompra.filter(i => i.produtoId !== produtoId);
+            if (qtd > 0) {
+                const p = produtos.find(p => p.id === produtoId);
+                carrinhoCompra.push({ produtoId, quantidade: qtd, precoUnitario: p?.preco || 0 });
+            }
+            atualizarTotalCompra();
+        }
+
+        function atualizarTotalCompra() {
+            const total = carrinhoCompra.reduce((s, i) => s + i.quantidade * i.precoUnitario, 0);
+            document.getElementById('totalCompra').textContent = `R$ ${total.toFixed(2)}`;
+        }
+
+        async function registrarCompra(event) {
+            event.preventDefault();
+            const fornecedorId = parseInt(document.getElementById('compraFornecedorId').value);
+            if (!carrinhoCompra.length) return alert('Adicione itens!');
+            const total = carrinhoCompra.reduce((s, i) => s + i.quantidade * i.precoUnitario, 0);
+            try {
+                await fetch('http://localhost:3000/api/fornecedores/compras', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` },
+                    body: JSON.stringify({ fornecedorId, itens: carrinhoCompra, total, status: 'pedido' })
+                });
+                fecharModal('modalCompra');
+                alert('Compra registrada!');
+                carregar();
+            } catch (e) { alert('Erro ao registrar compra.'); }
+        }
+
+        carregar();
+    </script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

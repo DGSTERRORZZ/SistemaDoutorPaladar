@@ -1,0 +1,1334 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Doutor Paladar · Desempenhos</title>
+    
+    <!-- Bibliotecas -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js para gráficos -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <!-- Estilos -->
+    <link rel="stylesheet" href="css/style.css">
+    
+    <style>
+        /* ========== ESTILOS DE TELA ========== */
+        .filtros-container {
+            background: var(--gray-50);
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 2rem;
+        }
+        
+        .periodo-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+        
+        .periodo-btn {
+            padding: 0.8rem;
+            border: 2px solid var(--gray-200);
+            background: white;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+        
+        .periodo-btn:hover {
+            border-color: var(--primary);
+            background: var(--secondary);
+        }
+        
+        .periodo-btn.ativo {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+        
+        .date-range {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 1.5rem;
+            border-radius: var(--radius);
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            width: 100%;
+        }
+        
+        .chart-wrapper-sm {
+            height: 220px;
+        }
+        
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem;
+            border-bottom: 1px solid var(--gray-200);
+            transition: background 0.2s;
+        }
+        
+        .ranking-item:hover {
+            background: var(--gray-50);
+        }
+        
+        .ranking-posicao {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            margin-right: 1rem;
+            font-size: 0.9rem;
+        }
+        
+        .ranking-posicao.top1 { background: #ffd700; color: #000; }
+        .ranking-posicao.top2 { background: #c0c0c0; color: #000; }
+        .ranking-posicao.top3 { background: #cd7f32; color: white; }
+        
+        .ranking-info { flex: 1; }
+        .ranking-nome { font-weight: 600; }
+        .ranking-detalhe { color: var(--gray-600); font-size: 0.85rem; }
+        .ranking-valor { font-weight: 700; color: var(--primary); }
+        
+        .tabs-desempenho {
+            display: flex;
+            gap: 0.3rem;
+            margin-bottom: 1rem;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab-desempenho {
+            padding: 0.7rem 1.2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--gray-600);
+            border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            white-space: nowrap;
+        }
+        
+        .tab-desempenho:hover { background: var(--gray-100); }
+        
+        .tab-desempenho.ativo {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .sub-tabs {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .sub-tab {
+            padding: 0.5rem 1.2rem;
+            background: var(--gray-100);
+            border: none;
+            border-radius: 30px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            color: var(--gray-600);
+        }
+        
+        .sub-tab:hover { background: var(--gray-200); }
+        
+        .sub-tab.ativo {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .export-btn {
+            background: var(--success);
+            color: white;
+        }
+        
+        .kpi-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .kpi-card {
+            background: white;
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            box-shadow: var(--shadow-sm);
+            border-top: 3px solid var(--primary);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .kpi-card:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        
+        .kpi-icon {
+            font-size: 1.5rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+        
+        .kpi-valor {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--gray-800);
+        }
+        
+        .kpi-label {
+            color: var(--gray-600);
+            font-size: 0.8rem;
+            margin-top: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .kpi-tendencia {
+            font-size: 0.8rem;
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        
+        .tendencia-up { color: #10b981; }
+        .tendencia-down { color: #dc2626; }
+        .tendencia-stable { color: #f59e0b; }
+        
+        .metricas-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .indicador-mini {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.6rem 0;
+            border-bottom: 1px dashed var(--gray-200);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: var(--gray-200);
+            border-radius: 4px;
+            overflow: hidden;
+            margin: 0.5rem 0;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--primary);
+            border-radius: 4px;
+            transition: width 0.5s ease;
+        }
+        
+        .alert-badge {
+            display: inline-block;
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .alert-critical { background: #fee; color: #dc2626; }
+        .alert-warning { background: #fef3c7; color: #d97706; }
+        .alert-success { background: #d1fae5; color: #10b981; }
+        
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            background: white;
+            border-radius: var(--radius);
+        }
+        
+        .empty-state i {
+            font-size: 4rem;
+            color: var(--gray-300);
+            margin-bottom: 1rem;
+        }
+        
+        .empty-state h3 {
+            color: var(--gray-600);
+            margin-bottom: 0.5rem;
+        }
+        
+        .empty-state p {
+            color: var(--gray-500);
+        }
+        
+        .breadcrumb {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            color: var(--gray-600);
+            font-size: 0.9rem;
+        }
+        
+        .breadcrumb a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+        
+        .breadcrumb i {
+            font-size: 0.7rem;
+            color: var(--gray-400);
+        }
+
+        /* Cabeçalho e rodapé de impressão (ocultos na tela) */
+        .print-header { display: none; }
+        .print-footer { display: none; }
+
+        /* ========== ESTILOS DE IMPRESSÃO (PROFISSIONAL) ========== */
+        @media print {
+            /* Esconde elementos de navegação e interação */
+            .app-header,
+            .nav-menu,
+            .filtros-container,
+            .export-btn,
+            .btn,
+            .tabs-desempenho,
+            .sub-tabs,
+            .breadcrumb,
+            .periodo-selector,
+            .date-range,
+            .rodape-link,
+            .settings-trigger,
+            .settings-panel,
+            .settings-overlay,
+            .kpi-tendencia,
+            #subTabsContainer,
+            #breadcrumbTab {
+                display: none !important;
+            }
+
+            /* Reset de fundo e cores */
+            body {
+                background: white !important;
+                color: black !important;
+                font-size: 11pt;
+                line-height: 1.4;
+            }
+
+            .app-container {
+                max-width: 100%;
+                padding: 0;
+                margin: 0;
+            }
+
+            /* Cartões viram seções limpas */
+            .card,
+            .chart-container,
+            .kpi-card,
+            .stat-card {
+                background: white !important;
+                box-shadow: none !important;
+                border: 1px solid #ccc !important;
+                border-radius: 0 !important;
+                padding: 8pt !important;
+                margin-bottom: 10pt !important;
+                page-break-inside: avoid;
+            }
+
+            .stat-card {
+                border-left: 2px solid black !important;
+            }
+
+            /* KPIs em grid */
+            .kpi-grid {
+                display: grid;
+                grid-template-columns: repeat(4, 1fr);
+                gap: 8pt;
+            }
+
+            .kpi-card {
+                text-align: center;
+                border-top: 2px solid black !important;
+            }
+
+            .kpi-valor {
+                font-size: 14pt;
+                color: black !important;
+            }
+
+            .kpi-label {
+                font-size: 8pt;
+                color: #555 !important;
+            }
+
+            /* Tabelas */
+            .table-container {
+                border: 1px solid black !important;
+                border-radius: 0 !important;
+            }
+
+            table {
+                width: 100%;
+                border-collapse: collapse;
+                font-size: 9pt;
+            }
+
+            th {
+                background: #eee !important;
+                color: black !important;
+                font-weight: bold;
+                border-bottom: 2px solid black !important;
+                padding: 6pt;
+            }
+
+            td {
+                border-bottom: 1px solid #ccc !important;
+                padding: 4pt 6pt;
+            }
+
+            tr:hover td {
+                background: none !important;
+            }
+
+            /* Badges */
+            .badge,
+            .alert-badge {
+                background: none !important;
+                border: 1px solid black !important;
+                color: black !important;
+                font-weight: bold;
+                padding: 2pt 6pt;
+            }
+
+            .alert-critical { border-color: black !important; }
+            .alert-warning { border-color: black !important; }
+            .alert-success { border-color: black !important; }
+
+            /* Alertas */
+            .alert {
+                background: none !important;
+                border: 1px solid #999 !important;
+                color: black !important;
+            }
+
+            /* Progress bars */
+            .progress-bar {
+                border: 1px solid black !important;
+                background: white !important;
+            }
+
+            .progress-fill {
+                background: black !important;
+            }
+
+            /* Ranking */
+            .ranking-item {
+                border-bottom: 1px solid #ddd !important;
+            }
+
+            .ranking-posicao {
+                background: black !important;
+                color: white !important;
+            }
+
+            .ranking-posicao.top1,
+            .ranking-posicao.top2,
+            .ranking-posicao.top3 {
+                background: black !important;
+                color: white !important;
+            }
+
+            /* Gráficos (Chart.js) */
+            .chart-wrapper,
+            .chart-wrapper-sm {
+                max-height: 250pt;
+                page-break-inside: avoid;
+            }
+
+            canvas {
+                max-width: 100% !important;
+                height: auto !important;
+            }
+
+            /* Grid e métricas */
+            .metricas-grid,
+            .grid-2 {
+                display: block !important;
+            }
+
+            .grid-2 > * {
+                width: 100% !important;
+                margin-bottom: 10pt;
+            }
+
+            .stats-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8pt;
+            }
+
+            /* Estados vazios */
+            .empty-state {
+                border: 1px dashed #999;
+                padding: 20pt;
+                text-align: center;
+                color: #666;
+            }
+
+            .empty-state i {
+                display: none;
+            }
+
+            /* Cabeçalho de impressão */
+            .print-header {
+                display: block !important;
+                text-align: center;
+                margin-bottom: 15pt;
+                padding-bottom: 10pt;
+                border-bottom: 2px solid black;
+            }
+
+            .print-header h1 {
+                font-size: 16pt;
+                margin: 0;
+                color: black;
+            }
+
+            .print-header p {
+                font-size: 9pt;
+                color: #555;
+                margin: 2pt 0 0 0;
+            }
+
+            /* Rodapé de impressão */
+            .print-footer {
+                display: block !important;
+                text-align: center;
+                font-size: 8pt;
+                color: #999;
+                margin-top: 15pt;
+                border-top: 1px solid #ccc;
+                padding-top: 5pt;
+            }
+
+            /* Evita quebras de página inadequadas */
+            h3 {
+                page-break-after: avoid;
+            }
+
+            .card-header {
+                page-break-after: avoid;
+            }
+
+            /* Remove cores de fundo dos stat-icons */
+            .stat-icon {
+                background: none !important;
+                border: 1px solid black !important;
+                color: black !important;
+            }
+
+            .stat-icon i {
+                color: black !important;
+            }
+
+            /* Remove gradientes e sombras */
+            * {
+                text-shadow: none !important;
+                box-shadow: none !important;
+            }
+
+            .welcome-section {
+                background: none !important;
+                color: black !important;
+                border: 1px solid #ccc;
+                padding: 8pt;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .tabs-desempenho {
+                overflow-x: auto;
+                flex-wrap: nowrap;
+                padding-bottom: 1rem;
+            }
+            
+            .tab-desempenho {
+                white-space: nowrap;
+            }
+            
+            .kpi-valor {
+                font-size: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Breadcrumb -->
+        <div class="breadcrumb">
+            <a href="dashboard.html"><i class="fas fa-home"></i> Dashboard</a>
+            <i class="fas fa-chevron-right"></i>
+            <span><i class="fas fa-gauge-high"></i> Desempenhos</span>
+            <span id="breadcrumbTab" style="margin-left: auto; opacity: 0.7;"></span>
+        </div>
+        
+        <!-- Header Padrão -->
+        <header class="app-header">
+            <div class="header-title">
+                <h1><i class="fas fa-gauge-high"></i> Doutor Paladar</h1>
+                <p>Central de Desempenhos e Inteligência de Negócio</p>
+            </div>
+            
+            <!-- Navegação -->
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> PDV</a>
+                <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> Estoque</a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> Fiado</a>
+                <a href="desempenhos.html" class="nav-link active"><i class="fas fa-gauge-high"></i> Desempenhos</a>
+                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="pedidos-admin.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+                <a href="agendamentos.html" class="nav-link"><i class="fas fa-calendar-alt"></i> Agenda</a>
+                <a href="fornecedores.html" class="nav-link"><i class="fas fa-truck"></i> Fornecedores</a>
+                <a href="configuracoes.html" class="nav-link"><i class="fas fa-cog"></i> Config</a>
+                <button class="btn btn-secondary btn-sm" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Sair
+                </button>
+            </nav>
+        </header>
+        
+        <!-- Conteúdo Principal -->
+        <main id="mainContent">
+            <!-- Cabeçalho visível apenas na impressão -->
+            <div class="print-header">
+                <h1>Doutor Paladar - Relatório de Desempenho</h1>
+                <p id="printPeriodoInfo">Período: Últimos 30 dias</p>
+                <p>Emitido em: <span id="printDataEmissao"></span></p>
+            </div>
+
+            <!-- Filtros de Período -->
+            <div class="filtros-container">
+                <div class="flex-between">
+                    <h2><i class="fas fa-calendar-alt"></i> Período de Análise</h2>
+                    <button class="btn btn-success export-btn" onclick="imprimirDesempenho()">
+                        <i class="fas fa-print"></i> Imprimir Relatório
+                    </button>
+                </div>
+                
+                <div class="periodo-selector">
+                    <button class="periodo-btn" data-periodo="hoje" onclick="mudarPeriodo('hoje')">
+                        <i class="fas fa-sun"></i> Hoje
+                    </button>
+                    <button class="periodo-btn" data-periodo="ontem" onclick="mudarPeriodo('ontem')">
+                        <i class="fas fa-calendar-check"></i> Ontem
+                    </button>
+                    <button class="periodo-btn" data-periodo="semana" onclick="mudarPeriodo('semana')">
+                        <i class="fas fa-calendar-week"></i> 7 Dias
+                    </button>
+                    <button class="periodo-btn" data-periodo="mes" onclick="mudarPeriodo('mes')">
+                        <i class="fas fa-calendar-alt"></i> 30 Dias
+                    </button>
+                    <button class="periodo-btn" data-periodo="trimestre" onclick="mudarPeriodo('trimestre')">
+                        <i class="fas fa-calendar"></i> 90 Dias
+                    </button>
+                    <button class="periodo-btn" data-periodo="ano" onclick="mudarPeriodo('ano')">
+                        <i class="fas fa-calendar"></i> 365 Dias
+                    </button>
+                </div>
+                
+                <div class="date-range">
+                    <div class="form-group" style="flex:1;">
+                        <label><i class="fas fa-calendar"></i> Data Início</label>
+                        <input type="date" id="dataInicio" class="form-control" onchange="atualizarPeriodoPersonalizado()">
+                    </div>
+                    <div class="form-group" style="flex:1;">
+                        <label><i class="fas fa-calendar"></i> Data Fim</label>
+                        <input type="date" id="dataFim" class="form-control" onchange="atualizarPeriodoPersonalizado()">
+                    </div>
+                    <button class="btn btn-primary" onclick="aplicarFiltroPersonalizado()">
+                        <i class="fas fa-search"></i> Aplicar
+                    </button>
+                    <button class="btn btn-secondary" onclick="resetarPeriodo()">
+                        <i class="fas fa-undo"></i> Resetar
+                    </button>
+                </div>
+            </div>
+            
+            <!-- KPIs Principais -->
+            <div class="kpi-grid" id="kpiContainer">
+                <!-- Preenchido via JavaScript -->
+            </div>
+            
+            <!-- Tabs de Desempenhos -->
+            <div class="tabs-desempenho">
+                <button class="tab-desempenho" onclick="mudarTab('vendas')">
+                    <i class="fas fa-shopping-cart"></i> Vendas
+                </button>
+                <button class="tab-desempenho" onclick="mudarTab('produtos')">
+                    <i class="fas fa-box"></i> Produtos
+                </button>
+                <button class="tab-desempenho" onclick="mudarTab('estoque')">
+                    <i class="fas fa-warehouse"></i> Estoque
+                </button>
+                <button class="tab-desempenho" onclick="mudarTab('fiado')">
+                    <i class="fas fa-hand-holding-usd"></i> Fiado
+                </button>
+                <button class="tab-desempenho" onclick="mudarTab('financeiro')">
+                    <i class="fas fa-chart-pie"></i> Financeiro
+                </button>
+                <button class="tab-desempenho" onclick="mudarTab('clientes')">
+                    <i class="fas fa-users"></i> Clientes
+                </button>
+                <button class="tab-desempenho" onclick="mudarTab('operacional')">
+                    <i class="fas fa-cogs"></i> Operacional
+                </button>
+            </div>
+            
+            <!-- Sub-tabs dinâmicas -->
+            <div class="sub-tabs" id="subTabsContainer" style="display:none;">
+                <!-- Preenchido dinamicamente -->
+            </div>
+            
+            <!-- Conteúdo das Tabs -->
+            <div id="tabContent">
+                <!-- Preenchido dinamicamente -->
+            </div>
+
+            <!-- Rodapé visível apenas na impressão -->
+            <div class="print-footer">
+                Doutor Paladar © 2026 - Relatório gerado em <span id="printFooterData"></span>
+            </div>
+        </main>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        // =============================================
+        // VARIÁVEIS GLOBAIS
+        // =============================================
+        let periodoAtual = 'mes';
+        let dataInicioAtual = new Date();
+        let dataFimAtual = new Date();
+        let subTabAtual = 'resumo';
+        let graficos = {};
+        
+        const nomesTabs = {
+            'vendas': 'Desempenho de Vendas',
+            'produtos': 'Desempenho de Produtos',
+            'estoque': 'Desempenho de Estoque',
+            'fiado': 'Desempenho de Fiado',
+            'financeiro': 'Desempenho Financeiro',
+            'clientes': 'Perfil de Clientes',
+            'operacional': 'Métricas Operacionais'
+        };
+        
+        // =============================================
+        // FUNÇÕES UTILITÁRIAS
+        // =============================================
+        function getUrlParameter(name) {
+            name = name.replace(/[\[]/, '\\[').replace(/[\]]/, '\\]');
+            const regex = new RegExp('[\\?&]' + name + '=([^&#]*)');
+            const results = regex.exec(location.search);
+            return results === null ? '' : decodeURIComponent(results[1].replace(/\+/g, ' '));
+        }
+        
+        // =============================================
+        // INICIALIZAÇÃO
+        // =============================================
+        (async function() {
+            console.log('📊 Central de Desempenhos - Doutor Paladar');
+            
+            if (!verificarAutenticacao()) return;
+            
+            const hoje = new Date();
+            const inicio30 = new Date();
+            inicio30.setDate(hoje.getDate() - 30);
+            
+            dataInicioAtual = inicio30;
+            dataFimAtual = hoje;
+            
+            document.getElementById('dataInicio').value = inicio30.toISOString().split('T')[0];
+            document.getElementById('dataFim').value = hoje.toISOString().split('T')[0];
+            
+            document.querySelectorAll('.periodo-btn').forEach(btn => btn.classList.remove('ativo'));
+            const btnMes = document.querySelector('[data-periodo="mes"]');
+            if (btnMes) btnMes.classList.add('ativo');
+            
+            const tabParam = getUrlParameter('tab');
+            if (tabParam && nomesTabs[tabParam]) tabAtual = tabParam;
+            
+            await atualizarKPIs();
+            await mudarTab(tabAtual);
+        })();
+        
+        // =============================================
+        // CONTROLE DE PERÍODO
+        // =============================================
+        function mudarPeriodo(periodo) {
+            periodoAtual = periodo;
+            document.querySelectorAll('.periodo-btn').forEach(btn => btn.classList.remove('ativo'));
+            const btnAtivo = document.querySelector(`[data-periodo="${periodo}"]`);
+            if (btnAtivo) btnAtivo.classList.add('ativo');
+            
+            const hoje = new Date();
+            let inicio = new Date(hoje);
+            const fim = new Date(hoje);
+            
+            switch(periodo) {
+                case 'hoje': break;
+                case 'ontem': inicio.setDate(hoje.getDate()-1); fim.setDate(hoje.getDate()-1); break;
+                case 'semana': inicio.setDate(hoje.getDate()-7); break;
+                case 'mes': inicio.setDate(hoje.getDate()-30); break;
+                case 'trimestre': inicio.setDate(hoje.getDate()-90); break;
+                case 'ano': inicio.setDate(hoje.getDate()-365); break;
+            }
+            
+            dataInicioAtual = inicio;
+            dataFimAtual = fim;
+            document.getElementById('dataInicio').value = inicio.toISOString().split('T')[0];
+            document.getElementById('dataFim').value = fim.toISOString().split('T')[0];
+            
+            atualizarKPIs();
+            mudarTab(tabAtual);
+        }
+        
+        function atualizarPeriodoPersonalizado() {
+            periodoAtual = 'personalizado';
+            document.querySelectorAll('.periodo-btn').forEach(btn => btn.classList.remove('ativo'));
+        }
+        
+        async function aplicarFiltroPersonalizado() {
+            const inicio = document.getElementById('dataInicio').value;
+            const fim = document.getElementById('dataFim').value;
+            if (inicio && fim) {
+                dataInicioAtual = new Date(inicio);
+                dataFimAtual = new Date(fim);
+                await atualizarKPIs();
+                await mudarTab(tabAtual);
+            }
+        }
+        
+        function resetarPeriodo() { mudarPeriodo('mes'); }
+        
+        // =============================================
+        // ATUALIZAÇÃO DE KPIs
+        // =============================================
+        async function atualizarKPIs() {
+            const inicio = dataInicioAtual.toISOString().split('T')[0];
+            const fim = dataFimAtual.toISOString().split('T')[0];
+            
+            const vendas = await getVendasPorPeriodo(inicio, fim);
+            const totalVendas = vendas.reduce((s, v) => s + (v.total || 0), 0);
+            const despesas = await getTotalDespesasPeriodo(inicio, fim);
+            const lucro = totalVendas - despesas;
+            const ticketMedio = vendas.length > 0 ? totalVendas / vendas.length : 0;
+            const totalFiadoPendente = await getTotalFiadoPendente();
+            const fiado = await getFiado();
+            const clientesFiadoAtivos = fiado.clientes.filter(c => c.dividas && c.dividas.some(d => !d.pago)).length;
+            const produtos = await getProdutos();
+            const produtosBaixoEstoque = produtos.filter(p => p.estoque <= (p.estoqueMinimo || 10)).length;
+            
+            const duracao = dataFimAtual - dataInicioAtual;
+            const fimAnterior = new Date(dataInicioAtual);
+            fimAnterior.setDate(fimAnterior.getDate() - 1);
+            const inicioAnterior = new Date(fimAnterior.getTime() - duracao);
+            const vendasAnterior = await getVendasPorPeriodo(inicioAnterior.toISOString().split('T')[0], fimAnterior.toISOString().split('T')[0]);
+            const totalAnterior = vendasAnterior.reduce((s, v) => s + (v.total || 0), 0);
+            const tendenciaVendas = totalAnterior > 0 ? ((totalVendas - totalAnterior) / totalAnterior) * 100 : 0;
+            
+            const html = `
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-shopping-cart"></i></div>
+                    <div class="kpi-valor">${formatarMoeda(totalVendas)}</div>
+                    <div class="kpi-label">Faturamento</div>
+                    <div class="kpi-tendencia ${tendenciaVendas > 0 ? 'tendencia-up' : (tendenciaVendas < 0 ? 'tendencia-down' : 'tendencia-stable')}">
+                        <i class="fas fa-${tendenciaVendas > 0 ? 'arrow-up' : (tendenciaVendas < 0 ? 'arrow-down' : 'minus')}"></i>
+                        ${Math.abs(tendenciaVendas).toFixed(1)}% vs anterior
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-ticket-alt"></i></div>
+                    <div class="kpi-valor">${formatarMoeda(ticketMedio)}</div>
+                    <div class="kpi-label">Ticket Médio</div>
+                    <div class="kpi-tendencia">${vendas.length} vendas</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
+                    <div class="kpi-valor" style="color: ${lucro >= 0 ? '#10b981' : '#dc2626'}">${formatarMoeda(lucro)}</div>
+                    <div class="kpi-label">Lucro Líquido</div>
+                    <div class="kpi-tendencia">Margem ${totalVendas > 0 ? ((lucro/totalVendas)*100).toFixed(1) : 0}%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    <div class="kpi-valor">${formatarMoeda(totalFiadoPendente)}</div>
+                    <div class="kpi-label">Fiado Pendente</div>
+                    <div class="kpi-tendencia">${clientesFiadoAtivos} clientes ativos</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon"><i class="fas fa-exclamation-triangle"></i></div>
+                    <div class="kpi-valor" style="color: ${produtosBaixoEstoque > 0 ? '#dc2626' : '#10b981'}">${produtosBaixoEstoque}</div>
+                    <div class="kpi-label">Estoque Crítico</div>
+                    <div class="kpi-tendencia">de ${produtos.length} produtos</div>
+                </div>
+            `;
+            
+            document.getElementById('kpiContainer').innerHTML = html;
+        }
+        
+        // =============================================
+        // CONTROLE DE TABS
+        // =============================================
+        async function mudarTab(tab) {
+            tabAtual = tab;
+            document.getElementById('breadcrumbTab').textContent = '· ' + nomesTabs[tab];
+            
+            document.querySelectorAll('.tab-desempenho').forEach(btn => btn.classList.remove('ativo'));
+            document.querySelectorAll('.tab-desempenho').forEach(btn => {
+                if (btn.textContent.includes(nomesTabs[tab].split(' ')[0])) btn.classList.add('ativo');
+            });
+            
+            const subTabsContainer = document.getElementById('subTabsContainer');
+            if (['vendas', 'produtos', 'fiado', 'financeiro'].includes(tab)) {
+                subTabsContainer.style.display = 'flex';
+                atualizarSubTabs(tab);
+            } else {
+                subTabsContainer.style.display = 'none';
+            }
+            
+            Object.values(graficos).forEach(g => { if (g) g.destroy(); });
+            graficos = {};
+            
+            switch(tab) {
+
+                case 'vendas': await mostrarDesempenhoVendas(); break;
+                case 'produtos': await mostrarDesempenhoProdutos(); break;
+                case 'estoque': await mostrarDesempenhoEstoque(); break;
+                case 'fiado': await mostrarDesempenhoFiado(); break;
+                case 'financeiro': await mostrarDesempenhoFinanceiro(); break;
+                case 'clientes': await mostrarDesempenhoClientes(); break;
+                case 'operacional': await mostrarDesempenhoOperacional(); break;
+            }
+        }
+        
+        function atualizarSubTabs(tab) {
+            const subTabsContainer = document.getElementById('subTabsContainer');
+            const opcoes = {
+                'vendas': ['Resumo', 'Tendências', 'Comparativo', 'Horários'],
+                'produtos': ['Ranking', 'Categorias', 'Rentabilidade', 'Giro'],
+                'fiado': ['Pendências', 'Histórico', 'Inadimplência', 'Recuperação'],
+                'financeiro': ['DRE', 'Fluxo Caixa', 'Despesas', 'Projeções']
+            };
+            if (opcoes[tab]) {
+                subTabsContainer.innerHTML = opcoes[tab].map(opcao => {
+                    const valorOpcao = opcao.toLowerCase().replace(/[^a-z]/g, '');
+                    const ativo = subTabAtual === valorOpcao ? 'ativo' : '';
+                    return `<button class="sub-tab ${ativo}" onclick="mudarSubTab('${valorOpcao}')">${opcao}</button>`;
+                }).join('');
+            }
+        }
+        
+        function mudarSubTab(subTab) { subTabAtual = subTab; mudarTab(tabAtual); }
+        
+        // =============================================
+        // FUNÇÕES DE CONTEÚDO (resumidas para manter o foco na impressão)
+        // =============================================
+        async function mostrarVisaoGeral() {
+            const inicio = dataInicioAtual.toISOString().split('T')[0];
+            const fim = dataFimAtual.toISOString().split('T')[0];
+            const vendas = await getVendasPorPeriodo(inicio, fim);
+            
+            if (vendas.length === 0) {
+                document.getElementById('tabContent').innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-chart-line"></i>
+                        <h3>Nenhum dado no período</h3>
+                        <p>Não há vendas registradas neste período.</p>
+                    </div>`;
+                return;
+            }
+            
+            const totalVendas = vendas.reduce((s, v) => s + v.total, 0);
+            const despesas = await getTotalDespesasPeriodo(inicio, fim);
+            const produtos = await getProdutos();
+            
+            const vendasPorDia = {};
+            vendas.forEach(v => {
+                const d = v.data.split('T')[0];
+                vendasPorDia[d] = (vendasPorDia[d] || 0) + v.total;
+            });
+            
+            const labels = Object.keys(vendasPorDia).sort();
+            const valores = labels.map(d => vendasPorDia[d]);
+            
+            const produtosVendidos = {};
+            vendas.forEach(v => v.itens.forEach(i => {
+                if (!produtosVendidos[i.produtoId]) produtosVendidos[i.produtoId] = { quantidade: 0, valor: 0 };
+                produtosVendidos[i.produtoId].quantidade += i.quantidade;
+                produtosVendidos[i.produtoId].valor += i.precoUnitario * i.quantidade;
+            }));
+            
+            const topProdutos = Object.entries(produtosVendidos)
+                .map(([id, dados]) => {
+                    const p = produtos.find(pr => pr.id === parseInt(id));
+                    return { nome: p?.nome || 'Desconhecido', ...dados };
+                })
+                .sort((a, b) => b.quantidade - a.quantidade)
+                .slice(0, 5);
+            
+            const formasPgto = { dinheiro: 0, cartao: 0, fiado: 0 };
+            vendas.forEach(v => { if (formasPgto[v.formaPagamento] !== undefined) formasPgto[v.formaPagamento]++; });
+            
+            document.getElementById('tabContent').innerHTML = `
+                <div class="metricas-grid">
+                    <div class="chart-container">
+                        <h3><i class="fas fa-chart-line"></i> Evolução de Vendas</h3>
+                        <div class="chart-wrapper"><canvas id="graficoVisaoGeral"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3><i class="fas fa-trophy"></i> Top 5 Produtos</h3></div>
+                        <div style="padding:1rem;">
+                            ${topProdutos.map((p, i) => `
+                                <div class="ranking-item">
+                                    <div class="ranking-posicao ${i===0?'top1':i===1?'top2':i===2?'top3':''}">${i+1}º</div>
+                                    <div class="ranking-info"><div class="ranking-nome">${p.nome}</div><div class="ranking-detalhe">${p.quantidade} un.</div></div>
+                                    <div class="ranking-valor">${formatarMoeda(p.valor)}</div>
+                                </div>`).join('')}
+                        </div>
+                    </div>
+                </div>
+                <div class="grid-2">
+                    <div class="card">
+                        <div class="card-header"><h3><i class="fas fa-credit-card"></i> Vendas por Forma Pgto</h3></div>
+                        <div class="chart-wrapper-sm"><canvas id="graficoFormasPgto"></canvas></div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><h3><i class="fas fa-info-circle"></i> Resumo do Período</h3></div>
+                        <div style="padding:1.5rem;">
+                            <div class="indicador-mini"><span>Total de Vendas:</span><strong>${formatarMoeda(totalVendas)}</strong></div>
+                            <div class="indicador-mini"><span>Total de Despesas:</span><strong>${formatarMoeda(despesas)}</strong></div>
+                            <div class="indicador-mini"><span>Lucro Líquido:</span><strong style="color:${(totalVendas-despesas)>=0?'#10b981':'#dc2626'}">${formatarMoeda(totalVendas-despesas)}</strong></div>
+                            <div class="indicador-mini"><span>Número de Vendas:</span><strong>${vendas.length}</strong></div>
+                            <div class="indicador-mini"><span>Média por Venda:</span><strong>${formatarMoeda(vendas.length?totalVendas/vendas.length:0)}</strong></div>
+                        </div>
+                    </div>
+                </div>`;
+            
+            setTimeout(() => {
+                const ctx1 = document.getElementById('graficoVisaoGeral')?.getContext('2d');
+                if (ctx1) graficos.visaoGeral = new Chart(ctx1, {
+                    type: 'line',
+                    data: {
+                        labels: labels.map(d => new Date(d).toLocaleDateString('pt-BR', {day:'2-digit',month:'2-digit'})),
+                        datasets: [{ label: 'Vendas (R$)', data: valores, borderColor: '#1e4a3b', backgroundColor: 'rgba(30,74,59,0.1)', tension: 0.4, fill: true }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+                
+                const ctx2 = document.getElementById('graficoFormasPgto')?.getContext('2d');
+                if (ctx2) graficos.formasPgto = new Chart(ctx2, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Dinheiro','Cartão','Fiado'],
+                        datasets: [{ data: [formasPgto.dinheiro, formasPgto.cartao, formasPgto.fiado], backgroundColor: ['#10b981','#3b82f6','#f59e0b'] }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }, 100);
+        }
+        
+        async function mostrarDesempenhoVendas() {
+            const inicio = dataInicioAtual.toISOString().split('T')[0];
+            const fim = dataFimAtual.toISOString().split('T')[0];
+            const vendas = await getVendasPorPeriodo(inicio, fim);
+            
+            if (!vendas.length) {
+                document.getElementById('tabContent').innerHTML = `<div class="empty-state"><i class="fas fa-shopping-cart"></i><h3>Nenhuma venda no período</h3></div>`;
+                return;
+            }
+            
+            const vendasPorDia = {}, qtdPorDia = {};
+            vendas.forEach(v => {
+                const d = v.data.split('T')[0];
+                vendasPorDia[d] = (vendasPorDia[d] || 0) + v.total;
+                qtdPorDia[d] = (qtdPorDia[d] || 0) + 1;
+            });
+            
+            const labels = Object.keys(vendasPorDia).sort();
+            const valores = labels.map(d => vendasPorDia[d]);
+            const melhoresDias = Object.entries(vendasPorDia).sort((a,b) => b[1]-a[1]).slice(0,5);
+            
+            const vendasPorHora = {};
+            vendas.forEach(v => {
+                const h = new Date(v.data).getHours();
+                if (!vendasPorHora[h]) vendasPorHora[h] = { total: 0, qtd: 0 };
+                vendasPorHora[h].total += v.total;
+                vendasPorHora[h].qtd++;
+            });
+            const melhoresHorarios = Object.entries(vendasPorHora).sort((a,b) => b[1].total-a[1].total).slice(0,5);
+            
+            document.getElementById('tabContent').innerHTML = `
+                <div class="chart-container"><h3>Evolução de Vendas</h3><div class="chart-wrapper"><canvas id="graficoVendasEvolucao"></canvas></div></div>
+                <div class="grid-2">
+                    <div class="card">
+                        <h3>Melhores Dias</h3>
+                        <div class="table-container"><table><thead><tr><th>Data</th><th>Vendas</th><th>Faturamento</th></tr></thead><tbody>
+                            ${melhoresDias.map(([d,t]) => `<tr><td>${formatarData(d)}</td><td>${qtdPorDia[d]} vendas</td><td><strong>${formatarMoeda(t)}</strong></td></tr>`).join('')}
+                        </tbody></table></div>
+                    </div>
+                    <div class="card">
+                        <h3>Melhores Horários</h3>
+                        <div class="table-container"><table><thead><tr><th>Horário</th><th>Vendas</th><th>Média</th></tr></thead><tbody>
+                            ${melhoresHorarios.map(([h,d]) => `<tr><td>${h}:00-${parseInt(h)+1}:00</td><td>${d.qtd} vendas</td><td>${formatarMoeda(d.total/d.qtd)}</td></tr>`).join('')}
+                        </tbody></table></div>
+                    </div>
+                </div>`;
+            
+            setTimeout(() => {
+                const ctx = document.getElementById('graficoVendasEvolucao')?.getContext('2d');
+                if (ctx) graficos.vendasEvolucao = new Chart(ctx, {
+                    type: 'line',
+                    data: {
+                        labels: labels.map(d => new Date(d).toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})),
+                        datasets: [{ label: 'Vendas Diárias', data: valores, borderColor: '#1e4a3b', backgroundColor: 'rgba(30,74,59,0.1)', tension: 0.4, fill: true }]
+                    },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }, 100);
+        }
+        
+        // Demais funções de conteúdo mantidas como estavam, sem alterações
+        async function mostrarDesempenhoProdutos() {
+            const inicio = dataInicioAtual.toISOString().split('T')[0];
+            const fim = dataFimAtual.toISOString().split('T')[0];
+            const vendas = await getVendasPorPeriodo(inicio, fim);
+            const produtos = await getProdutos();
+            if (!vendas.length) {
+                document.getElementById('tabContent').innerHTML = `<div class="empty-state"><i class="fas fa-box"></i><h3>Nenhuma venda no período</h3></div>`;
+                return;
+            }
+            const pv = {};
+            vendas.forEach(v => v.itens.forEach(i => {
+                if (!pv[i.produtoId]) pv[i.produtoId] = { qtd: 0, valor: 0 };
+                pv[i.produtoId].qtd += i.quantidade;
+                pv[i.produtoId].valor += i.precoUnitario * i.quantidade;
+            }));
+            const ranking = Object.entries(pv).map(([id,d]) => {
+                const p = produtos.find(pr => pr.id === parseInt(id));
+                return { nome: p?.nome || 'Desconhecido', categoria: p?.categoria || '-', ...d };
+            }).sort((a,b) => b.qtd - a.qtd);
+            const top10 = ranking.slice(0,10);
+            document.getElementById('tabContent').innerHTML = `
+                <div class="grid-2">
+                    <div class="chart-container"><h3>Top 10 Produtos</h3><div class="chart-wrapper"><canvas id="graficoTopProdutos"></canvas></div></div>
+                    <div class="card"><h3>Ranking Completo</h3><div style="max-height:400px;overflow-y:auto;">
+                        ${ranking.map((p,i) => `<div class="ranking-item"><div class="ranking-posicao ${i===0?'top1':i===1?'top2':i===2?'top3':''}">${i+1}º</div><div class="ranking-info"><div class="ranking-nome">${p.nome}</div><div class="ranking-detalhe">${p.categoria} · ${p.qtd} un.</div></div><div class="ranking-valor">${formatarMoeda(p.valor)}</div></div>`).join('')}
+                    </div></div>
+                </div>`;
+            setTimeout(() => {
+                const ctx = document.getElementById('graficoTopProdutos')?.getContext('2d');
+                if (ctx) graficos.topProdutos = new Chart(ctx, {
+                    type: 'bar',
+                    data: { labels: top10.map(p => p.nome), datasets: [{ label: 'Qtd Vendida', data: top10.map(p => p.qtd), backgroundColor: '#1e4a3b' }] },
+                    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y' }
+                });
+            }, 100);
+        }
+        
+        async function mostrarDesempenhoEstoque() {
+            const produtos = await getProdutos();
+            if (!produtos.length) {
+                document.getElementById('tabContent').innerHTML = `<div class="empty-state"><i class="fas fa-warehouse"></i><h3>Nenhum produto cadastrado</h3></div>`;
+                return;
+            }
+            const baixo = produtos.filter(p => p.estoque <= (p.estoqueMinimo || 10));
+            const valorEstoque = produtos.reduce((s,p) => s + p.preco * p.estoque, 0);
+            const categorias = {};
+            produtos.forEach(p => { categorias[p.categoria] = (categorias[p.categoria] || 0) + p.estoque; });
+            document.getElementById('tabContent').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Produtos</div><div class="stat-value">${produtos.length}</div></div>
+                    <div class="stat-card"><div class="stat-label">Valor em Estoque</div><div class="stat-value">${formatarMoeda(valorEstoque)}</div></div>
+                    <div class="stat-card"><div class="stat-label">Baixo Estoque</div><div class="stat-value" style="color:${baixo.length?'#dc2626':'#10b981'}">${baixo.length}</div></div>
+                </div>
+                <div class="grid-2">
+                    <div class="chart-container"><h3>Estoque por Categoria</h3><div class="chart-wrapper-sm"><canvas id="graficoCategorias"></canvas></div></div>
+                    <div class="card"><h3>Produtos com Baixo Estoque</h3><div class="table-container"><table><thead><tr><th>Produto</th><th>Categoria</th><th>Estoque</th><th>Mínimo</th></tr></thead><tbody>
+                        ${baixo.length ? baixo.map(p => `<tr><td><strong>${p.nome}</strong></td><td>${p.categoria}</td><td><span class="alert-badge alert-critical">${p.estoque}</span></td><td>${p.estoqueMinimo||10}</td></tr>`).join('') : '<tr><td colspan="4">Nenhum produto com estoque baixo</td></tr>'}
+                    </tbody></table></div></div>
+                </div>`;
+            setTimeout(() => {
+                const ctx = document.getElementById('graficoCategorias')?.getContext('2d');
+                if (ctx) graficos.categorias = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels: Object.keys(categorias), datasets: [{ data: Object.values(categorias), backgroundColor: ['#1e4a3b','#2d6a4f','#40916c','#52b788','#74c69d','#95d5b2'] }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }, 100);
+        }
+        
+        async function mostrarDesempenhoFiado() {
+            const fiado = await getFiado();
+            if (!fiado.clientes.length) {
+                document.getElementById('tabContent').innerHTML = `<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>Nenhum cliente com fiado</h3></div>`;
+                return;
+            }
+            let pendente = 0, recebido = 0;
+            fiado.clientes.forEach(c => c.dividas.forEach(d => { if (d.pago) recebido += d.total; else pendente += (d.total - (d.valorPago||0)); }));
+            const ativos = fiado.clientes.filter(c => c.dividas.some(d => !d.pago));
+            document.getElementById('tabContent').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Pendente</div><div class="stat-value" style="color:#dc2626;">${formatarMoeda(pendente)}</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Recebido</div><div class="stat-value" style="color:#10b981;">${formatarMoeda(recebido)}</div></div>
+                    <div class="stat-card"><div class="stat-label">Clientes Ativos</div><div class="stat-value">${ativos.length}</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Clientes</div><div class="stat-value">${fiado.clientes.length}</div></div>
+                </div>
+                <div class="card"><h3>Clientes com Fiado Ativo</h3><div class="table-container"><table><thead><tr><th>Cliente</th><th>Turma</th><th>Compras</th><th>Pendente</th></tr></thead><tbody>
+                    ${ativos.length ? ativos.map(c => {
+                        const ativas = c.dividas.filter(d => !d.pago);
+                        const totalP = ativas.reduce((s,d) => s + (d.total - (d.valorPago||0)), 0);
+                        return `<tr><td><strong>${c.nome}</strong></td><td>${c.turma||'-'}</td><td>${ativas.length}</td><td><strong style="color:#dc2626;">${formatarMoeda(totalP)}</strong></td></tr>`;
+                    }).join('') : '<tr><td colspan="4">Nenhum cliente com fiado ativo</td></tr>'}
+                </tbody></table></div></div>`;
+        }
+        
+        async function mostrarDesempenhoFinanceiro() {
+            const inicio = dataInicioAtual.toISOString().split('T')[0];
+            const fim = dataFimAtual.toISOString().split('T')[0];
+            const vendas = await getVendasPorPeriodo(inicio, fim);
+            const despesas = await getDespesas();
+            const despesasP = despesas.filter(d => { const dd = d.data.split('T')[0]; return dd >= inicio && dd <= fim; });
+            const receita = vendas.reduce((s,v) => s+v.total,0);
+            const despTotal = despesasP.reduce((s,d) => s+d.valor,0);
+            const lucro = receita - despTotal;
+            const cats = {};
+            despesasP.forEach(d => { cats[d.categoria] = (cats[d.categoria]||0) + d.valor; });
+            document.getElementById('tabContent').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Receita Total</div><div class="stat-value" style="color:#10b981;">${formatarMoeda(receita)}</div></div>
+                    <div class="stat-card"><div class="stat-label">Despesas Totais</div><div class="stat-value" style="color:#dc2626;">${formatarMoeda(despTotal)}</div></div>
+                    <div class="stat-card"><div class="stat-label">Lucro Líquido</div><div class="stat-value" style="color:${lucro>=0?'#10b981':'#dc2626'};">${formatarMoeda(lucro)}</div></div>
+                    <div class="stat-card"><div class="stat-label">Margem</div><div class="stat-value">${receita?((lucro/receita)*100).toFixed(1):0}%</div></div>
+                </div>
+                <div class="grid-2">
+                    <div class="chart-container"><h3>Despesas por Categoria</h3><div class="chart-wrapper-sm"><canvas id="graficoDespesas"></canvas></div></div>
+                    <div class="card"><h3>Resumo Financeiro</h3><div style="padding:1.5rem;">
+                        <div class="indicador-mini"><span>Receita Bruta:</span><strong style="color:#10b981;">${formatarMoeda(receita)}</strong></div>
+                        <div class="indicador-mini"><span>Despesas:</span><strong style="color:#dc2626;">- ${formatarMoeda(despTotal)}</strong></div>
+                        <hr><div class="indicador-mini"><span><strong>Lucro Líquido:</strong></span><strong style="color:${lucro>=0?'#10b981':'#dc2626'};">${formatarMoeda(lucro)}</strong></div>
+                    </div></div>
+                </div>`;
+            setTimeout(() => {
+                const ctx = document.getElementById('graficoDespesas')?.getContext('2d');
+                if (ctx && Object.keys(cats).length) graficos.despesas = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: { labels: Object.keys(cats), datasets: [{ data: Object.values(cats), backgroundColor: ['#dc2626','#ea580c','#d97706','#eab308','#84cc16','#10b981'] }] },
+                    options: { responsive: true, maintainAspectRatio: false }
+                });
+            }, 100);
+        }
+        
+        async function mostrarDesempenhoClientes() {
+            const fiado = await getFiado();
+            if (!fiado.clientes.length) {
+                document.getElementById('tabContent').innerHTML = `<div class="empty-state"><i class="fas fa-users"></i><h3>Nenhum cliente cadastrado</h3></div>`;
+                return;
+            }
+            const ranking = fiado.clientes.map(c => {
+                const compras = c.dividas.length;
+                const gasto = c.dividas.reduce((s,d) => s+d.total,0);
+                const pend = c.dividas.filter(d => !d.pago).reduce((s,d) => s+(d.total-(d.valorPago||0)),0);
+                return { nome: c.nome, turma: c.turma, compras, gasto, pend, status: pend>0?'Devedor':'Em dia' };
+            }).sort((a,b) => b.gasto-a.gasto);
+            document.getElementById('tabContent').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Total Clientes</div><div class="stat-value">${fiado.clientes.length}</div></div>
+                    <div class="stat-card"><div class="stat-label">Ativos</div><div class="stat-value">${ranking.filter(c=>c.compras>0).length}</div></div>
+                    <div class="stat-card"><div class="stat-label">Devedores</div><div class="stat-value" style="color:#dc2626;">${ranking.filter(c=>c.pend>0).length}</div></div>
+                    <div class="stat-card"><div class="stat-label">Ticket Médio</div><div class="stat-value">${formatarMoeda(ranking.reduce((s,c)=>s+c.gasto,0)/ranking.length)}</div></div>
+                </div>
+                <div class="card"><h3>Ranking de Clientes</h3><div class="table-container"><table><thead><tr><th>#</th><th>Cliente</th><th>Turma</th><th>Compras</th><th>Total Gasto</th><th>Pendente</th><th>Status</th></tr></thead><tbody>
+                    ${ranking.map((c,i) => `<tr><td>${i+1}º</td><td><strong>${c.nome}</strong></td><td>${c.turma||'-'}</td><td>${c.compras}</td><td>${formatarMoeda(c.gasto)}</td><td style="color:${c.pend>0?'#dc2626':'#10b981'};">${formatarMoeda(c.pend)}</td><td><span class="alert-badge ${c.pend>0?'alert-warning':'alert-success'}">${c.status}</span></td></tr>`).join('')}
+                </tbody></table></div></div>`;
+        }
+        
+        async function mostrarDesempenhoOperacional() {
+            const vendas = await getVendas();
+            const produtos = await getProdutos();
+            const despesas = await getDespesas();
+            const hoje = new Date();
+            const inicio30 = new Date(); inicio30.setDate(hoje.getDate()-30);
+            const recentes = vendas.filter(v => new Date(v.data) >= inicio30);
+            const dias = new Set(recentes.map(v => v.data.split('T')[0])).size;
+            const media = recentes.length / 30;
+            const eficiencia = dias/30*100;
+            document.getElementById('tabContent').innerHTML = `
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-label">Dias com Vendas (30d)</div><div class="stat-value">${dias}/30</div><small>${eficiencia.toFixed(1)}%</small></div>
+                    <div class="stat-card"><div class="stat-label">Média Vendas/Dia</div><div class="stat-value">${media.toFixed(1)}</div></div>
+                    <div class="stat-card"><div class="stat-label">Total Produtos</div><div class="stat-value">${produtos.length}</div></div>
+                    <div class="stat-card"><div class="stat-label">Despesas (30d)</div><div class="stat-value">${formatarMoeda(despesas.filter(d=>new Date(d.data)>=inicio30).reduce((s,d)=>s+d.valor,0))}</div></div>
+                </div>
+                <div class="card"><h3>Indicadores Operacionais</h3><div style="padding:1.5rem;">
+                    <div><div class="flex-between"><span>Eficiência de Vendas</span><strong>${eficiencia.toFixed(1)}%</strong></div><div class="progress-bar"><div class="progress-fill" style="width:${eficiencia}%;"></div></div></div>
+                    <div><div class="flex-between"><span>Cobertura de Estoque</span><strong>${produtos.length} produtos</strong></div><div class="progress-bar"><div class="progress-fill" style="width:${Math.min(produtos.length*2,100)}%;"></div></div></div>
+                    <div class="indicador-mini"><span><i class="fas fa-check-circle" style="color:#10b981;"></i> Sistema Operacional</span><span class="alert-badge alert-success">Ativo</span></div>
+                    <div class="indicador-mini"><span><i class="fas fa-database"></i> Total de Registros</span><strong>${vendas.length} vendas · ${despesas.length} despesas</strong></div>
+                </div></div>`;
+        }
+        
+        // =============================================
+        // IMPRESSÃO PROFISSIONAL
+        // =============================================
+        function imprimirDesempenho() {
+            const dataEmissao = new Date().toLocaleString('pt-BR');
+            document.getElementById('printDataEmissao').textContent = dataEmissao;
+            document.getElementById('printFooterData').textContent = dataEmissao;
+            
+            const inicio = dataInicioAtual.toLocaleDateString('pt-BR');
+            const fim = dataFimAtual.toLocaleDateString('pt-BR');
+            const nomesPeriodo = {
+                'hoje': 'Hoje', 'ontem': 'Ontem', 'semana': 'Últimos 7 dias',
+                'mes': 'Últimos 30 dias', 'trimestre': 'Últimos 90 dias',
+                'ano': 'Últimos 365 dias', 'personalizado': `${inicio} a ${fim}`
+            };
+            const descricao = nomesPeriodo[periodoAtual] || `${inicio} a ${fim}`;
+            document.getElementById('printPeriodoInfo').textContent = `Período: ${descricao} | Seção: ${nomesTabs[tabAtual] || ''}`;
+            
+            window.print();
+        }
+        
+        console.log('✅ Central de Desempenhos carregada - Versão Final');
+    </script>
+</body>
+</html>

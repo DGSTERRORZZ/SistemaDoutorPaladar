@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos Antecipados · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        body {
+            background: var(--bg-body);
+            font-family: 'Inter', sans-serif;
+            min-height: 100vh;
+            padding: 1rem;
+        }
+        .pedidos-container {
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+        .top-bar {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+            box-shadow: var(--shadow-md);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+        .top-bar h1 {
+            color: var(--primary);
+            font-size: 1.6rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .top-bar h1 i {
+            color: var(--accent);
+            background: var(--secondary);
+            padding: 0.6rem;
+            border-radius: 14px;
+        }
+        .tabs {
+            display: flex;
+            gap: 0.3rem;
+            background: var(--bg-nav);
+            padding: 0.3rem;
+            border-radius: 30px;
+        }
+        .tab-btn {
+            padding: 0.5rem 1.2rem;
+            border: none;
+            background: transparent;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: var(--transition);
+            color: var(--text-secondary);
+            font-family: inherit;
+            font-size: 0.9rem;
+        }
+        .tab-btn.active {
+            background: var(--primary);
+            color: white;
+            box-shadow: var(--shadow-md);
+        }
+        .pedido-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.2rem;
+            margin-bottom: 0.8rem;
+            box-shadow: var(--shadow-sm);
+            border-left: 5px solid var(--warning);
+            transition: var(--transition);
+        }
+        .pedido-card.confirmado { border-left-color: var(--success); }
+        .pedido-card.pronto { border-left-color: var(--accent); }
+        .pedido-card.entregue { border-left-color: var(--gray-600); }
+        .pedido-card.recusado { border-left-color: var(--danger); opacity: 0.7; }
+        .pedido-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .status-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+        .status-pendente { background: #fff3cd; color: #856404; }
+        .status-confirmado { background: #d4edda; color: #155724; }
+        .status-preparando { background: #cce5ff; color: #004085; }
+        .status-pronto { background: #fff3e0; color: #e65100; }
+        .status-entregue { background: #e2e3e5; color: #383d41; }
+        .status-recusado { background: #ffe3e3; color: #a61b1b; }
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .produto-card {
+            background: white;
+            border: 2px solid var(--gray-200);
+            border-radius: var(--radius-sm);
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.3rem;
+        }
+        .produto-card:hover {
+            border-color: var(--primary);
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+        .produto-card .icone {
+            font-size: 2rem;
+            color: var(--primary);
+        }
+        .produto-card .nome {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        .produto-card .preco {
+            color: var(--primary);
+            font-weight: 700;
+        }
+        .produto-card.sem-estoque {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .carrinho-pedido {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 1.5rem;
+            box-shadow: var(--shadow-sm);
+            margin-top: 1.5rem;
+        }
+        .carrinho-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.6rem 0;
+            border-bottom: 1px solid var(--gray-200);
+        }
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+            .produtos-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+    </style>
+</head>
+<body>
+    <div class="pedidos-container">
+        <div class="top-bar">
+            <h1><i class="fas fa-clipboard-list"></i> Pedidos Antecipados</h1>
+            <div class="tabs">
+                <button class="tab-btn active" onclick="mostrarAba('fazer')">Fazer Pedido</button>
+                <button class="tab-btn" onclick="mostrarAba('consultar')">Consultar Status</button>
+            </div>
+        </div>
+
+        <!-- Aba Fazer Pedido -->
+        <div id="abaFazer">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-utensils"></i> Escolha seus produtos</h3>
+                    <span id="quantidadeProdutos" style="color: var(--text-secondary); font-size: 0.9rem;"></span>
+                </div>
+                <div id="categoriasFiltro" style="display: flex; gap: 0.3rem; flex-wrap: wrap; margin-bottom: 1rem;"></div>
+                <div class="produtos-grid" id="produtosGrid"></div>
+            </div>
+
+            <div class="carrinho-pedido" id="carrinhoContainer" style="display: none;">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-shopping-basket"></i> Seu Pedido</h3>
+                    <button class="btn btn-secondary btn-sm" onclick="limparCarrinho()"><i class="fas fa-trash"></i> Limpar</button>
+                </div>
+                <div id="carrinhoItens"></div>
+                <div style="text-align: right; font-size: 1.4rem; font-weight: 700; color: var(--primary); margin: 1rem 0;">
+                    Total: <span id="totalCarrinho">R$ 0,00</span>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Seu Nome *</label>
+                        <input type="text" id="nomeCliente" class="form-control" placeholder="Nome completo" required>
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-graduation-cap"></i> Turma/Sala</label>
+                        <input type="text" id="turmaCliente" class="form-control" placeholder="Ex: INFO3, ADM2">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-clock"></i> Horário de Retirada *</label>
+                    <select id="horarioRetirada" class="form-control" required></select>
+                </div>
+                <button class="btn btn-primary" onclick="enviarPedido()" style="width: 100%;">
+                    <i class="fas fa-paper-plane"></i> Enviar Pedido
+                </button>
+            </div>
+        </div>
+
+        <!-- Aba Consultar Status -->
+        <div id="abaConsultar" style="display: none;">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title"><i class="fas fa-search"></i> Consultar meus pedidos</h3>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-user"></i> Digite seu nome para buscar</label>
+                    <input type="text" id="buscaNome" class="form-control" placeholder="Seu nome completo" onkeyup="buscarPedidos()">
+                </div>
+                <div id="resultadoBusca"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let carrinho = [];
+        let produtosCache = [];
+        let agendamentosCache = [];
+
+        async function init() {
+            await carregarProdutos();
+            await carregarAgendamentos();
+        }
+
+        async function carregarProdutos() {
+            try {
+                const res = await fetch('http://localhost:3000/api/produtos', {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if (res.ok) produtosCache = await res.json();
+                else produtosCache = [];
+            } catch (e) {
+                produtosCache = [];
+            }
+            renderProdutos();
+            renderCategorias();
+        }
+
+        async function carregarAgendamentos() {
+            try {
+                const res = await fetch('http://localhost:3000/api/agendamentos', {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if (res.ok) agendamentosCache = await res.json();
+                else agendamentosCache = [];
+            } catch (e) {
+                agendamentosCache = [];
+            }
+            renderAgendamentos();
+        }
+
+        function renderCategorias() {
+            const cats = [...new Set(produtosCache.map(p => p.categoria))];
+            const container = document.getElementById('categoriasFiltro');
+            container.innerHTML = `<button class="tab-btn active" onclick="filtrarCategoria('todas')">Todas</button>` +
+                cats.map(c => `<button class="tab-btn" onclick="filtrarCategoria('${c}')">${getIcone(c)} ${c}</button>`).join('');
+        }
+
+        function filtrarCategoria(cat) {
+            document.querySelectorAll('#categoriasFiltro .tab-btn').forEach(b => b.classList.remove('active'));
+            event.target.classList.add('active');
+            renderProdutos(cat === 'todas' ? null : cat);
+        }
+
+        function renderProdutos(filtroCat = null) {
+            const container = document.getElementById('produtosGrid');
+            let lista = produtosCache;
+            if (filtroCat) lista = lista.filter(p => p.categoria === filtroCat);
+            document.getElementById('quantidadeProdutos').textContent = `${lista.length} produtos`;
+            container.innerHTML = lista.map(p => {
+                const sem = p.estoque <= 0;
+                return `<div class="produto-card ${sem ? 'sem-estoque' : ''}" onclick="${sem ? '' : `addAoCarrinho(${p.id}, '${p.nome}', ${p.preco})`}">
+                    <div class="icone">${getIcone(p.categoria)}</div>
+                    <div class="nome">${p.nome}</div>
+                    <div class="preco">R$ ${p.preco.toFixed(2)}</div>
+                    <small>${sem ? 'Esgotado' : `Estoque: ${p.estoque}`}</small>
+                </div>`;
+            }).join('');
+        }
+
+        function renderAgendamentos() {
+            const select = document.getElementById('horarioRetirada');
+            const agora = new Date();
+            const horaAtual = agora.getHours() * 60 + agora.getMinutes();
+            
+            select.innerHTML = '<option value="">Selecione um horário...</option>' +
+                agendamentosCache.filter(a => !a.bloqueado).map(a => {
+                    const [h, m] = a.horarioInicio.split(':').map(Number);
+                    const minutosHorario = h * 60 + m;
+                    const vagas = a.limitePedidos - (a.pedidosHoje || 0);
+                    const label = `${a.horarioInicio} - ${a.horarioFim} (${vagas} vagas)`;
+                    const disabled = vagas <= 0 || minutosHorario < horaAtual;
+                    return `<option value="${a.horarioInicio}" ${disabled ? 'disabled' : ''}>${label}${disabled ? ' - Indisponível' : ''}</option>`;
+                }).join('');
+        }
+
+        function addAoCarrinho(id, nome, preco) {
+            const existente = carrinho.find(i => i.produtoId === id);
+            if (existente) existente.quantidade++;
+            else carrinho.push({ produtoId: id, nome, precoUnitario: preco, quantidade: 1 });
+            atualizarCarrinho();
+        }
+
+        function removerDoCarrinho(id) {
+            const idx = carrinho.findIndex(i => i.produtoId === id);
+            if (idx !== -1) {
+                if (carrinho[idx].quantidade > 1) carrinho[idx].quantidade--;
+                else carrinho.splice(idx, 1);
+            }
+            atualizarCarrinho();
+        }
+
+        function limparCarrinho() {
+            carrinho = [];
+            atualizarCarrinho();
+        }
+
+        function atualizarCarrinho() {
+            const container = document.getElementById('carrinhoItens');
+            const totalSpan = document.getElementById('totalCarrinho');
+            const carrinhoContainer = document.getElementById('carrinhoContainer');
+            
+            if (carrinho.length === 0) {
+                carrinhoContainer.style.display = 'none';
+                return;
+            }
+            carrinhoContainer.style.display = 'block';
+            
+            let total = 0;
+            container.innerHTML = carrinho.map((item, idx) => {
+                const subtotal = item.quantidade * item.precoUnitario;
+                total += subtotal;
+                return `<div class="carrinho-item">
+                    <div><strong>${item.nome}</strong><br><small>R$ ${item.precoUnitario.toFixed(2)} / un</small></div>
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <button class="btn btn-sm btn-secondary" onclick="removerDoCarrinho(${item.produtoId})">-</button>
+                        <span style="font-weight: 600;">${item.quantidade}</span>
+                        <button class="btn btn-sm btn-secondary" onclick="addAoCarrinho(${item.produtoId},'${item.nome}',${item.precoUnitario})">+</button>
+                        <span style="font-weight: 600; min-width: 70px; text-align: right;">R$ ${subtotal.toFixed(2)}</span>
+                    </div>
+                </div>`;
+            }).join('');
+            totalSpan.textContent = `R$ ${total.toFixed(2)}`;
+        }
+
+        async function enviarPedido() {
+            const nome = document.getElementById('nomeCliente').value.trim();
+            const turma = document.getElementById('turmaCliente').value.trim();
+            const horario = document.getElementById('horarioRetirada').value;
+
+            if (!nome) return alert('Informe seu nome!');
+            if (carrinho.length === 0) return alert('Adicione produtos ao carrinho!');
+            if (!horario) return alert('Selecione um horário de retirada!');
+
+            const total = carrinho.reduce((s, i) => s + i.quantidade * i.precoUnitario, 0);
+
+            try {
+                const res = await fetch('http://localhost:3000/api/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nomeCliente: nome,
+                        turma,
+                        horarioRetirada: horario,
+                        itens: carrinho.map(i => ({ produtoId: i.produtoId, quantidade: i.quantidade, precoUnitario: i.precoUnitario })),
+                        total
+                    })
+                });
+                if (res.ok) {
+                    alert('✅ Pedido enviado com sucesso! Acompanhe o status na aba "Consultar Status".');
+                    limparCarrinho();
+                    document.getElementById('nomeCliente').value = '';
+                    document.getElementById('turmaCliente').value = '';
+                    document.getElementById('horarioRetirada').value = '';
+                    await carregarAgendamentos();
+                } else {
+                    alert('Erro ao enviar pedido.');
+                }
+            } catch (e) {
+                alert('Erro de conexão com o servidor.');
+            }
+        }
+
+        function mostrarAba(aba) {
+            document.getElementById('abaFazer').style.display = aba === 'fazer' ? 'block' : 'none';
+            document.getElementById('abaConsultar').style.display = aba === 'consultar' ? 'block' : 'none';
+            document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0 && aba === 'fazer') || (i === 1 && aba === 'consultar')));
+        }
+
+        async function buscarPedidos() {
+            const nome = document.getElementById('buscaNome').value.trim();
+            const container = document.getElementById('resultadoBusca');
+            if (!nome) { container.innerHTML = ''; return; }
+
+            try {
+                const res = await fetch(`http://localhost:3000/api/pedidos/buscar/${encodeURIComponent(nome)}`);
+                if (!res.ok) { container.innerHTML = '<p style="text-align:center; padding:2rem;">Nenhum pedido encontrado.</p>'; return; }
+                const pedidos = await res.json();
+                if (pedidos.length === 0) {
+                    container.innerHTML = '<p style="text-align:center; padding:2rem;">Nenhum pedido encontrado para este nome.</p>';
+                    return;
+                }
+                container.innerHTML = pedidos.map(p => `
+                    <div class="pedido-card ${p.status}">
+                        <div class="pedido-header">
+                            <div>
+                                <strong>Pedido #${p.id}</strong> · ${new Date(p.data).toLocaleDateString('pt-BR')} ${new Date(p.data).toLocaleTimeString('pt-BR', {hour:'2-digit',minute:'2-digit'})}
+                                <br><small>Retirada: ${p.horarioRetirada}</small>
+                            </div>
+                            <span class="status-badge status-${p.status}">${p.status.toUpperCase()}</span>
+                        </div>
+                        <div style="margin: 0.5rem 0;">
+                            ${p.itens.map(i => `<div>${i.quantidade}x Produto #${i.produtoId} - R$ ${(i.precoUnitario * i.quantidade).toFixed(2)}</div>`).join('')}
+                        </div>
+                        <strong>Total: R$ ${p.total.toFixed(2)}</strong>
+                    </div>
+                `).join('');
+            } catch (e) {
+                container.innerHTML = '<p style="text-align:center; padding:2rem;">Erro ao buscar pedidos.</p>';
+            }
+        }
+
+        function getIcone(cat) {
+            const icones = { 'Salgados': '🥟', 'Bebidas': '🥤', 'Doces': '🍰', 'Lanches': '🥪', 'Sorvetes': '🍦', 'Saudáveis': '🥗', 'Refeições': '🍽️' };
+            return icones[cat] || '📦';
+        }
+
+        init();
+    </script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

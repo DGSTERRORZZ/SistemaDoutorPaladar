@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .config-section { background: var(--bg-card); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
+        .config-section h3 { color: var(--primary); margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }
+        .config-row { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem 0; border-bottom: 1px solid var(--border-color); flex-wrap: wrap; gap: 0.5rem; }
+        .config-row:last-child { border-bottom: none; }
+        .config-row label { font-weight: 500; color: var(--text-primary); }
+        .config-row input { width: 200px; padding: 0.5rem; border: 1px solid var(--border-input); border-radius: var(--radius-sm); background: var(--bg-input); color: var(--text-primary); font-family: inherit; }
+        .danger-zone { border: 2px dashed var(--danger); border-radius: var(--radius); padding: 1.5rem; margin-top: 1rem; }
+        .danger-zone h3 { color: var(--danger) !important; }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-title">
+                <h1><i class="fas fa-cog"></i> <span data-translate="config">Configurações</span></h1>
+                <p>Doutor Paladar · Administração do Sistema</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> <span data-translate="dashboard">Dashboard</span></a>
+                <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> <span data-translate="pdv">PDV</span></a>
+                <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> <span data-translate="estoque">Estoque</span></a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> <span data-translate="fiado">Fiado</span></a>
+                <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> <span data-translate="desempenhos">Desempenhos</span></a>
+                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> <span data-translate="despesas">Despesas</span></a>
+                <a href="pedidos-admin.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span data-translate="pedidos">Pedidos</span></a>
+                <a href="agendamentos.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span data-translate="agenda">Agenda</span></a>
+                <a href="fornecedores.html" class="nav-link"><i class="fas fa-truck"></i> <span data-translate="fornecedores">Fornecedores</span></a>
+                <a href="configuracoes.html" class="nav-link active"><i class="fas fa-cog"></i> <span data-translate="config">Config</span></a>
+                <button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span data-translate="logout">Sair</span></button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="config-section">
+                <h3><i class="fas fa-store"></i> Informações da Cantina</h3>
+                <div class="config-row"><label>Nome da Cantina</label><input type="text" id="cfg_nome_cantina" value="Doutor Paladar"></div>
+                <div class="config-row"><label>Meta de Vendas Diária (R$)</label><input type="number" id="cfg_meta_vendas_diaria" value="500" step="0.01"></div>
+                <div class="config-row"><label>Meta de Vendas Mensal (R$)</label><input type="number" id="cfg_meta_vendas_mensal" value="10000" step="0.01"></div>
+                <div class="config-row"><label>Limite de Fiado por Aluno (R$)</label><input type="number" id="cfg_limite_fiado_aluno" value="50" step="0.01"></div>
+                <div class="config-row"><label>Horário de Abertura</label><input type="time" id="cfg_horario_abertura" value="07:00"></div>
+                <div class="config-row"><label>Horário de Fechamento</label><input type="time" id="cfg_horario_fechamento" value="17:00"></div>
+                <button class="btn btn-primary" onclick="salvarTodasConfigs()" style="margin-top:1rem;"><i class="fas fa-save"></i> Salvar Todas as Configurações</button>
+            </div>
+
+            <div class="config-section">
+                <h3><i class="fas fa-database"></i> Backup de Dados</h3>
+                <p style="color:var(--text-secondary);margin-bottom:1rem;">Exporte todos os dados do sistema para um arquivo JSON ou importe um backup salvo anteriormente.</p>
+                <div class="flex" style="gap:1rem;flex-wrap:wrap;">
+                    <button class="btn btn-primary" onclick="exportarDados()"><i class="fas fa-download"></i> Exportar Dados</button>
+                    <label class="btn btn-secondary" style="cursor:pointer;"><i class="fas fa-upload"></i> Importar Dados<input type="file" id="importFile" accept=".json" style="display:none;" onchange="importarDados(this)"></label>
+                </div>
+            </div>
+
+            <div class="config-section danger-zone">
+                <h3><i class="fas fa-key"></i> Alterar Senha</h3>
+                <div class="config-row"><label>Senha Atual</label><input type="password" id="senhaAtual" placeholder="••••••••"></div>
+                <div class="config-row"><label>Nova Senha</label><input type="password" id="novaSenha" placeholder="••••••••"></div>
+                <div class="config-row"><label>Confirmar Nova Senha</label><input type="password" id="confirmarSenha" placeholder="••••••••"></div>
+                <button class="btn btn-danger" onclick="alterarSenha()" style="margin-top:1rem;"><i class="fas fa-key"></i> Alterar Senha</button>
+            </div>
+        </main>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        if (!verificarAutenticacao()) window.location.href = 'index.html';
+        async function carregarConfigs() {
+            try {
+                const res = await fetch('http://localhost:3000/api/configuracoes', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } });
+                const configs = await res.json();
+                if (configs.nome_cantina) document.getElementById('cfg_nome_cantina').value = configs.nome_cantina;
+                if (configs.meta_vendas_diaria) document.getElementById('cfg_meta_vendas_diaria').value = configs.meta_vendas_diaria;
+                if (configs.meta_vendas_mensal) document.getElementById('cfg_meta_vendas_mensal').value = configs.meta_vendas_mensal;
+                if (configs.limite_fiado_aluno) document.getElementById('cfg_limite_fiado_aluno').value = configs.limite_fiado_aluno;
+                if (configs.horario_abertura) document.getElementById('cfg_horario_abertura').value = configs.horario_abertura;
+                if (configs.horario_fechamento) document.getElementById('cfg_horario_fechamento').value = configs.horario_fechamento;
+            } catch (e) { console.error('Erro ao carregar configurações:', e); }
+        }
+        async function salvarTodasConfigs() {
+            const configs = {
+                nome_cantina: document.getElementById('cfg_nome_cantina').value,
+                meta_vendas_diaria: document.getElementById('cfg_meta_vendas_diaria').value,
+                meta_vendas_mensal: document.getElementById('cfg_meta_vendas_mensal').value,
+                limite_fiado_aluno: document.getElementById('cfg_limite_fiado_aluno').value,
+                horario_abertura: document.getElementById('cfg_horario_abertura').value,
+                horario_fechamento: document.getElementById('cfg_horario_fechamento').value
+            };
+            try {
+                for (const [chave, valor] of Object.entries(configs)) {
+                    await fetch(`http://localhost:3000/api/configuracoes/${chave}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify({ valor }) });
+                }
+                alert('✅ Configurações salvas com sucesso!');
+            } catch (e) { alert('Erro ao salvar configurações.'); }
+        }
+        async function alterarSenha() {
+            const atual = document.getElementById('senhaAtual').value;
+            const nova = document.getElementById('novaSenha').value;
+            const confirmar = document.getElementById('confirmarSenha').value;
+            if (!atual || !nova) return alert('Preencha todos os campos!');
+            if (nova !== confirmar) return alert('As senhas não coincidem!');
+            try {
+                const res = await fetch('http://localhost:3000/api/configuracoes/alterar-senha', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify({ senhaAtual: atual, novaSenha: nova }) });
+                if (res.ok) { alert('✅ Senha alterada com sucesso!'); document.getElementById('senhaAtual').value=''; document.getElementById('novaSenha').value=''; document.getElementById('confirmarSenha').value=''; }
+                else { const err = await res.json(); alert(err.erro || 'Erro ao alterar senha.'); }
+            } catch (e) { alert('Erro de conexão.'); }
+        }
+        async function exportarDados() {
+            try {
+                const [produtos, vendas, fiado, despesas, pedidos, fornecedores] = await Promise.all([
+                    fetch('http://localhost:3000/api/produtos', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
+                    fetch('http://localhost:3000/api/vendas', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
+                    fetch('http://localhost:3000/api/fiado/clientes', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
+                    fetch('http://localhost:3000/api/despesas', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
+                    fetch('http://localhost:3000/api/pedidos', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
+                    fetch('http://localhost:3000/api/fornecedores', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json())
+                ]);
+                const backup = { produtos, vendas, fiado, despesas, pedidos, fornecedores, exportadoEm: new Date().toISOString() };
+                const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_doutor_paladar_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
+            } catch (e) { alert('Erro ao exportar dados.'); }
+        }
+        async function importarDados(input) {
+            if (!input.files.length) return;
+            try {
+                const texto = await input.files[0].text(); const dados = JSON.parse(texto);
+                if (dados.produtos) { for (const p of dados.produtos) { await fetch('http://localhost:3000/api/produtos', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify(p) }); } }
+                alert('✅ Dados importados com sucesso!'); location.reload();
+            } catch (e) { alert('Erro ao importar. Verifique o arquivo.'); }
+            input.value = '';
+        }
+        carregarConfigs();
+    </script>
+    <script src="js/settings.js"></script>
+</body>
+</html>

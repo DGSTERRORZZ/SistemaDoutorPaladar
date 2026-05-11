@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Pedidos · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .filtros-bar { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.5rem; background: var(--bg-nav); padding: 0.4rem; border-radius: 40px; }
+        .filtro-btn { padding: 0.5rem 1.2rem; border: none; background: transparent; border-radius: 30px; cursor: pointer; font-weight: 600; transition: var(--transition); color: var(--text-secondary); font-family: inherit; font-size: 0.9rem; }
+        .filtro-btn.active { background: var(--primary); color: white; box-shadow: var(--shadow-md); }
+        .pedido-row { display: grid; grid-template-columns: 80px 1fr 120px 180px; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--border-color); transition: var(--transition); }
+        .pedido-row:hover { background: var(--bg-hover); }
+        .pedido-id { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
+        .pedido-info h4 { margin-bottom: 0.2rem; }
+        .pedido-info small { color: var(--text-secondary); }
+        .acoes-rapidas { display: flex; gap: 0.3rem; }
+        .btn-status { padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer; transition: var(--transition); }
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-overlay.active { display: flex; }
+        .modal-box { background: var(--bg-card); border-radius: var(--radius); padding: 2rem; max-width: 600px; width: 90%; box-shadow: var(--shadow-lg); }
+        @media (max-width: 700px) { .pedido-row { grid-template-columns: 1fr; text-align: center; } .acoes-rapidas { justify-content: center; } }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <header class="app-header">
+            <div class="header-title">
+                <h1><i class="fas fa-clipboard-check"></i> <span data-translate="pedidos">Gestão de Pedidos</span></h1>
+                <p>Doutor Paladar · Administração</p>
+            </div>
+            <nav class="nav-menu">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> <span data-translate="dashboard">Dashboard</span></a>
+                <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> <span data-translate="pdv">PDV</span></a>
+                <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> <span data-translate="estoque">Estoque</span></a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> <span data-translate="fiado">Fiado</span></a>
+                <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> <span data-translate="desempenhos">Desempenhos</span></a>
+                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> <span data-translate="despesas">Despesas</span></a>
+                <a href="pedidos-admin.html" class="nav-link active"><i class="fas fa-clipboard-list"></i> <span data-translate="pedidos">Pedidos</span></a>
+                <a href="agendamentos.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span data-translate="agenda">Agenda</span></a>
+                <a href="fornecedores.html" class="nav-link"><i class="fas fa-truck"></i> <span data-translate="fornecedores">Fornecedores</span></a>
+                <a href="configuracoes.html" class="nav-link"><i class="fas fa-cog"></i> <span data-translate="config">Config</span></a>
+                <button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span data-translate="logout">Sair</span></button>
+            </nav>
+        </header>
+
+        <main>
+            <div class="card">
+                <div class="card-header"><h3 class="card-title"><i class="fas fa-filter"></i> Filtrar Pedidos</h3></div>
+                <div class="filtros-bar" id="filtrosBar">
+                    <button class="filtro-btn active" onclick="filtrarPedidos('todos')">Todos</button>
+                    <button class="filtro-btn" onclick="filtrarPedidos('pendente')">🟡 Pendentes</button>
+                    <button class="filtro-btn" onclick="filtrarPedidos('confirmado')">🟢 Confirmados</button>
+                    <button class="filtro-btn" onclick="filtrarPedidos('preparando')">🔵 Preparando</button>
+                    <button class="filtro-btn" onclick="filtrarPedidos('pronto')">🟠 Prontos</button>
+                    <button class="filtro-btn" onclick="filtrarPedidos('entregue')">⚪ Entregues</button>
+                    <button class="filtro-btn" onclick="filtrarPedidos('recusado')">🔴 Recusados</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header"><h3 class="card-title" id="tituloLista"><i class="fas fa-list"></i> Todos os Pedidos</h3><small id="contadorPedidos" style="color:var(--text-secondary);"></small></div>
+                <div id="listaPedidos"></div>
+            </div>
+        </main>
+    </div>
+
+    <div class="modal-overlay" id="modalDetalhes"><div class="modal-box"><h3 style="margin-bottom:1rem;"><i class="fas fa-info-circle"></i> Detalhes do Pedido</h3><div id="conteudoModal"></div><button class="btn btn-secondary" onclick="fecharModal()" style="margin-top:1rem;">Fechar</button></div></div>
+
+    <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
+    <script>
+        let todosPedidos = []; let filtroAtivo = 'todos';
+        if (!verificarAutenticacao()) window.location.href = 'index.html';
+        async function carregarPedidos() {
+            try {
+                const res = await fetch('http://localhost:3000/api/pedidos', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } });
+                todosPedidos = await res.json(); filtrarPedidos(filtroAtivo);
+            } catch (e) { document.getElementById('listaPedidos').innerHTML = '<p style="text-align:center;padding:2rem;">Erro ao carregar pedidos.</p>'; }
+        }
+        function filtrarPedidos(status) {
+            filtroAtivo = status;
+            document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
+            event?.target?.classList.add('active');
+            const filtrados = status === 'todos' ? todosPedidos : todosPedidos.filter(p => p.status === status);
+            document.getElementById('tituloLista').innerHTML = `<i class="fas fa-list"></i> ${status==='todos'?'Todos os Pedidos':status.charAt(0).toUpperCase()+status.slice(1)+'s'}`;
+            document.getElementById('contadorPedidos').textContent = `${filtrados.length} pedido(s)`;
+            const container = document.getElementById('listaPedidos');
+            if (!filtrados.length) { container.innerHTML='<p style="text-align:center;padding:3rem;color:var(--text-secondary);">Nenhum pedido encontrado.</p>'; return; }
+            container.innerHTML = filtrados.map(p => `
+                <div class="pedido-row">
+                    <div class="pedido-id">#${p.id}</div>
+                    <div class="pedido-info"><h4>${p.nomeCliente} ${p.turma?`(${p.turma})`:''}</h4><small>${new Date(p.data).toLocaleDateString('pt-BR')} · Retirada: ${p.horarioRetirada}</small></div>
+                    <div><span class="badge badge-${p.status==='pendente'?'warning':p.status==='confirmado'||p.status==='preparando'?'success':p.status==='pronto'?'warning':p.status==='recusado'?'danger':''}">${p.status.toUpperCase()}</span></div>
+                    <div class="acoes-rapidas">
+                        <button class="btn-status" style="background:#d4edda;color:#155724;" onclick="mudarStatus(${p.id},'confirmado')">✓</button>
+                        <button class="btn-status" style="background:#cce5ff;color:#004085;" onclick="mudarStatus(${p.id},'preparando')">🔧</button>
+                        <button class="btn-status" style="background:#fff3e0;color:#e65100;" onclick="mudarStatus(${p.id},'pronto')">📦</button>
+                        <button class="btn-status" style="background:#e2e3e5;color:#383d41;" onclick="mudarStatus(${p.id},'entregue')">✅</button>
+                        <button class="btn-status" style="background:#ffe3e3;color:#a61b1b;" onclick="mudarStatus(${p.id},'recusado')">✕</button>
+                    </div>
+                </div>`).join('');
+        }
+        async function mudarStatus(id, status) {
+            try {
+                await fetch(`http://localhost:3000/api/pedidos/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify({ status }) });
+                await carregarPedidos();
+            } catch (e) { alert('Erro ao atualizar status.'); }
+        }
+        function fecharModal() { document.getElementById('modalDetalhes').classList.remove('active'); }
+        carregarPedidos();
+    </script>
+    <script src="js/settings.js"></script>
+</body>
+</html>
