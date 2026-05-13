@@ -1,65 +1,74 @@
-﻿const express = require('express');
+const express = require('express');
 const router = express.Router();
-const { getDatabase } = require('../database');
+const { getDatabase, queryOne, queryAll } = require('../database');
 
-// Middleware para garantir que o banco está pronto
 router.use(async (req, res, next) => {
   req.db = await getDatabase();
   next();
 });
 
 router.get('/', (req, res) => {
-  const stmt = req.db.prepare('SELECT * FROM produtos');
-  const produtos = [];
-  while (stmt.step()) {
-    produtos.push(stmt.getAsObject());
+  try {
+    const produtos = queryAll(req.db, 'SELECT * FROM produtos');
+    res.json(produtos);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao buscar produtos' });
   }
-  stmt.free();
-  res.json(produtos);
 });
 
 router.get('/:id', (req, res) => {
-  const stmt = req.db.prepare('SELECT * FROM produtos WHERE id = ?');
-  stmt.bind([req.params.id]);
-  if (stmt.step()) {
-    res.json(stmt.getAsObject());
-  } else {
-    res.status(404).json({ erro: 'Produto não encontrado' });
+  try {
+    const produto = queryOne(req.db, 'SELECT * FROM produtos WHERE id = ?', [Number(req.params.id)]);
+    if (!produto) return res.status(404).json({ erro: 'Produto não encontrado' });
+    res.json(produto);
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao buscar produto' });
   }
-  stmt.free();
 });
 
 router.post('/', (req, res) => {
-  const { nome, categoria, preco, estoque, estoqueMinimo } = req.body;
-  if (!nome || !categoria || preco == null || estoque == null) {
-    return res.status(400).json({ erro: 'Campos obrigatórios faltando' });
+  try {
+    const { nome, categoria, preco, estoque, estoqueMinimo } = req.body;
+    if (!nome || !categoria || preco == null || estoque == null) {
+      return res.status(400).json({ erro: 'Campos obrigatórios faltando' });
+    }
+
+    const precoNum = parseFloat(preco);
+    const estoqueNum = parseInt(estoque);
+    if (isNaN(precoNum) || precoNum < 0) return res.status(400).json({ erro: 'Preço inválido' });
+    if (isNaN(estoqueNum) || estoqueNum < 0) return res.status(400).json({ erro: 'Estoque inválido' });
+
+    req.db.run('INSERT INTO produtos (nome, categoria, preco, estoque, estoqueMinimo) VALUES (?, ?, ?, ?, ?)',
+      [nome.trim(), categoria, precoNum, estoqueNum, parseInt(estoqueMinimo) || 10]);
+    const id = req.db.exec("SELECT last_insert_rowid()")[0].values[0][0];
+    res.status(201).json({ id, nome: nome.trim(), categoria, preco: precoNum, estoque: estoqueNum, estoqueMinimo: parseInt(estoqueMinimo) || 10 });
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao criar produto' });
   }
-  req.db.run('INSERT INTO produtos (nome, categoria, preco, estoque, estoqueMinimo) VALUES (?, ?, ?, ?, ?)', 
-    [nome, categoria, preco, estoque, estoqueMinimo || 10]);
-  const id = req.db.exec("SELECT last_insert_rowid()")[0].values[0][0];
-  res.status(201).json({ id, nome, categoria, preco, estoque, estoqueMinimo: estoqueMinimo || 10 });
 });
 
 router.put('/:id', (req, res) => {
-  const stmt = req.db.prepare('SELECT * FROM produtos WHERE id = ?');
-  stmt.bind([req.params.id]);
-  let produto;
-  if (stmt.step()) {
-    produto = stmt.getAsObject();
-  }
-  stmt.free();
-  if (!produto) return res.status(404).json({ erro: 'Produto não encontrado' });
+  try {
+    const produto = queryOne(req.db, 'SELECT * FROM produtos WHERE id = ?', [Number(req.params.id)]);
+    if (!produto) return res.status(404).json({ erro: 'Produto não encontrado' });
 
-  const { nome, categoria, preco, estoque, estoqueMinimo } = req.body;
-  req.db.run('UPDATE produtos SET nome=?, categoria=?, preco=?, estoque=?, estoqueMinimo=? WHERE id=?',
-    [nome ?? produto.nome, categoria ?? produto.categoria, preco ?? produto.preco,
-     estoque ?? produto.estoque, estoqueMinimo ?? produto.estoqueMinimo, req.params.id]);
-  res.json({ id: Number(req.params.id), ...req.body });
+    const { nome, categoria, preco, estoque, estoqueMinimo } = req.body;
+    req.db.run('UPDATE produtos SET nome=?, categoria=?, preco=?, estoque=?, estoqueMinimo=? WHERE id=?',
+      [nome ?? produto.nome, categoria ?? produto.categoria, preco ?? produto.preco,
+       estoque ?? produto.estoque, estoqueMinimo ?? produto.estoqueMinimo, Number(req.params.id)]);
+    res.json({ id: Number(req.params.id), ...req.body });
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao atualizar produto' });
+  }
 });
 
 router.delete('/:id', (req, res) => {
-  req.db.run('DELETE FROM produtos WHERE id = ?', [req.params.id]);
-  res.status(204).send();
+  try {
+    req.db.run('DELETE FROM produtos WHERE id = ?', [Number(req.params.id)]);
+    res.status(204).send();
+  } catch (err) {
+    res.status(500).json({ erro: 'Erro ao excluir produto' });
+  }
 });
 
 module.exports = router;

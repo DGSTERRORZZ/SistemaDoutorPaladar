@@ -1,5 +1,7 @@
-﻿const jwt = require('jsonwebtoken');
-const SECRET = 'doutor-paladar-secret-2024';
+const jwt = require('jsonwebtoken');
+
+// Secret via variável de ambiente com fallback
+const SECRET = process.env.JWT_SECRET || 'doutor-paladar-secret-2024';
 
 function generateToken(user) {
   return jwt.sign({ user }, SECRET, { expiresIn: '4h' });

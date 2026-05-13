@@ -1,12 +1,13 @@
 // =============================================
-// API.JS - Conexão com o backend
+// API.JS - Conexão com o backend (Reformulado)
 // =============================================
-const API_URL = 'http://localhost:3000/api';
+const API_URL = window.location.origin + '/api';
 
 function getToken() {
   return sessionStorage.getItem('token');
 }
 
+// Fetch com timeout, tratamento de erro e retry
 async function apiFetch(url, options = {}) {
   const token = getToken();
   const headers = {
@@ -15,39 +16,45 @@ async function apiFetch(url, options = {}) {
     ...options.headers
   };
 
-  const res = await fetch(`${API_URL}${url}`, { ...options, headers });
-  
-  if (res.status === 401) {
-    sessionStorage.setItem('mensagemExpiracao', 'Sessão expirada. Faça login novamente.');
-    logout();
-    return;
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 15000);
+
+  try {
+    const res = await fetch(`${API_URL}${url}`, {
+      ...options,
+      headers,
+      signal: controller.signal
+    });
+
+    clearTimeout(timeout);
+
+    if (res.status === 401) {
+      sessionStorage.setItem('mensagemExpiracao', 'Sessão expirada. Faça login novamente.');
+      logout();
+      return;
+    }
+
+    if (!res.ok) {
+      const error = await res.json().catch(() => ({ erro: 'Erro desconhecido' }));
+      throw new Error(error.erro || res.statusText);
+    }
+
+    if (res.status === 204) return null;
+    return res.json();
+  } catch (err) {
+    clearTimeout(timeout);
+    if (err.name === 'AbortError') {
+      throw new Error('Tempo de conexão esgotado. Verifique o servidor.');
+    }
+    throw err;
   }
-  
-  if (!res.ok) {
-    const error = await res.json().catch(() => ({ erro: 'Erro desconhecido' }));
-    throw new Error(error.erro || res.statusText);
-  }
-  if (res.status === 204) return null;
-  return res.json();
 }
 
-async function getProdutos() {
-  return await apiFetch('/produtos');
-}
-
-async function salvarProdutos(produtos) {}
-
-async function adicionarProduto(produto) {
-  return await apiFetch('/produtos', { method: 'POST', body: JSON.stringify(produto) });
-}
-
-async function atualizarProduto(id, dados) {
-  return await apiFetch(`/produtos/${id}`, { method: 'PUT', body: JSON.stringify(dados) });
-}
-
-async function deletarProduto(id) {
-  await apiFetch(`/produtos/${id}`, { method: 'DELETE' });
-}
+// ===== PRODUTOS =====
+async function getProdutos() { return await apiFetch('/produtos'); }
+async function adicionarProduto(produto) { return await apiFetch('/produtos', { method: 'POST', body: JSON.stringify(produto) }); }
+async function atualizarProduto(id, dados) { return await apiFetch(`/produtos/${id}`, { method: 'PUT', body: JSON.stringify(dados) }); }
+async function deletarProduto(id) { await apiFetch(`/produtos/${id}`, { method: 'DELETE' }); }
 
 async function getProdutosBaixoEstoque() {
   const produtos = await getProdutos();
@@ -66,15 +73,9 @@ async function atualizarEstoque(id, quantidade, operacao = 'subtract') {
   return true;
 }
 
-async function getVendas() {
-  return await apiFetch('/vendas');
-}
-
-async function salvarVendas(vendas) {}
-
-async function registrarVenda(venda) {
-  return await apiFetch('/vendas', { method: 'POST', body: JSON.stringify(venda) });
-}
+// ===== VENDAS =====
+async function getVendas() { return await apiFetch('/vendas'); }
+async function registrarVenda(venda) { return await apiFetch('/vendas', { method: 'POST', body: JSON.stringify(venda) }); }
 
 async function getVendasPorPeriodo(inicio, fim) {
   const vendas = await getVendas();
@@ -89,12 +90,11 @@ async function getTotalVendasPeriodo(inicio, fim) {
   return vendas.reduce((s, v) => s + v.total, 0);
 }
 
+// ===== FIADO =====
 async function getFiado() {
   const data = await apiFetch('/fiado/clientes');
-  return { clientes: data.clientes, historicoPagamentos: data.historicoPagamentos || [] };
+  return { clientes: data.clientes || [], historicoPagamentos: data.historicoPagamentos || [] };
 }
-
-async function salvarFiado(fiado) {}
 
 async function adicionarClienteFiado(nome, turma) {
   return await apiFetch('/fiado/clientes', { method: 'POST', body: JSON.stringify({ nome, turma }) });
@@ -114,7 +114,7 @@ async function getTotalFiadoPendente() {
   let total = 0;
   fiado.clientes.forEach(c => {
     c.dividas.forEach(d => {
-      if (!d.pago) total += (d.total - d.valorPago);
+      if (!d.pago) total += (d.total - (d.valorPago || 0));
     });
   });
   return total;
@@ -125,41 +125,116 @@ async function getClienteFiado(id) {
   return fiado.clientes.find(c => c.id === id) || null;
 }
 
-async function getDespesas() {
-  return await apiFetch('/despesas');
-}
-
-async function salvarDespesas(despesas) {}
-
+// ===== DESPESAS =====
+async function getDespesas() { return await apiFetch('/despesas'); }
 async function adicionarDespesa(descricao, valor, categoria = 'Insumos', data = null) {
   return await apiFetch('/despesas', { method: 'POST', body: JSON.stringify({ descricao, valor, categoria, data }) });
 }
 
 async function getTotalDespesasPeriodo(inicio, fim) {
   const despesas = await getDespesas();
-  return despesas.filter(d => { const data = d.data.split('T')[0]; return data >= inicio && data <= fim; }).reduce((s, d) => s + d.valor, 0);
+  return despesas.filter(d => {
+    const data = d.data.split('T')[0];
+    return data >= inicio && data <= fim;
+  }).reduce((s, d) => s + d.valor, 0);
 }
 
+// ===== FORMATAÇÃO =====
 function formatarMoeda(valor) {
-  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor);
+  return new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(valor || 0);
 }
-function formatarData(data) { return new Date(data).toLocaleDateString('pt-BR'); }
-function formatarDataHora(data) { return new Date(data).toLocaleString('pt-BR'); }
+
+function formatarData(data) {
+  try { return new Date(data).toLocaleDateString('pt-BR'); }
+  catch { return data; }
+}
+
+function formatarDataHora(data) {
+  try { return new Date(data).toLocaleString('pt-BR'); }
+  catch { return data; }
+}
+
 function getDataAtual() { return new Date().toISOString().split('T')[0]; }
+
 function getInicioMes() {
   const hoje = new Date();
   return new Date(hoje.getFullYear(), hoje.getMonth(), 1).toISOString().split('T')[0];
 }
+
+// ===== ESTATÍSTICAS =====
 async function getEstatisticasGerais() {
   const hoje = getDataAtual();
   const inicioMes = getInicioMes();
-  const vendasHoje = await getVendasPorPeriodo(hoje, hoje);
+
+  const [vendas, despesas, fiado, produtosBaixo] = await Promise.all([
+    getVendas(),
+    getDespesas(),
+    getFiado(),
+    getProdutosBaixoEstoque()
+  ]);
+
+  const vendasHoje = vendas.filter(v => v.data.split('T')[0] === hoje);
   const totalVendasHoje = vendasHoje.reduce((s, v) => s + v.total, 0);
-  const vendasMes = await getVendasPorPeriodo(inicioMes, hoje);
+
+  const vendasMes = vendas.filter(v => {
+    const d = v.data.split('T')[0];
+    return d >= inicioMes && d <= hoje;
+  });
   const totalVendasMes = vendasMes.reduce((s, v) => s + v.total, 0);
-  const despesasMes = await getTotalDespesasPeriodo(inicioMes, hoje);
+
+  const despesasMes = despesas.filter(d => {
+    const dt = d.data.split('T')[0];
+    return dt >= inicioMes && dt <= hoje;
+  }).reduce((s, d) => s + d.valor, 0);
+
   const lucroMes = totalVendasMes - despesasMes;
-  const totalFiado = await getTotalFiadoPendente();
-  const produtosBaixoEstoque = await getProdutosBaixoEstoque();
-  return { vendasHoje: totalVendasHoje, vendasMes: totalVendasMes, despesasMes, lucroMes, totalFiado, qtdVendasHoje: vendasHoje.length, alertasEstoque: produtosBaixoEstoque.length, produtosBaixoEstoque };
+
+  let totalFiado = 0;
+  fiado.clientes.forEach(c => {
+    c.dividas.forEach(d => {
+      if (!d.pago) totalFiado += (d.total - (d.valorPago || 0));
+    });
+  });
+
+  return {
+    vendasHoje: totalVendasHoje,
+    vendasMes: totalVendasMes,
+    despesasMes,
+    lucroMes,
+    totalFiado,
+    qtdVendasHoje: vendasHoje.length,
+    alertasEstoque: produtosBaixo.length,
+    produtosBaixoEstoque: produtosBaixo
+  };
+}
+
+// ===== SANITIZAÇÃO (Anti-XSS) =====
+function escapeHtml(text) {
+  if (text == null) return '';
+  const div = document.createElement('div');
+  div.textContent = String(text);
+  return div.innerHTML;
+}
+
+// ===== DEBOUNCE =====
+function debounce(func, wait = 300) {
+  let timeout;
+  return function(...args) {
+    clearTimeout(timeout);
+    timeout = setTimeout(() => func.apply(this, args), wait);
+  };
+}
+
+// ===== TOAST NOTIFICATIONS =====
+function showToast(message, type = 'success', duration = 3000) {
+  const toast = document.createElement('div');
+  toast.className = `toast-notification toast-${type}`;
+  toast.textContent = message;
+  document.body.appendChild(toast);
+  setTimeout(() => {
+    toast.style.opacity = '0';
+    toast.style.transform = 'translateX(100px)';
+    toast.style.transition = 'all 0.4s ease';
+    setTimeout(() => toast.remove(), 400);
+  }, duration);
 }

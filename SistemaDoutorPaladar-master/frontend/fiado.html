@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Doutor Paladar · Gestão de Fiado</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
         .fiado-container { max-width: 1400px; margin: 0 auto; }
@@ -46,14 +46,14 @@
     <div class="app-container fiado-container">
         <header class="app-header">
             <div class="header-title">
-                <h1><i class="fas fa-hand-holding-usd"></i> <span data-translate="fiado">Gestão de Fiado</span></h1>
+                <h1><i class="fas fa-hand-holding-dollar"></i> <span data-translate="fiado">Gestão de Fiado</span></h1>
                 <p>Controle de dívidas e pagamentos</p>
             </div>
             <nav class="nav-menu">
                 <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> <span data-translate="dashboard">Dashboard</span></a>
                 <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> <span data-translate="pdv">PDV</span></a>
                 <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> <span data-translate="estoque">Estoque</span></a>
-                <a href="fiado.html" class="nav-link active"><i class="fas fa-hand-holding-usd"></i> <span data-translate="fiado">Fiado</span></a>
+                <a href="fiado.html" class="nav-link active"><i class="fas fa-hand-holding-dollar"></i> <span data-translate="fiado">Fiado</span></a>
                 <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> <span data-translate="desempenhos">Desempenhos</span></a>
                 <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> <span data-translate="despesas">Despesas</span></a>
                 <a href="pedidos-admin.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span data-translate="pedidos">Pedidos</span></a>
@@ -93,7 +93,7 @@
             </div>
         </div>
 
-        <div class="rodape-link"><a href="desempenhos.html?tab=fiado"><i class="fas fa-hand-holding-usd"></i> Desempenho do fiado →</a><a href="desempenhos.html?tab=clientes"><i class="fas fa-users"></i> Perfil de clientes →</a></div>
+        <div class="rodape-link"><a href="desempenhos.html?tab=fiado"><i class="fas fa-hand-holding-dollar"></i> Desempenho do fiado →</a><a href="desempenhos.html?tab=clientes"><i class="fas fa-users"></i> Perfil de clientes →</a></div>
     </div>
 
     <div id="modalNovoCliente" class="modal"><div class="modal-content"><div class="modal-header"><h3><i class="fas fa-user-plus"></i> Cadastrar Novo Cliente</h3><button class="close-btn" onclick="fecharModal('modalNovoCliente')">&times;</button></div><form id="formNovoCliente" onsubmit="cadastrarCliente(event)"><div class="form-group"><label>Nome Completo *</label><input type="text" id="novoClienteNome" class="form-control" required placeholder="Ex: João Silva"></div><div class="form-group"><label>Turma/Curso</label><input type="text" id="novoClienteTurma" class="form-control" placeholder="Ex: INFO3, ADM2"></div><div class="flex" style="justify-content:flex-end;gap:1rem;margin-top:1.5rem;"><button type="button" class="btn btn-secondary" onclick="fecharModal('modalNovoCliente')">Cancelar</button><button type="submit" class="btn btn-primary">Cadastrar</button></div></form></div></div>

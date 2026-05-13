@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Agendamentos · Doutor Paladar</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
         .grade-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 1rem; }
@@ -36,7 +36,7 @@
                 <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> <span data-translate="dashboard">Dashboard</span></a>
                 <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> <span data-translate="pdv">PDV</span></a>
                 <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> <span data-translate="estoque">Estoque</span></a>
-                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> <span data-translate="fiado">Fiado</span></a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-dollar"></i> <span data-translate="fiado">Fiado</span></a>
                 <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> <span data-translate="desempenhos">Desempenhos</span></a>
                 <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> <span data-translate="despesas">Despesas</span></a>
                 <a href="pedidos-admin.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span data-translate="pedidos">Pedidos</span></a>
@@ -78,31 +78,29 @@
         let agendamentos = [];
         if (!verificarAutenticacao()) window.location.href = 'index.html';
         async function carregarAgendamentos() {
-            try {
-                const res = await fetch('http://localhost:3000/api/agendamentos', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } });
-                agendamentos = await res.json(); renderGrade();
-            } catch (e) { console.error('Erro ao carregar agendamentos:', e); }
+            try { agendamentos = await apiFetch('/agendamentos'); renderGrade(); }
+            catch (e) { console.error('Erro:', e); }
         }
         function renderGrade() {
             const container = document.getElementById('gradeHorarios');
-            if (!agendamentos.length) { container.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:2rem;">Nenhum horário cadastrado.</p>'; return; }
+            if (!agendamentos.length) { container.innerHTML = '<p style="text-align:center;grid-column:1/-1;padding:2rem;color:var(--text-secondary);">Nenhum horário cadastrado.</p>'; return; }
             container.innerHTML = agendamentos.map(a => {
                 const vagas = a.limitePedidos - (a.pedidosHoje || 0);
-                let classe = 'disponivel', statusTexto = `${vagas} vagas`;
+                let classe = 'disponivel', statusTexto = vagas + ' vagas';
                 if (a.bloqueado) { classe = 'bloqueado'; statusTexto = 'Bloqueado'; }
                 else if (vagas <= 0) { classe = 'lotado'; statusTexto = 'Lotado'; }
-                else if (vagas <= 3) { classe = 'poucas'; statusTexto = `Poucas vagas (${vagas})`; }
-                return `<div class="slot-card ${classe}"><div class="slot-horario">${a.horarioInicio}</div><div style="color:var(--text-secondary);">até ${a.horarioFim}</div><div class="slot-vagas">${statusTexto}</div><div class="slot-status">Limite: ${a.limitePedidos} pedidos</div><div class="slot-acoes"><button style="background:#cce5ff;color:#004085;" onclick="editarAgendamento(${a.id})"><i class="fas fa-edit"></i></button><button style="background:#ffe3e3;color:#a61b1b;" onclick="excluirAgendamento(${a.id})"><i class="fas fa-trash"></i></button></div></div>`;
+                else if (vagas <= 3) { classe = 'poucas'; statusTexto = 'Poucas vagas (' + vagas + ')'; }
+                return '<div class="slot-card ' + classe + '"><div class="slot-horario">' + escapeHtml(a.horarioInicio) + '</div><div style="color:var(--text-secondary);">até ' + escapeHtml(a.horarioFim) + '</div><div class="slot-vagas">' + statusTexto + '</div><div class="slot-status">Limite: ' + a.limitePedidos + ' pedidos</div><div class="slot-acoes"><button class="btn-icon" onclick="editarAgendamento(' + a.id + ')"><i class="fas fa-edit"></i></button><button class="btn-icon" onclick="excluirAgendamento(' + a.id + ')" style="color:var(--danger);"><i class="fas fa-trash"></i></button></div></div>';
             }).join('');
         }
         function abrirModalNovo() {
-            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-plus-circle"></i> Novo Horário';
+            document.getElementById('modalTitulo').innerHTML = 'Novo Horário';
             document.getElementById('formAgendamento').reset(); document.getElementById('agendamentoId').value = '';
             document.getElementById('modalAgendamento').classList.add('active');
         }
         function editarAgendamento(id) {
-            const a = agendamentos.find(a => a.id === id); if (!a) return;
-            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-edit"></i> Editar Horário';
+            const a = agendamentos.find(x => x.id === id); if (!a) return;
+            document.getElementById('modalTitulo').textContent = 'Editar Horário';
             document.getElementById('agendamentoId').value = a.id;
             document.getElementById('horarioInicio').value = a.horarioInicio;
             document.getElementById('horarioFim').value = a.horarioFim;
@@ -114,21 +112,16 @@
         async function salvarAgendamento(event) {
             event.preventDefault();
             const id = document.getElementById('agendamentoId').value;
-            const horarioInicio = document.getElementById('horarioInicio').value;
-            const horarioFim = document.getElementById('horarioFim').value;
-            const limitePedidos = parseInt(document.getElementById('limitePedidos').value);
-            const bloqueado = document.getElementById('bloqueado').checked ? 1 : 0;
-            if (!horarioInicio || !horarioFim) return alert('Preencha os horários!');
+            const data = { horarioInicio: document.getElementById('horarioInicio').value, horarioFim: document.getElementById('horarioFim').value, limitePedidos: parseInt(document.getElementById('limitePedidos').value), bloqueado: document.getElementById('bloqueado').checked ? 1 : 0 };
+            if (!data.horarioInicio || !data.horarioFim) return showToast('Preencha os horários!', 'warning');
             try {
-                const url = id ? `http://localhost:3000/api/agendamentos/${id}` : 'http://localhost:3000/api/agendamentos';
-                const method = id ? 'PUT' : 'POST';
-                await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify({ horarioInicio, horarioFim, limitePedidos, bloqueado }) });
-                fecharModal(); carregarAgendamentos();
-            } catch (e) { alert('Erro ao salvar.'); }
+                await apiFetch(id ? '/agendamentos/' + id : '/agendamentos', { method: id ? 'PUT' : 'POST', body: JSON.stringify(data) });
+                fecharModal(); carregarAgendamentos(); showToast('Salvo!', 'success');
+            } catch (e) { showToast('Erro ao salvar', 'error'); }
         }
         async function excluirAgendamento(id) {
             if (!confirm('Excluir este horário?')) return;
-            try { await fetch(`http://localhost:3000/api/agendamentos/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }); carregarAgendamentos(); } catch (e) { alert('Erro ao excluir.'); }
+            try { await apiFetch('/agendamentos/' + id, { method: 'DELETE' }); carregarAgendamentos(); showToast('Excluído!', 'success'); } catch (e) { showToast('Erro', 'error'); }
         }
         carregarAgendamentos();
     </script>

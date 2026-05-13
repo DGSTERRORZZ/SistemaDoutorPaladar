@@ -1,4 +1,4 @@
-﻿const initSqlJs = require('sql.js');
+const initSqlJs = require('sql.js');
 const fs = require('fs');
 const path = require('path');
 
@@ -10,8 +10,7 @@ async function getDatabase() {
   if (db) return db;
 
   const SQL = await initSqlJs();
-  
-  // Carrega banco existente ou cria um novo
+
   if (fs.existsSync(DB_PATH)) {
     const buffer = fs.readFileSync(DB_PATH);
     db = new SQL.Database(buffer);
@@ -19,7 +18,6 @@ async function getDatabase() {
     db = new SQL.Database();
   }
 
-  // Cria tabelas se não existirem
   db.run(`
     CREATE TABLE IF NOT EXISTS produtos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,11 +81,6 @@ async function getDatabase() {
       data TEXT NOT NULL
     );
 
-    -- ============================================
-    -- NOVAS TABELAS
-    -- ============================================
-
-    -- Pedidos antecipados (clientes)
     CREATE TABLE IF NOT EXISTS pedidos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nomeCliente TEXT NOT NULL,
@@ -107,7 +100,6 @@ async function getDatabase() {
       FOREIGN KEY (pedidoId) REFERENCES pedidos(id) ON DELETE CASCADE
     );
 
-    -- Agendamentos de horários
     CREATE TABLE IF NOT EXISTS agendamentos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       horarioInicio TEXT NOT NULL,
@@ -116,14 +108,12 @@ async function getDatabase() {
       bloqueado INTEGER DEFAULT 0
     );
 
-    -- Configurações do sistema
     CREATE TABLE IF NOT EXISTS configuracoes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       chave TEXT UNIQUE NOT NULL,
       valor TEXT NOT NULL
     );
 
-    -- Fornecedores
     CREATE TABLE IF NOT EXISTS fornecedores (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome TEXT NOT NULL,
@@ -133,7 +123,6 @@ async function getDatabase() {
       endereco TEXT DEFAULT ''
     );
 
-    -- Compras de fornecedores
     CREATE TABLE IF NOT EXISTS compras_fornecedor (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       fornecedorId INTEGER NOT NULL,
@@ -152,26 +141,30 @@ async function getDatabase() {
       FOREIGN KEY (compraId) REFERENCES compras_fornecedor(id) ON DELETE CASCADE
     );
 
-    -- Inserir configurações padrão se não existirem
     INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('nome_cantina', 'Doutor Paladar');
     INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('meta_vendas_diaria', '500');
     INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('meta_vendas_mensal', '10000');
     INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('limite_fiado_aluno', '50');
     INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('horario_abertura', '07:00');
     INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('horario_fechamento', '17:00');
-
-    -- Inserir agendamentos padrão se não existirem
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('09:00', '09:15', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('09:15', '09:30', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('09:30', '09:45', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('09:45', '10:00', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('10:00', '10:15', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('10:15', '10:30', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('12:00', '12:15', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('12:15', '12:30', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('12:30', '12:45', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('12:45', '13:00', 10);
   `);
+
+  // Inserir agendamentos padrão apenas se a tabela estiver vazia
+  const countStmt = db.prepare('SELECT COUNT(*) as cnt FROM agendamentos');
+  countStmt.step();
+  const count = countStmt.getAsObject().cnt;
+  countStmt.free();
+
+  if (count === 0) {
+    const horarios = [
+      ['09:00', '09:15'], ['09:15', '09:30'], ['09:30', '09:45'], ['09:45', '10:00'],
+      ['10:00', '10:15'], ['10:15', '10:30'], ['12:00', '12:15'], ['12:15', '12:30'],
+      ['12:30', '12:45'], ['12:45', '13:00']
+    ];
+    for (const [inicio, fim] of horarios) {
+      db.run('INSERT INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES (?, ?, ?)', [inicio, fim, 10]);
+    }
+  }
 
   saveDatabase();
   return db;
@@ -185,23 +178,46 @@ function saveDatabase() {
   }
 }
 
+// Helper: buscar um registro por query (substitui .get() que não existe no sql.js)
+function queryOne(database, sql, params = []) {
+  const stmt = database.prepare(sql);
+  if (params.length) stmt.bind(params);
+  let result = null;
+  if (stmt.step()) result = stmt.getAsObject();
+  stmt.free();
+  return result;
+}
+
+// Helper: buscar múltiplos registros
+function queryAll(database, sql, params = []) {
+  const stmt = database.prepare(sql);
+  if (params.length) stmt.bind(params);
+  const results = [];
+  while (stmt.step()) results.push(stmt.getAsObject());
+  stmt.free();
+  return results;
+}
+
+// Middleware autoSave - salva apenas em operações de escrita
 function autoSave(req, res, next) {
-  const originalJson = res.json.bind(res);
-  res.json = function(data) {
-    saveDatabase();
-    return originalJson(data);
-  };
-  const originalSend = res.send.bind(res);
-  res.send = function(data) {
-    saveDatabase();
-    return originalSend(data);
-  };
-  const originalEnd = res.end.bind(res);
-  res.end = function(data) {
-    saveDatabase();
-    return originalEnd(data);
-  };
+  if (['POST', 'PUT', 'DELETE', 'PATCH'].includes(req.method)) {
+    const originalJson = res.json.bind(res);
+    res.json = function(data) {
+      saveDatabase();
+      return originalJson(data);
+    };
+    const originalSend = res.send.bind(res);
+    res.send = function(data) {
+      saveDatabase();
+      return originalSend(data);
+    };
+    const originalEnd = res.end.bind(res);
+    res.end = function(data) {
+      saveDatabase();
+      return originalEnd(data);
+    };
+  }
   next();
 }
 
-module.exports = { getDatabase, saveDatabase, autoSave };
+module.exports = { getDatabase, saveDatabase, autoSave, queryOne, queryAll };

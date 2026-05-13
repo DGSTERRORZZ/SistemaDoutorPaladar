@@ -1,10 +1,11 @@
 // =============================================
-// AUTH.JS - Controle de Autenticação (API)
+// AUTH.JS - Controle de Autenticação (Reformulado)
 // =============================================
 
 async function autenticarUsuario(username, password) {
   try {
-    const res = await fetch('http://localhost:3000/api/auth/login', {
+    const API_BASE = window.location.origin + '/api';
+    const res = await fetch(`${API_BASE}/auth/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -16,7 +17,7 @@ async function autenticarUsuario(username, password) {
     sessionStorage.setItem('loginTime', new Date().toISOString());
     return true;
   } catch (err) {
-    console.error(err);
+    console.error('Erro de autenticação:', err);
     return false;
   }
 }
@@ -45,5 +46,5 @@ function logout() {
 }
 
 function getUsuarioLogado() {
-  return sessionStorage.getItem('usuarioLogado');
+  return sessionStorage.getItem('usuarioLogado') || 'Pablo';
 }

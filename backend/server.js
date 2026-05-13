@@ -1,5 +1,6 @@
-﻿const express = require('express');
+const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const { verifyToken } = require('./authMiddleware');
 const { getDatabase, autoSave } = require('./database');
 
@@ -14,40 +15,70 @@ const configuracoesRoutes = require('./routes/configuracoes');
 const fornecedoresRoutes = require('./routes/fornecedores');
 
 async function main() {
-  // Inicializa o banco de dados antes de iniciar o servidor
   await getDatabase();
 
   const app = express();
-  app.use(cors());
-  app.use(express.json());
-  
-  // Middleware para salvar automaticamente após operações de escrita
-  app.use('/api/produtos', autoSave);
-  app.use('/api/vendas', autoSave);
-  app.use('/api/fiado', autoSave);
-  app.use('/api/despesas', autoSave);
-  app.use('/api/pedidos', autoSave);
-  app.use('/api/agendamentos', autoSave);
-  app.use('/api/configuracoes', autoSave);
-  app.use('/api/fornecedores', autoSave);
+
+  // CORS configurado com origens permitidas
+  const allowedOrigins = (process.env.CORS_ORIGINS || '*').split(',');
+  app.use(cors({
+    origin: allowedOrigins.includes('*') ? true : allowedOrigins,
+    credentials: true
+  }));
+
+  app.use(express.json({ limit: '10mb' }));
+
+  // Servir frontend estático
+  app.use(express.static(path.join(__dirname, '..', 'SistemaDoutorPaladar-master', 'frontend')));
+
+  // AutoSave middleware global
+  app.use('/api', autoSave);
 
   // Rotas públicas
   app.use('/api/auth', authRoutes);
-  
-  // Rota de pedidos - pública para criar e consultar
+
+  // Rotas de pedidos - parcialmente públicas
   app.use('/api/pedidos', pedidosRoutes);
-  
+
+  // Rotas de agendamentos - GET público para clientes verem horários
+  app.use('/api/agendamentos', agendamentosRoutes);
+
+  // Rota pública de produtos para pedidos de clientes
+  app.get('/api/produtos-publico', async (req, res) => {
+    try {
+      const db = await getDatabase();
+      const { queryAll } = require('./database');
+      const produtos = queryAll(db, 'SELECT id, nome, categoria, preco, estoque FROM produtos WHERE estoque > 0');
+      res.json(produtos);
+    } catch (err) {
+      res.status(500).json({ erro: 'Erro ao buscar produtos' });
+    }
+  });
+
   // Rotas protegidas (exigem token)
   app.use('/api/produtos', verifyToken, produtosRoutes);
   app.use('/api/vendas', verifyToken, vendasRoutes);
   app.use('/api/fiado', verifyToken, fiadoRoutes);
   app.use('/api/despesas', verifyToken, despesasRoutes);
-  app.use('/api/agendamentos', verifyToken, agendamentosRoutes);
   app.use('/api/configuracoes', verifyToken, configuracoesRoutes);
   app.use('/api/fornecedores', verifyToken, fornecedoresRoutes);
 
+  // Endpoint de saúde
+  app.get('/api/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+
+  // Fallback para SPA
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '..', 'SistemaDoutorPaladar-master', 'frontend', 'index.html'));
+  });
+
+  // Error handler global
+  app.use((err, req, res, next) => {
+    console.error('Erro não tratado:', err);
+    res.status(500).json({ erro: 'Erro interno do servidor' });
+  });
+
   const PORT = process.env.PORT || 3000;
-  app.listen(PORT, () => console.log(`🔥 Backend rodando na porta ${PORT}`));
+  app.listen(PORT, () => console.log(`🔥 Doutor Paladar rodando na porta ${PORT}`));
 }
 
-main().catch(err => console.error(err));
+main().catch(err => console.error('Erro ao iniciar servidor:', err));

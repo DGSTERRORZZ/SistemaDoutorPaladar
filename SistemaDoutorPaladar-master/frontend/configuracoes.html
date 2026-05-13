@@ -4,8 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Configurações · Doutor Paladar</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
         .config-section { background: var(--bg-card); border-radius: var(--radius); padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: var(--shadow-sm); }
@@ -29,7 +29,7 @@
                 <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> <span data-translate="dashboard">Dashboard</span></a>
                 <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> <span data-translate="pdv">PDV</span></a>
                 <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> <span data-translate="estoque">Estoque</span></a>
-                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> <span data-translate="fiado">Fiado</span></a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-dollar"></i> <span data-translate="fiado">Fiado</span></a>
                 <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> <span data-translate="desempenhos">Desempenhos</span></a>
                 <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> <span data-translate="despesas">Despesas</span></a>
                 <a href="pedidos-admin.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span data-translate="pedidos">Pedidos</span></a>
@@ -77,15 +77,14 @@
         if (!verificarAutenticacao()) window.location.href = 'index.html';
         async function carregarConfigs() {
             try {
-                const res = await fetch('http://localhost:3000/api/configuracoes', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } });
-                const configs = await res.json();
+                const configs = await apiFetch('/configuracoes');
                 if (configs.nome_cantina) document.getElementById('cfg_nome_cantina').value = configs.nome_cantina;
                 if (configs.meta_vendas_diaria) document.getElementById('cfg_meta_vendas_diaria').value = configs.meta_vendas_diaria;
                 if (configs.meta_vendas_mensal) document.getElementById('cfg_meta_vendas_mensal').value = configs.meta_vendas_mensal;
                 if (configs.limite_fiado_aluno) document.getElementById('cfg_limite_fiado_aluno').value = configs.limite_fiado_aluno;
                 if (configs.horario_abertura) document.getElementById('cfg_horario_abertura').value = configs.horario_abertura;
                 if (configs.horario_fechamento) document.getElementById('cfg_horario_fechamento').value = configs.horario_fechamento;
-            } catch (e) { console.error('Erro ao carregar configurações:', e); }
+            } catch (e) { console.error('Erro:', e); }
         }
         async function salvarTodasConfigs() {
             const configs = {
@@ -98,45 +97,44 @@
             };
             try {
                 for (const [chave, valor] of Object.entries(configs)) {
-                    await fetch(`http://localhost:3000/api/configuracoes/${chave}`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify({ valor }) });
+                    await apiFetch('/configuracoes/' + chave, { method: 'PUT', body: JSON.stringify({ valor }) });
                 }
-                alert('✅ Configurações salvas com sucesso!');
-            } catch (e) { alert('Erro ao salvar configurações.'); }
+                showToast('Configurações salvas!', 'success');
+            } catch (e) { showToast('Erro ao salvar', 'error'); }
         }
         async function alterarSenha() {
             const atual = document.getElementById('senhaAtual').value;
             const nova = document.getElementById('novaSenha').value;
             const confirmar = document.getElementById('confirmarSenha').value;
-            if (!atual || !nova) return alert('Preencha todos os campos!');
-            if (nova !== confirmar) return alert('As senhas não coincidem!');
+            if (!atual || !nova) return showToast('Preencha todos os campos!', 'warning');
+            if (nova !== confirmar) return showToast('As senhas não coincidem!', 'warning');
             try {
-                const res = await fetch('http://localhost:3000/api/configuracoes/alterar-senha', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify({ senhaAtual: atual, novaSenha: nova }) });
-                if (res.ok) { alert('✅ Senha alterada com sucesso!'); document.getElementById('senhaAtual').value=''; document.getElementById('novaSenha').value=''; document.getElementById('confirmarSenha').value=''; }
-                else { const err = await res.json(); alert(err.erro || 'Erro ao alterar senha.'); }
-            } catch (e) { alert('Erro de conexão.'); }
+                await apiFetch('/configuracoes/alterar-senha', { method: 'POST', body: JSON.stringify({ senhaAtual: atual, novaSenha: nova }) });
+                showToast('Senha alterada com sucesso!', 'success');
+                document.getElementById('senhaAtual').value=''; document.getElementById('novaSenha').value=''; document.getElementById('confirmarSenha').value='';
+            } catch (e) { showToast(e.message || 'Erro ao alterar senha', 'error'); }
         }
         async function exportarDados() {
             try {
                 const [produtos, vendas, fiado, despesas, pedidos, fornecedores] = await Promise.all([
-                    fetch('http://localhost:3000/api/produtos', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
-                    fetch('http://localhost:3000/api/vendas', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
-                    fetch('http://localhost:3000/api/fiado/clientes', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
-                    fetch('http://localhost:3000/api/despesas', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
-                    fetch('http://localhost:3000/api/pedidos', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json()),
-                    fetch('http://localhost:3000/api/fornecedores', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } }).then(r => r.json())
+                    apiFetch('/produtos'), apiFetch('/vendas'), apiFetch('/fiado/clientes'),
+                    apiFetch('/despesas'), apiFetch('/pedidos'), apiFetch('/fornecedores')
                 ]);
                 const backup = { produtos, vendas, fiado, despesas, pedidos, fornecedores, exportadoEm: new Date().toISOString() };
                 const blob = new Blob([JSON.stringify(backup, null, 2)], { type: 'application/json' });
-                const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `backup_doutor_paladar_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
-            } catch (e) { alert('Erro ao exportar dados.'); }
+                const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+                a.download = 'backup_doutor_paladar_' + new Date().toISOString().slice(0,10) + '.json';
+                a.click(); URL.revokeObjectURL(a.href);
+                showToast('Dados exportados!', 'success');
+            } catch (e) { showToast('Erro ao exportar', 'error'); }
         }
         async function importarDados(input) {
             if (!input.files.length) return;
             try {
                 const texto = await input.files[0].text(); const dados = JSON.parse(texto);
-                if (dados.produtos) { for (const p of dados.produtos) { await fetch('http://localhost:3000/api/produtos', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify(p) }); } }
-                alert('✅ Dados importados com sucesso!'); location.reload();
-            } catch (e) { alert('Erro ao importar. Verifique o arquivo.'); }
+                if (dados.produtos) { for (const p of dados.produtos) { await apiFetch('/produtos', { method: 'POST', body: JSON.stringify(p) }); } }
+                showToast('Dados importados!', 'success'); location.reload();
+            } catch (e) { showToast('Erro ao importar', 'error'); }
             input.value = '';
         }
         carregarConfigs();

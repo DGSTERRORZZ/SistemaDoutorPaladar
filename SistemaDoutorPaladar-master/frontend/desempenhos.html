@@ -6,8 +6,8 @@
     <title>Doutor Paladar · Desempenhos</title>
     
     <!-- Bibliotecas -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     
     <!-- Chart.js para gráficos -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -613,7 +613,7 @@
                 <a href="dashboard.html" class="nav-link"><i class="fas fa-chart-pie"></i> Dashboard</a>
                 <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> PDV</a>
                 <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> Estoque</a>
-                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> Fiado</a>
+                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-dollar"></i> Fiado</a>
                 <a href="desempenhos.html" class="nav-link active"><i class="fas fa-gauge-high"></i> Desempenhos</a>
                 <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> Despesas</a>
                 <a href="pedidos-admin.html" class="nav-link"><i class="fas fa-clipboard-list"></i> Pedidos</a>
@@ -700,7 +700,7 @@
                     <i class="fas fa-warehouse"></i> Estoque
                 </button>
                 <button class="tab-desempenho" onclick="mudarTab('fiado')">
-                    <i class="fas fa-hand-holding-usd"></i> Fiado
+                    <i class="fas fa-hand-holding-dollar"></i> Fiado
                 </button>
                 <button class="tab-desempenho" onclick="mudarTab('financeiro')">
                     <i class="fas fa-chart-pie"></i> Financeiro
@@ -890,7 +890,7 @@
                     <div class="kpi-tendencia">Margem ${totalVendas > 0 ? ((lucro/totalVendas)*100).toFixed(1) : 0}%</div>
                 </div>
                 <div class="kpi-card">
-                    <div class="kpi-icon"><i class="fas fa-hand-holding-usd"></i></div>
+                    <div class="kpi-icon"><i class="fas fa-hand-holding-dollar"></i></div>
                     <div class="kpi-valor">${formatarMoeda(totalFiadoPendente)}</div>
                     <div class="kpi-label">Fiado Pendente</div>
                     <div class="kpi-tendencia">${clientesFiadoAtivos} clientes ativos</div>
@@ -1200,7 +1200,7 @@
         async function mostrarDesempenhoFiado() {
             const fiado = await getFiado();
             if (!fiado.clientes.length) {
-                document.getElementById('tabContent').innerHTML = `<div class="empty-state"><i class="fas fa-hand-holding-usd"></i><h3>Nenhum cliente com fiado</h3></div>`;
+                document.getElementById('tabContent').innerHTML = `<div class="empty-state"><i class="fas fa-hand-holding-dollar"></i><h3>Nenhum cliente com fiado</h3></div>`;
                 return;
             }
             let pendente = 0, recebido = 0;

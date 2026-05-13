@@ -1,129 +1,205 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard · Doutor Paladar</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="css/style.css">
-    <style>
-        .welcome-section {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-            color: white; padding: 2.5rem; border-radius: var(--radius);
-            margin-bottom: 2rem; box-shadow: var(--shadow-lg); position: relative; overflow: hidden;
-        }
-        .welcome-section::after {
-            content: ''; position: absolute; top: -40%; right: -20%;
-            width: 300px; height: 300px; background: rgba(255,255,255,0.05); border-radius: 50%;
-        }
-        .welcome-section h2 { font-size: 2rem; margin-bottom: 0.5rem; position: relative; z-index: 1; }
-        .welcome-section p { opacity: 0.95; position: relative; z-index: 1; }
-        .date-badge {
-            background: rgba(255,255,255,0.2); padding: 0.5rem 1.2rem; border-radius: 30px;
-            display: inline-block; margin-top: 1rem; position: relative; z-index: 1; backdrop-filter: blur(10px);
-        }
-        .stat-icon { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; margin-bottom: 1rem; }
-        .quick-actions { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 1rem; margin-top: 1.5rem; }
-        .quick-action-btn {
-            background: white; border: 2px solid transparent; border-radius: var(--radius-sm);
-            padding: 1.2rem 1rem; text-align: center; text-decoration: none; color: var(--gray-800);
-            transition: var(--transition); cursor: pointer; box-shadow: var(--shadow-sm);
-            display: flex; flex-direction: column; align-items: center; gap: 0.5rem;
-        }
-        .quick-action-btn:hover { border-color: var(--primary); background: var(--secondary); transform: translateY(-2px); box-shadow: var(--shadow-lg); }
-        .quick-action-btn i { font-size: 2rem; color: var(--primary); }
-        .alert-item { padding: 1rem; border-bottom: 1px solid var(--gray-200); display: flex; justify-content: space-between; align-items: center; }
-        .alert-item:last-child { border-bottom: none; }
-        .recent-sale-item { padding: 0.8rem 0; border-bottom: 1px solid var(--gray-100); display: flex; justify-content: space-between; align-items: center; }
-        .recent-sale-item:last-child { border-bottom: none; }
-        .mini-chart { display: flex; align-items: flex-end; height: 150px; gap: 0.5rem; padding: 1rem 0; }
-        .chart-bar { flex: 1; background: linear-gradient(to top, var(--primary), var(--primary-light)); border-radius: 8px 8px 0 0; min-height: 20px; transition: height 0.3s; position: relative; }
-        .chart-bar-label { position: absolute; bottom: -25px; left: 50%; transform: translateX(-50%); font-size: 0.75rem; color: var(--gray-600); }
-        .progress-bar { width: 100%; height: 10px; background: var(--gray-200); border-radius: 6px; overflow: hidden; margin: 0.5rem 0; }
-        .progress-fill { height: 100%; background: linear-gradient(to right, var(--primary), var(--primary-light)); border-radius: 6px; transition: width 0.5s ease; }
-        .kpi-trend { font-size: 0.85rem; color: var(--success); margin-top: 0.3rem; }
-        .kpi-trend.negative { color: var(--danger); }
-        .rodape-link { margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--gray-200); text-align: center; display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; }
-        .rodape-link a { display: inline-flex; align-items: center; gap: 8px; padding: 10px 20px; background: var(--primary); color: white; text-decoration: none; border-radius: 30px; font-size: 14px; font-weight: 500; transition: var(--transition); }
-        .rodape-link a:hover { background: var(--primary-dark); transform: translateY(-2px); }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard · Doutor Paladar</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .welcome-section {
+      background: var(--gradient-primary);
+      color: white;
+      padding: 2.5rem;
+      border-radius: var(--radius);
+      margin-bottom: 2rem;
+      box-shadow: 0 15px 40px var(--primary-glow);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.5s ease-out;
+    }
+    .welcome-section::before {
+      content: '';
+      position: absolute;
+      top: -60%;
+      right: -20%;
+      width: 350px;
+      height: 350px;
+      background: rgba(255,255,255,0.08);
+      border-radius: 50%;
+    }
+    .welcome-section::after {
+      content: '';
+      position: absolute;
+      bottom: -40%;
+      left: -10%;
+      width: 250px;
+      height: 250px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 50%;
+    }
+    .welcome-section h2 { font-size: 1.8rem; font-weight: 800; margin-bottom: 0.5rem; position: relative; z-index: 1; letter-spacing: -0.02em; }
+    .welcome-section p { opacity: 0.9; position: relative; z-index: 1; font-weight: 500; }
+    .date-badge {
+      background: rgba(255,255,255,0.15);
+      backdrop-filter: blur(10px);
+      padding: 0.5rem 1.2rem;
+      border-radius: var(--radius-full);
+      display: inline-block;
+      margin-top: 1rem;
+      position: relative;
+      z-index: 1;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+    .quick-action-btn {
+      background: var(--bg-card);
+      backdrop-filter: var(--glass-blur);
+      border: 2px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 1.3rem 1rem;
+      text-align: center;
+      text-decoration: none;
+      color: var(--text-primary);
+      transition: var(--transition-bounce);
+      cursor: pointer;
+      box-shadow: var(--shadow-3d);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .quick-action-btn:hover {
+      border-color: var(--primary);
+      transform: translateY(-5px) rotateX(2deg);
+      box-shadow: var(--shadow-card-hover), 0 0 20px var(--primary-glow);
+    }
+    .quick-action-btn span { font-weight: 700; font-size: 0.88rem; }
+    .quick-action-btn .qa-icon { font-size: 1.8rem; }
+    .financial-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; text-align: center; }
+    @media (max-width: 768px) { .financial-grid { grid-template-columns: 1fr; } }
+  </style>
 </head>
 <body>
-    <div class="app-container">
-        <header class="app-header">
-            <div class="header-title">
-                <h1><i class="fas fa-utensils"></i> Doutor Paladar</h1>
-                <p>Cantina · Instituto Federal</p>
-            </div>
-            <nav class="nav-menu">
-                <a href="dashboard.html" class="nav-link active"><i class="fas fa-chart-pie"></i> <span data-translate="dashboard">Dashboard</span></a>
-                <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> <span data-translate="pdv">PDV</span></a>
-                <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> <span data-translate="estoque">Estoque</span></a>
-                <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-usd"></i> <span data-translate="fiado">Fiado</span></a>
-                <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> <span data-translate="desempenhos">Desempenhos</span></a>
-                <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> <span data-translate="despesas">Despesas</span></a>
-                <a href="pedidos-admin.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span data-translate="pedidos">Pedidos</span></a>
-                <a href="agendamentos.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span data-translate="agenda">Agenda</span></a>
-                <a href="fornecedores.html" class="nav-link"><i class="fas fa-truck"></i> <span data-translate="fornecedores">Fornecedores</span></a>
-                <a href="configuracoes.html" class="nav-link"><i class="fas fa-cog"></i> <span data-translate="config">Config</span></a>
-            </nav>
-            <div class="flex">
-                <span class="badge badge-success"><i class="fas fa-user"></i> Pablo</span>
-                <button class="btn btn-secondary btn-sm" onclick="logout()"><i class="fas fa-sign-out-alt"></i> <span data-translate="logout">Sair</span></button>
-            </div>
-        </header>
+  <div class="app-container">
+    <header class="app-header">
+      <div class="header-title">
+        <h1><i class="fas fa-utensils"></i> Doutor Paladar</h1>
+        <p>Cantina · Instituto Federal</p>
+      </div>
+      <nav class="nav-menu">
+        <a href="dashboard.html" class="nav-link active"><i class="fas fa-chart-pie"></i> <span data-translate="dashboard">Dashboard</span></a>
+        <a href="pdv.html" class="nav-link"><i class="fas fa-cash-register"></i> <span data-translate="pdv">PDV</span></a>
+        <a href="estoque.html" class="nav-link"><i class="fas fa-box"></i> <span data-translate="estoque">Estoque</span></a>
+        <a href="fiado.html" class="nav-link"><i class="fas fa-hand-holding-dollar"></i> <span data-translate="fiado">Fiado</span></a>
+        <a href="desempenhos.html" class="nav-link"><i class="fas fa-gauge-high"></i> <span data-translate="desempenhos">Desempenhos</span></a>
+        <a href="despesas.html" class="nav-link"><i class="fas fa-receipt"></i> <span data-translate="despesas">Despesas</span></a>
+        <a href="pedidos-admin.html" class="nav-link"><i class="fas fa-clipboard-list"></i> <span data-translate="pedidos">Pedidos</span></a>
+        <a href="agendamentos.html" class="nav-link"><i class="fas fa-calendar-alt"></i> <span data-translate="agenda">Agenda</span></a>
+        <a href="fornecedores.html" class="nav-link"><i class="fas fa-truck"></i> <span data-translate="fornecedores">Fornecedores</span></a>
+        <a href="configuracoes.html" class="nav-link"><i class="fas fa-cog"></i> <span data-translate="config">Config</span></a>
+      </nav>
+      <div class="flex">
+        <span class="badge badge-success" style="font-size:0.8rem;">Pablo</span>
+        <button class="btn btn-secondary btn-sm" onclick="logout()"><span data-translate="logout">Sair</span></button>
+      </div>
+    </header>
 
-        <main>
-            <div class="welcome-section">
-                <h2 data-translate="welcome">Bem-vindo de volta, Pablo! 👨‍🍳</h2>
-                <p data-translate="welcomeSub">Gerencie sua cantina com eficiência. Aqui está o resumo de hoje.</p>
-                <div class="date-badge"><i class="far fa-calendar-alt"></i> <span id="currentDate"></span></div>
-            </div>
+    <main>
+      <div class="welcome-section">
+        <h2 data-translate="welcome">Bem-vindo de volta, Pablo! 👨‍🍳</h2>
+        <p data-translate="welcomeSub">Gerencie sua cantina com eficiência. Aqui está o resumo de hoje.</p>
+        <div class="date-badge"><i class="far fa-calendar-alt"></i> <span id="currentDate"></span></div>
+      </div>
 
-            <div class="stats-grid">
-                <div class="stat-card"><div class="stat-icon" style="background:#e6f9f0;"><i class="fas fa-shopping-cart" style="color:var(--primary);"></i></div><div class="stat-label" data-translate="salesToday">Vendas Hoje</div><div class="stat-value" id="vendasHoje">R$ 0,00</div><div class="kpi-trend" id="trendVendas"><i class="fas fa-arrow-up"></i> vs ontem</div></div>
-                <div class="stat-card"><div class="stat-icon" style="background:#fff4e5;"><i class="fas fa-hand-holding-heart" style="color:var(--warning);"></i></div><div class="stat-label" data-translate="pendingFiado">Fiado Pendente</div><div class="stat-value" id="fiadoPendente">R$ 0,00</div><div class="kpi-trend"><span id="qtdDevedores">0</span> devedores ativos</div></div>
-                <div class="stat-card"><div class="stat-icon" style="background:#e0f2fe;"><i class="fas fa-chart-line" style="color:#0284c7;"></i></div><div class="stat-label" data-translate="monthProfit">Lucro do Mês</div><div class="stat-value" id="lucroMes">R$ 0,00</div><div class="progress-bar"><div class="progress-fill" id="progressLucro" style="width:0%"></div></div></div>
-                <div class="stat-card"><div class="stat-icon" style="background:#ffeaea;"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i></div><div class="stat-label" data-translate="stockAlerts">Alertas de Estoque</div><div class="stat-value" id="alertasEstoque">0</div><div class="kpi-trend negative" id="alertasMensagem">produtos críticos</div></div>
-            </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon" style="background:rgba(13,148,136,0.1);"><i class="fas fa-shopping-cart" style="color:var(--primary);"></i></div>
+          <div class="stat-label" data-translate="salesToday">Vendas Hoje</div>
+          <div class="stat-value" id="vendasHoje">R$ 0,00</div>
+          <div class="kpi-trend" id="trendVendas">Carregando...</div>
+        </div>
+        <div class="stat-card" style="border-left-color:var(--warning);">
+          <div class="stat-icon" style="background:rgba(245,158,11,0.1);"><i class="fas fa-hand-holding-heart" style="color:var(--warning);"></i></div>
+          <div class="stat-label" data-translate="pendingFiado">Fiado Pendente</div>
+          <div class="stat-value" id="fiadoPendente" style="background:var(--gradient-accent);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">R$ 0,00</div>
+          <div class="kpi-trend"><span id="qtdDevedores">0</span> devedores ativos</div>
+        </div>
+        <div class="stat-card" style="border-left-color:var(--info);">
+          <div class="stat-icon" style="background:rgba(59,130,246,0.1);"><i class="fas fa-chart-line" style="color:var(--info);"></i></div>
+          <div class="stat-label" data-translate="monthProfit">Lucro do Mês</div>
+          <div class="stat-value" id="lucroMes">R$ 0,00</div>
+          <div class="progress-bar"><div class="progress-fill" id="progressLucro" style="width:0%"></div></div>
+        </div>
+        <div class="stat-card" style="border-left-color:var(--danger);">
+          <div class="stat-icon" style="background:rgba(239,68,68,0.1);"><i class="fas fa-exclamation-triangle" style="color:var(--danger);"></i></div>
+          <div class="stat-label" data-translate="stockAlerts">Alertas de Estoque</div>
+          <div class="stat-value" id="alertasEstoque" style="background:var(--gradient-danger);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">0</div>
+          <div class="kpi-trend negative" id="alertasMensagem">Carregando...</div>
+        </div>
+      </div>
 
-            <div class="grid-2">
-                <div>
-                    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-clock"></i> <span data-translate="recentSales">Últimas Vendas</span></h3><a href="pdv.html" class="btn btn-primary btn-sm"><i class="fas fa-plus"></i> <span data-translate="newSale">Nova Venda</span></a></div><div id="ultimasVendas"><p style="color:var(--gray-600);text-align:center;padding:2rem;">Carregando vendas...</p></div></div>
-                    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-chart-bar"></i> <span data-translate="weekSales">Vendas da Semana</span></h3></div><div class="mini-chart" id="graficoSemana"></div><p style="text-align:center;color:var(--gray-600);font-size:0.85rem;">Últimos 7 dias</p></div>
-                </div>
-                <div>
-                    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-bell"></i> <span data-translate="criticalStock">Estoque Crítico</span></h3><a href="estoque.html" class="btn btn-secondary btn-sm"><i class="fas fa-box"></i> <span data-translate="manage">Gerenciar</span></a></div><div id="alertasEstoqueLista"><p style="color:var(--gray-600);text-align:center;padding:2rem;">Nenhum alerta crítico</p></div></div>
-                    <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-trophy"></i> <span data-translate="bestSellers">Mais Vendidos Hoje</span></h3></div><div id="produtosMaisVendidos"><p style="color:var(--gray-600);text-align:center;padding:2rem;">Carregando ranking...</p></div></div>
-                    <div class="card"><h3 class="card-title" style="margin-bottom:1rem;"><i class="fas fa-bolt"></i> <span data-translate="quickActions">Ações Rápidas</span></h3>
-                    <div class="quick-actions">
-                        <a href="pdv.html" class="quick-action-btn"><i class="fas fa-cash-register"></i><span data-translate="pdv">PDV</span></a>
-                        <a href="estoque.html" class="quick-action-btn"><i class="fas fa-plus-circle"></i><span data-translate="addProduct">Adicionar Produto</span></a>
-                        <a href="fiado.html" class="quick-action-btn"><i class="fas fa-user-plus"></i><span data-translate="newFiado">Novo Fiado</span></a>
-                        <a href="despesas.html" class="quick-action-btn"><i class="fas fa-file-invoice"></i><span data-translate="registerExpense">Registrar Despesa</span></a>
-                    </div></div>
-                </div>
+      <div class="grid-2">
+        <div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-clock"></i> <span data-translate="recentSales">Últimas Vendas</span></h3><a href="pdv.html" class="btn btn-primary btn-sm"><span data-translate="newSale">Nova Venda</span></a></div>
+            <div id="ultimasVendas"><p style="color:var(--text-secondary);text-align:center;padding:2rem;">Carregando...</p></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-chart-bar"></i> <span data-translate="weekSales">Vendas da Semana</span></h3></div>
+            <div id="graficoSemana"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-clipboard-list"></i> Pedidos do Dia</h3></div>
+            <div id="pedidosDoDia"><p style="color:var(--text-secondary);text-align:center;padding:2rem;">Carregando...</p></div>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-bell"></i> <span data-translate="criticalStock">Estoque Crítico</span></h3><a href="estoque.html" class="btn btn-secondary btn-sm"><span data-translate="manage">Gerenciar</span></a></div>
+            <div id="alertasEstoqueLista"><p style="color:var(--text-secondary);text-align:center;padding:2rem;">Carregando...</p></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h3 class="card-title"><i class="fas fa-trophy"></i> <span data-translate="bestSellers">Mais Vendidos Hoje</span></h3></div>
+            <div id="produtosMaisVendidos"><p style="color:var(--text-secondary);text-align:center;padding:2rem;">Carregando...</p></div>
+          </div>
+          <div class="card">
+            <h3 class="card-title" style="margin-bottom:1rem;"><i class="fas fa-bolt"></i> <span data-translate="quickActions">Ações Rápidas</span></h3>
+            <div class="quick-actions">
+              <a href="pdv.html" class="quick-action-btn"><span class="qa-icon">🛒</span><span data-translate="pdv">PDV</span></a>
+              <a href="estoque.html" class="quick-action-btn"><span class="qa-icon">📦</span><span data-translate="addProduct">Novo Produto</span></a>
+              <a href="fiado.html" class="quick-action-btn"><span class="qa-icon">👤</span><span data-translate="newFiado">Novo Fiado</span></a>
+              <a href="despesas.html" class="quick-action-btn"><span class="qa-icon">📋</span><span data-translate="registerExpense">Despesa</span></a>
             </div>
+          </div>
+        </div>
+      </div>
 
-            <div class="card">
-                <div class="card-header"><h3 class="card-title"><i class="fas fa-calculator"></i> <span data-translate="financialSummary">Resumo Financeiro do Mês</span></h3></div>
-                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;text-align:center;">
-                    <div><div style="color:var(--gray-600);font-size:0.9rem;" data-translate="totalRevenue">Receita Total</div><div style="font-size:2rem;font-weight:700;color:var(--success);" id="receitaMes">R$ 0,00</div></div>
-                    <div><div style="color:var(--gray-600);font-size:0.9rem;" data-translate="totalExpenses">Despesas Totais</div><div style="font-size:2rem;font-weight:700;color:var(--danger);" id="despesasMes">R$ 0,00</div></div>
-                    <div><div style="color:var(--gray-600);font-size:0.9rem;" data-translate="netProfit">Lucro Líquido</div><div style="font-size:2rem;font-weight:700;color:var(--primary);" id="lucroLiquido">R$ 0,00</div></div>
-                </div>
-            </div>
+      <div class="card">
+        <div class="card-header"><h3 class="card-title"><i class="fas fa-calculator"></i> <span data-translate="financialSummary">Resumo Financeiro do Mês</span></h3></div>
+        <div class="financial-grid">
+          <div><div style="color:var(--text-secondary);font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;" data-translate="totalRevenue">Receita Total</div><div style="font-size:2rem;font-weight:800;color:var(--success);" id="receitaMes">R$ 0,00</div></div>
+          <div><div style="color:var(--text-secondary);font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;" data-translate="totalExpenses">Despesas Totais</div><div style="font-size:2rem;font-weight:800;color:var(--danger);" id="despesasMes">R$ 0,00</div></div>
+          <div><div style="color:var(--text-secondary);font-size:0.85rem;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;" data-translate="netProfit">Lucro Líquido</div><div style="font-size:2rem;font-weight:800;" id="lucroLiquido">R$ 0,00</div></div>
+        </div>
+      </div>
 
-            <div class="rodape-link">
-                <a href="desempenhos.html"><i class="fas fa-gauge-high"></i> <span data-translate="accessPerformance">Acessar Central de Desempenhos →</span></a>
-            </div>
-        </main>
-    </div>
+      <div class="rodape-link">
+        <a href="desempenhos.html"><i class="fas fa-gauge-high"></i> <span data-translate="accessPerformance">Central de Desempenhos</span></a>
+      </div>
+    </main>
+  </div>
 
-    <script src="js/auth.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/dashboard.js"></script>
-    <script src="js/settings.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/dashboard.js"></script>
+  <script src="js/settings.js"></script>
 </body>
 </html>
