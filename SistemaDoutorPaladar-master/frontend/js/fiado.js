@@ -14,7 +14,22 @@ if (savedClienteId) clienteSelecionadoId = parseInt(savedClienteId);
 
 document.addEventListener('DOMContentLoaded', async function() {
     if (!verificarAutenticacao()) return;
+    
+    // NOVO: carregar produtos primeiro para o cache
+    try {
+        produtosCache = await getProdutos();
+    } catch (e) {
+        console.error('Erro ao carregar produtos:', e);
+    }
+    
     await carregarTudo();
+    
+    // NOVO: restaurar cliente selecionado ao voltar para a página
+    const clienteSalvo = sessionStorage.getItem('clienteSelecionadoId');
+    if (clienteSalvo) {
+        await selecionarCliente(parseInt(clienteSalvo));
+    }
+    
     window.addEventListener('focus', async () => {
         await carregarTudo();
         if (clienteSelecionadoId) await carregarDetalhesCliente(clienteSelecionadoId);
@@ -118,7 +133,11 @@ async function abrirModalNovaCompra(){
 
 async function carregarProdutosParaFiado(){
     try{
-        produtosCache=await getProdutos();
+        // produtosCache já foi carregado no DOMContentLoaded
+        // Só atualiza se estiver vazio
+        if (!produtosCache.length) {
+            produtosCache = await getProdutos();
+        }
         const container=document.getElementById('listaProdutosFiado');
         const categorias=[...new Set(produtosCache.map(p=>p.categoria))];
         container.innerHTML=categorias.map(cat=>{
@@ -128,7 +147,6 @@ async function carregarProdutosParaFiado(){
         }).join('');
     }catch(e){console.error(e);}
 }
-
 function atualizarCarrinho(produtoId,quantidade){
     quantidade=parseInt(quantidade)||0; carrinhoFiado=carrinhoFiado.filter(i=>i.produtoId!==produtoId);
     if(quantidade>0){const p=produtosCache.find(p=>p.id===produtoId); if(p&&quantidade<=p.estoque)carrinhoFiado.push({produtoId,quantidade,precoUnitario:p.preco}); else{alert('Quantidade indisponível!');document.getElementById(`qtd_${produtoId}`).value=0;}}

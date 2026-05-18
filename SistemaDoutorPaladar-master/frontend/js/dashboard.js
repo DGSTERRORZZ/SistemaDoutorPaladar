@@ -4,12 +4,18 @@
 
 let dashboardInterval = null;
 let carregando = false;
-
 document.addEventListener('DOMContentLoaded', async function() {
     if (!verificarAutenticacao()) return;
     await carregarDashboardSeguro();
     dashboardInterval = setInterval(carregarDashboardSeguro, 30000);
     window.addEventListener('focus', carregarDashboardSeguro);
+    // NOVO: limpar intervalo ao sair da página
+    window.addEventListener('beforeunload', () => {
+        if (dashboardInterval) {
+            clearInterval(dashboardInterval);
+            dashboardInterval = null;
+        }
+    });
 });
 
 async function carregarDashboardSeguro() {
@@ -97,9 +103,10 @@ async function carregarProdutosMaisVendidos() {
         vendasPorProduto[i.produtoId].quantidade += i.quantidade;
         vendasPorProduto[i.produtoId].total += i.precoUnitario * i.quantidade;
     }));
-    const ranking = Object.values(vendasPorProduto).map((item, idx) => {
-        const p = produtos.find(pr => pr.id === Object.keys(vendasPorProduto)[idx]);
-        return { nome: p?.nome || 'Desconhecido', ...item };
+    // CORRIGIDO: Object.entries mapeia corretamente o ID do produto
+    const ranking = Object.entries(vendasPorProduto).map(([produtoId, dados]) => {
+        const p = produtos.find(pr => pr.id === parseInt(produtoId));
+        return { nome: p?.nome || 'Desconhecido', quantidade: dados.quantidade, total: dados.total };
     }).sort((a, b) => b.quantidade - a.quantidade).slice(0, 5);
     const container = document.getElementById('produtosMaisVendidos');
     container.innerHTML = ranking.length ? ranking.map((r, i) => `
@@ -108,7 +115,6 @@ async function carregarProdutosMaisVendidos() {
             <div class="progress-bar"><div class="progress-fill" style="width:${(r.quantidade/ranking[0].quantidade)*100}%"></div></div>
         </div>`).join('') : '<p style="text-align:center;">Nenhuma venda hoje</p>';
 }
-
 async function carregarPedidosDoDia() {
     const container = document.getElementById('pedidosDoDia');
     if (!container) return;
