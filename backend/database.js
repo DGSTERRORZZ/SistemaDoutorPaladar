@@ -11,7 +11,6 @@ async function getDatabase() {
 
   const SQL = await initSqlJs();
   
-  // Carrega banco existente ou cria um novo
   if (fs.existsSync(DB_PATH)) {
     const buffer = fs.readFileSync(DB_PATH);
     db = new SQL.Database(buffer);
@@ -19,7 +18,6 @@ async function getDatabase() {
     db = new SQL.Database();
   }
 
-  // Cria tabelas se não existirem
   db.run(`
     CREATE TABLE IF NOT EXISTS produtos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -83,11 +81,6 @@ async function getDatabase() {
       data TEXT NOT NULL
     );
 
-    -- ============================================
-    -- NOVAS TABELAS
-    -- ============================================
-
-    -- Pedidos antecipados (clientes)
     CREATE TABLE IF NOT EXISTS pedidos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nomeCliente TEXT NOT NULL,
@@ -107,7 +100,6 @@ async function getDatabase() {
       FOREIGN KEY (pedidoId) REFERENCES pedidos(id) ON DELETE CASCADE
     );
 
-    -- Agendamentos de horários
     CREATE TABLE IF NOT EXISTS agendamentos (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       horarioInicio TEXT NOT NULL,
@@ -116,14 +108,12 @@ async function getDatabase() {
       bloqueado INTEGER DEFAULT 0
     );
 
-    -- Configurações do sistema
     CREATE TABLE IF NOT EXISTS configuracoes (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       chave TEXT UNIQUE NOT NULL,
       valor TEXT NOT NULL
     );
 
-    -- Fornecedores
     CREATE TABLE IF NOT EXISTS fornecedores (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       nome TEXT NOT NULL,
@@ -133,7 +123,6 @@ async function getDatabase() {
       endereco TEXT DEFAULT ''
     );
 
-    -- Compras de fornecedores
     CREATE TABLE IF NOT EXISTS compras_fornecedor (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       fornecedorId INTEGER NOT NULL,
@@ -151,27 +140,63 @@ async function getDatabase() {
       precoUnitario REAL NOT NULL,
       FOREIGN KEY (compraId) REFERENCES compras_fornecedor(id) ON DELETE CASCADE
     );
-
-    -- Inserir configurações padrão se não existirem
-    INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('nome_cantina', 'Doutor Paladar');
-    INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('meta_vendas_diaria', '500');
-    INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('meta_vendas_mensal', '10000');
-    INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('limite_fiado_aluno', '50');
-    INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('horario_abertura', '07:00');
-    INSERT OR IGNORE INTO configuracoes (chave, valor) VALUES ('horario_fechamento', '17:00');
-
-    -- Inserir agendamentos padrão se não existirem
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('09:00', '09:15', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('09:15', '09:30', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('09:30', '09:45', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('09:45', '10:00', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('10:00', '10:15', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('10:15', '10:30', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('12:00', '12:15', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('12:15', '12:30', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('12:30', '12:45', 10);
-    INSERT OR IGNORE INTO agendamentos (horarioInicio, horarioFim, limitePedidos) VALUES ('12:45', '13:00', 10);
   `);
+
+  // Inserir configurações padrão (sem duplicar)
+  const configsPadrao = [
+    ['nome_cantina', 'Doutor Paladar'],
+    ['meta_vendas_diaria', '500'],
+    ['meta_vendas_mensal', '10000'],
+    ['limite_fiado_aluno', '50'],
+    ['horario_abertura', '07:00'],
+    ['horario_fechamento', '17:00']
+  ];
+
+  const stmtConfig = db.prepare('SELECT id FROM configuracoes WHERE chave = ?');
+  const insertConfig = db.prepare('INSERT INTO configuracoes (chave, valor) VALUES (?, ?)');
+
+  for (const [chave, valor] of configsPadrao) {
+    stmtConfig.bind([chave]);
+    const existe = stmtConfig.step();
+    stmtConfig.reset();
+    
+    if (!existe) {
+      insertConfig.run([chave, valor]);
+    }
+  }
+
+  stmtConfig.free();
+  insertConfig.free();
+
+  // Inserir agendamentos padrão (sem duplicar)
+  const horariosPadrao = [
+    ['09:00', '09:15', 10],
+    ['09:15', '09:30', 10],
+    ['09:30', '09:45', 10],
+    ['09:45', '10:00', 10],
+    ['10:00', '10:15', 10],
+    ['10:15', '10:30', 10],
+    ['12:00', '12:15', 10],
+    ['12:15', '12:30', 10],
+    ['12:30', '12:45', 10],
+    ['12:45', '13:00', 10]
+  ];
+
+  const stmtAg = db.prepare('SELECT id FROM agendamentos WHERE horarioInicio = ? AND horarioFim = ?');
+  const insertAg = db.prepare('INSERT INTO agendamentos (horarioInicio, horarioFim, limitePedidos, bloqueado) VALUES (?, ?, ?, 0)');
+
+  for (const [inicio, fim, limite] of horariosPadrao) {
+    stmtAg.bind([inicio, fim]);
+    const existe = stmtAg.step();
+    stmtAg.reset();
+    
+    if (!existe) {
+      insertAg.run([inicio, fim, limite]);
+    }
+  }
+
+  stmtAg.free();
+  insertAg.free();
 
   saveDatabase();
   return db;
@@ -179,28 +204,31 @@ async function getDatabase() {
 
 function saveDatabase() {
   if (db) {
-    const data = db.export();
-    const buffer = Buffer.from(data);
-    fs.writeFileSync(DB_PATH, buffer);
+    try {
+      const data = db.export();
+      const buffer = Buffer.from(data);
+      fs.writeFileSync(DB_PATH, buffer);
+    } catch (erro) {
+      console.error('Erro ao salvar banco de dados:', erro);
+    }
   }
 }
 
 function autoSave(req, res, next) {
+  const metodosEscrita = ['POST', 'PUT', 'DELETE', 'PATCH'];
+
+  if (!metodosEscrita.includes(req.method)) {
+    return next();
+  }
+
   const originalJson = res.json.bind(res);
-  res.json = function(data) {
+
+  res.json = function (body) {
+    const resultado = originalJson(body);
     saveDatabase();
-    return originalJson(data);
+    return resultado;
   };
-  const originalSend = res.send.bind(res);
-  res.send = function(data) {
-    saveDatabase();
-    return originalSend(data);
-  };
-  const originalEnd = res.end.bind(res);
-  res.end = function(data) {
-    saveDatabase();
-    return originalEnd(data);
-  };
+
   next();
 }
 

@@ -14,14 +14,12 @@ const configuracoesRoutes = require('./routes/configuracoes');
 const fornecedoresRoutes = require('./routes/fornecedores');
 
 async function main() {
-  // Inicializa o banco de dados antes de iniciar o servidor
   await getDatabase();
 
   const app = express();
   app.use(cors());
   app.use(express.json());
   
-  // Middleware para salvar automaticamente após operações de escrita
   app.use('/api/produtos', autoSave);
   app.use('/api/vendas', autoSave);
   app.use('/api/fiado', autoSave);
@@ -31,13 +29,8 @@ async function main() {
   app.use('/api/configuracoes', autoSave);
   app.use('/api/fornecedores', autoSave);
 
-  // Rotas públicas
   app.use('/api/auth', authRoutes);
-  
-  // Rota de pedidos - pública para criar e consultar
   app.use('/api/pedidos', pedidosRoutes);
-  
-  // Rotas protegidas (exigem token)
   app.use('/api/produtos', verifyToken, produtosRoutes);
   app.use('/api/vendas', verifyToken, vendasRoutes);
   app.use('/api/fiado', verifyToken, fiadoRoutes);

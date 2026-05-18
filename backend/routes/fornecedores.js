@@ -20,8 +20,11 @@ router.get('/', (req, res) => {
 router.get('/:id', (req, res) => {
   const stmt = req.db.prepare('SELECT * FROM fornecedores WHERE id = ?');
   stmt.bind([req.params.id]);
-  if (stmt.step()) res.json(stmt.getAsObject());
-  else res.status(404).json({ erro: 'Fornecedor não encontrado' });
+  if (stmt.step()) {
+    res.json(stmt.getAsObject());
+  } else {
+    res.status(404).json({ erro: 'Fornecedor não encontrado' });
+  }
   stmt.free();
 });
 
@@ -37,11 +40,21 @@ router.post('/', (req, res) => {
   res.status(201).json({ id, nome: nome.trim(), cnpj, telefone, email, endereco });
 });
 
-// PUT atualizar
+// PUT atualizar — CORRIGIDO: .get() removido
 router.put('/:id', (req, res) => {
   const { nome, cnpj, telefone, email, endereco } = req.body;
-  const fornecedor = req.db.prepare('SELECT * FROM fornecedores WHERE id = ?').get(req.params.id);
-  if (!fornecedor) return res.status(404).json({ erro: 'Fornecedor não encontrado' });
+
+  const stmt = req.db.prepare('SELECT * FROM fornecedores WHERE id = ?');
+  stmt.bind([req.params.id]);
+  let fornecedor = null;
+  if (stmt.step()) {
+    fornecedor = stmt.getAsObject();
+  }
+  stmt.free();
+
+  if (!fornecedor) {
+    return res.status(404).json({ erro: 'Fornecedor não encontrado' });
+  }
 
   req.db.run('UPDATE fornecedores SET nome=?, cnpj=?, telefone=?, email=?, endereco=? WHERE id=?',
     [nome ?? fornecedor.nome, cnpj ?? fornecedor.cnpj, telefone ?? fornecedor.telefone,
@@ -55,7 +68,7 @@ router.delete('/:id', (req, res) => {
   res.status(204).send();
 });
 
-// POST registrar compra do fornecedor (CORRIGIDO)
+// POST registrar compra do fornecedor — CORRIGIDO: .get() removido
 router.post('/compras', (req, res) => {
   const { fornecedorId, itens, total, status, data } = req.body;
 
@@ -64,7 +77,14 @@ router.post('/compras', (req, res) => {
   }
 
   // Verificar se fornecedor existe
-  const fornecedor = req.db.prepare('SELECT * FROM fornecedores WHERE id = ?').get(fornecedorId);
+  const stmt = req.db.prepare('SELECT * FROM fornecedores WHERE id = ?');
+  stmt.bind([fornecedorId]);
+  let fornecedor = null;
+  if (stmt.step()) {
+    fornecedor = stmt.getAsObject();
+  }
+  stmt.free();
+
   if (!fornecedor) {
     return res.status(404).json({ erro: 'Fornecedor não encontrado' });
   }
@@ -90,10 +110,19 @@ router.post('/compras', (req, res) => {
   res.status(201).json({ id: compraId, status: 'pedido' });
 });
 
-// PUT confirmar entrega (atualiza estoque)
+// PUT confirmar entrega (atualiza estoque) — CORRIGIDO: .get() removido
 router.put('/compras/:id/entregar', (req, res) => {
-  const compra = req.db.prepare('SELECT * FROM compras_fornecedor WHERE id = ?').get(req.params.id);
-  if (!compra) return res.status(404).json({ erro: 'Compra não encontrada' });
+  const stmt = req.db.prepare('SELECT * FROM compras_fornecedor WHERE id = ?');
+  stmt.bind([req.params.id]);
+  let compra = null;
+  if (stmt.step()) {
+    compra = stmt.getAsObject();
+  }
+  stmt.free();
+
+  if (!compra) {
+    return res.status(404).json({ erro: 'Compra não encontrada' });
+  }
 
   if (compra.status === 'entregue') {
     return res.status(400).json({ erro: 'Compra já foi entregue' });

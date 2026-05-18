@@ -11,16 +11,15 @@
         .filtros-bar { display: flex; gap: 0.8rem; flex-wrap: wrap; align-items: center; margin-bottom: 1.5rem; background: var(--bg-nav); padding: 0.4rem; border-radius: 40px; }
         .filtro-btn { padding: 0.5rem 1.2rem; border: none; background: transparent; border-radius: 30px; cursor: pointer; font-weight: 600; transition: var(--transition); color: var(--text-secondary); font-family: inherit; font-size: 0.9rem; }
         .filtro-btn.active { background: var(--primary); color: white; box-shadow: var(--shadow-md); }
-        .pedido-row { display: grid; grid-template-columns: 80px 1fr 120px 180px; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--border-color); transition: var(--transition); }
+        .pedido-row { display: grid; grid-template-columns: 80px 1fr 120px 200px; align-items: center; gap: 1rem; padding: 1rem; border-bottom: 1px solid var(--border-color); transition: var(--transition); }
         .pedido-row:hover { background: var(--bg-hover); }
         .pedido-id { font-weight: 700; color: var(--primary); font-size: 1.1rem; }
         .pedido-info h4 { margin-bottom: 0.2rem; }
         .pedido-info small { color: var(--text-secondary); }
-        .acoes-rapidas { display: flex; gap: 0.3rem; }
-        .btn-status { padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer; transition: var(--transition); }
-        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-overlay.active { display: flex; }
-        .modal-box { background: var(--bg-card); border-radius: var(--radius); padding: 2rem; max-width: 600px; width: 90%; box-shadow: var(--shadow-lg); }
+        .acoes-rapidas { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+        .btn-status { padding: 0.4rem 0.8rem; border-radius: 20px; font-size: 0.8rem; font-weight: 600; border: none; cursor: pointer; transition: var(--transition); white-space: nowrap; }
+        .btn-status:hover { opacity: 0.8; transform: translateY(-1px); }
+        .status-final { font-weight: 600; font-size: 0.85rem; padding: 0.4rem 0.8rem; }
         @media (max-width: 700px) { .pedido-row { grid-template-columns: 1fr; text-align: center; } .acoes-rapidas { justify-content: center; } }
     </style>
 </head>
@@ -67,49 +66,117 @@
         </main>
     </div>
 
-    <div class="modal-overlay" id="modalDetalhes"><div class="modal-box"><h3 style="margin-bottom:1rem;"><i class="fas fa-info-circle"></i> Detalhes do Pedido</h3><div id="conteudoModal"></div><button class="btn btn-secondary" onclick="fecharModal()" style="margin-top:1rem;">Fechar</button></div></div>
-
     <script src="js/auth.js"></script>
     <script src="js/api.js"></script>
     <script>
-        let todosPedidos = []; let filtroAtivo = 'todos';
+        let todosPedidos = [];
+        let filtroAtivo = 'todos';
+
         if (!verificarAutenticacao()) window.location.href = 'index.html';
+
         async function carregarPedidos() {
             try {
-                const res = await fetch('http://localhost:3000/api/pedidos', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } });
-                todosPedidos = await res.json(); filtrarPedidos(filtroAtivo);
-            } catch (e) { document.getElementById('listaPedidos').innerHTML = '<p style="text-align:center;padding:2rem;">Erro ao carregar pedidos.</p>'; }
+                const res = await fetch(API_URL + '/pedidos/admin', {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
+                });
+                if (!res.ok) throw new Error('Erro ao carregar');
+                todosPedidos = await res.json();
+                filtrarPedidos(filtroAtivo);
+            } catch (e) {
+                document.getElementById('listaPedidos').innerHTML = '<p style="text-align:center;padding:2rem;">Erro ao carregar pedidos.</p>';
+            }
         }
+
         function filtrarPedidos(status) {
             filtroAtivo = status;
             document.querySelectorAll('.filtro-btn').forEach(b => b.classList.remove('active'));
-            event?.target?.classList.add('active');
+            event.target.classList.add('active');
+            
             const filtrados = status === 'todos' ? todosPedidos : todosPedidos.filter(p => p.status === status);
-            document.getElementById('tituloLista').innerHTML = `<i class="fas fa-list"></i> ${status==='todos'?'Todos os Pedidos':status.charAt(0).toUpperCase()+status.slice(1)+'s'}`;
+            document.getElementById('tituloLista').innerHTML = `<i class="fas fa-list"></i> ${status === 'todos' ? 'Todos os Pedidos' : status.charAt(0).toUpperCase() + status.slice(1) + 's'}`;
             document.getElementById('contadorPedidos').textContent = `${filtrados.length} pedido(s)`;
+            
             const container = document.getElementById('listaPedidos');
-            if (!filtrados.length) { container.innerHTML='<p style="text-align:center;padding:3rem;color:var(--text-secondary);">Nenhum pedido encontrado.</p>'; return; }
-            container.innerHTML = filtrados.map(p => `
-                <div class="pedido-row">
-                    <div class="pedido-id">#${p.id}</div>
-                    <div class="pedido-info"><h4>${p.nomeCliente} ${p.turma?`(${p.turma})`:''}</h4><small>${new Date(p.data).toLocaleDateString('pt-BR')} · Retirada: ${p.horarioRetirada}</small></div>
-                    <div><span class="badge badge-${p.status==='pendente'?'warning':p.status==='confirmado'||p.status==='preparando'?'success':p.status==='pronto'?'warning':p.status==='recusado'?'danger':''}">${p.status.toUpperCase()}</span></div>
-                    <div class="acoes-rapidas">
-                        <button class="btn-status" style="background:#d4edda;color:#155724;" onclick="mudarStatus(${p.id},'confirmado')">✓</button>
-                        <button class="btn-status" style="background:#cce5ff;color:#004085;" onclick="mudarStatus(${p.id},'preparando')">🔧</button>
-                        <button class="btn-status" style="background:#fff3e0;color:#e65100;" onclick="mudarStatus(${p.id},'pronto')">📦</button>
-                        <button class="btn-status" style="background:#e2e3e5;color:#383d41;" onclick="mudarStatus(${p.id},'entregue')">✅</button>
-                        <button class="btn-status" style="background:#ffe3e3;color:#a61b1b;" onclick="mudarStatus(${p.id},'recusado')">✕</button>
+            if (!filtrados.length) {
+                container.innerHTML = '<p style="text-align:center;padding:3rem;color:var(--text-secondary);">Nenhum pedido encontrado.</p>';
+                return;
+            }
+
+            container.innerHTML = filtrados.map(p => {
+                const dataFormatada = new Date(p.data).toLocaleDateString('pt-BR');
+                
+                // Determinar quais botões mostrar baseado no status
+                let botoes = '';
+                
+                switch(p.status) {
+                    case 'pendente':
+                        botoes = `
+                            <button class="btn-status" style="background:#d4edda;color:#155724;" onclick="mudarStatus(${p.id},'confirmado')">✓ Confirmar</button>
+                            <button class="btn-status" style="background:#ffe3e3;color:#a61b1b;" onclick="mudarStatus(${p.id},'recusado')">✕ Recusar</button>
+                        `;
+                        break;
+                    case 'confirmado':
+                        botoes = `
+                            <button class="btn-status" style="background:#cce5ff;color:#004085;" onclick="mudarStatus(${p.id},'preparando')">🔧 Preparar</button>
+                            <button class="btn-status" style="background:#ffe3e3;color:#a61b1b;" onclick="mudarStatus(${p.id},'recusado')">✕ Recusar</button>
+                        `;
+                        break;
+                    case 'preparando':
+                        botoes = `
+                            <button class="btn-status" style="background:#fff3e0;color:#e65100;" onclick="mudarStatus(${p.id},'pronto')">📦 Pronto</button>
+                            <button class="btn-status" style="background:#ffe3e3;color:#a61b1b;" onclick="mudarStatus(${p.id},'recusado')">✕ Recusar</button>
+                        `;
+                        break;
+                    case 'pronto':
+                        botoes = `
+                            <button class="btn-status" style="background:#e2e3e5;color:#383d41;" onclick="mudarStatus(${p.id},'entregue')">✅ Entregue</button>
+                        `;
+                        break;
+                    case 'entregue':
+                        botoes = '<span class="status-final" style="color:#6b7280;">✅ Pedido entregue</span>';
+                        break;
+                    case 'recusado':
+                        botoes = '<span class="status-final" style="color:#ef4444;">✕ Pedido recusado</span>';
+                        break;
+                }
+
+                return `
+                    <div class="pedido-row">
+                        <div class="pedido-id">#${p.id}</div>
+                        <div class="pedido-info">
+                            <h4>${p.nomeCliente} ${p.turma ? `(${p.turma})` : ''}</h4>
+                            <small>${dataFormatada} · Retirada: ${p.horarioRetirada}</small>
+                        </div>
+                        <div><span class="badge badge-${p.status === 'pendente' ? 'warning' : p.status === 'confirmado' || p.status === 'preparando' ? 'success' : p.status === 'pronto' ? 'warning' : p.status === 'recusado' ? 'danger' : ''}">${p.status.toUpperCase()}</span></div>
+                        <div class="acoes-rapidas">${botoes}</div>
                     </div>
-                </div>`).join('');
+                `;
+            }).join('');
         }
+
         async function mudarStatus(id, status) {
             try {
-                await fetch(`http://localhost:3000/api/pedidos/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token')}` }, body: JSON.stringify({ status }) });
+                const res = await fetch(API_URL + '/pedidos/' + id + '/status', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${sessionStorage.getItem('token')}`
+                    },
+                    body: JSON.stringify({ status })
+                });
+                
+                if (!res.ok) {
+                    const erro = await res.json();
+                    alert(erro.erro || 'Erro ao atualizar status');
+                    return;
+                }
+                
                 await carregarPedidos();
-            } catch (e) { alert('Erro ao atualizar status.'); }
+            } catch (e) {
+                alert('Erro ao atualizar status.');
+            }
         }
-        function fecharModal() { document.getElementById('modalDetalhes').classList.remove('active'); }
+
         carregarPedidos();
     </script>
     <script src="js/settings.js"></script>
