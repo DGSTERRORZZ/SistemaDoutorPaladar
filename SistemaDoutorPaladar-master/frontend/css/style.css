@@ -156,3 +156,99 @@ tr:hover td { background: var(--bg-hover); }
     .stats-grid { grid-template-columns: 1fr; }
     .grid-2 { grid-template-columns: 1fr; }
 }
+/* ===== LOADING ===== */
+.loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+.loading i {
+    color: var(--primary);
+    font-size: 1.4rem;
+}
+.loading.hidden {
+    display: none;
+}
+
+/* ===== EMPTY STATE ===== */
+.empty-state {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--text-secondary);
+}
+.empty-state i {
+    font-size: 3rem;
+    opacity: 0.35;
+    margin-bottom: 1rem;
+    color: var(--primary);
+}
+.empty-state h3 {
+    margin: 0 0 0.5rem;
+    color: var(--text-primary);
+}
+.empty-state p {
+    margin: 0;
+    color: var(--text-secondary);
+}
+
+/* ===== TABLE RESPONSIVE ===== */
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+.table-responsive table {
+    min-width: 700px;
+}
+@media (max-width: 768px) {
+    .table-responsive {
+        border-radius: var(--radius-sm, 12px);
+        box-shadow: var(--shadow-sm, 0 2px 8px rgba(0,0,0,0.08));
+    }
+}
+/* ===== TOAST ===== */
+.toast-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.toast {
+    min-width: 280px;
+    max-width: 360px;
+    padding: 1rem 1.25rem;
+    border-radius: var(--radius-sm, 12px);
+    color: #fff;
+    font-weight: 600;
+    box-shadow: var(--shadow-lg, 0 10px 25px rgba(0,0,0,0.15));
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: toastEntrada 0.3s ease forwards;
+}
+.toast.success { background: var(--success, #2a9d8f); }
+.toast.error { background: var(--danger, #ef233c); }
+.toast.warning { background: var(--warning, #f4a261); }
+.toast.info { background: var(--primary, #1b4332); }
+.toast.saindo { animation: toastSaida 0.3s ease forwards; }
+
+@keyframes toastEntrada {
+    from { opacity: 0; transform: translateX(120%); }
+    to { opacity: 1; transform: translateX(0); }
+}
+@keyframes toastSaida {
+    from { opacity: 1; transform: translateX(0); }
+    to { opacity: 0; transform: translateX(120%); }
+}
+
+@media (max-width: 600px) {
+    .toast-container { left: 1rem; right: 1rem; }
+    .toast { min-width: auto; max-width: none; width: 100%; }
+}

@@ -7,6 +7,13 @@ let categoriaAtiva = 'Todos';
 let pagamentoSelecionado = 'dinheiro';
 let todosProdutos = [];
 let finalizandoVenda = false;
+let debounceTimer;
+function filtrarProdutosComDebounce() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+        filtrarProdutos();
+    }, 300);
+}
 
 document.addEventListener('DOMContentLoaded', async function() {
     console.log('🛒 PDV inicializando...');
