@@ -3,178 +3,940 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Doutor Paladar · Login</title>
+    <title>Doutor Paladar · Cantina IF</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/style.css">
     <style>
+        :root {
+            --brand: #059669;
+            --brand-light: #10b981;
+            --brand-dark: #047857;
+            --brand-glow: rgba(5, 150, 105, 0.3);
+            --accent: #f59e0b;
+            --accent-glow: rgba(245, 158, 11, 0.3);
+            --bg: #f0fdf4;
+            --dark: #0f172a;
+            --card: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
         body {
-            background: linear-gradient(135deg, #0b2b26 0%, #1b4332 50%, #2d6a4f 100%);
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            background-image: 
+                radial-gradient(ellipse at 0% 0%, rgba(5,150,105,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 100%, rgba(245,158,11,0.06) 0%, transparent 50%),
+                radial-gradient(ellipse at 50% 50%, rgba(16,185,129,0.04) 0%, transparent 70%);
+            background-attachment: fixed;
+            color: #334155;
+            overflow-x: hidden;
             min-height: 100vh;
+        }
+
+        /* ===== PARTÍCULAS DE FUNDO ===== */
+        .particles {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            pointer-events: none; z-index: 0;
+            overflow: hidden;
+        }
+        .particle {
+            position: absolute;
+            border-radius: 50%;
+            animation: floatUp linear infinite;
+            opacity: 0;
+        }
+        @keyframes floatUp {
+            0% { transform: translateY(110vh) scale(0); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 0.6; }
+            100% { transform: translateY(-10vh) scale(1); opacity: 0; }
+        }
+
+        /* ===== TOP BAR VIDRO ===== */
+        .topbar {
+            background: rgba(255,255,255,0.85);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            padding: 14px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0,0,0,0.06);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 1px solid rgba(5,150,105,0.1);
+            animation: slideDown 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        @keyframes slideDown {
+            from { transform: translateY(-100%); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .topbar .logo {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--brand);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .topbar .logo:hover { transform: scale(1.03); }
+        .topbar .logo .icon-wrap {
+            background: linear-gradient(135deg, var(--brand), var(--brand-light));
+            padding: 12px;
+            border-radius: 16px;
+            color: white;
+            font-size: 1.4rem;
+            box-shadow: 0 8px 24px var(--brand-glow);
+            animation: pulse 3s ease-in-out infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 8px 24px var(--brand-glow); }
+            50% { box-shadow: 0 12px 32px rgba(5,150,105,0.5); }
+        }
+
+        .topbar .location {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #64748b;
+            font-size: 0.9rem;
+            background: rgba(5,150,105,0.05);
+            padding: 8px 16px;
+            border-radius: 30px;
+        }
+        .topbar .location i { color: var(--brand); }
+
+        .topbar .actions { display: flex; gap: 10px; align-items: center; }
+
+        .btn-ghost {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 30px;
+            background: transparent;
+            color: var(--brand);
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+        }
+        .btn-ghost:hover { background: rgba(5,150,105,0.08); }
+
+        .btn-brand {
+            padding: 12px 28px;
+            border: none;
+            border-radius: 30px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-light));
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 0.95rem;
+            box-shadow: 0 6px 20px var(--brand-glow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .btn-brand:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 32px rgba(5,150,105,0.4);
+        }
+        .btn-brand::after {
+            content: '';
+            position: absolute; top: 50%; left: 50%;
+            width: 0; height: 0;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.3);
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+        .btn-brand:active::after { width: 300px; height: 300px; }
+
+        /* ===== HERO GRANDE ===== */
+        .hero {
+            background: linear-gradient(135deg, #047857 0%, #059669 30%, #10b981 60%, #059669 100%);
+            background-size: 300% 300%;
+            animation: heroGradient 8s ease infinite;
+            padding: 80px 32px;
+            text-align: center;
+            color: white;
+            position: relative;
+            overflow: hidden;
+        }
+        @keyframes heroGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            width: 600px; height: 600px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+            top: -200px; right: -200px;
+            animation: morphBlob 12s ease-in-out infinite;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            width: 400px; height: 400px;
+            background: rgba(255,255,255,0.04);
+            border-radius: 50%;
+            bottom: -150px; left: -150px;
+            animation: morphBlob 15s ease-in-out infinite reverse;
+        }
+        @keyframes morphBlob {
+            0%, 100% { transform: scale(1) rotate(0deg); border-radius: 50%; }
+            33% { transform: scale(1.2) rotate(120deg); border-radius: 40% 60% 60% 40%; }
+            66% { transform: scale(0.8) rotate(240deg); border-radius: 60% 40% 40% 60%; }
+        }
+
+        .hero .hero-content { position: relative; z-index: 1; max-width: 700px; margin: 0 auto; }
+        
+        .hero .badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            padding: 8px 20px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 20px;
+            animation: fadeInUp 0.6s ease forwards;
+        }
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .hero h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            text-shadow: 0 4px 30px rgba(0,0,0,0.2);
+            line-height: 1.2;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        .hero h1 .highlight {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        .hero p {
+            font-size: 1.25rem;
+            margin: 16px 0 32px;
+            opacity: 0.95;
+            animation: fadeInUp 1s ease forwards;
+        }
+
+        .hero .hero-stats {
+            display: flex;
+            gap: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+            animation: fadeInUp 1.2s ease forwards;
+        }
+        .hero .hero-stat {
+            text-align: center;
+        }
+        .hero .hero-stat .num {
+            font-size: 2rem;
+            font-weight: 900;
+        }
+        .hero .hero-stat .lbl {
+            font-size: 0.8rem;
+            opacity: 0.8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .hero .search-wrap {
+            max-width: 520px;
+            margin: 32px auto 0;
+            position: relative;
+            z-index: 1;
+            animation: fadeInUp 0.8s ease forwards;
+        }
+        .hero .search-wrap input {
+            width: 100%;
+            padding: 18px 24px 18px 56px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.05rem;
+            font-family: inherit;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+        .hero .search-wrap input:focus {
+            outline: none;
+            transform: scale(1.03);
+            box-shadow: 0 25px 60px rgba(0,0,0,0.3);
+        }
+        .hero .search-wrap i {
+            position: absolute;
+            left: 22px; top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1.2rem;
+        }
+
+        /* ===== SEÇÃO DE CATEGORIAS COM SCROLL ===== */
+        .categories-section {
+            padding: 32px 32px 8px;
+            position: relative;
+            z-index: 1;
+        }
+        .categories-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .categories-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 16px;
+            scroll-behavior: smooth;
+            -webkit-overflow-scrolling: touch;
+        }
+        .categories-scroll::-webkit-scrollbar { height: 4px; }
+        .categories-scroll::-webkit-scrollbar-thumb { background: rgba(5,150,105,0.2); border-radius: 10px; }
+
+        .cat-card {
+            min-width: 130px;
+            padding: 20px 16px;
+            border-radius: 20px;
+            background: var(--card);
+            border: 2px solid #e2e8f0;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        }
+        .cat-card:hover {
+            border-color: var(--brand);
+            transform: translateY(-6px);
+            box-shadow: 0 16px 32px rgba(5,150,105,0.12);
+        }
+        .cat-card.active {
+            background: linear-gradient(135deg, var(--brand), var(--brand-light));
+            border-color: var(--brand);
+            color: white;
+            box-shadow: 0 12px 28px var(--brand-glow);
+            transform: translateY(-4px);
+        }
+        .cat-card .cat-emoji {
+            font-size: 2.5rem;
+            display: block;
+            margin-bottom: 8px;
+            transition: all 0.3s ease;
+        }
+        .cat-card:hover .cat-emoji { transform: scale(1.2) rotate(-10deg); }
+        .cat-card .cat-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+        }
+        .cat-card .cat-count {
+            font-size: 0.75rem;
+            opacity: 0.7;
+            margin-top: 4px;
+        }
+
+        /* ===== GRID DE PRODUTOS ===== */
+        .products-section {
+            padding: 24px 32px 60px;
+            position: relative;
+            z-index: 1;
+        }
+        .products-section h2 {
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: var(--dark);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .products-masonry {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+        }
+
+        .food-card {
+            background: var(--card);
+            border-radius: 24px;
+            overflow: hidden;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+            border: 1px solid #f1f5f9;
+            position: relative;
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+        .food-card:hover {
+            transform: translateY(-10px) rotateX(2deg);
+            box-shadow: 0 30px 60px rgba(0,0,0,0.12), 0 10px 20px rgba(0,0,0,0.06);
+            border-color: var(--brand-light);
+        }
+
+        .food-card .card-visual {
+            height: 180px;
+            background: linear-gradient(135deg, #ecfdf5, #d1fae5);
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 2rem;
+            font-size: 5rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.4s ease;
         }
-        .login-container {
-            max-width: 450px;
-            width: 100%;
+        .food-card:hover .card-visual {
+            background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+            font-size: 6rem;
         }
-        .login-card {
-            background: rgba(255,255,255,0.95);
-            backdrop-filter: blur(10px);
-            border-radius: 3rem;
-            padding: 3rem 2.5rem;
-            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.4);
-            text-align: center;
+        .food-card .card-visual::after {
+            content: '';
+            position: absolute;
+            width: 150px; height: 150px;
+            background: rgba(255,255,255,0.3);
+            border-radius: 50%;
+            top: -50px; right: -50px;
+            transition: all 0.4s ease;
         }
-        .logo {
-            margin-bottom: 2.5rem;
+        .food-card:hover .card-visual::after {
+            width: 200px; height: 200px;
+            top: -80px; right: -80px;
         }
-        .logo i {
-            font-size: 3.5rem;
-            color: #ffb703;
-            background: #1b4332;
-            padding: 1.2rem;
-            border-radius: 24px;
-            margin-bottom: 1rem;
-            display: inline-block;
-        }
-        .logo h1 {
-            font-size: 2.2rem;
-            font-weight: 700;
-            color: #1b4332;
-        }
-        .logo p {
-            color: #555;
-            font-weight: 500;
-            margin-top: 0.25rem;
-        }
-        .input-group {
-            margin-bottom: 1.5rem;
-            text-align: left;
-        }
-        .input-group label {
-            display: block;
-            font-weight: 600;
-            color: #334155;
-            margin-bottom: 0.4rem;
-            font-size: 0.9rem;
-        }
-        .input-group input {
-            width: 100%;
-            padding: 1rem 1.2rem;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            font-size: 1rem;
-            transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
-            background: white;
-        }
-        .input-group input:focus {
-            border-color: #1b4332;
-            outline: none;
-            box-shadow: 0 0 0 4px rgba(27,67,50,0.15);
-        }
-        .btn-login {
-            width: 100%;
-            padding: 1rem;
-            background: #1b4332;
+
+        .food-card .discount-tag {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: var(--accent);
             color: white;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-weight: 800;
+            font-size: 0.8rem;
+            box-shadow: 0 4px 12px var(--accent-glow);
+        }
+        .food-card .fav-btn {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: white;
             border: none;
-            border-radius: 16px;
-            font-size: 1.1rem;
-            font-weight: 600;
             cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 1rem;
+            font-size: 1rem;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
-        .btn-login:hover {
-            background: #0f2b22;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px -5px rgba(27,67,50,0.4);
+        .food-card .fav-btn:hover {
+            background: #fee2e2;
+            color: #ef4444;
+            transform: scale(1.15);
         }
-        .error-message {
-            background: #ffe3e3;
-            color: #a61b1b;
-            padding: 0.8rem;
-            border-radius: 16px;
-            margin-top: 1rem;
+
+        .food-card .card-info {
+            padding: 20px;
+        }
+        .food-card .card-info h3 {
+            font-size: 1.15rem;
+            font-weight: 700;
+            margin-bottom: 4px;
+            color: var(--dark);
+        }
+        .food-card .card-info .cat {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-bottom: 12px;
+        }
+        .food-card .card-info .bottom-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .food-card .card-info .price {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--brand);
+        }
+        .food-card .card-info .price .cents {
+            font-size: 0.8rem;
+            vertical-align: super;
+        }
+        .food-card .card-info .stock-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .stock-ok { background: #d1fae5; color: #047857; }
+        .stock-low { background: #fef3c7; color: #92400e; }
+        .stock-out { background: #fee2e2; color: #991b1b; }
+
+        /* ===== MODAL LOGIN ===== */
+        .modal-overlay {
             display: none;
-            font-weight: 500;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(15,23,42,0.7);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
         }
-        .error-message.aviso {
-            background: #fff3cd;
-            color: #856404;
+        .modal-overlay.active { display: flex; animation: fadeIn 0.3s ease; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        .modal-box {
+            background: var(--card);
+            border-radius: 32px;
+            padding: 48px 36px;
+            max-width: 440px;
+            width: 90%;
+            box-shadow: 0 40px 100px rgba(0,0,0,0.3);
+            animation: modalPop 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
-        .support-info {
+        @keyframes modalPop {
+            from { opacity: 0; transform: translateY(60px) scale(0.9); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-box .modal-icon {
             text-align: center;
-            margin-top: 2rem;
+            font-size: 3.5rem;
+            margin-bottom: 16px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-12px); }
+        }
+
+        .modal-box h2 {
+            font-size: 1.6rem;
+            font-weight: 800;
+            text-align: center;
+            margin-bottom: 8px;
+            color: var(--dark);
+        }
+        .modal-box .subtitle {
+            text-align: center;
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 28px;
+        }
+        .modal-box .close-btn {
+            position: absolute;
+            top: 20px; right: 20px;
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            background: #f1f5f9;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+            color: #94a3b8;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-box .close-btn:hover {
+            background: #fee2e2;
+            color: #ef4444;
+            transform: rotate(90deg);
+        }
+
+        .modal-box .input-wrap {
+            margin-bottom: 18px;
+            position: relative;
+        }
+        .modal-box .input-wrap i {
+            position: absolute;
+            left: 16px; top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+        .modal-box .input-wrap input {
+            width: 100%;
+            padding: 16px 18px 16px 48px;
+            border: 2px solid #e2e8f0;
+            border-radius: 18px;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+        .modal-box .input-wrap input:focus {
+            outline: none;
+            border-color: var(--brand);
+            background: white;
+            box-shadow: 0 0 0 5px var(--brand-glow);
+        }
+
+        .modal-box .btn-login {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 18px;
+            background: linear-gradient(135deg, var(--brand), var(--brand-light));
+            color: white;
+            font-weight: 800;
+            font-size: 1.1rem;
+            cursor: pointer;
+            font-family: inherit;
+            margin-top: 8px;
+            box-shadow: 0 8px 24px var(--brand-glow);
+            transition: all 0.3s ease;
+        }
+        .modal-box .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 16px 40px rgba(5,150,105,0.4);
+        }
+        .modal-box .btn-login:active { transform: scale(0.97); }
+
+        .modal-box .error {
+            background: #fef2f2;
+            color: #991b1b;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            text-align: center;
+            margin-top: 12px;
+            display: none;
+        }
+        .modal-box .error.show { display: block; animation: shake 0.5s ease; }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-8px); }
+            75% { transform: translateX(8px); }
+        }
+
+        /* ===== FOOTER ===== */
+        .footer {
+            background: var(--dark);
+            color: white;
+            padding: 48px 32px;
+            position: relative;
+            z-index: 1;
+        }
+        .footer .footer-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 32px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .footer h4 {
+            font-weight: 700;
+            margin-bottom: 12px;
+            color: var(--brand-light);
+        }
+        .footer p, .footer a {
             color: #94a3b8;
             font-size: 0.85rem;
+            text-decoration: none;
+            line-height: 2;
         }
-        .support-info i {
-            margin-right: 0.3rem;
+        .footer a:hover { color: white; }
+        .footer .copyright {
+            text-align: center;
+            padding-top: 32px;
+            margin-top: 32px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            color: #64748b;
+            font-size: 0.8rem;
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.2rem; }
+            .products-masonry { grid-template-columns: 1fr; }
+            .topbar { padding: 12px 16px; }
+            .topbar .location { display: none; }
+            .categories-section { padding: 20px 16px 8px; }
+            .products-section { padding: 16px 16px 40px; }
         }
     </style>
 </head>
 <body>
-    <div class="login-container">
-        <div class="login-card">
-            <div class="logo">
-                <i class="fas fa-utensils"></i>
-                <h1>Doutor Paladar</h1>
-                <p>Cantina · Instituto Federal</p>
+
+    <!-- ===== PARTÍCULAS ===== -->
+    <div class="particles" id="particles"></div>
+
+    <!-- ===== TOP BAR ===== -->
+    <div class="topbar">
+        <div class="logo" onclick="location.reload()">
+            <div class="icon-wrap"><i class="fas fa-utensils"></i></div>
+            Doutor Paladar
+        </div>
+        <div class="location">
+            <i class="fas fa-map-marker-alt"></i>
+            Instituto Federal · Cantina
+        </div>
+        <div class="actions">
+            <button class="btn-ghost" onclick="abrirModal()">
+                <i class="far fa-user"></i> Entrar
+            </button>
+            <button class="btn-brand" onclick="abrirModal()">
+                <i class="fas fa-sign-in-alt"></i> Acessar Sistema
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== HERO ===== -->
+    <div class="hero">
+        <div class="hero-content">
+            <div class="badge">🍽️ Aberto agora · Pedidos online</div>
+            <h1>A cantina mais <span class="highlight">deliciosa</span> do IF</h1>
+            <p>Salgados, bebidas, doces e muito mais. Peça pelo site e retire na cantina!</p>
+            <div class="hero-stats">
+                <div class="hero-stat"><div class="num">50+</div><div class="lbl">Produtos</div></div>
+                <div class="hero-stat"><div class="num">⭐ 4.9</div><div class="lbl">Avaliação</div></div>
+                <div class="hero-stat"><div class="num">2min</div><div class="lbl">Retirada</div></div>
             </div>
-            
-            <form id="loginForm">
-                <div class="input-group">
-                    <label><i class="fas fa-user"></i> Usuário</label>
-                    <input type="text" id="username" placeholder="Digite seu usuário" required>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-lock"></i> Senha</label>
-                    <input type="password" id="password" placeholder="••••••••" required>
-                </div>
-                <button type="submit" class="btn-login">
-                    <i class="fas fa-sign-in-alt"></i> Entrar no Sistema
-                </button>
-                <div id="errorMessage" class="error-message"></div>
-            </form>
-            <div class="support-info">
-                <i class="fas fa-user-shield"></i> Acesso exclusivo: Pablo<br>
-                <i class="fas fa-users"></i> Desenvolvido por: Victor, Valmir, Nicolas, Samuel e Jimenez
+            <div class="search-wrap">
+                <i class="fas fa-search"></i>
+                <input type="text" id="heroSearch" placeholder="O que você quer pedir hoje? Ex: coxinha, suco..." onkeyup="filtrarProdutosHero()">
             </div>
         </div>
     </div>
 
+    <!-- ===== CATEGORIAS ===== -->
+    <div class="categories-section">
+        <h2>📂 Categorias</h2>
+        <div class="categories-scroll" id="categoriasHero"></div>
+    </div>
+
+    <!-- ===== PRODUTOS ===== -->
+    <div class="products-section">
+        <h2>📋 Cardápio <span style="font-weight:400;color:#94a3b8;font-size:0.9rem;" id="contadorProdutos"></span></h2>
+        <div class="products-masonry" id="produtosHero"></div>
+    </div>
+
+    <!-- ===== FOOTER ===== -->
+    <div class="footer">
+        <div class="footer-grid">
+            <div>
+                <h4>🍽️ Doutor Paladar</h4>
+                <p>Cantina do Instituto Federal<br>Qualidade e sabor desde 2026</p>
+            </div>
+            <div>
+                <h4>Links</h4>
+                <a href="#">Cardápio</a><br>
+                <a href="#" onclick="abrirModal()">Login</a><br>
+                <a href="#">Sobre</a>
+            </div>
+            <div>
+                <h4>Contato</h4>
+                <p>📧 cantina@ifsp.edu.br<br>📱 (11) 99999-9999</p>
+            </div>
+        </div>
+        <div class="copyright">
+            Feito com 💚 pela equipe Doutor Paladar · IFSP © 2026
+        </div>
+    </div>
+
+    <!-- ===== MODAL LOGIN ===== -->
+    <div class="modal-overlay" id="modalLogin">
+        <div class="modal-box">
+            <button class="close-btn" onclick="fecharModal()"><i class="fas fa-times"></i></button>
+            <div class="modal-icon">🔐</div>
+            <h2>Bem-vindo de volta!</h2>
+            <p class="subtitle">Faça login para acessar o sistema</p>
+            <div class="input-wrap">
+                <i class="fas fa-user"></i>
+                <input type="text" id="loginUser" placeholder="Usuário">
+            </div>
+            <div class="input-wrap">
+                <i class="fas fa-lock"></i>
+                <input type="password" id="loginPass" placeholder="Senha">
+            </div>
+            <button class="btn-login" onclick="fazerLogin()">
+                <i class="fas fa-sign-in-alt"></i> Entrar no Sistema
+            </button>
+            <div class="error" id="loginError">❌ Credenciais inválidas</div>
+        </div>
+    </div>
+
     <script src="js/auth.js"></script>
+    <script src="js/api.js"></script>
     <script>
-        // Mostrar mensagem de sessão expirada ao voltar para o login
-        const msgExpiracao = sessionStorage.getItem('mensagemExpiracao');
-        if (msgExpiracao) {
-            sessionStorage.removeItem('mensagemExpiracao');
-            const errorMsg = document.getElementById('errorMessage');
-            errorMsg.style.display = 'block';
-            errorMsg.classList.add('aviso');
-            errorMsg.textContent = '⚠️ ' + msgExpiracao;
+        // ===== PARTÍCULAS =====
+        (function() {
+            const container = document.getElementById('particles');
+            const colors = ['rgba(5,150,105,0.3)', 'rgba(16,185,129,0.2)', 'rgba(245,158,11,0.2)', 'rgba(5,150,105,0.15)'];
+            for (let i = 0; i < 25; i++) {
+                const p = document.createElement('div');
+                p.className = 'particle';
+                p.style.left = Math.random() * 100 + '%';
+                p.style.width = p.style.height = (Math.random() * 8 + 4) + 'px';
+                p.style.background = colors[Math.floor(Math.random() * colors.length)];
+                p.style.animationDuration = (Math.random() * 20 + 15) + 's';
+                p.style.animationDelay = (Math.random() * 15) + 's';
+                container.appendChild(p);
+            }
+        })();
+
+        // ===== CARDÁPIO =====
+        let todosProdutosHero = [];
+        let categoriaHeroAtiva = 'Todas';
+
+        async function carregarCardapio() {
+            try {
+                const res = await fetch('http://localhost:3000/api/produtos', {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if (res.ok) {
+                    todosProdutosHero = await res.json();
+                }
+            } catch (e) {
+                console.log('Usando cardápio offline');
+            }
+            
+            if (!todosProdutosHero.length) {
+                todosProdutosHero = [
+                    { id: 1, nome: 'Coxinha de Frango', categoria: 'Salgados', preco: 6.50, estoque: 45, imagem: '🥟' },
+                    { id: 2, nome: 'Pastel de Carne', categoria: 'Salgados', preco: 7.00, estoque: 38, imagem: '🥟' },
+                    { id: 3, nome: 'Empada de Frango', categoria: 'Salgados', preco: 6.00, estoque: 52, imagem: '🥟' },
+                    { id: 4, nome: 'Refrigerante Lata', categoria: 'Bebidas', preco: 5.00, estoque: 120, imagem: '🥤' },
+                    { id: 5, nome: 'Suco Natural', categoria: 'Bebidas', preco: 7.50, estoque: 35, imagem: '🥤' },
+                    { id: 6, nome: 'Brigadeiro', categoria: 'Doces', preco: 3.50, estoque: 80, imagem: '🍰' },
+                    { id: 7, nome: 'Bolo de Chocolate', categoria: 'Doces', preco: 5.00, estoque: 25, imagem: '🍰' },
+                    { id: 8, nome: 'Misto Quente', categoria: 'Lanches', preco: 8.00, estoque: 30, imagem: '🥪' },
+                    { id: 9, nome: 'Sorvete Casquinha', categoria: 'Sorvetes', preco: 4.00, estoque: 60, imagem: '🍦' },
+                ];
+            }
+            renderCategorias();
+            renderProdutos();
         }
 
-        document.getElementById('loginForm').addEventListener('submit', async function(e) {
-            e.preventDefault();
-            const username = document.getElementById('username').value.trim();
-            const password = document.getElementById('password').value;
+        function getCatEmoji(cat) {
+            const m = { 'Salgados': '🥟', 'Bebidas': '🥤', 'Doces': '🍰', 'Lanches': '🥪', 'Sorvetes': '🍦', 'Saudáveis': '🥗', 'Refeições': '🍽️', 'Todas': '📋' };
+            return m[cat] || '📦';
+        }
+
+        function renderCategorias() {
+            const cats = ['Todas', ...new Set(todosProdutosHero.map(p => p.categoria))];
+            document.getElementById('categoriasHero').innerHTML = cats.map(cat => {
+                const count = cat === 'Todas' ? todosProdutosHero.length : todosProdutosHero.filter(p => p.categoria === cat).length;
+                return `
+                    <div class="cat-card ${categoriaHeroAtiva === cat ? 'active' : ''}" onclick="filtrarPorCategoria('${cat}')">
+                        <span class="cat-emoji">${getCatEmoji(cat)}</span>
+                        <span class="cat-name">${cat}</span>
+                        <span class="cat-count">${count} itens</span>
+                    </div>`;
+            }).join('');
+        }
+
+        function filtrarPorCategoria(cat) {
+            categoriaHeroAtiva = cat;
+            renderCategorias();
+            renderProdutos();
+        }
+
+        function filtrarProdutosHero() { renderProdutos(); }
+
+        function renderProdutos() {
+            const termo = (document.getElementById('heroSearch')?.value || '').toLowerCase();
+            let lista = todosProdutosHero;
+            if (categoriaHeroAtiva !== 'Todas') lista = lista.filter(p => p.categoria === categoriaHeroAtiva);
+            if (termo) lista = lista.filter(p => p.nome.toLowerCase().includes(termo));
+
+            document.getElementById('contadorProdutos').textContent = `(${lista.length} produtos)`;
+            const container = document.getElementById('produtosHero');
+
+            if (!lista.length) {
+                container.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:80px 20px;color:#94a3b8;">
+                    <i class="fas fa-search" style="font-size:4rem;opacity:0.2;display:block;margin-bottom:16px;"></i>
+                    <h3 style="font-weight:600;">Nenhum produto encontrado</h3>
+                    <p>Tente outra busca ou categoria</p>
+                </div>`;
+                return;
+            }
+
+            container.innerHTML = lista.map((p, idx) => {
+                const stockClass = p.estoque === 0 ? 'stock-out' : (p.estoque < 10 ? 'stock-low' : 'stock-ok');
+                const stockText = p.estoque === 0 ? 'Esgotado' : (p.estoque < 10 ? `Só mais ${p.estoque}` : `${p.estoque} em estoque`);
+                const priceInt = Math.floor(p.preco);
+                const priceDec = (p.preco % 1).toFixed(2).substring(2);
+                return `
+                    <div class="food-card" style="animation: fadeInUp 0.5s ease forwards; animation-delay: ${idx * 0.06}s;">
+                        <div class="card-visual">
+                            ${p.imagem || getCatEmoji(p.categoria)}
+                            ${p.estoque < 10 && p.estoque > 0 ? '<div class="discount-tag">🔥 Últimas</div>' : ''}
+                            ${p.estoque === 0 ? '<div class="discount-tag" style="background:#ef4444;">Esgotado</div>' : ''}
+                        </div>
+                        <button class="fav-btn"><i class="far fa-heart"></i></button>
+                        <div class="card-info">
+                            <h3>${p.nome}</h3>
+                            <div class="cat">${p.categoria}</div>
+                            <div class="bottom-row">
+                                <div class="price">R$ ${priceInt}<span class="cents">,${priceDec}</span></div>
+                                <div class="stock-badge ${stockClass}">${stockText}</div>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        // ===== MODAL LOGIN =====
+        function abrirModal() { document.getElementById('modalLogin').classList.add('active'); }
+        function fecharModal() {
+            document.getElementById('modalLogin').classList.remove('active');
+            document.getElementById('loginError').classList.remove('show');
+        }
+
+        async function fazerLogin() {
+            const username = document.getElementById('loginUser').value.trim();
+            const password = document.getElementById('loginPass').value;
+            if (!username || !password) {
+                document.getElementById('loginError').textContent = '⚠️ Preencha todos os campos';
+                document.getElementById('loginError').classList.add('show');
+                return;
+            }
             const sucesso = await autenticarUsuario(username, password);
             if (sucesso) {
                 window.location.href = 'dashboard.html';
             } else {
-                const errorMsg = document.getElementById('errorMessage');
-                errorMsg.style.display = 'block';
-                errorMsg.classList.remove('aviso');
-                errorMsg.textContent = '❌ Credenciais inválidas';
+                document.getElementById('loginError').textContent = '❌ Usuário ou senha incorretos';
+                document.getElementById('loginError').classList.add('show');
             }
+        }
+
+        document.getElementById('modalLogin').addEventListener('click', function(e) {
+            if (e.target === this) fecharModal();
         });
+        document.getElementById('loginPass').addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') fazerLogin();
+        });
+
+        carregarCardapio();
     </script>
-<script src="js/settings.js"></script>
 </body>
 </html>
