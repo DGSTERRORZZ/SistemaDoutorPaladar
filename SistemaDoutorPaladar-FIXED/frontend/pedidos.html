@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pedidos · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #c8691a;
+            --primary-dark: #a3510f;
+            --primary-light: #e8832a;
+            --bg: #1a1008;
+            --card: #2a1a0a;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #c8691a;
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px rgba(200,105,26,0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+        
+        .topbar {
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(200, 105, 26, 0.2);
+            box-shadow: var(--shadow-3d);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-back {
+            background: rgba(200, 105, 26, 0.15);
+            border: none;
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-back:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; position: relative; z-index: 1; }
+        
+        .tabs {
+            display: flex;
+            gap: 0.5rem;
+            background: var(--card);
+            padding: 0.5rem;
+            border-radius: 40px;
+            margin-bottom: 1.5rem;
+        }
+        
+        .tab-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            background: transparent;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: var(--text-muted);
+        }
+        
+        .tab-btn:hover { color: var(--primary); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(200, 105, 26, 0.1);
+        }
+        
+        .produtos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+            gap: 1rem;
+        }
+        
+        .produto-card {
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 1rem;
+            text-align: center;
+            cursor: pointer;
+            border: 2px solid var(--border);
+            transition: all 0.3s;
+        }
+        
+        .produto-card:hover {
+            border-color: var(--primary);
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .carrinho-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        .btn-order {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            border-radius: 14px;
+            color: white;
+            font-weight: 700;
+            cursor: pointer;
+            margin-top: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-order:hover { transform: translateY(-2px); box-shadow: var(--shadow-glow); }
+        .btn-order:disabled { opacity: 0.5; cursor: not-allowed; }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .status-pendente { background: var(--warning); color: white; }
+        .status-confirmado { background: var(--success); color: white; }
+        .status-pronto { background: var(--primary); color: white; }
+        .status-entregue { background: var(--text-muted); color: white; }
+        .status-recusado { background: var(--danger); color: white; }
+        
+        .empty-state { text-align: center; padding: 2rem; color: var(--text-muted); }
+        .empty-state i { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
+        
+        @media (max-width: 768px) {
+            .produtos-grid { grid-template-columns: repeat(2, 1fr); }
+            .container { padding: 1rem; }
+            .topbar { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="topbar">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <span><i class="fas fa-utensils"></i></span>
+            Doutor Paladar
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <div id="userArea">
+                <span id="userName" style="color: var(--primary);"></span>
+            </div>
+            <button class="btn-back" onclick="logout()">Sair</button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="mudarTab('fazer')">Fazer Pedido</button>
+            <button class="tab-btn" onclick="mudarTab('meus')">Meus Pedidos</button>
+        </div>
+        
+        <div id="fazerTab" class="tab-content">
+            <div class="card">
+                <h3>📋 Cardápio</h3>
+                <div class="produtos-grid" id="produtosGrid"></div>
+            </div>
+            <div class="card">
+                <h3>🛒 Carrinho</h3>
+                <div id="carrinhoItens"></div>
+                <div class="cart-total" id="cartTotal" style="text-align:right; font-size:1.3rem; font-weight:700; color:var(--primary); margin:1rem 0;">R$ 0,00</div>
+                <button class="btn-order" id="finalizarBtn" onclick="finalizarPedido()" disabled>Finalizar Pedido</button>
+            </div>
+        </div>
+        
+        <div id="meusTab" class="tab-content" style="display:none;">
+            <div class="card">
+                <h3>📋 Meus Pedidos</h3>
+                <div id="meusPedidos"></div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let cliente = null;
+        let produtos = [];
+        let carrinho = [];
+        
+        if(!sessionStorage.getItem('cliente_token')) {
+            window.location.href = 'index.html';
+        }
+        
+        cliente = {
+            id: sessionStorage.getItem('cliente_id'),
+            nome: sessionStorage.getItem('cliente_nome'),
+            token: sessionStorage.getItem('cliente_token')
+        };
+        document.getElementById('userName').innerHTML = `<i class="fas fa-user-circle"></i> ${cliente.nome}`;
+        
+        async function carregarProdutos() {
+            try {
+                const res = await fetch(API_URL + '/produtos');
+                if(res.ok) produtos = await res.json();
+            } catch(e) { produtos = []; }
+            if(!produtos.length) {
+                produtos = [
+                    // Salgados
+                    { id:1,  nome:'Hambúrgão Cheddar',       categoria:'Salgados', preco:8.00,  estoque:15 },
+                    { id:2,  nome:'Hambúrgão c/ Bacon',      categoria:'Salgados', preco:9.00,  estoque:20 },
+                    { id:3,  nome:'Coxinha de Frango',        categoria:'Salgados', preco:5.50,  estoque:20 },
+                    { id:4,  nome:'Risolis de Queijo',        categoria:'Salgados', preco:5.00,  estoque:20 },
+                    { id:5,  nome:'Risolis de Carne',         categoria:'Salgados', preco:5.00,  estoque:20 },
+                    { id:6,  nome:'Esfiha de Carne',          categoria:'Salgados', preco:4.50,  estoque:20 },
+                    { id:7,  nome:'Pão de Queijo 90g',        categoria:'Salgados', preco:4.00,  estoque:30 },
+                    { id:8,  nome:'Pão Batata Frango',        categoria:'Salgados', preco:6.00,  estoque:20 },
+                    { id:9,  nome:'Pão Batata Calabresa',     categoria:'Salgados', preco:6.00,  estoque:20 },
+                    { id:10, nome:'Enroladinho Bauru',        categoria:'Salgados', preco:5.00,  estoque:20 },
+                    { id:11, nome:'Enroladinho Salsicha',     categoria:'Salgados', preco:5.00,  estoque:15 },
+                    { id:12, nome:'Pizza Fria',               categoria:'Salgados', preco:6.00,  estoque:20 },
+                    { id:13, nome:'Kibe',                     categoria:'Salgados', preco:5.00,  estoque:20 },
+                    // Bebidas
+                    { id:20, nome:'Coca-Cola Lata 350ml',     categoria:'Bebidas',  preco:7.00,  estoque:60 },
+                    { id:21, nome:'Coca-Cola Pet 600ml',      categoria:'Bebidas',  preco:7.00,  estoque:60 },
+                    { id:22, nome:'Coca-Cola Zero 350ml',     categoria:'Bebidas',  preco:7.00,  estoque:36 },
+                    { id:24, nome:'Sprite Lata 350ml',        categoria:'Bebidas',  preco:6.00,  estoque:24 },
+                    { id:25, nome:'Guaraná Antarctica Zero',  categoria:'Bebidas',  preco:5.00,  estoque:60 },
+                    { id:26, nome:'Água Passa Quatro c/ Gás', categoria:'Bebidas',  preco:4.00,  estoque:36 },
+                    { id:27, nome:'Água Passa Quatro s/ Gás', categoria:'Bebidas',  preco:4.00,  estoque:48 },
+                    { id:28, nome:'Suco K-mais Integral',     categoria:'Bebidas',  preco:5.00,  estoque:36 },
+                    { id:29, nome:'Suco K-mais Uva',          categoria:'Bebidas',  preco:5.00,  estoque:12 },
+                    { id:30, nome:'Suco K-mais Goiaba',       categoria:'Bebidas',  preco:5.00,  estoque:12 },
+                    { id:31, nome:'Suco K-mais Caju',         categoria:'Bebidas',  preco:5.00,  estoque:12 },
+                    { id:32, nome:'Café Coado (copo)',         categoria:'Bebidas',  preco:3.00,  estoque:99 },
+                    // Doces
+                    { id:40, nome:'Cremosinho Sorvete Iogurte', categoria:'Doces', preco:2.50,  estoque:30 },
+                    { id:41, nome:'Geladão de Açaí',            categoria:'Doces', preco:7.00,  estoque:10 },
+                    { id:42, nome:'Trento Chocolate',           categoria:'Doces', preco:3.50,  estoque:24 },
+                    { id:43, nome:'Pão de Mel 50g',             categoria:'Doces', preco:4.00,  estoque:20 },
+                    // Caldos
+                    { id:50, nome:'Caldo Sopa de Legumes',         categoria:'Caldos', preco:20.00, estoque:5 },
+                    { id:51, nome:'Caldo Mandioquinha c/ Frango',  categoria:'Caldos', preco:20.00, estoque:5 },
+                    { id:52, nome:'Caldo de Abóbora',              categoria:'Caldos', preco:20.00, estoque:5 },
+                    { id:53, nome:'Caldo Verde c/ Carne',          categoria:'Caldos', preco:20.00, estoque:5 },
+                    { id:54, nome:'Caldo Vaca Atolada',            categoria:'Caldos', preco:20.00, estoque:5 },
+                ];
+            }
+            produtos.forEach(p => { p.preco = parseFloat(p.preco) || 0; });
+            renderProdutos();
+        }
+        
+        function renderProdutos() {
+            const container = document.getElementById('produtosGrid');
+            container.innerHTML = produtos.map(p => `
+                <div class="produto-card" onclick="adicionarAoCarrinho(${p.id})">
+                    <div style="font-size:2rem;">📦</div>
+                    <div><strong>${p.nome}</strong></div>
+                    <div style="color:var(--primary);">R$ ${(parseFloat(p.preco)||0).toFixed(2)}</div>
+                </div>
+            `).join('');
+        }
+        
+        function adicionarAoCarrinho(id) {
+            const p = produtos.find(x => x.id === id);
+            if(!p) return;
+            const idx = carrinho.findIndex(i => i.produtoId === id);
+            if(idx !== -1) carrinho[idx].quantidade++;
+            else carrinho.push({ produtoId: id, nome: p.nome, precoUnitario: p.preco, quantidade: 1 });
+            atualizarCarrinho();
+        }
+        
+        function removerDoCarrinho(id) {
+            const idx = carrinho.findIndex(i => i.produtoId === id);
+            if(idx === -1) return;
+            if(carrinho[idx].quantidade > 1) carrinho[idx].quantidade--;
+            else carrinho.splice(idx, 1);
+            atualizarCarrinho();
+        }
+        
+        function atualizarCarrinho() {
+            const total = carrinho.reduce((s,i) => s + i.quantidade * i.precoUnitario, 0);
+            document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2)}`;
+            const finalizarBtn = document.getElementById('finalizarBtn');
+            finalizarBtn.disabled = carrinho.length === 0;
+            
+            const container = document.getElementById('carrinhoItens');
+            if(carrinho.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Seu carrinho está vazio</p>';
+                return;
+            }
+            container.innerHTML = carrinho.map(i => `
+                <div class="carrinho-item">
+                    <div><strong>${i.nome}</strong><br>R$ ${(parseFloat(i.precoUnitario)||0).toFixed(2)}</div>
+                    <div style="display:flex; gap:8px; align-items:center;">
+                        <button onclick="removerDoCarrinho(${i.produtoId})" style="width:28px; height:28px; border-radius:50%; background:var(--border); color:white; border:none; cursor:pointer;">−</button>
+                        <span>${i.quantidade}</span>
+                        <button onclick="adicionarAoCarrinho(${i.produtoId})" style="width:28px; height:28px; border-radius:50%; background:var(--border); color:white; border:none; cursor:pointer;">+</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function finalizarPedido() {
+            if(carrinho.length === 0) return;
+            const total = carrinho.reduce((s,i) => s + i.quantidade * i.precoUnitario, 0);
+            try {
+                const res = await fetch(API_URL + '/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nomeCliente: cliente.nome,
+                        turma: sessionStorage.getItem('cliente_turma') || '',
+                        horarioRetirada: '12:00',
+                        itens: carrinho,
+                        total,
+                        clienteAppId: cliente.id ? parseInt(cliente.id) : null
+                    })
+                });
+                if(res.ok) {
+                    alert('✅ Pedido realizado com sucesso!');
+                    carrinho = [];
+                    atualizarCarrinho();
+                    await carregarMeusPedidos();
+                } else alert('Erro ao enviar pedido');
+            } catch(e) { alert('Erro de conexão'); }
+        }
+        
+        async function carregarMeusPedidos() {
+            const container = document.getElementById('meusPedidos');
+            try {
+                const res = await fetch(API_URL + '/pedidos/buscar/' + encodeURIComponent(cliente.nome));
+                const pedidos = await res.json();
+                if(!pedidos.length) {
+                    container.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>Nenhum pedido encontrado</p></div>';
+                    return;
+                }
+                container.innerHTML = pedidos.map(p => `
+                    <div style="border-bottom:1px solid var(--border); padding:1rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+                            <div><strong>Pedido #${p.id}</strong> - ${new Date(p.data).toLocaleDateString('pt-BR')}</div>
+                            <span class="status-badge status-${p.status || 'pendente'}">${(p.status || 'PENDENTE').toUpperCase()}</span>
+                        </div>
+                        <div style="margin-top:0.5rem; color:var(--text-muted);">Total: R$ ${(p.total || 0).toFixed(2)}</div>
+                    </div>
+                `).join('');
+            } catch(e) { container.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-circle"></i><p>Erro ao carregar pedidos</p></div>'; }
+        }
+        
+        function mudarTab(tab) {
+            document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.style.display = 'none');
+            if(tab === 'fazer') {
+                document.querySelector('.tab-btn:first-child').classList.add('active');
+                document.getElementById('fazerTab').style.display = 'block';
+            } else {
+                document.querySelector('.tab-btn:last-child').classList.add('active');
+                document.getElementById('meusTab').style.display = 'block';
+                carregarMeusPedidos();
+            }
+        }
+        
+        function logout() {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
+        
+        (function(){
+            const c=document.getElementById('particles');
+            for(let i=0;i<20;i++){
+                const p=document.createElement('div');
+                p.className='particle';
+                p.style.left=Math.random()*100+'%';
+                p.style.width=p.style.height=(Math.random()*4+2)+'px';
+                p.style.background=`rgba(200,105,26,${Math.random()*0.3+0.1})`;
+                p.style.animationDuration=(Math.random()*14+10)+'s';
+                p.style.animationDelay=(Math.random()*8)+'s';
+                c.appendChild(p);
+            }
+        })();
+        
+        carregarProdutos();
+    </script>
+</body>
+</html>

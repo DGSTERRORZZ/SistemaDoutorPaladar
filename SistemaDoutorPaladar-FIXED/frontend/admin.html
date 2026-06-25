@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #c8691a;
+            --primary-dark: #a3510f;
+            --primary-light: #e8832a;
+            --bg: #1a1008;
+            --card: #2a1a0a;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --info: #3b82f6;
+            --success: #c8691a;
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px rgba(200,105,26,0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+        
+        /* SIDEBAR FIXA */
+        .admin-layout {
+            display: flex;
+            min-height: 100vh;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--card), #150d04);
+            border-right: 1px solid rgba(200, 105, 26, 0.2);
+            padding: 1.5rem;
+            overflow-y: auto;
+            box-shadow: var(--shadow-3d);
+            position: fixed;
+            top: 0;
+            left: 0;
+            height: 100vh;
+            z-index: 10;
+        }
+        
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(200, 105, 26, 0.3);
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+        
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background: rgba(200, 105, 26, 0.1);
+            color: var(--primary);
+        }
+        
+        .main-content {
+            flex: 1;
+            padding: 1.5rem;
+            margin-left: 280px;
+        }
+        
+        .topbar {
+            background: var(--card);
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(200, 105, 26, 0.1);
+        }
+        
+        .page-title { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+        .admin-badge { background: rgba(200, 105, 26, 0.15); padding: 0.3rem 0.8rem; border-radius: 30px; font-size: 0.8rem; font-weight: 600; color: var(--primary); }
+        
+        .btn-sm {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+        
+        .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            padding: 1.2rem;
+            border-radius: 20px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-3d); }
+        .stat-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(200, 105, 26, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .card-title { font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 1.2rem;
+            transition: all 0.3s;
+        }
+        
+        .chart-card canvas { max-height: 250px; width: 100%; }
+        
+        .tab-content { display: none; animation: fadeInUp 0.4s ease; }
+        .tab-content.active { display: block; }
+        
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .badge-success { background: rgba(200,105,26,0.15); color: var(--success); }
+        .badge-warning { background: rgba(245,158,11,0.15); color: var(--warning); }
+        
+        .pedido-item {
+            border-bottom: 1px solid var(--border);
+            padding: 1rem;
+        }
+        
+        .pedido-acoes { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+        
+        .toast {
+            position: fixed; bottom: 20px; right: 20px;
+            padding: 12px 20px; border-radius: 12px;
+            color: white; font-weight: 600; z-index: 1100;
+            animation: fadeInUp 0.3s ease;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        @media (max-width: 768px) {
+            .admin-layout { flex-direction: column; }
+            .sidebar { width: 100%; height: auto; position: static; }
+            .main-content { margin-left: 0; }
+            .nav-item { display: inline-flex; margin-right: 0.5rem; }
+            .charts-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="admin-layout">
+        <div class="sidebar">
+            <div class="logo" onclick="location.reload()">DOUTOR PALADAR</div>
+            <div class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</div>
+            <div class="nav-item" data-tab="pedidos"><i class="fas fa-clipboard-list"></i> Pedidos</div>
+            <div class="nav-item" onclick="window.location.href='pdv.html'"><i class="fas fa-cash-register"></i> Ponto de Venda</div>
+            <div class="nav-item" data-tab="produtos"><i class="fas fa-box"></i> Produtos</div>
+            <div class="nav-item" data-tab="contasReceber"><i class="fas fa-hand-holding-usd"></i> Contas a Receber</div>
+            <div class="nav-item" data-tab="despesas"><i class="fas fa-receipt"></i> Despesas</div>
+            <div class="nav-item" data-tab="fornecedores"><i class="fas fa-truck"></i> Fornecedores</div>
+            <div class="nav-item" data-tab="agendamentos"><i class="fas fa-calendar-alt"></i> Agendamentos</div>
+            <div class="nav-item" data-tab="desempenhos"><i class="fas fa-chart-line"></i> Desempenhos</div>
+            <div class="nav-item" data-tab="configuracoes"><i class="fas fa-cog"></i> Configurações</div>
+        </div>
+        
+        <div class="main-content">
+            <div class="topbar">
+                <div class="page-title" id="pageTitle">Dashboard</div>
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div class="admin-badge" id="adminBadge"><i class="fas fa-shield-alt"></i> Gestor Master</div>
+                    <button class="btn-sm btn-danger" onclick="logoutAdmin()">Sair</button>
+                </div>
+            </div>
+            
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="tab-content active">
+                <div class="stats-grid" id="dashboardStats"></div>
+                <div class="charts-grid">
+                    <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Vendas - Últimos 7 Dias</h3><canvas id="vendasChart"></canvas></div>
+                    <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Vendas por Categoria</h3><canvas id="categoriaChart"></canvas></div>
+                </div>
+                <div class="charts-grid">
+                    <div class="chart-card"><h3><i class="fas fa-trophy"></i> Produtos Mais Vendidos</h3><div id="rankingProdutos"></div></div>
+                    <div class="chart-card"><h3><i class="fas fa-chart-bar"></i> Formas de Pagamento</h3><canvas id="pagamentoChart"></canvas></div>
+                </div>
+                <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-clock"></i> Últimos Pedidos</h3></div><div id="ultimosPedidos"></div></div>
+                <div class="card"><div class="card-header"><h3 class="card-title"><i class="fas fa-exclamation-triangle"></i> Estoque Crítico</h3></div><div id="estoqueCritico"></div></div>
+            </div>
+            
+            <!-- PEDIDOS -->
+            <div id="pedidos" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-clipboard-list"></i> Pedidos dos Clientes</h3></div>
+                    <div id="pedidosList"></div>
+                </div>
+            </div>
+            
+            <!-- PRODUTOS -->
+            <div id="produtos" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-box"></i> Gerenciar Produtos</h3><button class="btn-sm btn-primary" onclick="window.location.href='estoque.html'"><i class="fas fa-external-link-alt"></i> Abrir Gestão Completa</button></div>
+                    <div id="produtosResumo"></div>
+                </div>
+            </div>
+            
+            <!-- CONTAS A RECEBER -->
+            <div id="contasReceber" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-hand-holding-usd"></i> Contas a Receber</h3><button class="btn-sm btn-primary" onclick="window.location.href='contas-receber.html'"><i class="fas fa-external-link-alt"></i> Abrir Gestão Completa</button></div>
+                    <div id="contasReceberResumo"></div>
+                </div>
+            </div>
+            
+            <!-- DESPESAS -->
+            <div id="despesas" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-receipt"></i> Despesas</h3><button class="btn-sm btn-primary" onclick="window.location.href='despesas.html'"><i class="fas fa-external-link-alt"></i> Abrir Gestão Completa</button></div>
+                    <div id="despesasResumo"></div>
+                </div>
+            </div>
+            
+            <!-- FORNECEDORES -->
+            <div id="fornecedores" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-truck"></i> Fornecedores</h3><button class="btn-sm btn-primary" onclick="window.location.href='fornecedores.html'"><i class="fas fa-external-link-alt"></i> Abrir Gestão Completa</button></div>
+                    <div id="fornecedoresResumo"></div>
+                </div>
+            </div>
+            
+            <!-- AGENDAMENTOS -->
+            <div id="agendamentos" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-calendar-alt"></i> Agendamentos</h3><button class="btn-sm btn-primary" onclick="window.location.href='agendamentos.html'"><i class="fas fa-external-link-alt"></i> Abrir Gestão Completa</button></div>
+                    <div id="agendamentosResumo"></div>
+                </div>
+            </div>
+            
+            <!-- DESEMPENHOS -->
+            <div id="desempenhos" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-chart-line"></i> Relatórios de Desempenho</h3><button class="btn-sm btn-primary" onclick="window.location.href='desempenhos.html'"><i class="fas fa-external-link-alt"></i> Abrir Relatórios Completos</button></div>
+                    <div id="desempenhosResumo"></div>
+                </div>
+            </div>
+            
+            <!-- CONFIGURAÇÕES -->
+            <div id="configuracoes" class="tab-content">
+                <div class="card">
+                    <div class="card-header"><h3 class="card-title"><i class="fas fa-cog"></i> Configurações</h3><button class="btn-sm btn-primary" onclick="window.location.href='configuracoes.html'"><i class="fas fa-external-link-alt"></i> Abrir Configurações</button></div>
+                    <div id="configuracoesResumo"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let produtos = [], vendas = [], pedidos = [];
+        let chartVendas, chartCategoria, chartPagamento;
+        
+        if(!sessionStorage.getItem('admin_logado')) { window.location.href = 'index.html'; }
+        document.getElementById('adminBadge').innerHTML = `<i class="fas fa-shield-alt"></i> ${sessionStorage.getItem('admin_nome') || 'Gestor Master'}`;
+        
+        function logoutAdmin() { sessionStorage.clear(); window.location.href = 'index.html'; }
+        
+        document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+            item.addEventListener('click', () => {
+                const tab = item.dataset.tab;
+                document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+                item.classList.add('active');
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                document.getElementById(tab).classList.add('active');
+                document.getElementById('pageTitle').textContent = item.textContent.trim();
+                
+                if(tab === 'dashboard') carregarDashboard();
+                if(tab === 'pedidos') carregarPedidos();
+                if(tab === 'produtos') carregarProdutosResumo();
+                if(tab === 'contasReceber') carregarResumoContasReceber();
+                if(tab === 'despesas') carregarResumoDespesas();
+                if(tab === 'fornecedores') carregarResumoFornecedores();
+                if(tab === 'agendamentos') carregarResumoAgendamentos();
+                if(tab === 'desempenhos') carregarResumoDesempenhos();
+                if(tab === 'configuracoes') carregarResumoConfiguracoes();
+            });
+        });
+        
+        async function carregarDados() {
+            try {
+                const token = sessionStorage.getItem('token');
+                const headers = token ? { Authorization: `Bearer ${token}` } : {};
+                const [rProd, rVendas, rPedidos] = await Promise.all([
+                    fetch(API_URL+'/produtos', { headers }),
+                    fetch(API_URL+'/vendas', { headers }),
+                    fetch(API_URL+'/pedidos', { headers })
+                ]);
+                if(rProd.ok) produtos = await rProd.json();
+                if(rVendas.ok) vendas = await rVendas.json();
+                if(rPedidos.ok) pedidos = await rPedidos.json();
+            } catch(e) { console.error('Erro ao carregar dados:', e); }
+        }
+        
+        async function carregarDashboard() {
+            await carregarDados();
+            const totalVendas = vendas.reduce((s,v)=>s+(v.total||0),0);
+            const hojeStr = new Date().toISOString().split('T')[0];
+            const vendasHoje = vendas.filter(v=>String(v.data).startsWith(hojeStr)).reduce((s,v)=>s+(v.total||0),0);
+            const totalPedidos = pedidos.length;
+            const totalProdutos = produtos.length;
+            const estoqueBaixo = produtos.filter(p=>p.estoque<=(p.estoqueMinimo||10)).length;
+            document.getElementById('dashboardStats').innerHTML = `
+                <div class="stat-card"><div class="stat-value">R$ ${vendasHoje.toFixed(2)}</div><div class="stat-label">Vendas Hoje</div></div>
+                <div class="stat-card"><div class="stat-value">R$ ${totalVendas.toFixed(2)}</div><div class="stat-label">Total Vendas</div></div>
+                <div class="stat-card"><div class="stat-value">${totalPedidos}</div><div class="stat-label">Pedidos</div></div>
+                <div class="stat-card"><div class="stat-value" style="color:${estoqueBaixo>0?'#ef4444':'#c8691a'}">${estoqueBaixo}</div><div class="stat-label">Estoque Baixo</div></div>
+            `;
+            
+            // Gráfico de vendas
+            const ult7=[], val7=[];
+            for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const ds=d.toISOString().split('T')[0]; ult7.push(d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')); val7.push(vendas.filter(v=>v.data.startsWith(ds)).reduce((s,v)=>s+(v.total||0),0)); }
+            if(chartVendas) chartVendas.destroy();
+            chartVendas = new Chart(document.getElementById('vendasChart'),{type:'line',data:{labels:ult7,datasets:[{label:'Vendas (R$)',data:val7,borderColor:'#c8691a',fill:true,tension:0.4}]},options:{responsive:true}});
+            
+            // Gráfico de categorias
+            const vendasPorCategoria = {};
+            vendas.forEach(v => { if(v.itens) v.itens.forEach(i => { const prod = produtos.find(p=>p.id===i.produtoId); const cat = prod?.categoria||'Outros'; vendasPorCategoria[cat] = (vendasPorCategoria[cat]||0) + (i.precoUnitario||0)*(i.quantidade||0); }); });
+            if(chartCategoria) chartCategoria.destroy();
+            chartCategoria = new Chart(document.getElementById('categoriaChart'),{type:'doughnut',data:{labels:Object.keys(vendasPorCategoria),datasets:[{data:Object.values(vendasPorCategoria),backgroundColor:['#c8691a','#e8832a','#f59e0b','#3b82f6','#8b5cf6']}]},options:{responsive:true}});
+            
+            // Ranking
+            const vendasPorProduto = {};
+            vendas.forEach(v => { if(v.itens) v.itens.forEach(i => { if(!vendasPorProduto[i.produtoId]) vendasPorProduto[i.produtoId]=0; vendasPorProduto[i.produtoId]+=i.quantidade; }); });
+            const ranking = Object.entries(vendasPorProduto).map(([id,q])=>({nome:produtos.find(p=>p.id==parseInt(id))?.nome||'Desconhecido',quantidade:q})).sort((a,b)=>b.quantidade-a.quantidade).slice(0,5);
+            const maxQ=ranking[0]?.quantidade||1;
+            document.getElementById('rankingProdutos').innerHTML=ranking.map((r,i)=>`<div><strong>${i+1}º</strong> ${r.nome} - ${r.quantidade} un.</div><div class="progress-bar"><div class="progress-fill" style="width:${(r.quantidade/maxQ)*100}%"></div></div>`).join('')||'<p>Nenhuma venda</p>';
+            
+            // Pagamentos
+            const pag={dinheiro:0,cartao:0,fiado:0};
+            vendas.forEach(v=>{ if(v.formaPagamento==='dinheiro') pag.dinheiro+=v.total; else if(v.formaPagamento==='cartao') pag.cartao+=v.total; else pag.fiado+=v.total; });
+            if(chartPagamento) chartPagamento.destroy();
+            chartPagamento = new Chart(document.getElementById('pagamentoChart'),{type:'bar',data:{labels:['Dinheiro','Cartão','Conta'],datasets:[{label:'Valor (R$)',data:[pag.dinheiro,pag.cartao,pag.fiado],backgroundColor:['#c8691a','#3b82f6','#f59e0b'],borderRadius:8}]},options:{responsive:true}});
+            
+            document.getElementById('ultimosPedidos').innerHTML = (pedidos||[]).slice(0,5).map(p=>`<div style="display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);"><div><strong>#${p.id}</strong> - ${p.nomeCliente}<br><small>${new Date(p.data).toLocaleString()}</small></div><div><span class="badge badge-${p.status==='pendente'?'warning':'success'}">${p.status?.toUpperCase()}</span></div></div>`).join('')||'<p>Nenhum pedido</p>';
+            
+            const baixo=produtos.filter(p=>p.estoque<=(p.estoqueMinimo||10));
+            document.getElementById('estoqueCritico').innerHTML=baixo.length?baixo.map(p=>`<div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid var(--border);"><span>${p.imagem||'📦'} ${p.nome}</span><span style="color:#f59e0b">${p.estoque} un.</span></div>`).join(''):'<p>Todos os produtos com estoque OK</p>';
+        }
+        
+        async function carregarPedidos() {
+            await carregarDados();
+            const container = document.getElementById('pedidosList');
+            if(!pedidos.length) { container.innerHTML='<p style="text-align:center; padding:2rem;">Nenhum pedido encontrado</p>'; return; }
+            container.innerHTML = pedidos.map(p => `
+                <div class="pedido-item">
+                    <div><strong>Pedido #${p.id}</strong> - ${p.nomeCliente}<br><small>${new Date(p.data).toLocaleString()} · Retirada: ${p.horarioRetirada}</small><br><strong>Total: R$ ${(p.total||0).toFixed(2)}</strong></div>
+                    <div class="pedido-acoes">
+                        ${p.status === 'pendente' ? `<button class="btn-sm btn-primary" onclick="mudarStatus(${p.id},'confirmado')">✓ Confirmar</button><button class="btn-sm btn-danger" onclick="mudarStatus(${p.id},'recusado')">✕ Recusar</button>` : `<span class="badge badge-${p.status==='confirmado'?'success':'warning'}">${p.status?.toUpperCase()}</span>`}
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        async function mudarStatus(id, novoStatus) {
+            try {
+                await fetch(API_URL + `/pedidos/${id}/status`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ status: novoStatus }) });
+                mostrarToast(`Pedido #${id} atualizado!`, 'success');
+                carregarPedidos();
+                carregarDashboard();
+            } catch(e) { mostrarToast('Erro ao atualizar', 'error'); }
+        }
+        
+        function carregarProdutosResumo() { document.getElementById('produtosResumo').innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-value">${produtos.length}</div><div class="stat-label">Produtos</div></div><div class="stat-card"><div class="stat-value">${produtos.filter(p=>p.estoque===0).length}</div><div class="stat-label">Esgotados</div></div></div><p><a href="estoque.html" class="btn-sm btn-primary">Gerenciar Produtos <i class="fas fa-arrow-right"></i></a></p>`; }
+        function carregarResumoContasReceber() { document.getElementById('contasReceberResumo').innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-value">R$ 1.250,00</div><div class="stat-label">Total Pendente</div></div></div><p><a href="contas-receber.html" class="btn-sm btn-primary">Gerenciar <i class="fas fa-arrow-right"></i></a></p>`; }
+        function carregarResumoDespesas() { document.getElementById('despesasResumo').innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-value">R$ 3.240,00</div><div class="stat-label">Despesas do Mês</div></div></div><p><a href="despesas.html" class="btn-sm btn-primary">Gerenciar <i class="fas fa-arrow-right"></i></a></p>`; }
+        function carregarResumoFornecedores() { document.getElementById('fornecedoresResumo').innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-value">12</div><div class="stat-label">Fornecedores</div></div></div><p><a href="fornecedores.html" class="btn-sm btn-primary">Gerenciar <i class="fas fa-arrow-right"></i></a></p>`; }
+        function carregarResumoAgendamentos() { document.getElementById('agendamentosResumo').innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-value">4</div><div class="stat-label">Horários</div></div></div><p><a href="agendamentos.html" class="btn-sm btn-primary">Gerenciar <i class="fas fa-arrow-right"></i></a></p>`; }
+        function carregarResumoDesempenhos() { document.getElementById('desempenhosResumo').innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-value">+23%</div><div class="stat-label">Crescimento</div></div></div><p><a href="desempenhos.html" class="btn-sm btn-primary">Ver Relatórios <i class="fas fa-arrow-right"></i></a></p>`; }
+        function carregarResumoConfiguracoes() { document.getElementById('configuracoesResumo').innerHTML = `<div class="stats-grid"><div class="stat-card"><div class="stat-value">Doutor Paladar</div><div class="stat-label">Nome da Cantina</div></div></div><p><a href="configuracoes.html" class="btn-sm btn-primary">Configurações <i class="fas fa-arrow-right"></i></a></p>`; }
+        
+        function mostrarToast(msg, tipo) {
+            const toast = document.createElement('div'); toast.className = `toast ${tipo}`; toast.textContent = msg;
+            document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000);
+        }
+        
+        (function(){ const c=document.getElementById('particles'); for(let i=0;i<20;i++){ const p=document.createElement('div'); p.className='particle'; p.style.left=Math.random()*100+'%'; p.style.width=p.style.height=(Math.random()*4+2)+'px'; p.style.background=`rgba(200,105,26,${Math.random()*0.3+0.1})`; p.style.animationDuration=(Math.random()*14+10)+'s'; p.style.animationDelay=(Math.random()*8)+'s'; c.appendChild(p); } })();
+        
+        carregarDashboard(); carregarPedidos();
+
+        // Fix: lê o hash da URL ao carregar (ex: admin.html#configuracoes)
+        // e ativa a aba correspondente sem precisar clicar manualmente
+        (function aplicarHashInicial() {
+            const hash = window.location.hash.replace('#', '').trim();
+            if (!hash) return;
+            const navItem = document.querySelector(`.nav-item[data-tab="${hash}"]`);
+            if (navItem) navItem.click();
+        })();
+    </script>
+</body>
+</html>

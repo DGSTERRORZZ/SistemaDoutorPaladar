@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDV · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary:      #c8691a;
+            --primary-dark: #a3510f;
+            --primary-light:#e8832a;
+            --bg:           #1a1008;
+            --card:         #2a1a0a;
+            --text:         #f1f5f9;
+            --text-muted:   #94a3b8;
+            --border:       #334155;
+            --danger:       #ef4444;
+            --warning:      #f59e0b;
+            --success:      #c8691a;
+            --shadow-3d:    0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card:  0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow:  0 0 20px rgba(200,105,26,0.3);
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+        @keyframes fadeInUp { from { opacity:0; transform:translateY(30px); } to { opacity:1; transform:translateY(0); } }
+        @keyframes floatUp  { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+
+        /* PARTÍCULAS */
+        .particles { position:fixed; top:0; left:0; width:100%; height:100%; pointer-events:none; z-index:0; overflow:hidden; }
+        .particle  { position:absolute; border-radius:50%; animation:floatUp linear infinite; opacity:0; }
+
+        /* ── LAYOUT IGUAL AO ADMIN ── */
+        .admin-layout { display:flex; min-height:100vh; position:relative; z-index:1; }
+
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, var(--card), #150d04);
+            border-right: 1px solid rgba(200,105,26,0.2);
+            padding: 1.5rem;
+            overflow-y: auto;
+            box-shadow: var(--shadow-3d);
+            position: fixed;
+            top: 0; left: 0;
+            height: 100vh;
+            z-index: 10;
+        }
+
+        .logo {
+            font-size: 1.4rem;
+            font-weight: 800;
+            color: var(--primary);
+            text-align: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid rgba(200,105,26,0.3);
+            cursor: pointer;
+            letter-spacing: 1px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            margin: 6px 0;
+            border-radius: 14px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--text-muted);
+            font-weight: 500;
+            text-decoration: none;
+        }
+        .nav-item:hover, .nav-item.active { background: rgba(200,105,26,0.1); color: var(--primary); }
+
+        .main-content { flex:1; padding:1.5rem; margin-left:280px; }
+
+        /* TOPBAR igual ao admin */
+        .topbar {
+            background: var(--card);
+            padding: 1rem 1.5rem;
+            border-radius: 20px;
+            margin-bottom: 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(200,105,26,0.1);
+        }
+
+        .page-title { font-size:1.3rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:10px; }
+        .page-title i { color:var(--primary); }
+
+        /* CARDS */
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(200,105,26,0.1);
+        }
+
+        .card-header {
+            display: flex; justify-content:space-between; align-items:center;
+            margin-bottom:1rem; flex-wrap:wrap; gap:0.5rem;
+        }
+
+        .card-title { font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px; }
+        .card-title i { color:var(--primary); }
+
+        /* BOTÕES */
+        .btn-sm {
+            padding: 6px 14px; border-radius:20px;
+            font-size:0.8rem; font-weight:600;
+            cursor:pointer; border:none;
+            transition:all 0.3s; font-family:inherit;
+            display:inline-flex; align-items:center; gap:6px;
+        }
+        .btn-primary { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); color:white; }
+        .btn-primary:hover { transform:translateY(-2px); box-shadow:var(--shadow-glow); }
+        .btn-danger  { background:linear-gradient(135deg,var(--danger),#dc2626); color:white; }
+        .btn-ghost   { background:rgba(200,105,26,0.1); color:var(--primary); }
+        .btn-ghost:hover { background:rgba(200,105,26,0.2); }
+
+        /* ── PDV GRID ── */
+        .pdv-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 1rem;
+            align-items: start;
+        }
+
+        /* BUSCA */
+        .search-box { position:relative; margin-bottom:1rem; }
+        .search-box i { position:absolute; left:14px; top:50%; transform:translateY(-50%); color:var(--text-muted); }
+        .search-box input {
+            width:100%; padding:10px 14px 10px 40px;
+            border:2px solid var(--border); border-radius:30px;
+            background:var(--bg); color:var(--text);
+            font-family:inherit; font-size:0.9rem; transition:all 0.3s;
+        }
+        .search-box input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 4px rgba(200,105,26,0.15); }
+        .search-box input::placeholder { color:var(--text-muted); }
+
+        /* CATEGORIAS */
+        .cat-tabs { display:flex; gap:0.4rem; flex-wrap:wrap; margin-bottom:1rem; }
+        .cat-tab {
+            padding:5px 14px; border-radius:20px;
+            border:2px solid var(--border); background:transparent;
+            color:var(--text-muted); font-family:inherit;
+            font-size:0.78rem; font-weight:600; cursor:pointer; transition:all 0.3s;
+        }
+        .cat-tab:hover { border-color:var(--primary); color:var(--primary-light); }
+        .cat-tab.active { background:linear-gradient(135deg,var(--primary),var(--primary-dark)); border-color:transparent; color:white; }
+
+        /* GRADE PRODUTOS */
+        .prod-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 0.7rem;
+            max-height: 470px;
+            overflow-y: auto;
+            padding-right: 4px;
+        }
+
+        .prod-card {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 0.85rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.25s;
+            user-select: none;
+        }
+        .prod-card:hover { border-color:var(--primary); transform:translateY(-3px); box-shadow:var(--shadow-glow); }
+        .prod-card:active { transform:scale(0.97); }
+        .prod-card.esgotado { opacity:0.4; cursor:not-allowed; }
+        .prod-card.esgotado:hover { transform:none; box-shadow:none; border-color:var(--border); }
+
+        .prod-img {
+            width:56px; height:56px; border-radius:10px;
+            object-fit:cover; display:block; margin:0 auto 0.4rem;
+            background:var(--card);
+        }
+        .prod-emoji { font-size:2rem; line-height:1; display:block; margin-bottom:0.3rem; }
+
+        .prod-nome   { font-weight:600; font-size:0.79rem; color:var(--text); margin-bottom:0.2rem; line-height:1.3; }
+        .prod-preco  { font-size:0.92rem; font-weight:800; color:var(--primary); }
+        .prod-estoque{ font-size:0.65rem; color:var(--text-muted); margin-top:0.15rem; }
+        .prod-estoque.baixo       { color:var(--warning); }
+        .prod-estoque.esgotado-txt{ color:var(--danger); }
+
+        /* ── CARRINHO ── */
+        .carrinho-card {
+            background: var(--card);
+            border-radius: 20px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(200,105,26,0.1);
+            overflow: hidden;
+            position: sticky;
+            top: 1.5rem;
+        }
+
+        .carrinho-header {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid var(--border);
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .carrinho-titulo { font-weight:700; font-size:0.95rem; display:flex; align-items:center; gap:8px; }
+        .carrinho-titulo i { color:var(--primary); }
+        .cart-badge {
+            background:var(--primary); color:white;
+            font-size:0.68rem; font-weight:700;
+            padding:2px 7px; border-radius:12px; min-width:20px; text-align:center;
+        }
+
+        .carrinho-itens { max-height:280px; overflow-y:auto; }
+
+        .carrinho-vazio {
+            text-align:center; padding:2rem 1rem;
+            color:var(--text-muted); font-size:0.82rem;
+        }
+        .carrinho-vazio i { font-size:2rem; opacity:0.2; display:block; margin-bottom:0.5rem; }
+
+        .cart-item {
+            display:flex; align-items:center; gap:0.6rem;
+            padding:0.65rem 1.2rem;
+            border-bottom:1px solid rgba(51,65,85,0.5);
+            transition:background 0.15s;
+        }
+        .cart-item:hover { background:rgba(200,105,26,0.04); }
+        .cart-item:last-child { border-bottom:none; }
+
+        .cart-info { flex:1; min-width:0; }
+        .cart-nome { font-size:0.82rem; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+        .cart-unit { font-size:0.7rem; color:var(--text-muted); margin-top:1px; }
+
+        .cart-qtd { display:flex; align-items:center; gap:4px; flex-shrink:0; }
+        .qty-btn {
+            width:22px; height:22px; border-radius:6px;
+            border:1px solid var(--border); background:var(--bg);
+            color:var(--text); font-size:0.95rem; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            transition:all 0.2s; font-family:inherit; line-height:1;
+        }
+        .qty-btn:hover { border-color:var(--primary); color:var(--primary); }
+        .qty-val { font-size:0.85rem; font-weight:700; min-width:16px; text-align:center; }
+
+        .cart-sub { font-size:0.82rem; font-weight:700; color:var(--primary); min-width:52px; text-align:right; flex-shrink:0; }
+        .btn-rm { background:none; border:none; color:var(--text-muted); cursor:pointer; font-size:0.72rem; padding:2px; transition:color 0.2s; }
+        .btn-rm:hover { color:var(--danger); }
+
+        /* RODAPÉ CARRINHO */
+        .carrinho-footer { padding:1rem 1.2rem; }
+
+        .total-linha {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-bottom:1rem; padding-bottom:1rem;
+            border-bottom:1px solid var(--border);
+        }
+        .total-label { color:var(--text-muted); font-size:0.82rem; }
+        .total-valor { font-size:1.6rem; font-weight:800; color:var(--primary); font-family:'Playfair Display',serif; }
+
+        /* PAGAMENTO */
+        .pgto-titulo { font-size:0.7rem; text-transform:uppercase; letter-spacing:1px; color:var(--text-muted); margin-bottom:0.5rem; }
+        .pgto-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:0.4rem; margin-bottom:0.9rem; }
+        .pgto-btn {
+            padding:8px 4px; border:2px solid var(--border);
+            border-radius:14px; background:var(--bg);
+            color:var(--text-muted); font-family:inherit;
+            font-size:0.7rem; font-weight:600;
+            cursor:pointer; text-align:center; transition:all 0.25s;
+        }
+        .pgto-btn i { display:block; font-size:0.95rem; margin-bottom:3px; }
+        .pgto-btn:hover { border-color:var(--primary); color:var(--primary-light); }
+        .pgto-btn.active { border-color:var(--primary); background:rgba(200,105,26,0.12); color:var(--primary); }
+
+        .fiado-section { display:none; margin-bottom:0.9rem; }
+        .fiado-section select {
+            width:100%; padding:8px 12px; margin-bottom:0.4rem;
+            background:var(--bg); border:2px solid var(--border);
+            border-radius:14px; color:var(--text);
+            font-family:inherit; font-size:0.82rem; transition:all 0.3s;
+        }
+        .fiado-section select:focus { outline:none; border-color:var(--primary); }
+
+        .btn-finalizar {
+            width:100%; padding:11px;
+            background:linear-gradient(135deg,var(--primary),var(--primary-dark));
+            border:none; border-radius:30px; color:white;
+            font-family:inherit; font-size:0.95rem; font-weight:700;
+            cursor:pointer; transition:all 0.3s; box-shadow:var(--shadow-glow);
+            display:flex; align-items:center; justify-content:center; gap:8px;
+        }
+        .btn-finalizar:hover { transform:translateY(-2px); box-shadow:0 0 30px rgba(200,105,26,0.5); }
+
+        /* ── MODAL ── */
+        .modal-overlay {
+            display:none; position:fixed; inset:0;
+            background:rgba(0,0,0,0.8); backdrop-filter:blur(8px);
+            z-index:200; align-items:center; justify-content:center;
+        }
+        .modal-overlay.open { display:flex; }
+        .modal-box {
+            background:var(--card); border-radius:20px;
+            padding:2rem; max-width:420px; width:90%;
+            text-align:center; animation:fadeInUp 0.3s ease;
+            border:1px solid rgba(200,105,26,0.2); box-shadow:var(--shadow-3d);
+        }
+        .modal-icon  { font-size:2.8rem; margin-bottom:0.8rem; display:block; }
+        .modal-title { font-size:1.2rem; font-weight:700; margin-bottom:0.4rem; }
+        .modal-msg   { color:var(--text-muted); font-size:0.88rem; margin-bottom:1.5rem; }
+        .modal-btns  { display:flex; gap:0.8rem; justify-content:center; }
+
+        .modal-form { text-align:left; }
+        .form-group { margin-bottom:0.9rem; }
+        .form-group label { display:block; margin-bottom:0.4rem; font-size:0.78rem; font-weight:600; color:var(--text-muted); }
+        .form-group input {
+            width:100%; padding:10px 14px;
+            border:2px solid var(--border); border-radius:14px;
+            background:var(--bg); color:var(--text);
+            font-family:inherit; font-size:0.88rem; transition:all 0.3s;
+        }
+        .form-group input:focus { outline:none; border-color:var(--primary); box-shadow:0 0 0 4px rgba(200,105,26,0.15); }
+
+        /* TOAST */
+        .toast {
+            position:fixed; bottom:20px; right:20px;
+            padding:12px 20px; border-radius:12px;
+            color:white; font-weight:600; z-index:1100;
+            animation:fadeInUp 0.3s ease;
+            display:flex; align-items:center; gap:8px;
+            max-width:300px; font-size:0.88rem;
+        }
+        .toast.success { background:var(--success); }
+        .toast.error   { background:var(--danger); }
+        .toast.info    { background:var(--primary-dark); }
+
+        /* SCROLLBAR */
+        ::-webkit-scrollbar { width:5px; }
+        ::-webkit-scrollbar-track { background:transparent; }
+        ::-webkit-scrollbar-thumb { background:var(--border); border-radius:4px; }
+        ::-webkit-scrollbar-thumb:hover { background:var(--primary-dark); }
+
+        @media (max-width:900px) {
+            /* No mobile a sidebar fica como barra horizontal no topo — nunca some */
+            .admin-layout { flex-direction:column; }
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: sticky;   /* fica fixada no topo ao rolar */
+                top: 0;
+                z-index: 100;
+                overflow-x: auto;
+                overflow-y: hidden;
+                white-space: nowrap;
+                padding: 0.75rem 1rem;
+            }
+            .logo { display: inline-block; margin-bottom: 0; margin-right: 1rem; vertical-align: middle; }
+            .main-content { margin-left: 0; }
+            .nav-item { display: inline-flex; margin-right: 0.4rem; }
+            .pdv-grid { grid-template-columns: 1fr; }
+            .carrinho-card { position: static; }
+        }
+    </style>
+</head>
+<body>
+
+<div class="particles" id="particles"></div>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR — cópia exata do admin.html -->
+    <div class="sidebar">
+        <div class="logo" onclick="window.location.href='admin.html'">DOUTOR PALADAR</div>
+        <div class="nav-item" onclick="window.location.href='admin.html'" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</div>
+        <div class="nav-item" onclick="window.location.href='admin.html#pedidos'"><i class="fas fa-clipboard-list"></i> Pedidos</div>
+        <div class="nav-item active"><i class="fas fa-cash-register"></i> Ponto de Venda</div>
+        <div class="nav-item" onclick="window.location.href='estoque.html'"><i class="fas fa-box"></i> Produtos</div>
+        <div class="nav-item" onclick="window.location.href='contas-receber.html'"><i class="fas fa-hand-holding-usd"></i> Contas a Receber</div>
+        <div class="nav-item" onclick="window.location.href='despesas.html'"><i class="fas fa-receipt"></i> Despesas</div>
+        <div class="nav-item" onclick="window.location.href='fornecedores.html'"><i class="fas fa-truck"></i> Fornecedores</div>
+        <div class="nav-item" onclick="window.location.href='agendamentos.html'"><i class="fas fa-calendar-alt"></i> Agendamentos</div>
+        <div class="nav-item" onclick="window.location.href='desempenhos.html'"><i class="fas fa-chart-line"></i> Desempenhos</div>
+        <div class="nav-item" onclick="window.location.href='admin.html#configuracoes'"><i class="fas fa-cog"></i> Configurações</div>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
+    <div class="main-content">
+
+        <!-- TOPBAR — igual ao admin -->
+        <div class="topbar">
+            <div class="page-title"><i class="fas fa-cash-register"></i> Ponto de Venda</div>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span id="relogio" style="font-size:0.8rem; color:var(--text-muted);"></span>
+                <button class="btn-sm btn-danger" onclick="logoutAdmin()">Sair</button>
+            </div>
+        </div>
+
+        <!-- PDV -->
+        <div class="pdv-grid">
+
+            <!-- PRODUTOS -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-title"><i class="fas fa-box"></i> Produtos</div>
+                    <span style="font-size:0.78rem; color:var(--text-muted);" id="contadorProd">0 produtos</span>
+                </div>
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="buscaProduto" placeholder="Buscar produto..." oninput="filtrarProdutos()">
+                </div>
+                <div class="cat-tabs" id="catTabs"></div>
+                <div class="prod-grid" id="produtosGrid">
+                    <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">
+                        <i class="fas fa-circle-notch fa-spin" style="font-size:1.8rem; color:var(--primary); display:block; margin-bottom:0.8rem;"></i>
+                        Carregando produtos...
+                    </div>
+                </div>
+            </div>
+
+            <!-- CARRINHO -->
+            <div class="carrinho-card">
+                <div class="carrinho-header">
+                    <div class="carrinho-titulo">
+                        <i class="fas fa-shopping-basket"></i>
+                        Carrinho
+                        <span class="cart-badge" id="cartCount">0</span>
+                    </div>
+                    <button class="btn-sm btn-ghost" onclick="limparCarrinho()" style="font-size:0.72rem;">Limpar</button>
+                </div>
+
+                <div class="carrinho-itens" id="carrinhoItens">
+                    <div class="carrinho-vazio">
+                        <i class="fas fa-shopping-basket"></i>
+                        Nenhum item no carrinho<br>
+                        <span style="font-size:0.72rem;">Clique nos produtos para adicionar</span>
+                    </div>
+                </div>
+
+                <div class="carrinho-footer">
+                    <div class="total-linha">
+                        <span class="total-label">Total</span>
+                        <span class="total-valor" id="totalValor">R$ 0,00</span>
+                    </div>
+
+                    <div class="pgto-titulo">Forma de pagamento</div>
+                    <div class="pgto-grid">
+                        <button class="pgto-btn active" data-pgto="dinheiro" onclick="selecionarPgto('dinheiro')">
+                            <i class="fas fa-money-bill-wave"></i>Dinheiro
+                        </button>
+                        <button class="pgto-btn" data-pgto="cartao" onclick="selecionarPgto('cartao')">
+                            <i class="fas fa-credit-card"></i>Cartão
+                        </button>
+                        <button class="pgto-btn" data-pgto="fiado" onclick="selecionarPgto('fiado')">
+                            <i class="fas fa-user-clock"></i>Fiado
+                        </button>
+                    </div>
+
+                    <div class="fiado-section" id="fiadoSection">
+                        <select id="clienteFiadoSelect">
+                            <option value="">Selecione o cliente...</option>
+                        </select>
+                        <button class="btn-sm btn-ghost" onclick="abrirModalNovoCliente()" style="width:100%; justify-content:center; margin-top:4px;">
+                            <i class="fas fa-plus"></i> Novo cliente
+                        </button>
+                    </div>
+
+                    <button class="btn-finalizar" onclick="finalizarVenda()">
+                        <i class="fas fa-check-circle"></i> Finalizar Venda
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL SUCESSO -->
+<div class="modal-overlay" id="modalSucesso">
+    <div class="modal-box">
+        <span class="modal-icon">✅</span>
+        <div class="modal-title" id="modalTitulo">Venda finalizada!</div>
+        <div class="modal-msg" id="modalMsg"></div>
+        <div class="modal-btns">
+            <button class="btn-sm btn-ghost" onclick="fecharModal()">Fechar</button>
+            <button class="btn-sm btn-primary" onclick="novaVenda()"><i class="fas fa-plus"></i> Nova venda</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL NOVO CLIENTE -->
+<div class="modal-overlay" id="modalNovoCliente">
+    <div class="modal-box" style="text-align:left;">
+        <div class="modal-title" style="text-align:center; margin-bottom:1.2rem;">
+            <i class="fas fa-user-plus" style="color:var(--primary);"></i> Novo cliente
+        </div>
+        <div class="modal-form">
+            <div class="form-group">
+                <label>Nome *</label>
+                <input type="text" id="novoClienteNome" placeholder="Nome completo">
+            </div>
+            <div class="form-group">
+                <label>Turma / Identificação</label>
+                <input type="text" id="novoClienteTurma" placeholder="Ex: INFO3, ADM2...">
+            </div>
+        </div>
+        <div class="modal-btns" style="margin-top:0.5rem;">
+            <button class="btn-sm btn-ghost" onclick="fecharModalCliente()">Cancelar</button>
+            <button class="btn-sm btn-primary" onclick="cadastrarCliente()"><i class="fas fa-save"></i> Cadastrar</button>
+        </div>
+    </div>
+</div>
+
+<!-- js/api.js já declara API_URL — não redeclarar aqui -->
+<script src="js/api.js"></script>
+<script src="js/auth.js"></script>
+<script>
+    // ── ESTADO ──
+    let todosProdutos  = [];
+    let carrinho       = [];
+    let categoriaAtiva = 'Todos';
+    let pagamentoAtivo = 'dinheiro';
+
+    function produtosDemoCantina() {
+        return [
+            // Salgados
+            {id:1,  nome:'Hambúrgão Cheddar',        categoria:'Salgados', preco:8.00,  estoque:15, imagem:'🍔'},
+            {id:11, nome:'Hambúrgão c/ Bacon',        categoria:'Salgados', preco:9.00,  estoque:20, imagem:'🍔'},
+            {id:2,  nome:'Coxinha de Frango',          categoria:'Salgados', preco:5.50,  estoque:20, imagem:'🍗'},
+            {id:3,  nome:'Risolis de Queijo',          categoria:'Salgados', preco:5.00,  estoque:20, imagem:'🧀'},
+            {id:4,  nome:'Risolis de Carne',           categoria:'Salgados', preco:5.00,  estoque:20, imagem:'🥩'},
+            {id:5,  nome:'Esfiha de Carne',            categoria:'Salgados', preco:4.50,  estoque:20, imagem:'🥙'},
+            {id:6,  nome:'Pão de Queijo 90g',          categoria:'Salgados', preco:4.00,  estoque:30, imagem:'🧀'},
+            {id:7,  nome:'Pão Batata Frango',          categoria:'Salgados', preco:6.00,  estoque:20, imagem:'🍞'},
+            {id:8,  nome:'Pão Batata Calabresa',       categoria:'Salgados', preco:6.00,  estoque:20, imagem:'🍞'},
+            {id:9,  nome:'Enroladinho Bauru',          categoria:'Salgados', preco:5.00,  estoque:20, imagem:'🌯'},
+            {id:10, nome:'Enroladinho Salsicha',       categoria:'Salgados', preco:5.00,  estoque:15, imagem:'🌯'},
+            {id:12, nome:'Pizza Fria',                 categoria:'Salgados', preco:6.00,  estoque:20, imagem:'🍕'},
+            {id:13, nome:'Kibe',                       categoria:'Salgados', preco:5.00,  estoque:20, imagem:'🥙'},
+            // Bebidas
+            {id:20, nome:'Coca-Cola Lata 350ml',        categoria:'Bebidas', preco:7.00,  estoque:60, imagem:'🥤'},
+            {id:21, nome:'Coca-Cola Pet 600ml',         categoria:'Bebidas', preco:7.00,  estoque:60, imagem:'🥤'},
+            {id:22, nome:'Coca-Cola Zero 350ml',        categoria:'Bebidas', preco:7.00,  estoque:36, imagem:'🥤'},
+            {id:23, nome:'Coca-Cola Zero 200ml',        categoria:'Bebidas', preco:5.00,  estoque:72, imagem:'🥤'},
+            {id:24, nome:'Sprite Lata 350ml',           categoria:'Bebidas', preco:6.00,  estoque:24, imagem:'🥤'},
+            {id:25, nome:'Guaraná Antarctica Zero Lata',categoria:'Bebidas', preco:5.00,  estoque:60, imagem:'🥤'},
+            {id:26, nome:'Água Passa Quatro c/ Gás',    categoria:'Bebidas', preco:4.00,  estoque:36, imagem:'💧'},
+            {id:27, nome:'Água Passa Quatro s/ Gás',    categoria:'Bebidas', preco:4.00,  estoque:48, imagem:'💧'},
+            {id:28, nome:'Suco K-mais Integral 300ml',  categoria:'Bebidas', preco:5.00,  estoque:36, imagem:'🧃'},
+            {id:29, nome:'Suco K-mais Uva 300ml',       categoria:'Bebidas', preco:5.00,  estoque:12, imagem:'🧃'},
+            {id:30, nome:'Suco K-mais Goiaba 300ml',    categoria:'Bebidas', preco:5.00,  estoque:12, imagem:'🧃'},
+            {id:31, nome:'Suco K-mais Caju 300ml',      categoria:'Bebidas', preco:5.00,  estoque:12, imagem:'🧃'},
+            {id:32, nome:'Café Coado (copo)',            categoria:'Bebidas', preco:3.00,  estoque:99, imagem:'☕'},
+            // Doces & Sorvetes
+            {id:40, nome:'Cremosinho Sorvete Iogurte',  categoria:'Doces',   preco:2.50,  estoque:30, imagem:'🍦'},
+            {id:41, nome:'Geladão de Açaí',             categoria:'Doces',   preco:7.00,  estoque:10, imagem:'🫐'},
+            {id:42, nome:'Trento Chocolate',            categoria:'Doces',   preco:3.50,  estoque:24, imagem:'🍫'},
+            {id:43, nome:'Trento Branco',               categoria:'Doces',   preco:3.50,  estoque:24, imagem:'🍫'},
+            {id:44, nome:'Pão de Mel 50g',              categoria:'Doces',   preco:4.00,  estoque:20, imagem:'🍯'},
+            // Caldos
+            {id:50, nome:'Caldo Sopa de Legumes',          categoria:'Caldos', preco:20.00, estoque:5,  imagem:'🍲'},
+            {id:51, nome:'Caldo Mandioquinha c/ Frango',   categoria:'Caldos', preco:20.00, estoque:5,  imagem:'🍲'},
+            {id:52, nome:'Caldo de Abóbora Seca Barriga',  categoria:'Caldos', preco:20.00, estoque:5,  imagem:'🍲'},
+            {id:53, nome:'Caldo Verde c/ Carne',           categoria:'Caldos', preco:20.00, estoque:5,  imagem:'🍲'},
+            {id:54, nome:'Caldo Vaca Atolada',             categoria:'Caldos', preco:20.00, estoque:5,  imagem:'🍲'},
+            // Snacks
+            {id:60, nome:'Halls Melancia',   categoria:'Snacks', preco:2.00, estoque:21, imagem:'🍬'},
+            {id:61, nome:'Halls Morango',    categoria:'Snacks', preco:2.00, estoque:21, imagem:'🍬'},
+            {id:62, nome:'Halls Menta',      categoria:'Snacks', preco:2.00, estoque:21, imagem:'🍬'},
+            {id:63, nome:'Trident Hortela',  categoria:'Snacks', preco:2.50, estoque:21, imagem:'🍬'},
+            {id:64, nome:'Trident Morango',  categoria:'Snacks', preco:2.50, estoque:21, imagem:'🍬'},
+            {id:65, nome:'Trident Tutti Frutti', categoria:'Snacks', preco:2.50, estoque:21, imagem:'🍬'},
+        ];
+    }
+
+    // ── INIT ──
+    document.addEventListener('DOMContentLoaded', async () => {
+        const logado = sessionStorage.getItem('admin_logado') || sessionStorage.getItem('usuarioLogado');
+        if (!logado) { window.location.href = 'index.html'; return; }
+        atualizarRelogio();
+        setInterval(atualizarRelogio, 1000);
+        await carregarProdutos();
+        await carregarClientes();
+        iniciarParticulas();
+    });
+
+    function atualizarRelogio() {
+        const el = document.getElementById('relogio');
+        if (el) el.textContent = new Date().toLocaleString('pt-BR', {
+            weekday:'short', day:'2-digit', month:'2-digit',
+            hour:'2-digit', minute:'2-digit'
+        });
+    }
+
+    function logoutAdmin() {
+        sessionStorage.clear();
+        window.location.href = 'index.html';
+    }
+
+    // ── PRODUTOS ──
+    async function carregarProdutos() {
+        try {
+            const res = await fetch(API_URL + '/produtos');
+            if (res.ok) todosProdutos = await res.json();
+        } catch(e) {
+            mostrarToast('Servidor offline — modo demo', 'info');
+        }
+
+        if (!todosProdutos || !todosProdutos.length) {
+            todosProdutos = produtosDemoCantina();
+        }
+
+        todosProdutos.forEach(p => { p.preco = parseFloat(p.preco) || 0; });
+        renderCategorias();
+        renderProdutos();
+    }
+
+    function renderCategorias() {
+        const cats = ['Todos', ...new Set(todosProdutos.map(p => p.categoria).filter(Boolean))];
+        document.getElementById('catTabs').innerHTML = cats.map(c =>
+            `<button class="cat-tab ${c === categoriaAtiva ? 'active' : ''}" onclick="selectCat('${c}')">${c}</button>`
+        ).join('');
+    }
+
+    function selectCat(cat) { categoriaAtiva = cat; renderCategorias(); renderProdutos(); }
+    function filtrarProdutos() { renderProdutos(); }
+
+    function getEmoji(cat) {
+        const m = { 'Salgados':'🥟','Bebidas':'🥤','Doces':'🍰','Lanches':'🥪',
+            'Sorvetes':'🍦','Saudáveis':'🥗','Refeições':'🍽️',
+            'Caldos':'🍲','Biscoitos':'🍪','Café':'☕' };
+        return m[cat] || '📦';
+    }
+
+    function renderProdutos() {
+        const termo = (document.getElementById('buscaProduto').value || '').toLowerCase().trim();
+        let lista = todosProdutos;
+        if (categoriaAtiva !== 'Todos') lista = lista.filter(p => p.categoria === categoriaAtiva);
+        if (termo) lista = lista.filter(p => p.nome.toLowerCase().includes(termo));
+
+        document.getElementById('contadorProd').textContent = `${lista.length} produto${lista.length !== 1 ? 's' : ''}`;
+
+        const grid = document.getElementById('produtosGrid');
+        if (!lista.length) {
+            grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--text-muted);">
+                <i class="fas fa-search" style="font-size:1.8rem;opacity:0.2;display:block;margin-bottom:0.8rem;"></i>
+                Nenhum produto encontrado</div>`;
+            return;
+        }
+
+        grid.innerHTML = lista.map(p => {
+            const sem   = p.estoque === 0;
+            const baixo = !sem && p.estoque <= 5;
+            const estoqueLabel = sem ? 'Esgotado' : (baixo ? `⚠ ${p.estoque} rest.` : `${p.estoque} un.`);
+            const estoqueClass = sem ? 'esgotado-txt' : (baixo ? 'baixo' : '');
+            const clique = sem ? '' : `onclick="addItem(${p.id})"`;
+
+            const img = (p.imagem || '').trim();
+            const ehEmoji = img && /\p{Emoji_Presentation}|\p{Extended_Pictographic}/u.test(img);
+            const ehUrl   = img && !ehEmoji && (img.startsWith('http') || img.startsWith('/') || img.startsWith('uploads'));
+
+            let imgHtml;
+            if (ehUrl) {
+                imgHtml = `<img class="prod-img" src="${img}" alt="${p.nome}"
+                    onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
+                    <span class="prod-emoji" style="display:none">${getEmoji(p.categoria)}</span>`;
+            } else {
+                imgHtml = `<span class="prod-emoji">${ehEmoji ? img : getEmoji(p.categoria)}</span>`;
+            }
+
+            return `<div class="prod-card ${sem ? 'esgotado' : ''}" ${clique}>
+                ${imgHtml}
+                <div class="prod-nome">${p.nome}</div>
+                <div class="prod-preco">R$ ${p.preco.toFixed(2)}</div>
+                <div class="prod-estoque ${estoqueClass}">${estoqueLabel}</div>
+            </div>`;
+        }).join('');
+    }
+
+    // ── CARRINHO ──
+    function addItem(id) {
+        const p = todosProdutos.find(x => x.id === id);
+        if (!p || p.estoque === 0) return;
+        const idx = carrinho.findIndex(i => i.produtoId === id);
+        if (idx !== -1) {
+            if (carrinho[idx].quantidade >= p.estoque) { mostrarToast(`Máximo: ${p.estoque} un.`, 'error'); return; }
+            carrinho[idx].quantidade++;
+        } else {
+            carrinho.push({ produtoId:id, nome:p.nome, precoUnitario:p.preco, quantidade:1 });
+        }
+        renderCarrinho();
+    }
+
+    function removeItem(id) {
+        const idx = carrinho.findIndex(i => i.produtoId === id);
+        if (idx === -1) return;
+        if (carrinho[idx].quantidade > 1) carrinho[idx].quantidade--;
+        else carrinho.splice(idx, 1);
+        renderCarrinho();
+    }
+
+    function deleteItem(id) { carrinho = carrinho.filter(i => i.produtoId !== id); renderCarrinho(); }
+
+    function limparCarrinho() {
+        if (!carrinho.length) return;
+        if (confirm('Limpar o carrinho?')) { carrinho = []; renderCarrinho(); }
+    }
+
+    function renderCarrinho() {
+        const totalItens = carrinho.reduce((s, i) => s + i.quantidade, 0);
+        const totalValor = carrinho.reduce((s, i) => s + i.quantidade * i.precoUnitario, 0);
+        document.getElementById('cartCount').textContent  = totalItens;
+        document.getElementById('totalValor').textContent = `R$ ${totalValor.toFixed(2)}`;
+
+        const el = document.getElementById('carrinhoItens');
+        if (!carrinho.length) {
+            el.innerHTML = `<div class="carrinho-vazio">
+                <i class="fas fa-shopping-basket"></i>
+                Nenhum item no carrinho<br>
+                <span style="font-size:0.72rem;">Clique nos produtos para adicionar</span>
+            </div>`; return;
+        }
+        el.innerHTML = carrinho.map(item => {
+            const sub = item.quantidade * item.precoUnitario;
+            return `<div class="cart-item">
+                <div class="cart-info">
+                    <div class="cart-nome">${item.nome}</div>
+                    <div class="cart-unit">R$ ${item.precoUnitario.toFixed(2)} / un</div>
+                </div>
+                <div class="cart-qtd">
+                    <button class="qty-btn" onclick="removeItem(${item.produtoId})">−</button>
+                    <span class="qty-val">${item.quantidade}</span>
+                    <button class="qty-btn" onclick="addItem(${item.produtoId})">+</button>
+                </div>
+                <span class="cart-sub">R$ ${sub.toFixed(2)}</span>
+                <button class="btn-rm" onclick="deleteItem(${item.produtoId})"><i class="fas fa-times"></i></button>
+            </div>`;
+        }).join('');
+    }
+
+    // ── PAGAMENTO ──
+    function selecionarPgto(tipo) {
+        pagamentoAtivo = tipo;
+        document.querySelectorAll('.pgto-btn').forEach(b => b.classList.remove('active'));
+        document.querySelector(`[data-pgto="${tipo}"]`).classList.add('active');
+        document.getElementById('fiadoSection').style.display = tipo === 'fiado' ? 'block' : 'none';
+    }
+
+    async function carregarClientes() {
+        try {
+            const res = await fetch(API_URL + '/fiado/clientes');
+            if (!res.ok) return;
+            const data = await res.json();
+            const clientes = data.clientes || data || [];
+            const sel = document.getElementById('clienteFiadoSelect');
+            sel.innerHTML = '<option value="">Selecione o cliente...</option>' +
+                clientes.map(c => `<option value="${c.id}">${c.nome}${c.turma ? ` (${c.turma})` : ''}</option>`).join('');
+        } catch(e) {}
+    }
+
+    function abrirModalNovoCliente() { document.getElementById('modalNovoCliente').classList.add('open'); }
+    function fecharModalCliente() {
+        document.getElementById('modalNovoCliente').classList.remove('open');
+        document.getElementById('novoClienteNome').value = '';
+        document.getElementById('novoClienteTurma').value = '';
+    }
+
+    async function cadastrarCliente() {
+        const nome  = document.getElementById('novoClienteNome').value.trim();
+        const turma = document.getElementById('novoClienteTurma').value.trim();
+        if (!nome || nome.length < 2) { mostrarToast('Informe o nome', 'error'); return; }
+        try {
+            const res = await fetch(API_URL + '/fiado/clientes', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ nome, turma })
+            });
+            if (res.ok) {
+                const novo = await res.json();
+                await carregarClientes();
+                if (novo && novo.id) document.getElementById('clienteFiadoSelect').value = novo.id;
+                fecharModalCliente();
+                mostrarToast('Cliente cadastrado!', 'success');
+            } else { mostrarToast('Erro ao cadastrar', 'error'); }
+        } catch(e) { mostrarToast('Erro de conexão', 'error'); }
+    }
+
+    // ── FINALIZAR ──
+    async function finalizarVenda() {
+        if (!carrinho.length) { mostrarToast('Carrinho vazio', 'error'); return; }
+        for (const item of carrinho) {
+            const p = todosProdutos.find(x => x.id === item.produtoId);
+            if (!p || p.estoque < item.quantidade) { mostrarToast(`Estoque insuficiente: ${item.nome}`, 'error'); return; }
+        }
+        const total = carrinho.reduce((s, i) => s + i.quantidade * i.precoUnitario, 0);
+
+        if (pagamentoAtivo === 'fiado') {
+            const clienteId = document.getElementById('clienteFiadoSelect').value;
+            if (!clienteId) { mostrarToast('Selecione um cliente', 'error'); return; }
+            try {
+                const res = await fetch(API_URL + '/fiado/compras', {
+                    method:'POST', headers:{'Content-Type':'application/json'},
+                    body: JSON.stringify({
+                        clienteId: parseInt(clienteId),
+                        itens: carrinho.map(i => ({ produtoId:i.produtoId, quantidade:i.quantidade, precoUnitario:i.precoUnitario })),
+                        total
+                    })
+                });
+                if (res.ok) { mostrarSucesso('Fiado registrado!', `R$ ${total.toFixed(2)} lançado na conta`); carrinho=[]; renderCarrinho(); await carregarProdutos(); }
+                else { mostrarToast('Erro ao registrar fiado', 'error'); }
+            } catch(e) { mostrarToast('Erro de conexão', 'error'); }
+            return;
+        }
+
+        try {
+            const res = await fetch(API_URL + '/vendas', {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    itens: carrinho.map(i => ({ produtoId:i.produtoId, nome:i.nome, quantidade:i.quantidade, precoUnitario:i.precoUnitario })),
+                    total, formaPagamento:pagamentoAtivo, data:new Date().toISOString()
+                })
+            });
+            if (res.ok) {
+                const v = await res.json();
+                mostrarSucesso(`Venda #${v.id||''} finalizada!`, `${pagamentoAtivo} · R$ ${total.toFixed(2)}`);
+                carrinho=[]; renderCarrinho(); await carregarProdutos();
+            } else { mostrarToast('Erro ao registrar venda', 'error'); }
+        } catch(e) {
+            mostrarSucesso('Venda simulada!', `R$ ${total.toFixed(2)} · ${pagamentoAtivo} (modo demo)`);
+            carrinho=[]; renderCarrinho();
+        }
+    }
+
+    function mostrarSucesso(titulo, msg) {
+        document.getElementById('modalTitulo').textContent = titulo;
+        document.getElementById('modalMsg').textContent    = msg;
+        document.getElementById('modalSucesso').classList.add('open');
+    }
+    function fecharModal()  { document.getElementById('modalSucesso').classList.remove('open'); }
+    function novaVenda()    { fecharModal(); carrinho=[]; renderCarrinho(); document.getElementById('buscaProduto').value=''; renderProdutos(); }
+
+    // ── TOAST ──
+    let toastTimer = null;
+    function mostrarToast(msg, tipo='info') {
+        const antigo = document.querySelector('.toast');
+        if (antigo) antigo.remove();
+        if (toastTimer) clearTimeout(toastTimer);
+        const el = document.createElement('div');
+        el.className = `toast ${tipo}`;
+        const icons = { success:'check-circle', error:'exclamation-circle', info:'info-circle' };
+        el.innerHTML = `<i class="fas fa-${icons[tipo]||'info-circle'}"></i> ${msg}`;
+        document.body.appendChild(el);
+        toastTimer = setTimeout(() => { el.style.opacity='0'; el.style.transition='opacity 0.3s'; setTimeout(()=>el.remove(),300); }, 2800);
+    }
+
+    // Fechar modais clicando fora
+    document.querySelectorAll('.modal-overlay').forEach(m =>
+        m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); })
+    );
+
+    // ── PARTÍCULAS ──
+    function iniciarParticulas() {
+        const c = document.getElementById('particles');
+        if (!c) return;
+        for (let i=0; i<20; i++) {
+            const p = document.createElement('div');
+            p.className = 'particle';
+            p.style.cssText = `left:${Math.random()*100}%; width:${Math.random()*4+2}px; height:${Math.random()*4+2}px;
+                background:rgba(200,105,26,${Math.random()*0.3+0.1});
+                animation-duration:${Math.random()*14+10}s; animation-delay:${Math.random()*8}s;`;
+            c.appendChild(p);
+        }
+    }
+</script>
+</body>
+</html>

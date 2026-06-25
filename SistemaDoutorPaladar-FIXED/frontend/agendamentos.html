@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamentos · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #c8691a;
+            --primary-dark: #a3510f;
+            --primary-light: #e8832a;
+            --bg: #1a1008;
+            --card: #2a1a0a;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #c8691a;
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px rgba(200,105,26,0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+        
+        .topbar {
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(200, 105, 26, 0.2);
+            box-shadow: var(--shadow-3d);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-back {
+            background: rgba(200, 105, 26, 0.15);
+            border: none;
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-back:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(200,105,26,0.5); }
+        .btn-sm { padding: 6px 14px; border-radius: 20px; background: rgba(200,105,26,0.15); border: none; color: var(--primary); cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-sm:hover { background: var(--primary); color: white; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; position: relative; z-index: 1; }
+        
+        .card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(200, 105, 26, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.2rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .grade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 1rem;
+        }
+        
+        .slot-card {
+            background: var(--bg);
+            border-radius: 20px;
+            padding: 1.2rem;
+            text-align: center;
+            border: 2px solid transparent;
+            transition: all 0.3s;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .slot-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-glow); }
+        .slot-card.disponivel { border-color: var(--success); background: rgba(200,105,26,0.1); }
+        .slot-card.poucas { border-color: var(--warning); background: rgba(245,158,11,0.1); }
+        .slot-card.lotado { border-color: var(--danger); background: rgba(239,68,68,0.1); opacity: 0.7; }
+        .slot-card.bloqueado { border-color: var(--text-muted); background: rgba(148,163,184,0.1); opacity: 0.5; }
+        
+        .slot-horario { font-size: 1.5rem; font-weight: 800; color: var(--primary); margin-bottom: 0.3rem; }
+        .slot-refeicao { font-size: 0.9rem; color: var(--text-muted); margin-bottom: 0.5rem; }
+        .slot-vagas { font-size: 0.95rem; font-weight: 600; margin-top: 0.5rem; }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        
+        .modal-box {
+            background: var(--card);
+            border-radius: 28px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            animation: fadeInUp 0.4s ease;
+            border: 1px solid rgba(200, 105, 26, 0.3);
+            position: relative;
+        }
+        
+        .modal-box .close {
+            position: absolute;
+            top: 16px; right: 16px;
+            background: none; border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+        }
+        .modal-box .close:hover { color: var(--danger); transform: rotate(90deg); }
+        
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(200,105,26,0.2); }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: var(--shadow-3d);
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        @media (max-width: 768px) {
+            .grade-grid { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+            .topbar { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="topbar">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <span><i class="fas fa-utensils"></i></span>
+            Doutor Paladar
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn-back" onclick="window.location.href='admin.html'">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+            <button class="btn-primary" onclick="abrirModalNovo()">
+                <i class="fas fa-plus"></i> Novo Horário
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-calendar-alt"></i> Horários de Funcionamento</h3>
+            </div>
+            <div class="grade-grid" id="gradeHorarios"></div>
+        </div>
+    </div>
+    
+    <!-- Modal -->
+    <div class="modal-overlay" id="modalAgendamento">
+        <div class="modal-box">
+            <button class="close" onclick="fecharModal()">&times;</button>
+            <h3 id="modalTitulo">Novo Horário</h3>
+            <form id="formAgendamento" onsubmit="salvarAgendamento(event)">
+                <input type="hidden" id="agendamentoId">
+                <div class="form-group"><label>Tipo de Refeição</label>
+                    <select id="tipoRefeicao" required>
+                        <option value="Almoço">🍽️ Almoço</option>
+                        <option value="Jantar">🌙 Jantar (Sopas e Churrascos)</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Horário *</label>
+                    <select id="horarioInicio" required>
+                        <option value="13:00">13:00 - Almoço</option>
+                        <option value="20:40">20:40 - Jantar</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Horário Fim *</label>
+                    <select id="horarioFim" required>
+                        <option value="13:30">13:30</option>
+                        <option value="14:00">14:00</option>
+                        <option value="21:10">21:10</option>
+                        <option value="21:40">21:40</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Limite de Pedidos</label><input type="number" id="limitePedidos" value="20" min="1"></div>
+                <div class="form-group"><label><input type="checkbox" id="bloqueado"> Bloquear este horário</label></div>
+                <button type="submit" class="btn-primary" style="width: 100%; margin-top: 0.5rem;">Salvar</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let agendamentos = [];
+        
+        if(!sessionStorage.getItem('admin_logado')) {
+            window.location.href = 'index.html';
+        }
+        
+        async function carregarAgendamentos() {
+            try {
+                const res = await fetch(API_URL + '/agendamentos', {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if(res.ok) agendamentos = await res.json();
+                else gerarDadosExemplo();
+            } catch(e) { gerarDadosExemplo(); }
+            renderGrade();
+        }
+        
+        function gerarDadosExemplo() {
+            agendamentos = [
+                { id:1, tipo:'Almoço', horarioInicio:'13:00', horarioFim:'13:30', limitePedidos:20, bloqueado:0, pedidosHoje:8 },
+                { id:2, tipo:'Almoço', horarioInicio:'13:30', horarioFim:'14:00', limitePedidos:20, bloqueado:0, pedidosHoje:12 },
+                { id:3, tipo:'Jantar', horarioInicio:'20:40', horarioFim:'21:10', limitePedidos:20, bloqueado:0, pedidosHoje:5 },
+                { id:4, tipo:'Jantar', horarioInicio:'21:10', horarioFim:'21:40', limitePedidos:20, bloqueado:0, pedidosHoje:3 }
+            ];
+        }
+        
+        function getIconeRefeicao(tipo) {
+            if(tipo === 'Almoço') return '🍽️';
+            return '🌙';
+        }
+        
+        function getDescricaoRefeicao(tipo) {
+            if(tipo === 'Almoço') return 'Refeição completa';
+            return 'Sopas e Churrascos';
+        }
+        
+        function renderGrade() {
+            const container = document.getElementById('gradeHorarios');
+            if(!agendamentos.length) {
+                container.innerHTML = '<div class="card" style="text-align:center; padding:2rem;">Nenhum horário cadastrado</div>';
+                return;
+            }
+            
+            // Ordenar: Almoço primeiro, depois Jantar
+            const ordenados = [...agendamentos].sort((a,b) => {
+                if(a.tipo === 'Almoço' && b.tipo === 'Jantar') return -1;
+                if(a.tipo === 'Jantar' && b.tipo === 'Almoço') return 1;
+                return a.horarioInicio.localeCompare(b.horarioInicio);
+            });
+            
+            container.innerHTML = ordenados.map(a => {
+                const vagas = a.limitePedidos - (a.pedidosHoje || 0);
+                let classe = 'disponivel';
+                let statusTexto = `${vagas} vagas`;
+                if(a.bloqueado) { classe = 'bloqueado'; statusTexto = 'Bloqueado'; }
+                else if(vagas <= 0) { classe = 'lotado'; statusTexto = 'Lotado'; }
+                else if(vagas <= 5) { classe = 'poucas'; statusTexto = `Poucas vagas (${vagas})`; }
+                return `
+                    <div class="slot-card ${classe}">
+                        <div class="slot-horario">${a.horarioInicio} - ${a.horarioFim}</div>
+                        <div class="slot-refeicao">${getIconeRefeicao(a.tipo)} ${a.tipo} - ${getDescricaoRefeicao(a.tipo)}</div>
+                        <div class="slot-vagas">${statusTexto}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">Limite: ${a.limitePedidos} pedidos</div>
+                        <div style="display:flex; gap:0.5rem; justify-content:center; margin-top:0.8rem;">
+                            <button class="btn-sm" onclick="editarAgendamento(${a.id})"><i class="fas fa-edit"></i></button>
+                            <button class="btn-sm" style="background:rgba(239,68,68,0.15);" onclick="excluirAgendamento(${a.id})"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        function abrirModalNovo() {
+            document.getElementById('modalTitulo').textContent = 'Novo Horário';
+            document.getElementById('formAgendamento').reset();
+            document.getElementById('agendamentoId').value = '';
+            document.getElementById('modalAgendamento').classList.add('active');
+        }
+        
+        function editarAgendamento(id) {
+            const a = agendamentos.find(x => x.id === id);
+            if(!a) return;
+            document.getElementById('modalTitulo').textContent = 'Editar Horário';
+            document.getElementById('agendamentoId').value = a.id;
+            document.getElementById('tipoRefeicao').value = a.tipo || 'Almoço';
+            document.getElementById('horarioInicio').value = a.horarioInicio;
+            document.getElementById('horarioFim').value = a.horarioFim;
+            document.getElementById('limitePedidos').value = a.limitePedidos;
+            document.getElementById('bloqueado').checked = !!a.bloqueado;
+            document.getElementById('modalAgendamento').classList.add('active');
+        }
+        
+        function fecharModal() { document.getElementById('modalAgendamento').classList.remove('active'); }
+        
+        async function salvarAgendamento(event) {
+            event.preventDefault();
+            const id = document.getElementById('agendamentoId').value;
+            const dados = {
+                horarioInicio: document.getElementById('horarioInicio').value,
+                horarioFim: document.getElementById('horarioFim').value,
+                limitePedidos: parseInt(document.getElementById('limitePedidos').value),
+                bloqueado: document.getElementById('bloqueado').checked
+            };
+            if(!dados.horarioInicio || !dados.horarioFim) { mostrarToast('Preencha os horários!', 'error'); return; }
+
+            const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` };
+            try {
+                if(id) {
+                    await fetch(API_URL + '/agendamentos/' + id, { method: 'PUT', headers, body: JSON.stringify(dados) });
+                    mostrarToast('Horário atualizado!', 'success');
+                } else {
+                    await fetch(API_URL + '/agendamentos', { method: 'POST', headers, body: JSON.stringify(dados) });
+                    mostrarToast('Horário criado!', 'success');
+                }
+            } catch(e) { mostrarToast('Erro ao salvar horário', 'error'); }
+            fecharModal();
+            await carregarAgendamentos();
+        }
+        
+        async function excluirAgendamento(id) {
+            if(!confirm('Excluir este horário?')) return;
+            try {
+                await fetch(API_URL + '/agendamentos/' + id, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                mostrarToast('Horário excluído!', 'success');
+            } catch(e) { mostrarToast('Erro ao excluir horário', 'error'); }
+            await carregarAgendamentos();
+        }
+        
+        function mostrarToast(msg, tipo) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            toast.innerHTML = `<i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${msg}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        document.getElementById('horarioInicio').addEventListener('change', function() {
+            const horario = this.value;
+            const fimSelect = document.getElementById('horarioFim');
+            if(horario === '13:00') {
+                fimSelect.innerHTML = '<option value="13:30">13:30</option><option value="14:00">14:00</option>';
+            } else if(horario === '20:40') {
+                fimSelect.innerHTML = '<option value="21:10">21:10</option><option value="21:40">21:40</option>';
+            }
+        });
+        
+        document.getElementById('modalAgendamento').addEventListener('click', (e) => {
+            if(e.target === document.getElementById('modalAgendamento')) fecharModal();
+        });
+        
+        (function(){
+            const c=document.getElementById('particles');
+            for(let i=0;i<20;i++){
+                const p=document.createElement('div');
+                p.className='particle';
+                p.style.left=Math.random()*100+'%';
+                p.style.width=p.style.height=(Math.random()*4+2)+'px';
+                p.style.background=`rgba(200,105,26,${Math.random()*0.3+0.1})`;
+                p.style.animationDuration=(Math.random()*14+10)+'s';
+                p.style.animationDelay=(Math.random()*8)+'s';
+                c.appendChild(p);
+            }
+        })();
+        
+        carregarAgendamentos();
+    </script>
+</body>
+</html>

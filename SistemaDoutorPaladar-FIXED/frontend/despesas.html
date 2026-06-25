@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despesas · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #c8691a;
+            --primary-dark: #a3510f;
+            --primary-light: #e8832a;
+            --bg: #1a1008;
+            --card: #2a1a0a;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --success: #c8691a;
+            --warning: #f59e0b;
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px rgba(200,105,26,0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        /* Animações */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        
+        /* Partículas */
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+        
+        /* Topbar */
+        .topbar {
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(200, 105, 26, 0.2);
+            box-shadow: var(--shadow-3d);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-back {
+            background: rgba(200, 105, 26, 0.15);
+            border: none;
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-back:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(200,105,26,0.5); }
+        .btn-sm { padding: 6px 14px; border-radius: 20px; background: rgba(200,105,26,0.15); border: none; color: var(--primary); cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-sm:hover { background: var(--primary); color: white; }
+        .btn-danger { background: linear-gradient(135deg, var(--danger), #dc2626); color: white; border: none; }
+        
+        /* Container */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            padding: 1.2rem;
+            border-radius: 20px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-3d); }
+        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        /* Formulário */
+        .form-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+        }
+        
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(200,105,26,0.2);
+        }
+        
+        /* Tabela */
+        .table-container {
+            overflow-x: auto;
+            background: var(--card);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid var(--border);
+        }
+        
+        th {
+            color: var(--text-muted);
+            font-weight: 600;
+            font-size: 0.8rem;
+            background: rgba(200, 105, 26, 0.05);
+        }
+        
+        tr:hover td { background: rgba(200, 105, 26, 0.05); }
+        
+        /* Filtros */
+        .filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 1rem;
+        }
+        
+        .filters select, .filters input {
+            padding: 8px 16px;
+            border-radius: 30px;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            cursor: pointer;
+        }
+        
+        .filters select:focus, .filters input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+        
+        /* Empty state */
+        .empty-state {
+            text-align: center;
+            padding: 3rem;
+            color: var(--text-muted);
+        }
+        .empty-state i { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: var(--shadow-3d);
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: var(--card);
+            border-radius: 28px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            animation: fadeInUp 0.4s ease;
+            border: 1px solid rgba(200, 105, 26, 0.3);
+            position: relative;
+        }
+        .modal-box .close {
+            position: absolute;
+            top: 16px; right: 16px;
+            background: none; border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .modal-box .close:hover { color: var(--danger); transform: rotate(90deg); }
+        .modal-box h3 { color: var(--primary); margin-bottom: 1rem; }
+        
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+            .topbar { flex-direction: column; gap: 10px; }
+            .stats-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="topbar">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <span><i class="fas fa-utensils"></i></span>
+            Doutor Paladar
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn-back" onclick="window.location.href='admin.html'">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <!-- Stats -->
+        <div class="stats-grid" id="statsGrid"></div>
+        
+        <!-- Formulário de Nova Despesa -->
+        <div class="form-card">
+            <h3 style="margin-bottom: 1rem; color: var(--primary);"><i class="fas fa-plus-circle"></i> Nova Despesa</h3>
+            <form id="formDespesa" onsubmit="salvarDespesa(event)">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Descrição *</label>
+                        <input type="text" id="descricao" required placeholder="Ex: Compra de farinha">
+                    </div>
+                    <div class="form-group">
+                        <label>Categoria</label>
+                        <select id="categoria">
+                            <option value="Insumos">Insumos</option>
+                            <option value="Material Limpeza">Material Limpeza</option>
+                            <option value="Descartáveis">Descartáveis</option>
+                            <option value="Manutenção">Manutenção</option>
+                            <option value="Outros">Outros</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Valor (R$) *</label>
+                        <input type="number" id="valor" step="0.01" required placeholder="0,00">
+                    </div>
+                    <div class="form-group">
+                        <label>Data</label>
+                        <input type="date" id="data">
+                    </div>
+                </div>
+                <button type="submit" class="btn-primary" style="width: 100%;">
+                    <i class="fas fa-save"></i> Registrar Despesa
+                </button>
+            </form>
+        </div>
+        
+        <!-- Filtros -->
+        <div class="filters">
+            <select id="categoriaFiltro" onchange="aplicarFiltros()">
+                <option value="todas">Todas categorias</option>
+                <option value="Insumos">Insumos</option>
+                <option value="Material Limpeza">Material Limpeza</option>
+                <option value="Descartáveis">Descartáveis</option>
+                <option value="Manutenção">Manutenção</option>
+                <option value="Outros">Outros</option>
+            </select>
+            <input type="month" id="mesFiltro" onchange="aplicarFiltros()" placeholder="Mês">
+            <input type="date" id="dataInicio" onchange="aplicarFiltros()" placeholder="Data início">
+            <input type="date" id="dataFim" onchange="aplicarFiltros()" placeholder="Data fim">
+            <button class="btn-sm" onclick="aplicarFiltros()"><i class="fas fa-search"></i> Filtrar</button>
+            <button class="btn-sm" onclick="limparFiltros()"><i class="fas fa-eraser"></i> Limpar</button>
+        </div>
+        
+        <!-- Lista de Despesas -->
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr><th>Data</th><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Ações</th></tr>
+                </thead>
+                <tbody id="despesasTable"></tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Modal Editar -->
+    <div class="modal-overlay" id="modalEditar">
+        <div class="modal-box">
+            <button class="close" onclick="fecharModalEditar()">&times;</button>
+            <h3>Editar Despesa</h3>
+            <form id="formEditar" onsubmit="atualizarDespesa(event)">
+                <input type="hidden" id="editId">
+                <div class="form-group"><label>Descrição</label><input type="text" id="editDescricao" required></div>
+                <div class="form-group"><label>Categoria</label><select id="editCategoria"><option value="Insumos">Insumos</option><option value="Material Limpeza">Material Limpeza</option><option value="Descartáveis">Descartáveis</option><option value="Manutenção">Manutenção</option><option value="Outros">Outros</option></select></div>
+                <div class="form-group"><label>Valor (R$)</label><input type="number" id="editValor" step="0.01" required></div>
+                <div class="form-group"><label>Data</label><input type="date" id="editData" required></div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Salvar</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let despesas = [];
+        let despesasFiltradas = [];
+        
+        // Verificar se é admin
+        if(!sessionStorage.getItem('admin_logado')) {
+            window.location.href = 'index.html';
+        }
+        
+        async function carregarDespesas() {
+            const tabela = document.getElementById('despesasTable');
+            tabela.innerHTML = '<tr><td colspan="5"><div class="loading"><i class="fas fa-spinner fa-spin"></i> Carregando despesas...</div></td></tr>';
+            
+            try {
+                const res = await fetch(API_URL + '/despesas', {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if(res.ok) despesas = await res.json();
+                else gerarDadosExemplo();
+            } catch(e) {
+                console.error('Erro ao carregar despesas:', e);
+                gerarDadosExemplo();
+            }
+            despesasFiltradas = [...despesas];
+            atualizarStats();
+            renderizarTabela();
+        }
+        
+        function gerarDadosExemplo() {
+            const categorias = ['Insumos', 'Material Limpeza', 'Descartáveis', 'Manutenção', 'Outros'];
+            const descricoes = ['Compra de farinha', 'Sabão em pó', 'Copos descartáveis', 'Reparo na geladeira', 'Material de escritório'];
+            despesas = [];
+            const hoje = new Date();
+            for(let i = 0; i < 15; i++) {
+                const data = new Date(hoje);
+                data.setDate(hoje.getDate() - i);
+                despesas.push({
+                    id: i + 1,
+                    descricao: descricoes[i % descricoes.length] + (i+1),
+                    categoria: categorias[i % categorias.length],
+                    valor: Math.floor(Math.random() * 300) + 50,
+                    data: data.toISOString().split('T')[0]
+                });
+            }
+        }
+        
+        function atualizarStats() {
+            const totalDespesas = despesas.reduce((s, d) => s + (d.valor || 0), 0);
+            const totalInsumos = despesas.filter(d => d.categoria === 'Insumos').reduce((s, d) => s + (d.valor || 0), 0);
+            const mediaMensal = totalDespesas / 30;
+            
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card"><div class="stat-value">R$ ${totalDespesas.toFixed(2)}</div><div class="stat-label">Total Geral</div></div>
+                <div class="stat-card"><div class="stat-value">R$ ${totalInsumos.toFixed(2)}</div><div class="stat-label">Insumos</div></div>
+                <div class="stat-card"><div class="stat-value">R$ ${mediaMensal.toFixed(2)}</div><div class="stat-label">Média Diária</div></div>
+                <div class="stat-card"><div class="stat-value">${despesas.length}</div><div class="stat-label">Registros</div></div>
+            `;
+        }
+        
+        function aplicarFiltros() {
+            const categoria = document.getElementById('categoriaFiltro').value;
+            const mes = document.getElementById('mesFiltro').value;
+            const dataInicio = document.getElementById('dataInicio').value;
+            const dataFim = document.getElementById('dataFim').value;
+            
+            despesasFiltradas = despesas.filter(d => {
+                if(categoria !== 'todas' && d.categoria !== categoria) return false;
+                if(mes && !d.data.startsWith(mes)) return false;
+                if(dataInicio && d.data < dataInicio) return false;
+                if(dataFim && d.data > dataFim) return false;
+                return true;
+            });
+            renderizarTabela();
+        }
+        
+        function limparFiltros() {
+            document.getElementById('categoriaFiltro').value = 'todas';
+            document.getElementById('mesFiltro').value = '';
+            document.getElementById('dataInicio').value = '';
+            document.getElementById('dataFim').value = '';
+            despesasFiltradas = [...despesas];
+            renderizarTabela();
+        }
+        
+        function renderizarTabela() {
+            const tbody = document.getElementById('despesasTable');
+            if(despesasFiltradas.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state"><i class="fas fa-receipt"></i><h3>Nenhuma despesa encontrada</h3></div></td></tr>';
+                return;
+            }
+            const ordenadas = [...despesasFiltradas].sort((a, b) => new Date(b.data) - new Date(a.data));
+            tbody.innerHTML = ordenadas.map(d => `
+                <tr class="fade-in-up">
+                    <td>${new Date(d.data).toLocaleDateString('pt-BR')}</td>
+                    <td><strong>${d.descricao}</strong></td>
+                    <td><span style="padding: 4px 12px; border-radius: 20px; background: rgba(200,105,26,0.15);">${d.categoria}</span></td>
+                    <td style="color: var(--danger); font-weight: 600;">R$ ${(d.valor || 0).toFixed(2)}</td>
+                    <td><button class="btn-sm" onclick="editarDespesa(${d.id})"><i class="fas fa-edit"></i> Editar</button>
+                    <button class="btn-sm" style="background: rgba(239,68,68,0.15);" onclick="excluirDespesa(${d.id})"><i class="fas fa-trash"></i> Excluir</button></td>
+                </tr>
+            `).join('');
+        }
+        
+        async function salvarDespesa(event) {
+            event.preventDefault();
+            const descricao = document.getElementById('descricao').value.trim();
+            const categoria = document.getElementById('categoria').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            let data = document.getElementById('data').value;
+            
+            if(!descricao) { mostrarToast('Descrição é obrigatória!', 'error'); return; }
+            if(isNaN(valor) || valor <= 0) { mostrarToast('Valor inválido!', 'error'); return; }
+            if(!data) data = new Date().toISOString().split('T')[0];
+            
+            try {
+                await fetch(API_URL + '/despesas', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify({ descricao, categoria, valor, data })
+                });
+                mostrarToast('Despesa registrada com sucesso!', 'success');
+            } catch(e) { mostrarToast('Erro ao registrar despesa', 'error'); }
+            document.getElementById('formDespesa').reset();
+            document.getElementById('data').value = new Date().toISOString().split('T')[0];
+            await carregarDespesas();
+        }
+        
+        function editarDespesa(id) {
+            const despesa = despesas.find(d => d.id === id);
+            if(!despesa) return;
+            document.getElementById('editId').value = despesa.id;
+            document.getElementById('editDescricao').value = despesa.descricao;
+            document.getElementById('editCategoria').value = despesa.categoria;
+            document.getElementById('editValor').value = despesa.valor;
+            document.getElementById('editData').value = despesa.data;
+            document.getElementById('modalEditar').classList.add('active');
+        }
+        
+        function fecharModalEditar() { document.getElementById('modalEditar').classList.remove('active'); }
+        
+        async function atualizarDespesa(event) {
+            event.preventDefault();
+            const id = parseInt(document.getElementById('editId').value);
+            const dados = {
+                descricao: document.getElementById('editDescricao').value.trim(),
+                categoria: document.getElementById('editCategoria').value,
+                valor: parseFloat(document.getElementById('editValor').value),
+                data: document.getElementById('editData').value
+            };
+            try {
+                await fetch(API_URL + '/despesas/' + id, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify(dados)
+                });
+                mostrarToast('Despesa atualizada!', 'success');
+            } catch(e) { mostrarToast('Erro ao atualizar despesa', 'error'); }
+            fecharModalEditar();
+            await carregarDespesas();
+        }
+        
+        async function excluirDespesa(id) {
+            if(!confirm('Tem certeza que deseja excluir esta despesa?')) return;
+            try {
+                await fetch(API_URL + '/despesas/' + id, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                mostrarToast('Despesa excluída!', 'success');
+            } catch(e) { mostrarToast('Erro ao excluir despesa', 'error'); }
+            await carregarDespesas();
+        }
+        
+        function mostrarToast(mensagem, tipo) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            toast.innerHTML = `<i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${mensagem}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Partículas
+        (function(){
+            const c=document.getElementById('particles');
+            for(let i=0;i<15;i++){
+                const p=document.createElement('div');
+                p.className='particle';
+                p.style.left=Math.random()*100+'%';
+                p.style.width=p.style.height=(Math.random()*4+2)+'px';
+                p.style.background=`rgba(200,105,26,${Math.random()*0.3+0.1})`;
+                p.style.animationDuration=(Math.random()*14+10)+'s';
+                p.style.animationDelay=(Math.random()*8)+'s';
+                c.appendChild(p);
+            }
+        })();
+        
+        document.getElementById('modalEditar').addEventListener('click', (e) => {
+            if(e.target === document.getElementById('modalEditar')) fecharModalEditar();
+        });
+        
+        carregarDespesas();
+    </script>
+</body>
+</html>

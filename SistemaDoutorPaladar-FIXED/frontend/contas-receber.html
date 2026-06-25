@@ -1,0 +1,625 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contas a Receber · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #c8691a;
+            --primary-dark: #a3510f;
+            --primary-light: #e8832a;
+            --bg: #1a1008;
+            --card: #2a1a0a;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #c8691a;
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px rgba(200,105,26,0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+        
+        .topbar {
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(200, 105, 26, 0.2);
+            box-shadow: var(--shadow-3d);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-back {
+            background: rgba(200, 105, 26, 0.15);
+            border: none;
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-back:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-glow);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(200,105,26,0.5); }
+        
+        .btn-success {
+            background: linear-gradient(135deg, var(--success), #a3510f);
+            border: none;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-success:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(200,105,26,0.4); }
+        
+        .btn-sm { padding: 6px 14px; border-radius: 20px; background: rgba(200,105,26,0.15); border: none; color: var(--primary); cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-sm:hover { background: var(--primary); color: white; }
+        
+        .container { max-width: 1400px; margin: 0 auto; padding: 1.5rem; position: relative; z-index: 1; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            padding: 1.2rem;
+            border-radius: 20px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            box-shadow: var(--shadow-card);
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-3d); }
+        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .contas-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 1.5rem;
+        }
+        
+        .clientes-panel {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 1rem;
+            height: fit-content;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .clientes-panel h3 { margin-bottom: 1rem; color: var(--primary); display: flex; align-items: center; gap: 8px; }
+        
+        .filtros-bar { display: flex; gap: 8px; margin-bottom: 1rem; flex-wrap: wrap; }
+        .filtros-bar select, .filtros-bar input { padding: 6px 12px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg); color: var(--text); font-family: inherit; font-size: 0.8rem; }
+        
+        .cliente-card {
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 0.8rem;
+            margin-bottom: 0.8rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        .cliente-card:hover { border-color: var(--primary); transform: translateX(5px); }
+        .cliente-card.active { border-color: var(--primary); background: rgba(200, 105, 26, 0.1); }
+        .cliente-nome { font-weight: 700; display: flex; justify-content: space-between; align-items: center; }
+        .cliente-turma { font-size: 0.75rem; color: var(--text-muted); margin-top: 4px; }
+        .cliente-divida { font-weight: 700; color: var(--danger); font-size: 0.9rem; margin-top: 8px; }
+        .badge-atraso { background: var(--danger); color: white; padding: 2px 8px; border-radius: 20px; font-size: 0.7rem; }
+        
+        .detalhes-panel {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 1.2rem;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .cliente-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; flex-wrap: wrap; gap: 0.5rem; }
+        .cliente-header h2 { color: var(--primary); }
+        
+        .stats-mini {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 0.8rem;
+            margin-bottom: 1.5rem;
+        }
+        .stat-mini { background: var(--bg); padding: 0.8rem; border-radius: 16px; text-align: center; }
+        .stat-mini .value { font-size: 1.3rem; font-weight: 800; color: var(--primary); }
+        .stat-mini .label { font-size: 0.7rem; color: var(--text-muted); }
+        
+        .divida-item {
+            background: var(--bg);
+            border-radius: 16px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            transition: all 0.3s;
+        }
+        .divida-item:hover { transform: translateX(5px); }
+        .divida-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; flex-wrap: wrap; }
+        .status-pendente { background: var(--warning); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .status-pago { background: var(--success); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .status-atraso { background: var(--danger); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.7rem; font-weight: 600; }
+        .itens-compra { font-size: 0.85rem; color: var(--text-muted); margin: 0.5rem 0; }
+        
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+        .empty-state i { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
+        
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(8px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: var(--card);
+            border-radius: 28px;
+            padding: 2rem;
+            max-width: 600px;
+            width: 90%;
+            animation: fadeInUp 0.4s ease;
+            border: 1px solid rgba(200, 105, 26, 0.3);
+            position: relative;
+            max-height: 85vh;
+            overflow-y: auto;
+        }
+        .modal-box .close {
+            position: absolute;
+            top: 16px; right: 16px;
+            background: none; border: none;
+            color: var(--text-muted);
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .modal-box .close:hover { color: var(--danger); transform: rotate(90deg); }
+        .modal-box h3 { color: var(--primary); margin-bottom: 1rem; }
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(200,105,26,0.2); }
+        
+        .produtos-lista { max-height: 300px; overflow-y: auto; }
+        .produto-item { display: flex; justify-content: space-between; align-items: center; padding: 0.8rem; border-bottom: 1px solid var(--border); }
+        .produto-item input { width: 70px; text-align: center; }
+        .resumo-compra { background: var(--bg); padding: 1rem; border-radius: 16px; margin: 1rem 0; }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: var(--shadow-3d);
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        @media (max-width: 768px) {
+            .contas-layout { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+            .topbar { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="topbar">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <span><i class="fas fa-utensils"></i></span>
+            Doutor Paladar
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn-back" onclick="window.location.href='admin.html'">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="stats-grid" id="statsGrid"></div>
+        
+        <div class="contas-layout">
+            <div class="clientes-panel">
+                <h3><i class="fas fa-users"></i> Clientes</h3>
+                <div class="filtros-bar">
+                    <select id="filtroStatus" onchange="filtrarClientes()">
+                        <option value="todos">Todos</option>
+                        <option value="pendente">Com pendência</option>
+                        <option value="em-dia">Em dia</option>
+                        <option value="atraso">Em atraso</option>
+                    </select>
+                    <select id="filtroTurma" onchange="filtrarClientes()">
+                        <option value="todas">Todas turmas</option>
+                    </select>
+                    <input type="text" id="buscaCliente" placeholder="🔍 Buscar..." onkeyup="filtrarClientes()">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-bottom: 1rem;" onclick="abrirModalNovoCliente()">
+                    <i class="fas fa-user-plus"></i> Novo Cliente
+                </button>
+                <div id="listaClientes"></div>
+            </div>
+            
+            <div class="detalhes-panel" id="detalhesPanel" style="display: none;">
+                <div class="cliente-header">
+                    <h2 id="clienteNome"></h2>
+                    <div>
+                        <button class="btn-primary" onclick="abrirModalNovaCompra()"><i class="fas fa-cart-plus"></i> Nova Compra</button>
+                        <button class="btn-success" onclick="abrirModalPagamento()"><i class="fas fa-money-bill"></i> Pagamento</button>
+                    </div>
+                </div>
+                <div id="clienteTurma" style="color: var(--text-muted); margin-bottom: 1rem;"></div>
+                
+                <div class="stats-mini">
+                    <div class="stat-mini"><div class="value" id="totalDevido">R$ 0,00</div><div class="label">Total Devido</div></div>
+                    <div class="stat-mini"><div class="value" id="totalPago">R$ 0,00</div><div class="label">Total Pago</div></div>
+                    <div class="stat-mini"><div class="value" id="qtdCompras">0</div><div class="label">Compras</div></div>
+                </div>
+                
+                <h4 style="margin: 1rem 0 0.5rem;"><i class="fas fa-history"></i> Histórico de Compras</h4>
+                <div id="historicoCompras"></div>
+            </div>
+            
+            <div id="painelVazio" class="detalhes-panel" style="text-align: center; padding: 3rem;">
+                <i class="fas fa-user-circle" style="font-size: 4rem; opacity: 0.3; margin-bottom: 1rem;"></i>
+                <p>Selecione um cliente para ver os detalhes</p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal Novo Cliente -->
+    <div class="modal-overlay" id="modalNovoCliente">
+        <div class="modal-box">
+            <button class="close" onclick="fecharModal('modalNovoCliente')">&times;</button>
+            <h3>Novo Cliente</h3>
+            <form id="formNovoCliente" onsubmit="cadastrarCliente(event)">
+                <div class="form-group"><label>Nome *</label><input type="text" id="novoClienteNome" required></div>
+                <div class="form-group"><label>Turma</label><input type="text" id="novoClienteTurma"></div>
+                <button type="submit" class="btn-primary" style="width: 100%;">Cadastrar</button>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Modal Nova Compra -->
+    <div class="modal-overlay" id="modalNovaCompra">
+        <div class="modal-box">
+            <button class="close" onclick="fecharModal('modalNovaCompra')">&times;</button>
+            <h3>Registrar Compra</h3>
+            <div id="clienteInfo" style="margin-bottom: 1rem; padding: 0.8rem; background: var(--bg); border-radius: 16px;"></div>
+            <div class="form-group"><label>Produtos</label><div class="produtos-lista" id="listaProdutos"></div></div>
+            <div class="resumo-compra"><div style="display: flex; justify-content: space-between; font-weight: 700;"><span>Total:</span><span id="totalCompra" style="color: var(--primary);">R$ 0,00</span></div></div>
+            <button class="btn-primary" style="width: 100%;" onclick="finalizarCompra()">Registrar Compra</button>
+        </div>
+    </div>
+    
+    <!-- Modal Pagamento -->
+    <div class="modal-overlay" id="modalPagamento">
+        <div class="modal-box">
+            <button class="close" onclick="fecharModal('modalPagamento')">&times;</button>
+            <h3>Registrar Pagamento</h3>
+            <form id="formPagamento" onsubmit="registrarPagamento(event)">
+                <div class="form-group"><label>Dívida</label><select id="selectDivida" required></select></div>
+                <div class="form-group"><label>Valor (R$)</label><input type="number" id="valorPagamento" step="0.01" required><small id="valorMaximoInfo" style="color: var(--text-muted);"></small></div>
+                <button type="submit" class="btn-success" style="width: 100%;">Registrar Pagamento</button>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let clientes = [];
+        let produtos = [];
+        let clienteSelecionado = null;
+        let carrinhoCompra = [];
+        
+        if(!sessionStorage.getItem('admin_logado')) window.location.href = 'index.html';
+        
+        async function carregarDados() {
+            try {
+                const [resClientes, resProdutos] = await Promise.all([
+                    fetch(API_URL + '/fiado/clientes', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` } }),
+                    fetch(API_URL + '/produtos', { headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` } })
+                ]);
+                if(resClientes.ok) { const data = await resClientes.json(); clientes = data.clientes || []; }
+                if(resProdutos.ok) produtos = await resProdutos.json();
+            } catch(e) { gerarDadosExemplo(); }
+            atualizarStats();
+            atualizarFiltroTurmas();
+            filtrarClientes();
+        }
+        
+        function gerarDadosExemplo() {
+            clientes = [
+                { id: 1, nome: 'Ana Silva', turma: 'INFO3', dividas: [
+                    { id: 1, data: '2026-05-20', total: 25.50, pago: false, valorPago: 0, itens: [{ produtoId: 1, quantidade: 2, precoUnitario: 6.5 }, { produtoId: 3, quantidade: 1, precoUnitario: 5 }] },
+                    { id: 2, data: '2026-05-22', total: 12.00, pago: true, valorPago: 12, itens: [{ produtoId: 5, quantidade: 2, precoUnitario: 3.5 }] }
+                ] },
+                { id: 2, nome: 'João Santos', turma: 'ADM2', dividas: [
+                    { id: 3, data: '2026-05-10', total: 35.00, pago: false, valorPago: 10, itens: [{ produtoId: 2, quantidade: 2, precoUnitario: 7 }] }
+                ] },
+                { id: 3, nome: 'Maria Oliveira', turma: 'INFO2', dividas: [] }
+            ];
+            produtos = [
+                { id: 1, nome: 'Coxinha', preco: 6.5, estoque: 45 },
+                { id: 2, nome: 'Pastel', preco: 7, estoque: 38 },
+                { id: 3, nome: 'Refrigerante', preco: 5, estoque: 120 },
+                { id: 4, nome: 'Suco', preco: 7.5, estoque: 35 },
+                { id: 5, nome: 'Brigadeiro', preco: 3.5, estoque: 80 }
+            ];
+        }
+        
+        function atualizarStats() {
+            let totalPendente = 0, clientesInadimplentes = 0;
+            clientes.forEach(cliente => {
+                const pendente = cliente.dividas.reduce((s, d) => d.pago ? s : s + (d.total - (d.valorPago || 0)), 0);
+                totalPendente += pendente;
+                if(pendente > 0) clientesInadimplentes++;
+            });
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card"><div class="stat-value">R$ ${totalPendente.toFixed(2)}</div><div class="stat-label">Total Pendente</div></div>
+                <div class="stat-card"><div class="stat-value">${clientes.length}</div><div class="stat-label">Clientes</div></div>
+                <div class="stat-card"><div class="stat-value">${clientesInadimplentes}</div><div class="stat-label">Inadimplentes</div></div>
+                <div class="stat-card"><div class="stat-value">${clientes.filter(c => c.dividas.length > 0).length}</div><div class="stat-label">Já Compraram</div></div>
+            `;
+        }
+        
+        function atualizarFiltroTurmas() {
+            const turmas = [...new Set(clientes.map(c => c.turma).filter(Boolean))];
+            const select = document.getElementById('filtroTurma');
+            select.innerHTML = '<option value="todas">Todas turmas</option>' + turmas.map(t => `<option value="${t}">${t}</option>`).join('');
+        }
+        
+        function filtrarClientes() {
+            const status = document.getElementById('filtroStatus').value;
+            const turma = document.getElementById('filtroTurma').value;
+            const busca = document.getElementById('buscaCliente').value.toLowerCase();
+            let filtrados = clientes.filter(c => {
+                const pendente = calcularTotalDevido(c);
+                if(status === 'pendente' && pendente === 0) return false;
+                if(status === 'em-dia' && pendente > 0) return false;
+                if(status === 'atraso') {
+                    const temAtraso = c.dividas.some(d => !d.pago && new Date(d.data) < new Date(Date.now() - 30*24*60*60*1000));
+                    if(!temAtraso) return false;
+                }
+                if(turma !== 'todas' && c.turma !== turma) return false;
+                if(busca && !c.nome.toLowerCase().includes(busca)) return false;
+                return true;
+            });
+            renderizarClientes(filtrados);
+        }
+        
+        function calcularTotalDevido(cliente) {
+            return cliente.dividas.reduce((s, d) => d.pago ? s : s + (d.total - (d.valorPago || 0)), 0);
+        }
+        
+        function renderizarClientes(lista) {
+            const container = document.getElementById('listaClientes');
+            if(lista.length === 0) { container.innerHTML = '<div class="empty-state"><i class="fas fa-user-slash"></i><p>Nenhum cliente encontrado</p></div>'; return; }
+            container.innerHTML = lista.map(c => {
+                const totalDevido = calcularTotalDevido(c);
+                const temAtraso = c.dividas.some(d => !d.pago && new Date(d.data) < new Date(Date.now() - 30*24*60*60*1000));
+                return `<div class="cliente-card ${clienteSelecionado === c.id ? 'active' : ''}" onclick="selecionarCliente(${c.id})">
+                    <div class="cliente-nome"><span><i class="fas fa-user"></i> ${c.nome}</span>${temAtraso ? '<span class="badge-atraso">Atraso</span>' : ''}</div>
+                    <div class="cliente-turma"><i class="fas fa-graduation-cap"></i> ${c.turma || 'Não informada'}</div>
+                    <div class="cliente-divida">R$ ${totalDevido.toFixed(2)}</div>
+                </div>`;
+            }).join('');
+        }
+        
+        async function selecionarCliente(id) {
+            clienteSelecionado = id;
+            const cliente = clientes.find(c => c.id === id);
+            if(!cliente) return;
+            document.getElementById('painelVazio').style.display = 'none';
+            document.getElementById('detalhesPanel').style.display = 'block';
+            document.getElementById('clienteNome').textContent = cliente.nome;
+            document.getElementById('clienteTurma').innerHTML = `<i class="fas fa-graduation-cap"></i> ${cliente.turma || 'Não informada'}`;
+            document.getElementById('totalDevido').textContent = `R$ ${calcularTotalDevido(cliente).toFixed(2)}`;
+            document.getElementById('totalPago').textContent = `R$ ${cliente.dividas.reduce((s, d) => s + (d.valorPago || 0), 0).toFixed(2)}`;
+            document.getElementById('qtdCompras').textContent = cliente.dividas.length;
+            const historico = document.getElementById('historicoCompras');
+            if(cliente.dividas.length === 0) { historico.innerHTML = '<div class="empty-state"><i class="fas fa-receipt"></i><p>Nenhuma compra registrada</p></div>'; }
+            else {
+                const ordenadas = [...cliente.dividas].sort((a, b) => new Date(b.data) - new Date(a.data));
+                historico.innerHTML = ordenadas.map(d => {
+                    const status = d.pago ? 'Pago ✓' : (new Date(d.data) < new Date(Date.now() - 30*24*60*60*1000) ? 'Em atraso ⚠️' : 'Pendente');
+                    const statusClass = d.pago ? 'status-pago' : (new Date(d.data) < new Date(Date.now() - 30*24*60*60*1000) ? 'status-atraso' : 'status-pendente');
+                    const restante = d.total - (d.valorPago || 0);
+                    return `<div class="divida-item"><div class="divida-header"><strong>Compra #${d.id}</strong><span class="${statusClass}">${status}</span></div>
+                    <div class="divida-header" style="margin-top: -0.3rem;"><small>${new Date(d.data).toLocaleDateString('pt-BR')}</small></div>
+                    <div class="itens-compra">${d.itens.map(i => { const prod = produtos.find(p => p.id === i.produtoId); return `${i.quantidade}x ${prod?.nome || 'Produto'}`; }).join(', ')}</div>
+                    <div style="display: flex; justify-content: space-between; margin-top: 0.5rem;"><strong>Total: R$ ${d.total.toFixed(2)}</strong><span>Pago: R$ ${(d.valorPago || 0).toFixed(2)} ${!d.pago ? `| Restante: R$ ${restante.toFixed(2)}` : ''}</span></div></div>`;
+                }).join('');
+            }
+            renderizarClientes(clientes);
+        }
+        
+        function abrirModalNovoCliente() { document.getElementById('formNovoCliente').reset(); document.getElementById('modalNovoCliente').classList.add('active'); }
+        async function cadastrarCliente(event) {
+            event.preventDefault();
+            const nome = document.getElementById('novoClienteNome').value.trim();
+            const turma = document.getElementById('novoClienteTurma').value.trim();
+            if(!nome || nome.length < 3) { mostrarToast('Nome deve ter pelo menos 3 caracteres', 'error'); return; }
+            try {
+                await fetch(API_URL + '/fiado/clientes', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify({ nome, turma })
+                });
+                mostrarToast('Cliente cadastrado com sucesso!', 'success');
+            } catch(e) { mostrarToast('Erro ao cadastrar cliente', 'error'); }
+            fecharModal('modalNovoCliente');
+            await carregarDados();
+        }
+        
+        function abrirModalNovaCompra() {
+            if(!clienteSelecionado) { mostrarToast('Selecione um cliente primeiro', 'error'); return; }
+            const cliente = clientes.find(c => c.id === clienteSelecionado);
+            document.getElementById('clienteInfo').innerHTML = `<strong>${cliente.nome}</strong> · ${cliente.turma || 'Não informada'}`;
+            carrinhoCompra = [];
+            renderizarProdutosCompra();
+            atualizarTotalCompra();
+            document.getElementById('modalNovaCompra').classList.add('active');
+        }
+        
+        function renderizarProdutosCompra() {
+            document.getElementById('listaProdutos').innerHTML = produtos.map(p => `<div class="produto-item"><span><strong>${p.nome}</strong> <small>(R$ ${p.preco.toFixed(2)})</small></span><input type="number" id="qtd_${p.id}" min="0" max="${p.estoque}" value="0" style="width: 70px; text-align: center;" onchange="atualizarCarrinho(${p.id}, this.value)"></div>`).join('');
+        }
+        
+        function atualizarCarrinho(produtoId, quantidade) {
+            quantidade = parseInt(quantidade) || 0;
+            const index = carrinhoCompra.findIndex(i => i.produtoId === produtoId);
+            if(quantidade <= 0) { if(index !== -1) carrinhoCompra.splice(index, 1); }
+            else { if(index !== -1) carrinhoCompra[index].quantidade = quantidade; else carrinhoCompra.push({ produtoId, nome: produtos.find(p=>p.id===produtoId)?.nome, precoUnitario: produtos.find(p=>p.id===produtoId)?.preco, quantidade }); }
+            atualizarTotalCompra();
+        }
+        
+        function atualizarTotalCompra() { const total = carrinhoCompra.reduce((s, i) => s + (i.quantidade * i.precoUnitario), 0); document.getElementById('totalCompra').textContent = `R$ ${total.toFixed(2)}`; }
+        
+        async function finalizarCompra() {
+            if(carrinhoCompra.length === 0) { mostrarToast('Adicione pelo menos um produto', 'error'); return; }
+            const total = carrinhoCompra.reduce((s, i) => s + (i.quantidade * i.precoUnitario), 0);
+            try {
+                await fetch(API_URL + '/fiado/compras', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify({ clienteId: clienteSelecionado, itens: carrinhoCompra, total })
+                });
+                mostrarToast('Compra registrada com sucesso!', 'success');
+            } catch(e) { mostrarToast('Erro ao registrar compra', 'error'); }
+            fecharModal('modalNovaCompra');
+            await carregarDados();
+            selecionarCliente(clienteSelecionado);
+        }
+        
+        function abrirModalPagamento() {
+            if(!clienteSelecionado) { mostrarToast('Selecione um cliente primeiro', 'error'); return; }
+            const cliente = clientes.find(c => c.id === clienteSelecionado);
+            const dividasPendentes = cliente.dividas.filter(d => !d.pago);
+            if(dividasPendentes.length === 0) { mostrarToast('Não há dívidas pendentes para este cliente', 'error'); return; }
+            const select = document.getElementById('selectDivida');
+            select.innerHTML = dividasPendentes.map(d => `<option value="${d.id}" data-restante="${d.total - (d.valorPago || 0)}">Compra #${d.id} - ${new Date(d.data).toLocaleDateString('pt-BR')} - R$ ${(d.total - (d.valorPago || 0)).toFixed(2)} restante</option>`).join('');
+            select.onchange = function() { const restante = parseFloat(this.options[this.selectedIndex].dataset.restante); document.getElementById('valorPagamento').max = restante; document.getElementById('valorMaximoInfo').textContent = `Valor máximo: R$ ${restante.toFixed(2)}`; };
+            select.dispatchEvent(new Event('change'));
+            document.getElementById('valorPagamento').value = '';
+            document.getElementById('modalPagamento').classList.add('active');
+        }
+        
+        async function registrarPagamento(event) {
+            event.preventDefault();
+            const dividaId = parseInt(document.getElementById('selectDivida').value);
+            const valor = parseFloat(document.getElementById('valorPagamento').value);
+            const cliente = clientes.find(c => c.id === clienteSelecionado);
+            const divida = cliente.dividas.find(d => d.id === dividaId);
+            const restante = divida.total - (divida.valorPago || 0);
+            if(valor > restante) { mostrarToast(`Valor máximo: R$ ${restante.toFixed(2)}`, 'error'); return; }
+            try {
+                await fetch(API_URL + '/fiado/pagamentos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify({ clienteId: clienteSelecionado, dividaId, valor })
+                });
+                mostrarToast('Pagamento registrado com sucesso!', 'success');
+            } catch(e) { mostrarToast('Erro ao registrar pagamento', 'error'); }
+            fecharModal('modalPagamento');
+            await carregarDados();
+            selecionarCliente(clienteSelecionado);
+        }
+        
+        function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+        function mostrarToast(mensagem, tipo) { const toast = document.createElement('div'); toast.className = `toast ${tipo}`; toast.innerHTML = `<i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${mensagem}`; document.body.appendChild(toast); setTimeout(() => toast.remove(), 3000); }
+        
+        document.querySelectorAll('.modal-overlay').forEach(modal => { modal.addEventListener('click', (e) => { if(e.target === modal) modal.classList.remove('active'); }); });
+        
+        (function(){ const c=document.getElementById('particles'); for(let i=0;i<20;i++){ const p=document.createElement('div'); p.className='particle'; p.style.left=Math.random()*100+'%'; p.style.width=p.style.height=(Math.random()*4+2)+'px'; p.style.background=`rgba(200,105,26,${Math.random()*0.3+0.1})`; p.style.animationDuration=(Math.random()*14+10)+'s'; p.style.animationDelay=(Math.random()*8)+'s'; c.appendChild(p); } })();
+        
+        carregarDados();
+    </script>
+</body>
+</html>

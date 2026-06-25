@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Desempenhos · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #c8691a;
+            --primary-dark: #a3510f;
+            --primary-light: #e8832a;
+            --bg: #1a1008;
+            --card: #2a1a0a;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #c8691a;
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px rgba(200,105,26,0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+        
+        .topbar {
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(200, 105, 26, 0.2);
+            box-shadow: var(--shadow-3d);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-back {
+            background: rgba(200, 105, 26, 0.15);
+            border: none;
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-back:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 1.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .filtros-container {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(200, 105, 26, 0.1);
+        }
+        
+        .periodo-selector {
+            display: flex;
+            gap: 0.8rem;
+            flex-wrap: wrap;
+            margin-top: 1rem;
+        }
+        
+        .periodo-btn {
+            padding: 0.6rem 1.2rem;
+            border: 2px solid var(--border);
+            background: var(--bg);
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            color: var(--text-muted);
+        }
+        
+        .periodo-btn:hover, .periodo-btn.ativo {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            padding: 1.2rem;
+            border-radius: 20px;
+            border-left: 4px solid var(--primary);
+            transition: all 0.3s;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-3d); }
+        .stat-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .tabs-container {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 0.5rem;
+            margin-bottom: 1.5rem;
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+        }
+        
+        .tab-btn {
+            padding: 0.7rem 1.5rem;
+            border: none;
+            background: transparent;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.85rem;
+            transition: all 0.3s;
+            color: var(--text-muted);
+        }
+        
+        .tab-btn:hover { background: rgba(200, 105, 26, 0.1); color: var(--primary); }
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .charts-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .chart-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 1.2rem;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .chart-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-3d); }
+        .chart-card canvas { max-height: 250px; width: 100%; }
+        
+        .card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 1.2rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-card);
+        }
+        
+        .table-container { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); }
+        table { width: 100%; border-collapse: collapse; }
+        th { background: var(--bg); padding: 12px; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.8rem; border-bottom: 2px solid var(--border); }
+        td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text); }
+        tr:hover td { background: rgba(200, 105, 26, 0.05); }
+        
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+        .empty-state i { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
+        
+        @media (max-width: 768px) {
+            .charts-grid { grid-template-columns: 1fr; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+            .topbar { flex-direction: column; gap: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="topbar">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <span><i class="fas fa-utensils"></i></span>
+            Doutor Paladar
+        </div>
+        <button class="btn-back" onclick="window.location.href='admin.html'">
+            <i class="fas fa-arrow-left"></i> Voltar
+        </button>
+    </div>
+    
+    <div class="container">
+        <!-- Filtros -->
+        <div class="filtros-container">
+            <h3><i class="fas fa-calendar-alt"></i> Período de Análise</h3>
+            <div class="periodo-selector">
+                <button class="periodo-btn" data-periodo="hoje" onclick="mudarPeriodo('hoje')">Hoje</button>
+                <button class="periodo-btn" data-periodo="semana" onclick="mudarPeriodo('semana')">7 Dias</button>
+                <button class="periodo-btn" data-periodo="mes" onclick="mudarPeriodo('mes')">30 Dias</button>
+                <button class="periodo-btn" data-periodo="trimestre" onclick="mudarPeriodo('trimestre')">90 Dias</button>
+                <button class="periodo-btn" data-periodo="ano" onclick="mudarPeriodo('ano')">365 Dias</button>
+            </div>
+        </div>
+        
+        <!-- KPIs -->
+        <div class="stats-grid" id="statsGrid"></div>
+        
+        <!-- Tabs -->
+        <div class="tabs-container">
+            <button class="tab-btn active" data-tab="visaoGeral">📊 Visão Geral</button>
+            <button class="tab-btn" data-tab="vendas">💰 Vendas</button>
+            <button class="tab-btn" data-tab="produtos">📦 Produtos</button>
+            <button class="tab-btn" data-tab="contasReceber">📝 Contas a Receber</button>
+            <button class="tab-btn" data-tab="financeiro">📉 Financeiro</button>
+        </div>
+        
+        <!-- Conteúdo -->
+        <div id="visaoGeral" class="tab-content active"></div>
+        <div id="vendas" class="tab-content"></div>
+        <div id="produtos" class="tab-content"></div>
+        <div id="contasReceber" class="tab-content"></div>
+        <div id="financeiro" class="tab-content"></div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let vendas = [];
+        let produtos = [];
+        let despesas = [];
+        let fiados = [];
+        let dataInicio = new Date();
+        let dataFim = new Date();
+        let chartAtual = null;
+        
+        if(!sessionStorage.getItem('admin_logado')) {
+            window.location.href = 'index.html';
+        }
+        
+        // Inicializar
+        (async function() {
+            const hoje = new Date();
+            dataFim = new Date(hoje);
+            dataInicio = new Date(hoje);
+            dataInicio.setDate(hoje.getDate() - 30);
+            document.querySelector('.periodo-btn[data-periodo="mes"]').classList.add('ativo');
+            await carregarTodosDados();
+        })();
+        
+        async function carregarTodosDados() {
+            try {
+                const [resVendas, resProdutos, resDespesas, resFiado] = await Promise.all([
+                    fetch(API_URL + '/vendas'),
+                    fetch(API_URL + '/produtos'),
+                    fetch(API_URL + '/despesas'),
+                    fetch(API_URL + '/fiado/clientes')
+                ]);
+                if(resVendas.ok) vendas = await resVendas.json();
+                if(resProdutos.ok) produtos = await resProdutos.json();
+                if(resDespesas.ok) despesas = await resDespesas.json();
+                if(resFiado.ok) {
+                    const data = await resFiado.json();
+                    fiados = data.clientes || [];
+                }
+            } catch(e) {
+                gerarDadosExemplo();
+            }
+            atualizarKPIs();
+            ativarTabs();
+        }
+        
+        function gerarDadosExemplo() {
+            const hoje = new Date();
+            vendas = [];
+            for(let i=0; i<30; i++) {
+                const data = new Date(hoje);
+                data.setDate(hoje.getDate() - i);
+                vendas.push({
+                    id: i+1,
+                    data: data.toISOString().split('T')[0],
+                    total: Math.floor(Math.random() * 500) + 100,
+                    formaPagamento: ['dinheiro', 'cartao', 'fiado'][Math.floor(Math.random() * 3)],
+                    itens: [{ produtoId: Math.floor(Math.random() * 5) + 1, quantidade: Math.floor(Math.random() * 3) + 1 }]
+                });
+            }
+            produtos = [
+                { id:1, nome:'Coxinha', categoria:'Salgados', preco:6.5, estoque:45 },
+                { id:2, nome:'Pastel', categoria:'Salgados', preco:7, estoque:38 },
+                { id:3, nome:'Refrigerante', categoria:'Bebidas', preco:5, estoque:120 },
+                { id:4, nome:'Suco', categoria:'Bebidas', preco:7.5, estoque:35 },
+                { id:5, nome:'Brigadeiro', categoria:'Doces', preco:3.5, estoque:80 }
+            ];
+            despesas = [];
+            for(let i=0; i<20; i++) {
+                const data = new Date(hoje);
+                data.setDate(hoje.getDate() - i);
+                despesas.push({
+                    id: i+1,
+                    data: data.toISOString().split('T')[0],
+                    valor: Math.floor(Math.random() * 200) + 50,
+                    categoria: ['Insumos', 'Limpeza', 'Manutenção'][Math.floor(Math.random() * 3)]
+                });
+            }
+        }
+        
+        function mudarPeriodo(periodo) {
+            const hoje = new Date();
+            dataFim = new Date(hoje);
+            dataInicio = new Date(hoje);
+            
+            switch(periodo) {
+                case 'hoje': break;
+                case 'semana': dataInicio.setDate(hoje.getDate() - 7); break;
+                case 'mes': dataInicio.setDate(hoje.getDate() - 30); break;
+                case 'trimestre': dataInicio.setDate(hoje.getDate() - 90); break;
+                case 'ano': dataInicio.setDate(hoje.getDate() - 365); break;
+            }
+            
+            document.querySelectorAll('.periodo-btn').forEach(btn => btn.classList.remove('ativo'));
+            document.querySelector(`.periodo-btn[data-periodo="${periodo}"]`).classList.add('ativo');
+            atualizarKPIs();
+            ativarTabs();
+        }
+        
+        function atualizarKPIs() {
+            const inicio = dataInicio.toISOString().split('T')[0];
+            const fim = dataFim.toISOString().split('T')[0];
+            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
+            const despesasFiltradas = despesas.filter(d => d.data >= inicio && d.data <= fim);
+            
+            const totalVendas = vendasFiltradas.reduce((s, v) => s + (v.total || 0), 0);
+            const totalDespesas = despesasFiltradas.reduce((s, d) => s + (d.valor || 0), 0);
+            const lucro = totalVendas - totalDespesas;
+            const totalPedidos = vendasFiltradas.length;
+            const ticketMedio = totalPedidos > 0 ? totalVendas / totalPedidos : 0;
+            
+            document.getElementById('statsGrid').innerHTML = `
+                <div class="stat-card"><div class="stat-value">R$ ${totalVendas.toFixed(2)}</div><div class="stat-label">Vendas</div></div>
+                <div class="stat-card"><div class="stat-value">R$ ${totalDespesas.toFixed(2)}</div><div class="stat-label">Despesas</div></div>
+                <div class="stat-card"><div class="stat-value" style="color: ${lucro >= 0 ? '#c8691a' : '#ef4444'}">R$ ${Math.abs(lucro).toFixed(2)}</div><div class="stat-label">${lucro >= 0 ? 'Lucro' : 'Prejuízo'}</div></div>
+                <div class="stat-card"><div class="stat-value">${totalPedidos}</div><div class="stat-label">Pedidos</div></div>
+                <div class="stat-card"><div class="stat-value">R$ ${ticketMedio.toFixed(2)}</div><div class="stat-label">Ticket Médio</div></div>
+            `;
+        }
+        
+        function ativarTabs() {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    const tab = btn.dataset.tab;
+                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                    document.getElementById(tab).classList.add('active');
+                    carregarTab(tab);
+                });
+            });
+            carregarTab('visaoGeral');
+        }
+        
+        function carregarTab(tab) {
+            if(tab === 'visaoGeral') mostrarVisaoGeral();
+            if(tab === 'vendas') mostrarVendas();
+            if(tab === 'produtos') mostrarProdutos();
+            if(tab === 'contasReceber') mostrarContasReceber();
+            if(tab === 'financeiro') mostrarFinanceiro();
+        }
+        
+        function mostrarVisaoGeral() {
+            const inicio = dataInicio.toISOString().split('T')[0];
+            const fim = dataFim.toISOString().split('T')[0];
+            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
+            
+            if(vendasFiltradas.length === 0) {
+                document.getElementById('visaoGeral').innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><h3>Nenhum dado no período</h3></div>';
+                return;
+            }
+            
+            // Vendas por dia
+            const vendasPorDia = {};
+            vendasFiltradas.forEach(v => { vendasPorDia[v.data] = (vendasPorDia[v.data] || 0) + (v.total || 0); });
+            const labels = Object.keys(vendasPorDia).sort().slice(-7);
+            const valores = labels.map(d => vendasPorDia[d]);
+            
+            // Top produtos
+            const produtosVendidos = {};
+            vendasFiltradas.forEach(v => {
+                if(v.itens) {
+                    v.itens.forEach(item => {
+                        if(!produtosVendidos[item.produtoId]) produtosVendidos[item.produtoId] = 0;
+                        produtosVendidos[item.produtoId] += item.quantidade;
+                    });
+                }
+            });
+            const ranking = Object.entries(produtosVendidos).map(([id, qtd]) => {
+                const p = produtos.find(pr => pr.id === parseInt(id));
+                return { nome: p?.nome || 'Desconhecido', quantidade: qtd };
+            }).sort((a,b) => b.quantidade - a.quantidade).slice(0,5);
+            
+            let html = `
+                <div class="charts-grid">
+                    <div class="chart-card"><h3>📈 Evolução de Vendas</h3><canvas id="chartVisao"></canvas></div>
+                    <div class="card"><h3>🏆 Top 5 Produtos</h3>${ranking.map((r,i) => `<div>${i+1}º ${r.nome} - ${r.quantidade} un.</div>`).join('') || '<p>Nenhum produto vendido</p>'}</div>
+                </div>
+            `;
+            document.getElementById('visaoGeral').innerHTML = html;
+            
+            setTimeout(() => {
+                const ctx = document.getElementById('chartVisao')?.getContext('2d');
+                if(ctx && chartAtual) chartAtual.destroy();
+                if(ctx) {
+                    chartAtual = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels: labels.map(d => d.slice(5)), datasets: [{ label: 'Vendas (R$)', data: valores, borderColor: '#c8691a', fill: true }] },
+                        options: { responsive: true }
+                    });
+                }
+            }, 100);
+        }
+        
+        function mostrarVendas() {
+            const inicio = dataInicio.toISOString().split('T')[0];
+            const fim = dataFim.toISOString().split('T')[0];
+            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
+            
+            if(vendasFiltradas.length === 0) {
+                document.getElementById('vendas').innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart"></i><h3>Nenhuma venda no período</h3></div>';
+                return;
+            }
+            
+            const porData = {};
+            vendasFiltradas.forEach(v => { porData[v.data] = (porData[v.data] || 0) + (v.total || 0); });
+            const labels = Object.keys(porData).sort();
+            const valores = labels.map(d => porData[d]);
+            
+            let html = `<div class="chart-card"><h3>📈 Evolução de Vendas</h3><canvas id="chartVendasLinha"></canvas></div>`;
+            html += `<div class="table-container"><table><thead><tr><th>Data</th><th>Valor</th><th>Pagamento</th></tr></thead><tbody>`;
+            vendasFiltradas.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v => {
+                html += `<tr><td>${new Date(v.data).toLocaleDateString('pt-BR')}</td><td>R$ ${(v.total||0).toFixed(2)}</td><td>${v.formaPagamento||'Dinheiro'}</td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            document.getElementById('vendas').innerHTML = html;
+            
+            setTimeout(() => {
+                const ctx = document.getElementById('chartVendasLinha')?.getContext('2d');
+                if(ctx) {
+                    if(chartAtual) chartAtual.destroy();
+                    chartAtual = new Chart(ctx, {
+                        type: 'line',
+                        data: { labels: labels.map(d => d.slice(5)), datasets: [{ label: 'Vendas (R$)', data: valores, borderColor: '#c8691a', fill: true }] },
+                        options: { responsive: true }
+                    });
+                }
+            }, 100);
+        }
+        
+        function mostrarProdutos() {
+            const inicio = dataInicio.toISOString().split('T')[0];
+            const fim = dataFim.toISOString().split('T')[0];
+            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
+            
+            if(vendasFiltradas.length === 0) {
+                document.getElementById('produtos').innerHTML = '<div class="empty-state"><i class="fas fa-box"></i><h3>Nenhuma venda no período</h3></div>';
+                return;
+            }
+            
+            const produtosVendidos = {};
+            vendasFiltradas.forEach(v => {
+                if(v.itens) {
+                    v.itens.forEach(item => {
+                        if(!produtosVendidos[item.produtoId]) produtosVendidos[item.produtoId] = 0;
+                        produtosVendidos[item.produtoId] += item.quantidade;
+                    });
+                }
+            });
+            const ranking = Object.entries(produtosVendidos).map(([id, qtd]) => {
+                const p = produtos.find(pr => pr.id === parseInt(id));
+                return { nome: p?.nome || 'Desconhecido', quantidade: qtd };
+            }).sort((a,b) => b.quantidade - a.quantidade);
+            
+            let html = `<div class="table-container"><table><thead><tr><th>#</th><th>Produto</th><th>Quantidade</th></tr></thead><tbody>`;
+            ranking.forEach((p,i) => { html += `<tr><td>${i+1}º</td><td>${p.nome}</td><td>${p.quantidade}</td></tr>`; });
+            html += `</tbody></table></div>`;
+            document.getElementById('produtos').innerHTML = html;
+        }
+        
+        function mostrarContasReceber() {
+            let totalPendente = 0;
+            let clientesAtivos = 0;
+            fiados.forEach(cliente => {
+                if(cliente.dividas) {
+                    cliente.dividas.forEach(divida => {
+                        if(!divida.pago) {
+                            totalPendente += (divida.total - (divida.valorPago || 0));
+                            clientesAtivos++;
+                        }
+                    });
+                }
+            });
+            
+            let html = `
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value">R$ ${totalPendente.toFixed(2)}</div><div class="stat-label">Total Pendente</div></div>
+                    <div class="stat-card"><div class="stat-value">${clientesAtivos}</div><div class="stat-label">Clientes com Pendência</div></div>
+                </div>
+            `;
+            document.getElementById('contasReceber').innerHTML = html;
+        }
+        
+        function mostrarFinanceiro() {
+            const inicio = dataInicio.toISOString().split('T')[0];
+            const fim = dataFim.toISOString().split('T')[0];
+            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
+            const despesasFiltradas = despesas.filter(d => d.data >= inicio && d.data <= fim);
+            const receita = vendasFiltradas.reduce((s, v) => s + (v.total || 0), 0);
+            const despesaTotal = despesasFiltradas.reduce((s, d) => s + (d.valor || 0), 0);
+            const lucro = receita - despesaTotal;
+            
+            let html = `
+                <div class="stats-grid">
+                    <div class="stat-card"><div class="stat-value">R$ ${receita.toFixed(2)}</div><div class="stat-label">Receita</div></div>
+                    <div class="stat-card"><div class="stat-value">R$ ${despesaTotal.toFixed(2)}</div><div class="stat-label">Despesas</div></div>
+                    <div class="stat-card"><div class="stat-value" style="color: ${lucro >= 0 ? '#c8691a' : '#ef4444'}">R$ ${Math.abs(lucro).toFixed(2)}</div><div class="stat-label">${lucro >= 0 ? 'Lucro' : 'Prejuízo'}</div></div>
+                </div>
+                <div class="table-container"><table><thead><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead><tbody>
+            `;
+            despesasFiltradas.sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,10).forEach(d => {
+                html += `<tr><td>${new Date(d.data).toLocaleDateString('pt-BR')}</td><td>${d.descricao}</td><td style="color:#ef4444;">R$ ${(d.valor||0).toFixed(2)}</td></tr>`;
+            });
+            html += `</tbody></table></div>`;
+            document.getElementById('financeiro').innerHTML = html;
+        }
+        
+        (function(){
+            const c=document.getElementById('particles');
+            for(let i=0;i<20;i++){
+                const p=document.createElement('div');
+                p.className='particle';
+                p.style.left=Math.random()*100+'%';
+                p.style.width=p.style.height=(Math.random()*4+2)+'px';
+                p.style.background=`rgba(200,105,26,${Math.random()*0.3+0.1})`;
+                p.style.animationDuration=(Math.random()*14+10)+'s';
+                p.style.animationDelay=(Math.random()*8)+'s';
+                c.appendChild(p);
+            }
+        })();
+    </script>
+</body>
+</html>

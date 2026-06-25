@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestão de Pedidos · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #c8691a;
+            --primary-dark: #a3510f;
+            --primary-light: #e8832a;
+            --bg: #1a1008;
+            --card: #2a1a0a;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #c8691a;
+            --info: #3b82f6;
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px rgba(200,105,26,0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+        
+        .topbar {
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(200, 105, 26, 0.2);
+            box-shadow: var(--shadow-3d);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-back {
+            background: rgba(200, 105, 26, 0.15);
+            border: none;
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .btn-back:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .btn-status {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin: 0 2px;
+        }
+        
+        .btn-status:hover { transform: translateY(-1px); opacity: 0.9; }
+        
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; position: relative; z-index: 1; }
+        
+        .card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid rgba(200, 105, 26, 0.1);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+        
+        .filtros-bar {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            background: var(--bg);
+            padding: 0.5rem;
+            border-radius: 40px;
+            margin-bottom: 1rem;
+        }
+        
+        .filtro-btn {
+            padding: 8px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            color: var(--text-muted);
+        }
+        
+        .filtro-btn:hover { color: var(--primary); }
+        .filtro-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .pedido-card {
+            background: var(--bg);
+            border-radius: 20px;
+            padding: 1rem;
+            margin-bottom: 0.8rem;
+            transition: all 0.3s;
+            border-left: 4px solid var(--warning);
+        }
+        
+        .pedido-card:hover { transform: translateX(5px); box-shadow: var(--shadow-glow); }
+        .pedido-card.confirmado { border-left-color: var(--success); }
+        .pedido-card.preparando { border-left-color: var(--info); }
+        .pedido-card.pronto { border-left-color: var(--primary); }
+        .pedido-card.entregue { border-left-color: var(--text-muted); }
+        .pedido-card.recusado { border-left-color: var(--danger); opacity: 0.7; }
+        
+        .pedido-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .status-pendente { background: var(--warning); color: white; }
+        .status-confirmado { background: var(--success); color: white; }
+        .status-preparando { background: var(--info); color: white; }
+        .status-pronto { background: var(--primary); color: white; }
+        .status-entregue { background: var(--text-muted); color: white; }
+        .status-recusado { background: var(--danger); color: white; }
+        
+        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
+        .empty-state i { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
+        
+        .toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: var(--shadow-3d);
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .topbar { flex-direction: column; gap: 10px; }
+            .filtros-bar { justify-content: center; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="topbar">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <span><i class="fas fa-utensils"></i></span>
+            Doutor Paladar
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn-back" onclick="window.location.href='admin.html'">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="card">
+            <div class="card-header">
+                <h3><i class="fas fa-filter"></i> Filtrar Pedidos</h3>
+            </div>
+            <div class="filtros-bar" id="filtrosBar">
+                <button class="filtro-btn active" onclick="filtrarPedidos('todos')">Todos</button>
+                <button class="filtro-btn" onclick="filtrarPedidos('pendente')">🟡 Pendentes</button>
+                <button class="filtro-btn" onclick="filtrarPedidos('confirmado')">🟢 Confirmados</button>
+                <button class="filtro-btn" onclick="filtrarPedidos('preparando')">🔵 Preparando</button>
+                <button class="filtro-btn" onclick="filtrarPedidos('pronto')">🟠 Prontos</button>
+                <button class="filtro-btn" onclick="filtrarPedidos('entregue')">⚪ Entregues</button>
+                <button class="filtro-btn" onclick="filtrarPedidos('recusado')">🔴 Recusados</button>
+            </div>
+        </div>
+        
+        <div class="card">
+            <div class="card-header">
+                <h3 id="tituloLista"><i class="fas fa-clipboard-list"></i> Todos os Pedidos</h3>
+                <span id="contadorPedidos" style="color: var(--text-muted);"></span>
+            </div>
+            <div id="listaPedidos"></div>
+        </div>
+    </div>
+    
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let todosPedidos = [];
+        let filtroAtivo = 'todos';
+        
+        if(!sessionStorage.getItem('admin_logado')) {
+            window.location.href = 'index.html';
+        }
+        
+        async function carregarPedidos() {
+            const container = document.getElementById('listaPedidos');
+            container.innerHTML = '<div class="loading" style="display:flex; justify-content:center; padding:2rem;"><i class="fas fa-spinner fa-spin"></i> Carregando pedidos...</div>';
+            
+            try {
+                const res = await fetch(API_URL + '/pedidos');
+                if(res.ok) todosPedidos = await res.json();
+                else gerarDadosExemplo();
+            } catch(e) { gerarDadosExemplo(); }
+            
+            filtrarPedidos(filtroAtivo);
+        }
+        
+        function gerarDadosExemplo() {
+            todosPedidos = [
+                { id:1, nomeCliente:'Ana Silva', turma:'INFO3', data:new Date().toISOString(), total:25.5, status:'pendente', horarioRetirada:'12:00', itens:[] },
+                { id:2, nomeCliente:'João Santos', turma:'ADM2', data:new Date().toISOString(), total:35, status:'confirmado', horarioRetirada:'12:15', itens:[] },
+                { id:3, nomeCliente:'Maria Oliveira', turma:'INFO2', data:new Date().toISOString(), total:18, status:'preparando', horarioRetirada:'12:30', itens:[] },
+                { id:4, nomeCliente:'Pedro Costa', turma:'INFO1', data:new Date().toISOString(), total:42, status:'pronto', horarioRetirada:'12:45', itens:[] },
+                { id:5, nomeCliente:'Carla Souza', turma:'ADM1', data:new Date().toISOString(), total:12.5, status:'entregue', horarioRetirada:'13:00', itens:[] },
+                { id:6, nomeCliente:'Lucas Lima', turma:'INFO3', data:new Date().toISOString(), total:28, status:'recusado', horarioRetirada:'13:15', itens:[] }
+            ];
+        }
+        
+        function filtrarPedidos(status) {
+            filtroAtivo = status;
+            document.querySelectorAll('.filtro-btn').forEach(btn => btn.classList.remove('active'));
+            event?.target?.classList.add('active');
+            
+            const filtrados = status === 'todos' ? todosPedidos : todosPedidos.filter(p => p.status === status);
+            document.getElementById('tituloLista').innerHTML = `<i class="fas fa-clipboard-list"></i> ${status === 'todos' ? 'Todos os Pedidos' : status.charAt(0).toUpperCase() + status.slice(1) + 's'}`;
+            document.getElementById('contadorPedidos').textContent = `${filtrados.length} pedido(s)`;
+            
+            const container = document.getElementById('listaPedidos');
+            if(filtrados.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-inbox"></i><p>Nenhum pedido encontrado</p></div>';
+                return;
+            }
+            
+            container.innerHTML = filtrados.map(p => {
+                let botoes = '';
+                switch(p.status) {
+                    case 'pendente':
+                        botoes = `<button class="btn-status" style="background:#c8691a;color:white;" onclick="mudarStatus(${p.id},'confirmado')">✓ Confirmar</button>
+                                  <button class="btn-status" style="background:#ef4444;color:white;" onclick="mudarStatus(${p.id},'recusado')">✕ Recusar</button>`;
+                        break;
+                    case 'confirmado':
+                        botoes = `<button class="btn-status" style="background:#3b82f6;color:white;" onclick="mudarStatus(${p.id},'preparando')">🔧 Preparar</button>
+                                  <button class="btn-status" style="background:#ef4444;color:white;" onclick="mudarStatus(${p.id},'recusado')">✕ Recusar</button>`;
+                        break;
+                    case 'preparando':
+                        botoes = `<button class="btn-status" style="background:#f59e0b;color:white;" onclick="mudarStatus(${p.id},'pronto')">📦 Pronto</button>
+                                  <button class="btn-status" style="background:#ef4444;color:white;" onclick="mudarStatus(${p.id},'recusado')">✕ Recusar</button>`;
+                        break;
+                    case 'pronto':
+                        botoes = `<button class="btn-status" style="background:#6b7280;color:white;" onclick="mudarStatus(${p.id},'entregue')">✅ Entregue</button>`;
+                        break;
+                    case 'entregue':
+                        botoes = `<span style="color:var(--success);">✅ Entregue</span>`;
+                        break;
+                    case 'recusado':
+                        botoes = `<span style="color:var(--danger);">✕ Recusado</span>`;
+                        break;
+                }
+                
+                return `
+                    <div class="pedido-card ${p.status} fade-in-up">
+                        <div class="pedido-header">
+                            <div><strong>Pedido #${p.id}</strong> · ${p.nomeCliente} ${p.turma ? `(${p.turma})` : ''}</div>
+                            <span class="status-badge status-${p.status}">${p.status.toUpperCase()}</span>
+                        </div>
+                        <div style="font-size:0.8rem; color:var(--text-muted); margin-bottom:0.5rem;">
+                            ${new Date(p.data).toLocaleString()} · Retirada: ${p.horarioRetirada}
+                        </div>
+                        <div style="margin-bottom:0.8rem;">
+                            ${p.itens && p.itens.length ? p.itens.map(i => `<div>${i.quantidade}x ${i.nome || ('Produto #' + i.produtoId)}</div>`).join('') : '<div>Produtos não detalhados</div>'}
+                            <strong>Total: R$ ${(p.total || 0).toFixed(2)}</strong>
+                        </div>
+                        <div class="pedido-acoes" style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                            ${botoes}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        async function mudarStatus(id, novoStatus) {
+            try {
+                const index = todosPedidos.findIndex(p => p.id === id);
+                if(index !== -1) {
+                    todosPedidos[index].status = novoStatus;
+                    mostrarToast(`Pedido #${id} atualizado para ${novoStatus}!`, 'success');
+                    filtrarPedidos(filtroAtivo);
+                }
+                
+                // Tentar enviar para o backend
+                await fetch(API_URL + `/pedidos/${id}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: novoStatus })
+                });
+            } catch(e) {
+                console.log('Backend offline - status atualizado localmente');
+            }
+        }
+        
+        function mostrarToast(mensagem, tipo) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            toast.innerHTML = `<i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${mensagem}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        (function(){
+            const c=document.getElementById('particles');
+            for(let i=0;i<20;i++){
+                const p=document.createElement('div');
+                p.className='particle';
+                p.style.left=Math.random()*100+'%';
+                p.style.width=p.style.height=(Math.random()*4+2)+'px';
+                p.style.background=`rgba(200,105,26,${Math.random()*0.3+0.1})`;
+                p.style.animationDuration=(Math.random()*14+10)+'s';
+                p.style.animationDelay=(Math.random()*8)+'s';
+                c.appendChild(p);
+            }
+        })();
+        
+        carregarPedidos();
+    </script>
+</body>
+</html>

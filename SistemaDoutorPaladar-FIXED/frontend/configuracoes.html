@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #c8691a;
+            --primary-dark: #a3510f;
+            --primary-light: #e8832a;
+            --bg: #1a1008;
+            --card: #2a1a0a;
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #c8691a;
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px rgba(200,105,26,0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        /* Animações */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        
+        /* Partículas */
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+        
+        /* Topbar */
+        .topbar {
+            background: rgba(10, 12, 16, 0.95);
+            backdrop-filter: blur(20px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(200, 105, 26, 0.2);
+            box-shadow: var(--shadow-3d);
+        }
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-back {
+            background: rgba(200, 105, 26, 0.15);
+            border: none;
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-back:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-glow);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(200,105,26,0.5); }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(239,68,68,0.4); }
+        
+        .btn-sm { padding: 6px 14px; border-radius: 20px; background: rgba(200,105,26,0.15); border: none; color: var(--primary); cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-sm:hover { background: var(--primary); color: white; }
+        
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; position: relative; z-index: 1; }
+        
+        /* Grid de Configurações */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .config-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s;
+            border: 1px solid rgba(200, 105, 26, 0.1);
+        }
+        
+        .config-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-3d);
+            border-color: var(--primary);
+        }
+        
+        .config-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .config-header i { font-size: 1.8rem; color: var(--primary); background: rgba(200, 105, 26, 0.15); padding: 10px; border-radius: 16px; }
+        .config-header h2 { font-size: 1.2rem; font-weight: 700; }
+        
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(200,105,26,0.2); }
+        
+        /* Toggle Switch */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-label { font-weight: 600; }
+        .toggle-switch { position: relative; width: 52px; height: 28px; display: inline-block; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--border); border-radius: 28px; transition: 0.3s;
+        }
+        .toggle-slider::before {
+            content: ""; position: absolute; height: 22px; width: 22px;
+            left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s;
+        }
+        input:checked + .toggle-slider { background: var(--primary); }
+        input:checked + .toggle-slider::before { transform: translateX(24px); }
+        
+        /* Backup Actions */
+        .backup-actions { display: flex; gap: 12px; margin-top: 1rem; flex-wrap: wrap; }
+        .backup-actions button { flex: 1; }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: var(--shadow-3d);
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        @media (max-width: 768px) {
+            .config-grid { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+            .topbar { flex-direction: column; gap: 10px; }
+            .backup-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="topbar">
+        <div class="logo" onclick="window.location.href='index.html'">
+            <span><i class="fas fa-utensils"></i></span>
+            Doutor Paladar
+        </div>
+        <div style="display: flex; gap: 12px;">
+            <button class="btn-back" onclick="window.location.href='admin.html'">
+                <i class="fas fa-arrow-left"></i> Voltar
+            </button>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="config-grid">
+            <!-- Perfil do Administrador -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-user-shield"></i>
+                    <h2>Perfil do Gestor</h2>
+                </div>
+                <div class="form-group">
+                    <label>Nome do Administrador</label>
+                    <input type="text" id="adminNome" placeholder="Seu nome">
+                </div>
+                <div class="form-group">
+                    <label>E-mail para contato</label>
+                    <input type="email" id="adminEmail" placeholder="admin@doutorpaladar.com">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="salvarPerfil()">
+                    <i class="fas fa-save"></i> Salvar Perfil
+                </button>
+            </div>
+            
+            <!-- Alterar Senha -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-key"></i>
+                    <h2>Segurança</h2>
+                </div>
+                <div class="form-group">
+                    <label>Senha Atual</label>
+                    <input type="password" id="senhaAtual" placeholder="Digite sua senha atual">
+                </div>
+                <div class="form-group">
+                    <label>Nova Senha</label>
+                    <input type="password" id="novaSenha" placeholder="Nova senha (mín. 6 caracteres)">
+                </div>
+                <div class="form-group">
+                    <label>Confirmar Nova Senha</label>
+                    <input type="password" id="confirmarSenha" placeholder="Confirme a nova senha">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="alterarSenha()">
+                    <i class="fas fa-lock"></i> Alterar Senha
+                </button>
+            </div>
+            
+            <!-- Configurações da Cantina -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-store"></i>
+                    <h2>Dados da Cantina</h2>
+                </div>
+                <div class="form-group">
+                    <label>Nome da Cantina</label>
+                    <input type="text" id="nomeCantina" placeholder="Doutor Paladar">
+                </div>
+                <div class="form-group">
+                    <label>Horário de Funcionamento</label>
+                    <input type="text" id="horarioFuncionamento" placeholder="07:00 - 17:00">
+                </div>
+                <div class="form-group">
+                    <label>Telefone para Contato</label>
+                    <input type="tel" id="telefoneCantina" placeholder="(00) 00000-0000">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="salvarConfigCantina()">
+                    <i class="fas fa-save"></i> Salvar
+                </button>
+            </div>
+            
+            <!-- Metas e Limites -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-bullseye"></i>
+                    <h2>Metas e Limites</h2>
+                </div>
+                <div class="form-group">
+                    <label>Meta de Vendas Diária (R$)</label>
+                    <input type="number" id="metaDiaria" step="100" placeholder="500">
+                </div>
+                <div class="form-group">
+                    <label>Meta de Vendas Mensal (R$)</label>
+                    <input type="number" id="metaMensal" step="1000" placeholder="15000">
+                </div>
+                <div class="form-group">
+                    <label>Limite de Contas a Receber por Aluno (R$)</label>
+                    <input type="number" id="limiteFiado" step="10" placeholder="50">
+                </div>
+                <div class="form-group">
+                    <label>Limite de Estoque para Alerta</label>
+                    <input type="number" id="limiteEstoque" step="5" placeholder="10">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="salvarMetas()">
+                    <i class="fas fa-save"></i> Salvar Metas
+                </button>
+            </div>
+            
+            <!-- Notificações -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-bell"></i>
+                    <h2>Notificações</h2>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label"><i class="fas fa-box"></i> Alertas de Estoque Baixo</span>
+                    <label class="toggle-switch"><input type="checkbox" id="alertaEstoque" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label"><i class="fas fa-clipboard-list"></i> Alertas de Novos Pedidos</span>
+                    <label class="toggle-switch"><input type="checkbox" id="alertaPedidos" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label"><i class="fas fa-chart-line"></i> Relatórios Semanais</span>
+                    <label class="toggle-switch"><input type="checkbox" id="relatorioSemanal"><span class="toggle-slider"></span></label>
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 1rem;" onclick="salvarNotificacoes()">
+                    <i class="fas fa-save"></i> Salvar Preferências
+                </button>
+            </div>
+            
+            <!-- Backup e Recuperação -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-database"></i>
+                    <h2>Backup e Recuperação</h2>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1rem;">
+                    Exporte seus dados para backup ou restaure um backup anterior.
+                </p>
+                <div class="backup-actions">
+                    <button class="btn-primary" onclick="exportarBackup()"><i class="fas fa-download"></i> Exportar Dados</button>
+                    <button class="btn-danger" onclick="importarBackup()"><i class="fas fa-upload"></i> Restaurar Backup</button>
+                </div>
+            </div>
+            
+            <!-- Aparência -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-palette"></i>
+                    <h2>Aparência</h2>
+                </div>
+                <div class="toggle-row">
+                    <span class="toggle-label"><i class="fas fa-moon"></i> Modo Escuro</span>
+                    <label class="toggle-switch"><input type="checkbox" id="modoEscuro" checked><span class="toggle-slider"></span></label>
+                </div>
+                <div class="form-group">
+                    <label>Tamanho da Fonte</label>
+                    <select id="tamanhoFonte">
+                        <option value="small">Pequena</option>
+                        <option value="medium" selected>Média</option>
+                        <option value="large">Grande</option>
+                    </select>
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="salvarAparencia()">
+                    <i class="fas fa-check"></i> Aplicar
+                </button>
+            </div>
+            
+            <!-- Sobre o Sistema -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-info-circle"></i>
+                    <h2>Sobre o Sistema</h2>
+                </div>
+                <p style="margin-bottom: 0.5rem;"><strong>Doutor Paladar</strong> - v2.0.0</p>
+                <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 0.5rem;">
+                    Sistema de Gestão de Cantina Escolar
+                </p>
+                <p style="color: var(--text-muted); font-size: 0.75rem;">
+                    Desenvolvido para o Instituto Federal<br>
+                    © 2026 - Todos os direitos reservados
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <script src="js/api.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        // Verificar se é admin
+        if(!sessionStorage.getItem('admin_logado')) {
+            window.location.href = 'index.html';
+        }
+        
+        // Carregar configurações salvas (preferências locais + dados do servidor)
+        async function carregarConfiguracoes() {
+            const config = localStorage.getItem('config_doutor_paladar');
+            if(config) {
+                const dados = JSON.parse(config);
+                document.getElementById('adminNome').value = dados.adminNome || '';
+                document.getElementById('adminEmail').value = dados.adminEmail || '';
+                document.getElementById('telefoneCantina').value = dados.telefoneCantina || '';
+                document.getElementById('alertaEstoque').checked = dados.alertaEstoque !== false;
+                document.getElementById('alertaPedidos').checked = dados.alertaPedidos !== false;
+                document.getElementById('relatorioSemanal').checked = dados.relatorioSemanal || false;
+                document.getElementById('modoEscuro').checked = dados.modoEscuro !== false;
+                document.getElementById('tamanhoFonte').value = dados.tamanhoFonte || 'medium';
+            }
+
+            // Carregar configurações persistidas no banco de dados
+            try {
+                const cfg = await fetch(API_URL + '/configuracoes').then(r => r.json());
+                document.getElementById('nomeCantina').value = cfg.nome_cantina || 'Doutor Paladar';
+                document.getElementById('horarioFuncionamento').value = `${cfg.horario_abertura || '07:00'} - ${cfg.horario_fechamento || '22:00'}`;
+                document.getElementById('metaDiaria').value = cfg.meta_vendas_diaria || 500;
+                document.getElementById('metaMensal').value = cfg.meta_vendas_mensal || 10000;
+                document.getElementById('limiteFiado').value = cfg.limite_fiado_aluno || 50;
+                document.getElementById('limiteEstoque').value = (JSON.parse(config || '{}').limiteEstoque) || 10;
+            } catch(e) { console.error('Erro ao carregar configurações do servidor:', e); }
+
+            aplicarAparencia();
+        }
+        
+        function aplicarAparencia() {
+            const modoEscuro = document.getElementById('modoEscuro').checked;
+            const tamanho = document.getElementById('tamanhoFonte').value;
+            if(!modoEscuro) {
+                document.body.style.background = '#f0fdf4';
+                document.body.style.color = '#2a1a0a';
+            } else {
+                document.body.style.background = '';
+                document.body.style.color = '';
+            }
+            switch(tamanho) {
+                case 'small': document.body.style.fontSize = '14px'; break;
+                case 'large': document.body.style.fontSize = '18px'; break;
+                default: document.body.style.fontSize = '16px';
+            }
+        }
+        
+        function salvarPerfil() {
+            const dados = obterConfiguracoes();
+            dados.adminNome = document.getElementById('adminNome').value;
+            dados.adminEmail = document.getElementById('adminEmail').value;
+            salvarConfiguracoes(dados);
+            mostrarToast('Perfil atualizado com sucesso!', 'success');
+        }
+        
+        async function alterarSenha() {
+            const senhaAtual = document.getElementById('senhaAtual').value;
+            const novaSenha = document.getElementById('novaSenha').value;
+            const confirmarSenha = document.getElementById('confirmarSenha').value;
+            
+            if(!senhaAtual) { mostrarToast('Digite sua senha atual', 'error'); return; }
+            if(!novaSenha || novaSenha.length < 6) { mostrarToast('A nova senha deve ter pelo menos 6 caracteres', 'error'); return; }
+            if(novaSenha !== confirmarSenha) { mostrarToast('As senhas não conferem', 'error'); return; }
+            
+            try {
+                const res = await fetch(API_URL + '/configuracoes/alterar-senha', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify({ senhaAtual, novaSenha })
+                });
+                const data = await res.json();
+                if(!res.ok) { mostrarToast(data.erro || 'Senha atual incorreta', 'error'); return; }
+                document.getElementById('senhaAtual').value = '';
+                document.getElementById('novaSenha').value = '';
+                document.getElementById('confirmarSenha').value = '';
+                mostrarToast('Senha alterada com sucesso!', 'success');
+            } catch(e) { mostrarToast('Erro de conexão com o servidor', 'error'); }
+        }
+        
+        async function salvarConfigCantina() {
+            const dados = obterConfiguracoes();
+            dados.telefoneCantina = document.getElementById('telefoneCantina').value;
+            salvarConfiguracoes(dados);
+
+            const horarioFunc = document.getElementById('horarioFuncionamento').value;
+            const [abertura, fechamento] = horarioFunc.split('-').map(s => s.trim());
+            try {
+                await fetch(API_URL + '/configuracoes', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify({
+                        nome_cantina: document.getElementById('nomeCantina').value,
+                        horario_abertura: abertura || '07:00',
+                        horario_fechamento: fechamento || '22:00'
+                    })
+                });
+                mostrarToast('Configurações da cantina salvas!', 'success');
+            } catch(e) { mostrarToast('Erro ao salvar configurações', 'error'); }
+        }
+        
+        async function salvarMetas() {
+            const dados = obterConfiguracoes();
+            dados.limiteEstoque = parseInt(document.getElementById('limiteEstoque').value);
+            salvarConfiguracoes(dados);
+            try {
+                await fetch(API_URL + '/configuracoes', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify({
+                        meta_vendas_diaria: parseFloat(document.getElementById('metaDiaria').value),
+                        meta_vendas_mensal: parseFloat(document.getElementById('metaMensal').value),
+                        limite_fiado_aluno: parseFloat(document.getElementById('limiteFiado').value)
+                    })
+                });
+                mostrarToast('Metas e limites salvos!', 'success');
+            } catch(e) { mostrarToast('Erro ao salvar metas', 'error'); }
+        }
+        
+        function salvarNotificacoes() {
+            const dados = obterConfiguracoes();
+            dados.alertaEstoque = document.getElementById('alertaEstoque').checked;
+            dados.alertaPedidos = document.getElementById('alertaPedidos').checked;
+            dados.relatorioSemanal = document.getElementById('relatorioSemanal').checked;
+            salvarConfiguracoes(dados);
+            mostrarToast('Preferências de notificação salvas!', 'success');
+        }
+        
+        function salvarAparencia() {
+            const dados = obterConfiguracoes();
+            dados.modoEscuro = document.getElementById('modoEscuro').checked;
+            dados.tamanhoFonte = document.getElementById('tamanhoFonte').value;
+            salvarConfiguracoes(dados);
+            aplicarAparencia();
+            mostrarToast('Aparência atualizada!', 'success');
+        }
+        
+        function obterConfiguracoes() {
+            const config = localStorage.getItem('config_doutor_paladar');
+            return config ? JSON.parse(config) : {};
+        }
+        
+        function salvarConfiguracoes(dados) {
+            localStorage.setItem('config_doutor_paladar', JSON.stringify(dados));
+        }
+        
+        function exportarBackup() {
+            const dados = {
+                versao: '2.0.0',
+                data: new Date().toISOString(),
+                configuracoes: obterConfiguracoes(),
+                produtos: JSON.parse(localStorage.getItem('produtos_backup') || '[]'),
+                vendas: JSON.parse(localStorage.getItem('vendas_backup') || '[]'),
+                clientes: JSON.parse(localStorage.getItem('clientes_backup') || '[]')
+            };
+            const blob = new Blob([JSON.stringify(dados, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `backup_doutor_paladar_${new Date().toISOString().slice(0,19)}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            mostrarToast('Backup exportado com sucesso!', 'success');
+        }
+        
+        function importarBackup() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if(!file) return;
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    try {
+                        const dados = JSON.parse(event.target.result);
+                        if(dados.configuracoes) salvarConfiguracoes(dados.configuracoes);
+                        mostrarToast('Backup restaurado com sucesso!', 'success');
+                        setTimeout(() => location.reload(), 1500);
+                    } catch(e) { mostrarToast('Arquivo inválido', 'error'); }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+        
+        function mostrarToast(mensagem, tipo) {
+            const toast = document.createElement('div');
+            toast.className = `toast ${tipo}`;
+            toast.innerHTML = `<i class="fas fa-${tipo === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${mensagem}`;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Partículas
+        (function(){
+            const c=document.getElementById('particles');
+            for(let i=0;i<15;i++){
+                const p=document.createElement('div');
+                p.className='particle';
+                p.style.left=Math.random()*100+'%';
+                p.style.width=p.style.height=(Math.random()*4+2)+'px';
+                p.style.background=`rgba(200,105,26,${Math.random()*0.3+0.1})`;
+                p.style.animationDuration=(Math.random()*14+10)+'s';
+                p.style.animationDelay=(Math.random()*8)+'s';
+                c.appendChild(p);
+            }
+        })();
+        
+        carregarConfiguracoes();
+    </script>
+</body>
+</html>
