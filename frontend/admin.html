@@ -1,0 +1,281 @@
+﻿<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin · Doutor Paladar</title>
+    <meta name="description" content="Painel de administração do sistema Doutor Paladar">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .pedido-item { padding: 14px 0; border-bottom: 1px solid var(--border); }
+        .pedido-item:last-child { border-bottom: none; }
+        .pedido-acoes { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .ranking-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+        .ranking-pos { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); width: 20px; }
+        .ranking-bar-wrap { flex: 1; }
+        .ranking-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+        .ranking-qty { font-size: 0.75rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <div class="sidebar-brand" onclick="window.location.href='index.html'">
+                <div class="brand-icon"><i class="fas fa-utensils"></i></div>
+                <div class="brand-text">
+                    <div class="brand-name">Doutor Paladar</div>
+                    <div class="brand-sub">Painel Admin</div>
+                </div>
+            </div>
+        </div>
+
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Principal</div>
+            <div class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</div>
+            <div class="nav-item" data-tab="pedidos"><i class="fas fa-clipboard-list"></i> Pedidos</div>
+
+            <div class="nav-section-title">Gestão</div>
+            <div class="nav-item" data-tab="pdv"><i class="fas fa-cash-register"></i> Ponto de Venda</div>
+            <div class="nav-item" data-tab="produtos"><i class="fas fa-box"></i> Produtos</div>
+            <div class="nav-item" data-tab="contasReceber"><i class="fas fa-hand-holding-usd"></i> Contas a Receber</div>
+            <div class="nav-item" data-tab="despesas"><i class="fas fa-receipt"></i> Despesas</div>
+            <div class="nav-item" data-tab="fornecedores"><i class="fas fa-truck"></i> Fornecedores</div>
+
+            <div class="nav-section-title">Relatórios</div>
+            <div class="nav-item" data-tab="agendamentos"><i class="fas fa-calendar-alt"></i> Agendamentos</div>
+            <div class="nav-item" data-tab="desempenhos"><i class="fas fa-chart-line"></i> Desempenhos</div>
+            <div class="nav-item" data-tab="configuracoes"><i class="fas fa-cog"></i> Configurações</div>
+        </nav>
+
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                <div class="user-info" style="flex:1;overflow:hidden;">
+                    <div class="user-name" id="adminBadge">Gestor</div>
+                    <div class="user-role">Administrador</div>
+                </div>
+                <button class="btn-logout" onclick="logoutAdmin()" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="flex items-center gap-2">
+                <div class="page-title" id="pageTitle"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Dashboard</div>
+            </div>
+            <div class="topbar-right">
+                <span class="badge-pill badge-green"><i class="fas fa-circle" style="font-size:0.45rem"></i> Online</span>
+                <a href="index.html" class="btn btn-secondary btn-sm"><i class="fas fa-store"></i> Ver Loja</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- DASHBOARD -->
+            <div id="dashboard" class="tab-content active">
+                <div class="stats-grid" id="dashboardStats"></div>
+                <div class="charts-grid">
+                    <div class="chart-card"><h3><i class="fas fa-chart-line"></i> Vendas — Últimos 7 Dias</h3><canvas id="vendasChart"></canvas></div>
+                    <div class="chart-card"><h3><i class="fas fa-chart-pie"></i> Vendas por Categoria</h3><canvas id="categoriaChart"></canvas></div>
+                </div>
+                <div class="charts-grid">
+                    <div class="chart-card"><h3><i class="fas fa-trophy"></i> Produtos Mais Vendidos</h3><div id="rankingProdutos"></div></div>
+                    <div class="chart-card"><h3><i class="fas fa-chart-bar"></i> Formas de Pagamento</h3><canvas id="pagamentoChart"></canvas></div>
+                </div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px">
+                    <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-clock"></i> Últimos Pedidos</div></div><div class="card-body" id="ultimosPedidos"></div></div>
+                    <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-exclamation-triangle"></i> Estoque Crítico</div></div><div class="card-body" id="estoqueCritico"></div></div>
+                </div>
+            </div>
+
+            <!-- PEDIDOS -->
+            <div id="pedidos" class="tab-content">
+                <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-clipboard-list"></i> Pedidos dos Clientes</div></div><div class="card-body" id="pedidosList"></div></div>
+            </div>
+
+            <!-- PDV -->
+            <div id="pdv" class="tab-content">
+                <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-cash-register"></i> Ponto de Venda</div><a href="pdv.html" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Abrir PDV Completo</a></div><div class="card-body" id="pdvResumo"></div></div>
+            </div>
+
+            <!-- PRODUTOS -->
+            <div id="produtos" class="tab-content">
+                <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-box"></i> Gerenciar Produtos</div><a href="estoque.html" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Gestão Completa</a></div><div class="card-body" id="produtosResumo"></div></div>
+            </div>
+
+            <!-- CONTAS A RECEBER -->
+            <div id="contasReceber" class="tab-content">
+                <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-hand-holding-usd"></i> Contas a Receber</div><a href="contas-receber.html" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Gestão Completa</a></div><div class="card-body" id="contasReceberResumo"></div></div>
+            </div>
+
+            <!-- DESPESAS -->
+            <div id="despesas" class="tab-content">
+                <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-receipt"></i> Despesas</div><a href="despesas.html" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Gestão Completa</a></div><div class="card-body" id="despesasResumo"></div></div>
+            </div>
+
+            <!-- FORNECEDORES -->
+            <div id="fornecedores" class="tab-content">
+                <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-truck"></i> Fornecedores</div><a href="fornecedores.html" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Gestão Completa</a></div><div class="card-body" id="fornecedoresResumo"></div></div>
+            </div>
+
+            <!-- AGENDAMENTOS -->
+            <div id="agendamentos" class="tab-content">
+                <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-calendar-alt"></i> Agendamentos</div><a href="agendamentos.html" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Gestão Completa</a></div><div class="card-body" id="agendamentosResumo"></div></div>
+            </div>
+
+            <!-- DESEMPENHOS -->
+            <div id="desempenhos" class="tab-content">
+                <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-chart-line"></i> Relatórios de Desempenho</div><a href="desempenhos.html" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Ver Completo</a></div><div class="card-body" id="desempenhosResumo"></div></div>
+            </div>
+
+            <!-- CONFIGURAÇÕES -->
+            <div id="configuracoes" class="tab-content">
+                <div class="card"><div class="card-header-block"><div class="card-title"><i class="fas fa-cog"></i> Configurações</div><a href="configuracoes.html" class="btn btn-primary btn-sm"><i class="fas fa-external-link-alt"></i> Abrir</a></div><div class="card-body" id="configuracoesResumo"></div></div>
+            </div>
+
+        </div>
+    </main>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:3000/api';
+    let produtos = [], vendas = [], pedidos = [];
+    let chartVendas, chartCategoria, chartPagamento;
+
+    if(!sessionStorage.getItem('admin_logado')) { window.location.href = 'index.html'; }
+    document.getElementById('adminBadge').textContent = sessionStorage.getItem('admin_nome') || 'Gestor Master';
+
+    function logoutAdmin() { sessionStorage.clear(); window.location.href = 'index.html'; }
+
+    const iconMap = {
+        dashboard:'chart-pie', pedidos:'clipboard-list', pdv:'cash-register',
+        produtos:'box', contasReceber:'hand-holding-usd', despesas:'receipt',
+        fornecedores:'truck', agendamentos:'calendar-alt', desempenhos:'chart-line', configuracoes:'cog'
+    };
+
+    document.querySelectorAll('.nav-item[data-tab]').forEach(item => {
+        item.addEventListener('click', () => {
+            const tab = item.dataset.tab;
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            item.classList.add('active');
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            document.getElementById(tab).classList.add('active');
+            const icon = iconMap[tab] || 'circle';
+            document.getElementById('pageTitle').innerHTML = `<i class="fas fa-${icon}" style="color:var(--primary)"></i> ${item.textContent.trim()}`;
+            if(tab==='dashboard') carregarDashboard();
+            if(tab==='pedidos') carregarPedidos();
+            if(tab==='pdv') carregarResumoPDV();
+            if(tab==='produtos') carregarProdutosResumo();
+            if(tab==='contasReceber') carregarResumoContasReceber();
+            if(tab==='despesas') carregarResumoDespesas();
+            if(tab==='fornecedores') carregarResumoFornecedores();
+            if(tab==='agendamentos') carregarResumoAgendamentos();
+            if(tab==='desempenhos') carregarResumoDesempenhos();
+            if(tab==='configuracoes') carregarResumoConfiguracoes();
+        });
+    });
+
+    async function carregarDados() {
+        try {
+            const token = sessionStorage.getItem('token');
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            const [rProd, rVendas, rPedidos] = await Promise.all([
+                fetch(API_URL+'/produtos', {headers}),
+                fetch(API_URL+'/vendas', {headers}),
+                fetch(API_URL+'/pedidos', {headers})
+            ]);
+            if(rProd.ok) produtos = await rProd.json();
+            if(rVendas.ok) vendas = await rVendas.json();
+            if(rPedidos.ok) pedidos = await rPedidos.json();
+        } catch(e) { console.error('Erro:', e); }
+    }
+
+    async function carregarDashboard() {
+        await carregarDados();
+        const totalVendas = vendas.reduce((s,v)=>s+(v.total||0),0);
+        const hojeStr = new Date().toISOString().split('T')[0];
+        const vendasHoje = vendas.filter(v=>String(v.data).startsWith(hojeStr)).reduce((s,v)=>s+(v.total||0),0);
+        const estoqueBaixo = produtos.filter(p=>p.estoque<=(p.estoqueMinimo||10)).length;
+
+        document.getElementById('dashboardStats').innerHTML = `
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-value">R$ ${vendasHoje.toFixed(2)}</div><div class="stat-label">Vendas Hoje</div></div></div>
+            <div class="stat-card brown"><div class="stat-icon brown"><i class="fas fa-chart-line"></i></div><div><div class="stat-value">R$ ${totalVendas.toFixed(2)}</div><div class="stat-label">Total de Vendas</div></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-bag"></i></div><div><div class="stat-value">${pedidos.length}</div><div class="stat-label">Total de Pedidos</div></div></div>
+            <div class="stat-card ${estoqueBaixo>0?'danger':''}"><div class="stat-icon ${estoqueBaixo>0?'danger':''}"><i class="fas fa-boxes"></i></div><div><div class="stat-value">${estoqueBaixo}</div><div class="stat-label">Estoque Baixo</div></div></div>
+        `;
+
+        const ult7=[], val7=[];
+        for(let i=6;i>=0;i--){ const d=new Date(); d.setDate(d.getDate()-i); const ds=d.toISOString().split('T')[0]; ult7.push(d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')); val7.push(vendas.filter(v=>v.data.startsWith(ds)).reduce((s,v)=>s+(v.total||0),0)); }
+        if(chartVendas) chartVendas.destroy();
+        chartVendas = new Chart(document.getElementById('vendasChart'),{type:'line',data:{labels:ult7,datasets:[{label:'Vendas (R$)',data:val7,borderColor:'#2d7d52',backgroundColor:'rgba(45,125,82,0.08)',fill:true,tension:0.4,pointBackgroundColor:'#2d7d52',pointRadius:4}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#6b5a49',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#6b5a49',font:{size:11}}}}}});
+
+        const vendasCat={};
+        vendas.forEach(v=>{if(v.itens)v.itens.forEach(i=>{const prod=produtos.find(p=>p.id===i.produtoId);const cat=prod?.categoria||'Outros';vendasCat[cat]=(vendasCat[cat]||0)+(i.precoUnitario||0)*(i.quantidade||0);});});
+        if(chartCategoria) chartCategoria.destroy();
+        chartCategoria = new Chart(document.getElementById('categoriaChart'),{type:'doughnut',data:{labels:Object.keys(vendasCat),datasets:[{data:Object.values(vendasCat),backgroundColor:['#2d7d52','#52b788','#7b4f2e','#a0714f','#d97706','#2563eb'],borderWidth:0}]},options:{responsive:true,plugins:{legend:{position:'bottom',labels:{color:'#3d2510',font:{size:11},padding:12}}},cutout:'65%'}});
+
+        const vendasProd={};
+        vendas.forEach(v=>{if(v.itens)v.itens.forEach(i=>{if(!vendasProd[i.produtoId])vendasProd[i.produtoId]=0;vendasProd[i.produtoId]+=i.quantidade;});});
+        const ranking=Object.entries(vendasProd).map(([id,q])=>({nome:produtos.find(p=>p.id==parseInt(id))?.nome||'Desconhecido',quantidade:q})).sort((a,b)=>b.quantidade-a.quantidade).slice(0,5);
+        const maxQ=ranking[0]?.quantidade||1;
+        document.getElementById('rankingProdutos').innerHTML=ranking.map((r,i)=>`<div class="ranking-item"><div class="ranking-pos">${i+1}°</div><div class="ranking-bar-wrap"><div class="ranking-name">${r.nome}</div><div class="progress-bar"><div class="progress-fill" style="width:${(r.quantidade/maxQ)*100}%"></div></div></div><div class="ranking-qty">${r.quantidade} un.</div></div>`).join('')||'<p class="text-muted text-sm">Nenhuma venda registrada</p>';
+
+        const pag={dinheiro:0,cartao:0,fiado:0};
+        vendas.forEach(v=>{if(v.formaPagamento==='dinheiro')pag.dinheiro+=v.total;else if(v.formaPagamento==='cartao')pag.cartao+=v.total;else pag.fiado+=v.total;});
+        if(chartPagamento) chartPagamento.destroy();
+        chartPagamento = new Chart(document.getElementById('pagamentoChart'),{type:'bar',data:{labels:['Dinheiro','Cartão','Conta'],datasets:[{label:'Valor (R$)',data:[pag.dinheiro,pag.cartao,pag.fiado],backgroundColor:['#2d7d52','#52b788','#7b4f2e'],borderRadius:8,borderSkipped:false}]},options:{responsive:true,plugins:{legend:{display:false}},scales:{y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#6b5a49',font:{size:11}}},x:{grid:{display:false},ticks:{color:'#6b5a49',font:{size:11}}}}}});
+
+        document.getElementById('ultimosPedidos').innerHTML=(pedidos||[]).slice(0,5).map(p=>`<div class="pedido-item"><div style="display:flex;justify-content:space-between;align-items:start"><div><div style="font-weight:700;font-size:0.85rem">#${p.id} — ${p.nomeCliente}</div><div class="text-muted text-xs" style="margin-top:2px">${new Date(p.data).toLocaleString('pt-BR')}</div></div><span class="badge badge-${p.status==='pendente'?'warning':'success'}">${p.status?.toUpperCase()}</span></div></div>`).join('')||'<p class="text-muted text-sm">Nenhum pedido</p>';
+
+        const baixo=produtos.filter(p=>p.estoque<=(p.estoqueMinimo||10));
+        document.getElementById('estoqueCritico').innerHTML=baixo.length?baixo.map(p=>`<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)"><span style="font-size:0.84rem">${p.imagem||'📦'} ${p.nome}</span><span class="badge badge-warning">${p.estoque} un.</span></div>`).join(''):'<p class="text-muted text-sm">✓ Todos os estoques OK</p>';
+    }
+
+    async function carregarPedidos() {
+        await carregarDados();
+        const container=document.getElementById('pedidosList');
+        if(!pedidos.length){container.innerHTML='<p class="text-muted text-sm" style="text-align:center;padding:2rem">Nenhum pedido encontrado</p>';return;}
+        container.innerHTML=pedidos.map(p=>`<div class="pedido-item"><div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px"><div><div style="font-weight:700;font-size:0.88rem">Pedido #${p.id} — ${p.nomeCliente}</div><div class="text-muted text-xs" style="margin-top:3px">${new Date(p.data).toLocaleString('pt-BR')} · Retirada: ${p.horarioRetirada} · <strong>R$ ${(p.total||0).toFixed(2)}</strong></div></div><span class="badge badge-${p.status==='pendente'?'warning':p.status==='confirmado'?'success':'danger'}">${p.status?.toUpperCase()}</span></div><div class="pedido-acoes">${p.status==='pendente'?`<button class="btn btn-primary btn-sm" onclick="mudarStatus(${p.id},'confirmado')"><i class="fas fa-check"></i> Confirmar</button><button class="btn btn-danger btn-sm" onclick="mudarStatus(${p.id},'recusado')"><i class="fas fa-times"></i> Recusar</button>`:''}</div></div>`).join('');
+    }
+
+    async function mudarStatus(id, novoStatus) {
+        try {
+            await fetch(API_URL+`/pedidos/${id}/status`,{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:novoStatus})});
+            mostrarToast(`Pedido #${id} atualizado!`,'success');
+            carregarPedidos(); carregarDashboard();
+        } catch(e) { mostrarToast('Erro ao atualizar','error'); }
+    }
+
+    function carregarResumoPDV(){const hojeStr=new Date().toISOString().split('T')[0];const vH=vendas.filter(v=>String(v.data).startsWith(hojeStr));const tH=vH.reduce((s,v)=>s+(v.total||0),0);document.getElementById('pdvResumo').innerHTML=`<div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-value">R$ ${tH.toFixed(2)}</div><div class="stat-label">Vendas PDV Hoje</div></div></div><div class="stat-card brown"><div class="stat-icon brown"><i class="fas fa-receipt"></i></div><div><div class="stat-value">${vH.length}</div><div class="stat-label">Atendimentos Hoje</div></div></div></div><div style="margin-top:16px"><a href="pdv.html" class="btn btn-primary"><i class="fas fa-cash-register"></i> Abrir PDV Completo <i class="fas fa-arrow-right"></i></a></div>`;}
+    function carregarProdutosResumo(){document.getElementById('produtosResumo').innerHTML=`<div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-box"></i></div><div><div class="stat-value">${produtos.length}</div><div class="stat-label">Total Produtos</div></div></div><div class="stat-card danger"><div class="stat-icon danger"><i class="fas fa-times-circle"></i></div><div><div class="stat-value">${produtos.filter(p=>p.estoque===0).length}</div><div class="stat-label">Esgotados</div></div></div></div><div style="margin-top:16px"><a href="estoque.html" class="btn btn-primary"><i class="fas fa-boxes"></i> Gerenciar Produtos <i class="fas fa-arrow-right"></i></a></div>`;}
+    function carregarResumoContasReceber(){document.getElementById('contasReceberResumo').innerHTML=`<div class="stats-grid"><div class="stat-card warn"><div class="stat-icon warn"><i class="fas fa-clock"></i></div><div><div class="stat-value">R$ 1.250</div><div class="stat-label">Total Pendente</div></div></div></div><div style="margin-top:16px"><a href="contas-receber.html" class="btn btn-primary">Gerenciar <i class="fas fa-arrow-right"></i></a></div>`;}
+    function carregarResumoDespesas(){document.getElementById('despesasResumo').innerHTML=`<div class="stats-grid"><div class="stat-card brown"><div class="stat-icon brown"><i class="fas fa-file-invoice-dollar"></i></div><div><div class="stat-value">R$ 3.240</div><div class="stat-label">Despesas do Mês</div></div></div></div><div style="margin-top:16px"><a href="despesas.html" class="btn btn-primary">Gerenciar <i class="fas fa-arrow-right"></i></a></div>`;}
+    function carregarResumoFornecedores(){document.getElementById('fornecedoresResumo').innerHTML=`<div class="stats-grid"><div class="stat-card brown"><div class="stat-icon brown"><i class="fas fa-truck"></i></div><div><div class="stat-value">12</div><div class="stat-label">Fornecedores Ativos</div></div></div></div><div style="margin-top:16px"><a href="fornecedores.html" class="btn btn-primary">Gerenciar <i class="fas fa-arrow-right"></i></a></div>`;}
+    function carregarResumoAgendamentos(){document.getElementById('agendamentosResumo').innerHTML=`<div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-calendar-check"></i></div><div><div class="stat-value">4</div><div class="stat-label">Horários Configurados</div></div></div></div><div style="margin-top:16px"><a href="agendamentos.html" class="btn btn-primary">Gerenciar <i class="fas fa-arrow-right"></i></a></div>`;}
+    function carregarResumoDesempenhos(){document.getElementById('desempenhosResumo').innerHTML=`<div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-arrow-trend-up"></i></div><div><div class="stat-value">+23%</div><div class="stat-label">Crescimento</div></div></div></div><div style="margin-top:16px"><a href="desempenhos.html" class="btn btn-primary">Ver Relatórios <i class="fas fa-arrow-right"></i></a></div>`;}
+    function carregarResumoConfiguracoes(){document.getElementById('configuracoesResumo').innerHTML=`<div class="stats-grid"><div class="stat-card"><div class="stat-icon"><i class="fas fa-store"></i></div><div><div class="stat-value" style="font-size:1.1rem">Doutor Paladar</div><div class="stat-label">Nome da Cantina</div></div></div></div><div style="margin-top:16px"><a href="configuracoes.html" class="btn btn-primary">Configurações <i class="fas fa-arrow-right"></i></a></div>`;}
+
+    function mostrarToast(msg, tipo) {
+        const t=document.createElement('div'); t.className=`toast ${tipo}`; t.innerHTML=`<i class="fas fa-${tipo==='success'?'check-circle':'exclamation-circle'}"></i> ${msg}`;
+        document.body.appendChild(t); setTimeout(()=>t.remove(),3000);
+    }
+
+    carregarDashboard(); carregarPedidos();
+
+    (function aplicarHashInicial() {
+        const hash = window.location.hash.replace('#','').trim();
+        if(!hash) return;
+        const navItem = document.querySelector(`.nav-item[data-tab="${hash}"]`);
+        if(navItem) navItem.click();
+    })();
+</script>
+</body>
+</html>
