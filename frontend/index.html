@@ -74,21 +74,11 @@
         
         .hero {
             background: linear-gradient(135deg, #1b4332 0%, #2d7d52 60%, #3d5a2e 100%);
-            min-height: 65vh;
+            min-height: 55vh;
             display: flex;
             align-items: center;
             position: relative;
             overflow: hidden;
-        }
-        
-        .hero::before {
-            content: '🍔🍟🥤🍕🌭🥗🍰🥪';
-            position: absolute;
-            font-size: 14rem;
-            opacity: 0.05;
-            bottom: -50px;
-            right: -50px;
-            animation: float 8s ease-in-out infinite;
         }
         
         .hero::after {
@@ -549,22 +539,67 @@
             font-size: 0.8rem;
         }
         
-        .cart-fab {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+        .carousel-wrap {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 45px;
+        }
+        .carousel-track {
+            display: flex;
+            gap: 16px;
+            overflow-x: auto;
+            scroll-behavior: smooth;
+            padding: 10px 4px;
+            scrollbar-width: none;
+        }
+        .carousel-track::-webkit-scrollbar { display: none; }
+        .carousel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 44px;
+            height: 44px;
             border-radius: 50%;
+            background: var(--bg-card, #fff);
+            border: 1px solid var(--border, #e2e8f0);
+            color: var(--primary, #2d7d52);
+            font-size: 1.1rem;
+            cursor: pointer;
+            z-index: 10;
             display: flex;
             align-items: center;
             justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transition: all 0.2s ease;
+        }
+        .carousel-btn:hover { background: var(--primary, #2d7d52); color: white; transform: translateY(-50%) scale(1.1); }
+        .carousel-btn.prev { left: 0; }
+        .carousel-btn.next { right: 0; }
+
+        .floating-cart-pill {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            color: white;
+            padding: 12px 22px;
+            border-radius: 50px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 25px rgba(27,67,50,0.35);
             cursor: pointer;
-            box-shadow: var(--shadow-glow);
-            z-index: 99;
-            transition: all 0.3s;
-            animation: pulse 2s infinite;
+            z-index: 999;
+            transition: all 0.25s ease;
+            border: none;
+        }
+        .floating-cart-pill:hover { transform: translateY(-3px) scale(1.03); }
+
+        .cart-fab {
+            display: none;
         }
         
         .cart-fab:hover {
@@ -857,28 +892,37 @@
 
     <div class="hero">
         <div class="hero-content">
-            <h1>Doutor Paladar</h1>
-            <p>Cafeteria &amp; Lanchonete</p>
-            <div class="stats">
-                <div class="stat-item"><div class="stat-number">50+</div><div>Produtos</div></div>
-                <div class="stat-item"><div class="stat-number">⭐ 4.9</div><div>Avaliação</div></div>
-                <div class="stat-item"><div class="stat-number">2min</div><div>Retirada</div></div>
-                <div class="stat-item"><div class="stat-number">1000+</div><div>Clientes</div></div>
+            <span style="background:rgba(255,255,255,0.15);color:white;padding:6px 16px;border-radius:20px;font-size:0.85rem;font-weight:700;display:inline-block;margin-bottom:1rem;"><i class="fas fa-utensils"></i> Cantina Gourmet & Cafeteria Premium</span>
+            <h1 style="color:white;">Peça pelo site e retire sem filas</h1>
+            <p style="color:rgba(255,255,255,0.9);">Lanches artesanais, salgados assados na hora, bebidas e sobremesas frescas com retirada rápida.</p>
+        </div>
+    </div>
+
+    <!-- SEÇÃO DE DESTAQUES COM SLIDER E SETAS NAVEGÁVEIS -->
+    <div class="section" style="padding-bottom:1.5rem;padding-top:2.5rem;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:1.2rem;">
+            <div>
+                <h2 style="font-size:1.8rem;font-weight:800;color:var(--text);"><i class="fas fa-fire" style="color:#f59e0b;"></i> Destaques do Cardápio</h2>
+                <p style="color:var(--text-muted);font-size:0.9rem;margin-top:4px;">Deslize pelas setas para ver nossos hambúrgueres e especialidades mais pedidas!</p>
+            </div>
+            <div style="display:flex;gap:8px;">
+                <button class="carousel-btn prev" onclick="scrollCarousel(-1)" style="position:static;transform:none;"><i class="fas fa-chevron-left"></i></button>
+                <button class="carousel-btn next" onclick="scrollCarousel(1)" style="position:static;transform:none;"><i class="fas fa-chevron-right"></i></button>
+            </div>
+        </div>
+
+        <div class="carousel-wrap" style="padding:0;">
+            <div class="carousel-track" id="destaquesTrack">
+                <!-- Preenchido via JavaScript -->
             </div>
         </div>
     </div>
 
-    <div class="section">
-        <div class="promo-banner">
-            <div><h3>Novidade</h3><p>Combo Coxinha + Refrigerante por apenas R$ 12,90</p></div>
-            <div class="promo-badge">Válido hoje!</div>
-        </div>
-    </div>
-
-    <div class="section">
-        <h2 class="section-title">Cardápio</h2>
-        <div style="max-width: 500px; margin: 0 auto 1.2rem;">
-            <input type="text" id="heroSearch" oninput="filtrarProdutos()" placeholder="🔍 Buscar produto..." style="width: 100%; padding: 12px 18px; border-radius: 30px; border: 2px solid var(--border); background: var(--bg); color: var(--text); font-size: 1rem;">
+    <!-- SEÇÃO DE CARDÁPIO GOURMET COM FILTROS DE CATEGORIA -->
+    <div class="section" id="secaoCardapio" style="padding-top:1rem;">
+        <h2 class="section-title" style="text-align:left;margin-bottom:1rem;"><i class="fas fa-store" style="color:var(--primary);"></i> Cardápio por Categoria</h2>
+        <div style="max-width: 500px; margin: 0 0 1.5rem 0;">
+            <input type="text" id="heroSearch" oninput="filtrarProdutos()" placeholder="🔍 Buscar salgado, lanche, bebida ou doce..." style="width: 100%; padding: 12px 18px; border-radius: 30px; border: 2px solid var(--border); background: var(--bg-card); color: var(--text); font-size: 0.95rem; outline:none;">
         </div>
         <div class="categories" id="categories"></div>
         <div class="products-grid" id="productsGrid"></div>
@@ -935,10 +979,11 @@
         <i class="fas fa-comments" style="font-size: 1.5rem; color: white;"></i>
     </div>
 
-    <div class="cart-fab" id="cartFab" onclick="toggleCart()">
-        <i class="fas fa-shopping-cart" style="font-size: 1.5rem; color: white;"></i>
-        <span class="cart-count" id="cartCount">0</span>
-    </div>
+    <!-- Pill Flutuante Elegante do Carrinho -->
+    <button class="floating-cart-pill" id="floatingCartPill" onclick="toggleCart()" style="display:none;">
+        <i class="fas fa-shopping-bag" style="font-size:1.1rem;"></i>
+        <span id="pillCartText">0 itens • R$ 0,00</span>
+    </button>
 
     <div class="cart-sidebar" id="cartSidebar">
         <h3><i class="fas fa-shopping-cart"></i> Meu Pedido <button class="close-cart" onclick="toggleCart()">&times;</button></h3>
@@ -1406,9 +1451,48 @@
                     { id:5, nome:'Brigadeiro', categoria:'Doces', preco:3.5, estoque:80, imagem:'🍰' }
                 ];
             }
-            produtos.forEach(p => { p.preco = parseFloat(p.preco) || 0; });
-            renderCategorias();
-            renderProdutos();
+            function scrollCarousel(dir) {
+            const track = document.getElementById('destaquesTrack');
+            if(track) {
+                track.scrollBy({ left: dir * 320, behavior: 'smooth' });
+            }
+        }
+
+        function renderDestaques() {
+            const track = document.getElementById('destaquesTrack');
+            if(!track) return;
+
+            const destaques = produtos.slice(0, 8);
+            if(!destaques.length) return;
+
+            track.innerHTML = destaques.map(p => {
+                const preco = parseFloat(p.preco) || 0;
+                const imagemUrl = getImagemUrl(p);
+                const imgHtml = imagemUrl
+                    ? `<img src="${imagemUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:14px;" loading="lazy">`
+                    : `<div style="display:flex;align-items:center;justify-content:center;height:100%;font-size:3rem;background:#f3f4f6;">${getEmoji(p.categoria)}</div>`;
+
+                return `
+                    <div class="product-card" onclick="adicionarAoCarrinho(${p.id})" style="min-width:260px;max-width:260px;flex-shrink:0;border-radius:18px;">
+                        <div class="product-image" style="height:160px;position:relative;">
+                            ${imgHtml}
+                            <span style="position:absolute;top:8px;left:8px;background:rgba(27,67,50,0.85);color:white;padding:3px 8px;border-radius:12px;font-size:0.7rem;font-weight:700;backdrop-filter:blur(4px);">${p.categoria.toUpperCase()}</span>
+                        </div>
+                        <div class="product-info" style="padding:12px;">
+                            <div class="product-name" style="font-size:0.95rem;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${p.nome}</div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+                                <div class="product-price" style="font-size:1.1rem;font-weight:800;color:var(--primary);">R$ ${preco.toFixed(2)}</div>
+                                <button onclick="event.stopPropagation();adicionarAoCarrinho(${p.id})" style="background:var(--primary);color:white;border:none;padding:6px 12px;border-radius:20px;font-size:0.8rem;font-weight:700;cursor:pointer;"><i class="fas fa-plus"></i> Pedir</button>
+                            </div>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        produtos.forEach(p => { p.preco = parseFloat(p.preco) || 0; });
+        renderCategorias();
+        renderProdutos();
+        renderDestaques();
         }
 
         
@@ -1521,7 +1605,32 @@
             atualizarCarrinhoUI();
         }
 
-        function atualizarCarrinhoUI(){const t=carrinho.reduce((s,i)=>s+i.quantidade*i.precoUnitario,0),c=carrinho.reduce((s,i)=>s+i.quantidade,0);document.getElementById('cartCount').textContent=c;document.getElementById('cartTotal').textContent=`R$ ${t.toFixed(2)}`;const con=document.getElementById('cartItems');if(carrinho.length===0){con.innerHTML='<p style="text-align:center;color:var(--text-muted);">Seu carrinho está vazio</p>';}else{con.innerHTML=carrinho.map(i=>`<div class="cart-item"><div><strong>${i.nome}</strong><br><small>R$ ${(parseFloat(i.precoUnitario)||0).toFixed(2)}</small></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="removerDoCarrinho(${i.produtoId})" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:var(--border);color:white;">−</button><span>${i.quantidade}</span><button onclick="adicionarAoCarrinho(${i.produtoId})" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:var(--border);color:white;">+</button></div></div>`).join('');}document.getElementById('orderBtn').disabled=carrinho.length===0;verificarComboPerfeito();}
+        function atualizarCarrinhoUI(){
+            const t=carrinho.reduce((s,i)=>s+i.quantidade*i.precoUnitario,0);
+            const c=carrinho.reduce((s,i)=>s+i.quantidade,0);
+            document.getElementById('cartCount').textContent=c;
+            document.getElementById('cartTotal').textContent=`R$ ${t.toFixed(2)}`;
+            
+            const pill = document.getElementById('floatingCartPill');
+            const pillText = document.getElementById('pillCartText');
+            if(pill && pillText) {
+                if(c > 0) {
+                    pill.style.display = 'flex';
+                    pillText.textContent = `${c} ${c === 1 ? 'item' : 'itens'} • R$ ${t.toFixed(2).replace('.',',')}`;
+                } else {
+                    pill.style.display = 'none';
+                }
+            }
+
+            const con=document.getElementById('cartItems');
+            if(carrinho.length===0){
+                con.innerHTML='<p style="text-align:center;color:var(--text-muted);">Seu carrinho está vazio</p>';
+            }else{
+                con.innerHTML=carrinho.map(i=>`<div class="cart-item"><div><strong>${i.nome}</strong><br><small>R$ ${(parseFloat(i.precoUnitario)||0).toFixed(2)}</small></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="removerDoCarrinho(${i.produtoId})" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:var(--border);color:white;">−</button><span>${i.quantidade}</span><button onclick="adicionarAoCarrinho(${i.produtoId})" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:var(--border);color:white;">+</button></div></div>`).join('');
+            }
+            document.getElementById('orderBtn').disabled=carrinho.length===0;
+            verificarComboPerfeito();
+        }
         function toggleCart(){document.getElementById('cartSidebar').classList.toggle('open');}
         function abrirModalLogin(){document.getElementById('modalLogin').classList.add('active');}
         function abrirModalCadastro(){document.getElementById('modalCadastro').classList.add('active');}
