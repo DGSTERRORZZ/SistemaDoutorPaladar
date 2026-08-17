@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Doutor Paladar · Perguntas Frequentes (FAQ)</title>
+    <meta name="description" content="Tire suas dúvidas sobre horários, pagamentos via PIX, cartões, retirada de pedidos e fidelidade no Doutor Paladar.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .navbar-mc {
+            background: #ffffff;
+            border-bottom: 1px solid #e2e8f0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        }
+
+        .navbar-mc-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .logo-mc {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #1b4332;
+            font-family: var(--font-heading);
+            font-weight: 800;
+            font-size: 1.35rem;
+        }
+
+        .logo-badge-icon {
+            width: 44px;
+            height: 44px;
+            background: #1b4332;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #52b788;
+            font-size: 1.25rem;
+        }
+
+        .btn-mc-primary {
+            background: #2d7d52;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 10px 22px;
+            border-radius: var(--radius-full);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            text-decoration: none;
+        }
+
+        .btn-mc-primary:hover {
+            background: #1b4332;
+            transform: translateY(-1px);
+        }
+
+        .btn-mc-outline {
+            background: transparent;
+            color: #292929;
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 9px 18px;
+            border-radius: var(--radius-full);
+            border: 1.5px solid #cbd5e1;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-fast);
+            text-decoration: none;
+        }
+
+        .btn-mc-outline:hover {
+            border-color: #2d7d52;
+            color: #2d7d52;
+            background: #f0faf4;
+        }
+
+        /* ── CONTAINER DA FAQ ── */
+        .faq-page-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3.5rem 1.5rem 5rem;
+        }
+
+        .faq-header-box {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .faq-header-box h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            margin-top: 8px;
+        }
+
+        .faq-header-box p {
+            color: #64748b;
+            font-size: 1.05rem;
+            margin-top: 6px;
+        }
+
+        /* Barra de Busca de Dúvidas na FAQ */
+        .faq-search-wrapper {
+            max-width: 540px;
+            margin: 1.5rem auto 0;
+            position: relative;
+        }
+
+        .faq-search-wrapper i {
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .faq-search-input {
+            width: 100%;
+            padding: 13px 20px 13px 44px;
+            border-radius: var(--radius-full);
+            border: 1.5px solid #cbd5e1;
+            font-size: 0.95rem;
+            background: #ffffff;
+            outline: none;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            transition: var(--transition);
+        }
+
+        .faq-search-input:focus {
+            border-color: #2d7d52;
+            box-shadow: 0 0 0 4px rgba(45, 125, 82, 0.15);
+        }
+
+        /* Filtros de Categorias de Dúvidas */
+        .faq-category-pills {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+        }
+
+        .faq-pill-btn {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius-full);
+            padding: 8px 18px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: #475569;
+            cursor: pointer;
+            transition: var(--transition-fast);
+        }
+
+        .faq-pill-btn:hover {
+            border-color: #2d7d52;
+            color: #2d7d52;
+        }
+
+        .faq-pill-btn.active {
+            background: #2d7d52;
+            color: #ffffff;
+            border-color: #2d7d52;
+        }
+
+        /* Lista de Perguntas (Sanfona / Accordion) */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .faq-item {
+            background: #ffffff;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+            padding: 1.2rem 1.6rem;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+            transition: var(--transition);
+        }
+
+        .faq-item:hover {
+            border-color: #cbd5e1;
+        }
+
+        .faq-question {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #1e293b;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .faq-question i {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            transition: transform 0.25s ease;
+        }
+
+        .faq-answer {
+            font-size: 0.92rem;
+            color: #475569;
+            line-height: 1.6;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+            display: none;
+        }
+
+        .faq-item.active {
+            border-color: #2d7d52;
+            box-shadow: 0 8px 20px -4px rgba(45, 125, 82, 0.12);
+        }
+
+        .faq-item.active .faq-question { color: #2d7d52; }
+        .faq-item.active .faq-question i { transform: rotate(180deg); color: #2d7d52; }
+        .faq-item.active .faq-answer { display: block; }
+
+        /* Card de Dúvida Não Encontrada */
+        .faq-cta-card {
+            background: #1e293b;
+            color: #ffffff;
+            border-radius: 20px;
+            padding: 2.5rem;
+            text-align: center;
+            margin-top: 3.5rem;
+        }
+
+        .faq-cta-card h3 {
+            font-size: 1.35rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .faq-cta-card p {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            margin-bottom: 1.5rem;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR -->
+    <header class="navbar-mc">
+        <div class="navbar-mc-inner">
+            <a class="logo-mc" href="index.html">
+                <div class="logo-badge-icon"><i class="fas fa-utensils"></i></div>
+                <span>DOUTOR PALADAR</span>
+            </a>
+
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <a href="index.html" class="btn-mc-outline"><i class="fas fa-home"></i> Início</a>
+                <a href="cardapio.html" class="btn-mc-primary"><i class="fas fa-burger"></i> Ver Cardápio</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTEÚDO FAQ -->
+    <main class="faq-page-container">
+        <div class="faq-header-box">
+            <span class="badge badge-green" style="font-size:0.82rem; text-transform:uppercase; font-weight:700;">Central de Ajuda</span>
+            <h1>Perguntas Frequentes (FAQ)</h1>
+            <p>Encontre respostas rápidas sobre pedidos, formas de pagamento, horários e funcionamento da cantina.</p>
+
+            <div class="faq-search-wrapper">
+                <i class="fas fa-search"></i>
+                <input type="text" id="faqSearchInput" class="faq-search-input" placeholder="Buscar por palavra-chave (ex: pix, horário, almoço, pontos)..." oninput="filtrarFaq()">
+            </div>
+        </div>
+
+        <!-- Pílulas de Categoria de Dúvidas -->
+        <div class="faq-category-pills">
+            <button class="faq-pill-btn active" onclick="filtrarCategoriaFaq('todos', this)">⭐ Todas as Perguntas</button>
+            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('horarios', this)">⏰ Horários & Funcionamento</button>
+            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('pagamentos', this)">💳 Pagamentos & PIX</button>
+            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('pedidos', this)">⚡ Pedidos & Retirada</button>
+            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('fidelidade', this)">🎁 Programa de Fidelidade</button>
+            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('almoco', this)">🍽️ Almoço & Prato do Dia</button>
+        </div>
+
+        <!-- Lista Sanfona de Dúvidas -->
+        <div class="faq-list" id="faqList">
+            <!-- Item 1 -->
+            <div class="faq-item active" data-cat="horarios">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>⏰ Qual o horário de atendimento e funcionamento da cantina?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    A cantina do Doutor Paladar funciona nos seguintes horários:<br>
+                    • <strong>Segunda a Sexta-feira:</strong> das 07h00 às 17h30 continuamente.<br>
+                    • <strong>Sábados:</strong> das 08h00 às 12h00.<br>
+                    • <strong>Domingos e Feriados:</strong> Fechado.<br>
+                    Salgados artesanais e cafés são preparados ao longo de todo o expediente.
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="faq-item" data-cat="pagamentos">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>💳 Quais as formas de pagamento aceitas no site e no balcão?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Aceitamos com total segurança:<br>
+                    • <strong>PIX:</strong> Chave e QR Code instantâneo com confirmação imediata.<br>
+                    • <strong>Cartões:</strong> Débito e Crédito (Visa, Mastercard, Elo, etc.).<br>
+                    • <strong>Dinheiro em Espécie:</strong> Pagamento direto no balcão ao retirar.<br>
+                    • <strong>Vendas a Prazo / Conta Corrente:</strong> Para clientes cadastrados e autorizados.
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="faq-item" data-cat="pedidos">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>⚡ Como funciona a retirada sem filas no balcão express?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Você pode acessar o <strong>Cardápio Completo</strong> pelo celular ou computador, escolher seus salgados e bebidas, adicionar ao carrinho e confirmar seu pedido. Ao chegar na cantina, basta se dirigir ao balcão de retirada e informar seu nome para pegar seus itens já separados.
+                </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="faq-item" data-cat="fidelidade">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>⭐ Como funciona o Programa de Fidelidade e Recompensas?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    O cadastro é <strong>100% gratuito</strong>! Ao criar sua conta e fazer login antes de enviar seus pedidos, cada compra acumula pontos automaticamente. Você pode acumular seus pontos para resgatar salgados especiais, sobremesas e bebidas geladas diretamente na cantina.
+                </div>
+            </div>
+
+            <!-- Item 5 -->
+            <div class="faq-item" data-cat="almoco">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>🍽️ Como funciona o agendamento de almoço e prato do dia?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Para garantir que sua refeição esteja reservada e você não fique sem sua opção preferida nos horários de pico, disponibilizamos o menu <strong>Agendar Refeição</strong>. Você escolhe o dia, o horário do seu intervalo e a opção (Executivo, Light ou Tradicional).
+                </div>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="faq-item" data-cat="pedidos">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>🔄 Cometi um erro no pedido ou preciso cancelar, o que fazer?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Como o preparo e a separação dos salgados começam imediatamente, dirija-se imediatamente ao balcão da cantina informando seu nome ou número de pedido para que a equipe realize a troca ou cancelamento.
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA para o Cardápio -->
+        <div class="faq-cta-card">
+            <h3>Ficou com alguma dúvida ou pronto para pedir?</h3>
+            <p>Confira todas as delícias disponíveis agora mesmo no cardápio digital.</p>
+            <a href="cardapio.html" class="btn-mc-primary" style="padding: 13px 28px; font-size: 1rem;">
+                <i class="fas fa-shopping-bag"></i> Ir para o Cardápio Oficial
+            </a>
+        </div>
+    </main>
+
+    <script>
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            item.classList.toggle('active');
+        }
+
+        let categoriaAtivaFaq = 'todos';
+
+        function filtrarCategoriaFaq(cat, btn) {
+            categoriaAtivaFaq = cat;
+            document.querySelectorAll('.faq-pill-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            filtrarFaq();
+        }
+
+        function removerAcentos(str) {
+            return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+        }
+
+        function filtrarFaq() {
+            const termo = removerAcentos(document.getElementById('faqSearchInput').value.trim());
+            const items = document.querySelectorAll('.faq-item');
+
+            items.forEach(item => {
+                const cat = item.getAttribute('data-cat');
+                const texto = removerAcentos(item.textContent);
+
+                const matchCat = (categoriaAtivaFaq === 'todos' || cat === categoriaAtivaFaq);
+                const matchTermo = !termo || texto.includes(termo);
+
+                if (matchCat && matchTermo) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

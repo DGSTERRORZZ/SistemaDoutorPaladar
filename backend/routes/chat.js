@@ -28,7 +28,6 @@ router.get('/minhas-mensagens', async (req, res) => {
 // GET /api/chat/conversas - painel do admin: listar todas as conversas/clientes com mensagens não lidas
 router.get('/conversas', async (req, res) => {
   try {
-    // Buscar todos os clientes_app que possuem mensagens ou que estejam cadastrados
     const clientesComMensagens = await query(`
       SELECT 
         c.id as clienteId,
@@ -68,7 +67,7 @@ router.get('/conversa/:conversaId', async (req, res) => {
   }
 });
 
-// POST /api/chat/enviar - cliente ou admin envia mensagem
+// POST /api/chat/enviar - cliente ou admin envia mensagem real (100% humano)
 router.post('/enviar', async (req, res) => {
   const { mensagem, autor_id, autor_nome, autor_tipo, conversaId } = req.body;
   
@@ -120,7 +119,7 @@ router.post('/enviar', async (req, res) => {
 // PUT /api/chat/marcar-lidas/:conversaId
 router.put('/marcar-lidas/:conversaId', async (req, res) => {
   try {
-    const { autor_tipo } = req.body; // se admin chamou, marca as do cliente como lidas; se cliente chamou, marca as do admin
+    const { autor_tipo } = req.body;
     const tipoParaMarcar = autor_tipo === 'admin' ? 'cliente' : 'admin';
     await execute('UPDATE chat_mensagens SET lida = 1 WHERE conversaId = ? AND autor_tipo = ?', [req.params.conversaId, tipoParaMarcar]);
     res.json({ sucesso: true });

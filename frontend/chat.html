@@ -27,7 +27,7 @@
 
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
 
-        /* Container Principal do Chat (WhatsApp Web Style) */
+        /* Container Principal do Chat */
         .chat-app { display: flex; height: 100vh; width: 100vw; background: var(--card); }
 
         /* Painel Lateral Esquerdo (Lista de Conversas para Admin) */
@@ -106,44 +106,70 @@
         }
         .btn-send:hover { transform: scale(1.05); }
 
-        /* Login Wall para Visitantes (Item 13) */
+        /* Login Wall para Usuários Não Autenticados */
         .login-wall {
-            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            position: fixed; inset: 0; background: rgba(15, 23, 42, 0.85); backdrop-filter: blur(8px);
             z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 2rem;
         }
         .wall-card {
-            background: var(--card); border-radius: 24px; padding: 2.5rem; max-width: 440px; text-align: center;
+            background: #ffffff; border-radius: 24px; padding: 2.5rem; max-width: 420px; width: 100%; text-align: center;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
     </style>
 </head>
 <body>
 
-    <!-- Login Wall se não autenticado -->
+    <!-- BLOQUEIO PARA QUEM NÃO ESTÁ LOGADO (EXCLUSIVO CLIENTES CADASTRADOS & GESTOR) -->
     <div class="login-wall" id="loginWall" style="display:none;">
         <div class="wall-card">
-            <div style="font-size:3.5rem;color:var(--primary);margin-bottom:1rem;"><i class="fas fa-lock"></i></div>
-            <h2 style="color:var(--primary);margin-bottom:0.5rem;">Acesso Restrito ao Chat</h2>
-            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
-                O atendimento via chat é exclusivo para usuários cadastrados no sistema. Faça login para continuar.
+            <div style="width: 60px; height: 60px; background: #f0faf4; color: #2d7d52; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; margin-bottom: 1.2rem;">
+                <i class="fas fa-comments"></i>
+            </div>
+            <h2 style="color: #1e293b; font-size: 1.35rem; margin-bottom: 0.5rem; font-weight: 800;">Atendimento Exclusivo</h2>
+            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                O chat é um canal direto e seguro vinculado à sua conta no <strong>Doutor Paladar</strong>. Faça login com seu usuário para conversar com o atendente.
             </p>
-            <a href="index.html" style="display:inline-block;padding:12px 28px;border-radius:30px;background:var(--primary);color:white;font-weight:700;text-decoration:none;">
-                <i class="fas fa-sign-in-alt"></i> Fazer Login ou Criar Conta
-            </a>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button onclick="abrirLoginRapido()" style="width: 100%; padding: 13px; border-radius: var(--radius-full); background: #2d7d52; color: #ffffff; font-weight: 700; border: none; cursor: pointer; font-size: 0.92rem;">
+                    <i class="fas fa-sign-in-alt"></i> Entrar na Minha Conta
+                </button>
+                <a href="index.html" style="font-size: 0.85rem; color: #64748b; margin-top: 0.5rem; text-decoration: none;">
+                    ← Voltar para a Página Inicial
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE LOGIN EMBUTIDO NO CHAT -->
+    <div id="modalChatLogin" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:2100; align-items:center; justify-content:center;">
+        <div style="background:#ffffff; border-radius:20px; padding:2rem; max-width:380px; width:90%; position:relative;">
+            <button onclick="document.getElementById('modalChatLogin').style.display='none'" style="position:absolute; right:16px; top:16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h3 style="color:#1b4332; font-size:1.2rem; font-weight:800; text-align:center; margin-bottom:1rem;">Entrar no Chat</h3>
+            <div class="form-group" style="margin-bottom:12px;">
+                <label class="form-label" style="font-size:0.85rem; font-weight:700;">Usuário ou Telefone</label>
+                <input type="text" id="chatLoginUser" class="form-control" placeholder="Seu usuário" style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1;">
+            </div>
+            <div class="form-group" style="margin-bottom:14px;">
+                <label class="form-label" style="font-size:0.85rem; font-weight:700;">Senha</label>
+                <input type="password" id="chatLoginPass" class="form-control" placeholder="Sua senha" style="width:100%; padding:10px; border-radius:8px; border:1px solid #cbd5e1;">
+            </div>
+            <button onclick="efetuarLoginChat()" style="width:100%; padding:12px; background:#2d7d52; color:#fff; font-weight:700; border:none; border-radius:8px; cursor:pointer;">Entrar</button>
+            <div id="chatLoginErr" style="color:#ef4444; font-size:0.82rem; margin-top:8px; text-align:center; display:none;"></div>
         </div>
     </div>
 
     <div class="chat-app">
-        <!-- Sidebar: Somente Visível para Admin (Item 15) -->
-        <div class="chat-sidebar" id="chatSidebar">
+        <!-- Sidebar: Somente Visível para o Gestor / Admin -->
+        <div class="chat-sidebar" id="chatSidebar" style="display:none;">
             <div class="sidebar-header-chat">
                 <div style="display:flex;align-items:center;gap:10px;">
                     <a href="admin.html" style="color:white;text-decoration:none;"><i class="fas fa-arrow-left"></i> Painel</a>
-                    <h3 style="font-size:1.1rem;"><i class="fas fa-comments"></i> Conversas</h3>
+                    <h3 style="font-size:1.1rem;"><i class="fas fa-comments"></i> Clientes</h3>
                 </div>
             </div>
             
             <div style="padding:0.8rem;border-bottom:1px solid var(--border);">
-                <input type="text" id="buscaConversas" placeholder="🔍 Buscar cliente..." onkeyup="filtrarConversas()" style="width:100%;padding:8px 12px;border-radius:12px;border:1px solid var(--border);font-size:0.85rem;">
+                <input type="text" id="buscaConversas" placeholder="🔍 Buscar cliente cadastrado..." onkeyup="filtrarConversas()" style="width:100%;padding:8px 12px;border-radius:12px;border:1px solid var(--border);font-size:0.85rem;">
             </div>
 
             <div id="listaConversas" style="flex:1;overflow-y:auto;"></div>
@@ -160,10 +186,11 @@
                         <span style="font-size:0.75rem;color:var(--success);font-weight:700;">🟢 Atendimento Online</span>
                     </div>
                 </div>
+                <div id="userInfoHeader" style="font-size:0.85rem; color:var(--text-muted);"></div>
             </div>
 
             <div class="chat-messages" id="chatMessages">
-                <p style="text-align:center;color:var(--text-muted);margin-top:2rem;">Carregando mensagens...</p>
+                <p style="text-align:center;color:var(--text-muted);margin-top:2rem;">Carregando histórico do banco de dados...</p>
             </div>
 
             <form class="chat-input-bar" onsubmit="enviarMensagem(event)">
@@ -188,14 +215,65 @@
         });
 
         function verificarAutenticacao() {
+            // 1. Se for o Gestor / Admin Logado
             if(sessionStorage.getItem('admin_logado') === 'true') {
                 isAdmin = true;
                 usuarioLogado = { id: 0, nome: sessionStorage.getItem('admin_nome') || 'Gestor', tipo: 'admin' };
                 document.getElementById('chatSidebar').style.display = 'flex';
+                document.getElementById('userInfoHeader').textContent = 'Conectado como Administrador';
                 carregarConversasAdmin();
-            } else {
-                alert('Acesso negado: área exclusiva do administrador.');
-                window.location.href = 'index.html';
+                return;
+            }
+
+            // 2. Se for Cliente Autenticado no Banco de Dados (clientes_app)
+            if(sessionStorage.getItem('cliente_token') && sessionStorage.getItem('cliente_id')) {
+                isAdmin = false;
+                const cId = parseInt(sessionStorage.getItem('cliente_id'));
+                const cNome = sessionStorage.getItem('cliente_nome') || 'Cliente';
+                usuarioLogado = { id: cId, nome: cNome, tipo: 'cliente' };
+                conversaAtivaId = cId;
+                document.getElementById('headerNome').textContent = 'Cantina Doutor Paladar';
+                document.getElementById('headerAvatar').textContent = 'DP';
+                document.getElementById('userInfoHeader').textContent = `Logado: ${cNome}`;
+                carregarMensagensCliente();
+                return;
+            }
+
+            // 3. Se não estiver logado, bloqueia e exibe tela de login
+            document.getElementById('loginWall').style.display = 'flex';
+        }
+
+        function abrirLoginRapido() {
+            document.getElementById('modalChatLogin').style.display = 'flex';
+        }
+
+        async function efetuarLoginChat() {
+            const login = document.getElementById('chatLoginUser').value.trim();
+            const senha = document.getElementById('chatLoginPass').value;
+            const err = document.getElementById('chatLoginErr');
+            if(!login || !senha) { err.textContent = 'Preencha todos os campos'; err.style.display = 'block'; return; }
+
+            try {
+                const res = await fetch(API_URL + '/clientes/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login, senha })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    sessionStorage.setItem('cliente_token', data.token);
+                    sessionStorage.setItem('cliente_nome', data.nome);
+                    sessionStorage.setItem('cliente_id', data.id);
+                    document.getElementById('modalChatLogin').style.display = 'none';
+                    document.getElementById('loginWall').style.display = 'none';
+                    verificarAutenticacao();
+                } else {
+                    err.textContent = data.erro || 'Usuário ou senha inválidos';
+                    err.style.display = 'block';
+                }
+            } catch(e) {
+                err.textContent = 'Erro ao conectar';
+                err.style.display = 'block';
             }
         }
 
@@ -217,6 +295,7 @@
             } catch(e) { console.error('Erro no socket:', e); }
         }
 
+        // CARREGA TODOS OS CONTATOS DE CLIENTES CADASTRADOS NO BANCO
         async function carregarConversasAdmin() {
             try {
                 const res = await fetch(`${API_URL}/chat/conversas`, {
@@ -233,7 +312,7 @@
                     } else if(!conversaAtivaId && conversasLista.length > 0) {
                         selecionarConversa(conversasLista[0].clienteId);
                     } else if(conversasLista.length === 0) {
-                        document.getElementById('headerNome').textContent = 'Atendimento ao Cliente';
+                        document.getElementById('headerNome').textContent = 'Nenhum cliente cadastrado';
                         document.getElementById('headerAvatar').textContent = '💬';
                         renderMensagens([]);
                     }
@@ -241,7 +320,6 @@
                     renderMensagens([]);
                 }
             } catch(e) {
-                console.error('Erro ao carregar conversas admin:', e);
                 renderMensagens([]);
             }
         }
@@ -249,14 +327,14 @@
         function renderListaConversas() {
             const container = document.getElementById('listaConversas');
             if(!conversasLista.length) {
-                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.85rem;">Nenhuma conversa aberta no momento.</p>';
+                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.85rem;">Nenhum cliente cadastrado no banco.</p>';
                 return;
             }
 
             container.innerHTML = conversasLista.map(c => {
                 const active = conversaAtivaId === c.clienteId ? 'active' : '';
                 const unreadBadge = c.naoLidas > 0 ? `<span class="badge-unread">${c.naoLidas}</span>` : '';
-                const ultima = c.ultimaMensagem || 'Conversa iniciada';
+                const ultima = c.ultimaMensagem || 'Iniciar conversa...';
                 const inicial = c.clienteNome ? c.clienteNome.charAt(0).toUpperCase() : 'C';
 
                 return `
@@ -292,10 +370,7 @@
         }
 
         async function carregarMensagensCliente() {
-            if(!usuarioLogado || !usuarioLogado.id) {
-                renderMensagens([]);
-                return;
-            }
+            if(!usuarioLogado || !usuarioLogado.id) return;
             try {
                 const res = await fetch(`${API_URL}/chat/minhas-mensagens?clienteId=${usuarioLogado.id}`);
                 if(res.ok) {
@@ -327,8 +402,8 @@
             const container = document.getElementById('chatMessages');
             if(!mensagens || !mensagens.length) {
                 const msgPlaceholder = isAdmin
-                    ? 'Nenhuma mensagem nesta conversa ainda. Quando o cliente digitar, a mensagem aparecerá aqui.'
-                    : 'Olá! Seja bem-vindo ao Chat do Doutor Paladar. Envie sua mensagem para tirar dúvidas ou fazer solicitações com a cantina!';
+                    ? 'Nenhuma mensagem trocada com este cliente ainda. Digite abaixo para iniciar.'
+                    : 'Olá! Envie sua mensagem para tirar dúvidas ou fazer solicitações diretamente com a cantina!';
 
                 container.innerHTML = `
                     <div style="text-align:center;color:var(--text-muted);margin:3rem auto;max-width:380px;padding:1.5rem;background:var(--card);border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,0.04);">
