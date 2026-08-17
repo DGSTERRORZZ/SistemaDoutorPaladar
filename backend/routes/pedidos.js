@@ -208,6 +208,12 @@ router.put('/:id/status', async (req, res) => {
           'INSERT INTO historico_fidelidade (clienteId, pedidoId, pontos, tipo, descricao, data) VALUES (?, ?, ?, "ganho", ?, ?)',
           [pedido.clienteAppId, pedido.id, pontosGanhos, `Pontos do Pedido #${pedido.id}`, dataAgora]
         );
+
+        const [usrRow] = await conn.execute('SELECT pontosFidelidade FROM clientes_app WHERE id = ?', [pedido.clienteAppId]);
+        if (usrRow.length > 0) {
+          const io = req.app.get('io');
+          if (io) io.emit('fidelidade_atualizada', { clienteId: pedido.clienteAppId, pontos: usrRow[0].pontosFidelidade });
+        }
       }
     }
 
@@ -225,6 +231,12 @@ router.put('/:id/status', async (req, res) => {
           'INSERT INTO historico_fidelidade (clienteId, pedidoId, pontos, tipo, descricao, data) VALUES (?, ?, ?, "estorno", ?, ?)',
           [pedido.clienteAppId, pedido.id, -pontosParaEstornar, `Estorno por cancelamento do Pedido #${pedido.id}`, dataAgora]
         );
+
+        const [usrRow] = await conn.execute('SELECT pontosFidelidade FROM clientes_app WHERE id = ?', [pedido.clienteAppId]);
+        if (usrRow.length > 0) {
+          const io = req.app.get('io');
+          if (io) io.emit('fidelidade_atualizada', { clienteId: pedido.clienteAppId, pontos: usrRow[0].pontosFidelidade });
+        }
       }
     }
 

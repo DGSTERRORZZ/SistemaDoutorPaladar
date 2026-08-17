@@ -1724,7 +1724,8 @@
             const btnAgendar = `<button class="btn-login" style="border-color: var(--primary-light); background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: var(--shadow-glow);" onclick="abrirModalAgendamentoCliente()"><i class="fas fa-calendar-alt"></i> Agendar Refeição</button>`;
             const btnAdmin = `<button class="btn-login" style="border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); padding: 8px 12px;" onclick="abrirModalAdminLogin()" title="Acesso Administrativo"><i class="fas fa-lock"></i></button>`;
             if(clienteLogado) { 
-                userArea.innerHTML = `<div class="user-info">${btnAgendar}<span class="user-name" onclick="abrirPerfil()"><i class="fas fa-user-circle"></i> ${clienteLogado.nome}</span><button class="btn-logout" onclick="logout()">Sair</button>${btnAdmin}</div>`; 
+                const pts = clienteLogado.pontosFidelidade !== undefined ? clienteLogado.pontosFidelidade : parseInt(sessionStorage.getItem('cliente_pontos') || '0', 10);
+                userArea.innerHTML = `<div class="user-info">${btnAgendar}<span class="user-name" onclick="abrirPerfil()" style="cursor:pointer;" title="Clique para ver seu Perfil e Pontos de Fidelidade"><i class="fas fa-user-circle"></i> ${clienteLogado.nome} <span style="background:rgba(245,158,11,0.2);color:#d97706;padding:3px 10px;border-radius:12px;font-size:0.78rem;font-weight:800;margin-left:4px;"><i class="fas fa-medal"></i> ${pts} pts</span></span><button class="btn-logout" onclick="logout()">Sair</button>${btnAdmin}</div>`; 
                 verificarClienteVIP(); 
             } else { 
                 userArea.innerHTML = `${btnAgendar}<button class="btn-login" id="loginBtn" onclick="abrirModalLogin()"><i class="fas fa-user"></i> Entrar</button>${btnAdmin}`; 
@@ -1935,10 +1936,12 @@
                     sessionStorage.setItem('cliente_id', data.id);
                     sessionStorage.setItem('cliente_usuario', data.usuario);
                     sessionStorage.setItem('cliente_telefone', data.telefone);
+                    sessionStorage.setItem('cliente_pontos', data.pontosFidelidade || 0);
                     if(data.turma) sessionStorage.setItem('cliente_turma', data.turma);
                     if(!sessionStorage.getItem('cliente_data')) sessionStorage.setItem('cliente_data', new Date().toISOString().split('T')[0]);
-                    clienteLogado = { token: data.token, nome: data.nome, id: data.id };
+                    clienteLogado = { token: data.token, nome: data.nome, id: data.id, pontosFidelidade: parseInt(data.pontosFidelidade || 0, 10) };
                     fecharModal('modalLogin');
+                    await carregarPontosFidelidadeCliente();
                     atualizarUI();
                     alert(`Bem-vindo, ${data.nome}!`);
                 } else { err.textContent = data.erro || 'Credenciais inválidas'; err.style.display = 'block'; }
@@ -1989,14 +1992,40 @@
         const token = sessionStorage.getItem('cliente_token');
         const nome = sessionStorage.getItem('cliente_nome');
         const id = sessionStorage.getItem('cliente_id');
-        if(token && nome && id) clienteLogado = { token, nome, id: parseInt(id) };
+        const ptsSalvos = sessionStorage.getItem('cliente_pontos');
+        if(token && nome && id) clienteLogado = { token, nome, id: parseInt(id), pontosFidelidade: parseInt(ptsSalvos || '0', 10) };
         
         renderProdutos();
         carregarProdutos();
-        atualizarUI();
+        if(clienteLogado) {
+            carregarPontosFidelidadeCliente().then(() => atualizarUI());
+        } else {
+            atualizarUI();
+        }
         carregarHorarioPico();
         
         let socketCliente = null;
+        if (typeof io !== 'undefined') {
+            try {
+                socketCliente = io('http://localhost:3000');
+                socketCliente.on('nova_mensagem', (msg) => {
+                    if (clienteLogado && (msg.conversaId == clienteLogado.id || msg.autor_id == clienteLogado.id)) {
+                        carregarMensagensClienteModal();
+                    }
+                });
+                socketCliente.on('fidelidade_atualizada', (data) => {
+                    if (clienteLogado && data.clienteId == clienteLogado.id) {
+                        clienteLogado.pontosFidelidade = parseInt(data.pontos || 0, 10);
+                        sessionStorage.setItem('cliente_pontos', clienteLogado.pontosFidelidade);
+                        atualizarUI();
+                        const modalPerfil = document.getElementById('modalPerfil');
+                        if (modalPerfil && modalPerfil.classList.contains('active')) {
+                            renderSelosFidelidade();
+                        }
+                    }
+                });
+            } catch(e) {}
+        }
 
         async function abrirModalChatCliente() {
             if (!clienteLogado) {
