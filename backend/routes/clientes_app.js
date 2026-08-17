@@ -5,22 +5,27 @@ const jwt = require('jsonwebtoken');
 
 async function cadastrar(req, res) {
   const { nome, usuario, telefone, turma, senha } = req.body;
-  if (!nome || !usuario || !telefone || !senha) {
+  const userClean = String(usuario || '').toLowerCase().trim();
+  const telClean = String(telefone || '').replace(/\D/g, '').trim();
+
+  if (!nome || !userClean || !telClean || !senha) {
     return res.status(400).json({ erro: 'Todos os campos são obrigatórios' });
   }
   if (senha.length < 6 || !/[0-9]/.test(senha) || !/[!@#$%^&*(),.?":{}|<>]/.test(senha)) {
     return res.status(400).json({ erro: 'Senha deve ter mínimo 6 caracteres, 1 número e 1 símbolo' });
   }
   try {
-    const usuarioExistente = await query('SELECT id FROM clientes_app WHERE usuario = ?', [usuario]);
-    if (usuarioExistente.length > 0) return res.status(400).json({ erro: 'Usuário já cadastrado' });
-    const telefoneExistente = await query('SELECT id FROM clientes_app WHERE telefone = ?', [telefone]);
+    const usuarioExistente = await query('SELECT id FROM clientes_app WHERE LOWER(usuario) = ?', [userClean]);
+    if (usuarioExistente.length > 0) return res.status(400).json({ erro: 'Nome de usuário já cadastrado' });
+
+    const telefoneExistente = await query('SELECT id FROM clientes_app WHERE REPLACE(REPLACE(REPLACE(REPLACE(telefone, " ", ""), "-", ""), "(", ""), ")", "") = ? OR telefone = ?', [telClean, telClean]);
     if (telefoneExistente.length > 0) return res.status(400).json({ erro: 'Telefone já cadastrado' });
+
     const senha_hash = bcrypt.hashSync(senha, 10);
     const dataCadastro = new Date().toISOString().slice(0, 19).replace('T', ' ');
     await execute(
       'INSERT INTO clientes_app (nome, usuario, telefone, turma, senha_hash, dataCadastro) VALUES (?, ?, ?, ?, ?, ?)',
-      [nome, usuario, telefone, turma || '', senha_hash, dataCadastro]
+      [nome.trim(), userClean, telClean, turma || '', senha_hash, dataCadastro]
     );
     res.status(201).json({ sucesso: true, mensagem: 'Cadastro realizado com sucesso!' });
   } catch (error) {
