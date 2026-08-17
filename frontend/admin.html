@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin · Doutor Paladar</title>
+    <meta name="description" content="Painel de controle e inteligência gerencial do Doutor Paladar">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .pedido-item { padding: 14px 0; border-bottom: 1px solid var(--border); }
+        .pedido-item:last-child { border-bottom: none; }
+        .pedido-acoes { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+        .ranking-item { display: flex; align-items: center; gap: 10px; padding: 7px 0; }
+        .ranking-pos { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); width: 20px; }
+        .ranking-bar-wrap { flex: 1; }
+        .ranking-name { font-size: 0.82rem; font-weight: 600; color: var(--text); }
+        .ranking-qty { font-size: 0.75rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="admin.html" class="sidebar-brand">
+                <div class="brand-icon"><i class="fas fa-utensils"></i></div>
+                <div class="brand-text">
+                    <div class="brand-name">Doutor Paladar</div>
+                    <div class="brand-sub">Painel Admin</div>
+                </div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Principal</div>
+            <a href="admin.html" class="nav-item active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+            <div class="nav-section-title">Gestão</div>
+            <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+            <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos</a>
+            <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+            <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+            <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+            <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+            <div class="nav-section-title">Relatórios & Suporte</div>
+            <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+            <a href="desempenhos.html" class="nav-item"><i class="fas fa-chart-line"></i> Analytics & Desempenho</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-comments"></i> Chat ao Vivo</a>
+            <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                <div style="flex:1;overflow:hidden;">
+                    <div class="user-name" id="adminBadge">Gestor</div>
+                    <div class="user-role">Administrador</div>
+                </div>
+                <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="topbar">
+            <div class="page-title" id="pageTitle"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Dashboard Geral</div>
+            <div class="topbar-right">
+                <button class="btn btn-primary btn-sm" onclick="abrirModalQRMesa()"><i class="fas fa-qrcode"></i> QR Code Mesa</button>
+                <span class="badge-pill badge-green"><i class="fas fa-circle" style="font-size:0.45rem"></i> Servidor Ativo</span>
+                <a href="index.html" class="btn btn-secondary btn-sm"><i class="fas fa-store"></i> Ver Cardápio</a>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <!-- DASHBOARD PRINCIPAL -->
+            <div class="stats-grid" id="dashboardStats"></div>
+            
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-line"></i> Vendas — Últimos 7 Dias</h3>
+                    <canvas id="vendasChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-pie"></i> Vendas por Categoria</h3>
+                    <canvas id="categoriaChart"></canvas>
+                </div>
+            </div>
+
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3><i class="fas fa-trophy"></i> Produtos Mais Vendidos</h3>
+                    <div id="rankingProdutos"></div>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-chart-bar"></i> Formas de Pagamento</h3>
+                    <canvas id="pagamentoChart"></canvas>
+                </div>
+            </div>
+
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:16px;">
+                <div class="card">
+                    <div class="card-header-block">
+                        <div class="card-title"><i class="fas fa-clock"></i> Últimos Pedidos Recebidos</div>
+                        <a href="pedidos-admin.html" class="btn btn-sm btn-outline">Ver Todos</a>
+                    </div>
+                    <div class="card-body" id="ultimosPedidos"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header-block">
+                        <div class="card-title"><i class="fas fa-exclamation-triangle"></i> Alertas de Estoque Crítico</div>
+                        <a href="estoque.html" class="btn btn-sm btn-outline">Repor Estoque</a>
+                    </div>
+                    <div class="card-body" id="estoqueCritico"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script>
+    const API_URL = 'http://localhost:3000/api';
+    let produtos = [], vendas = [], pedidos = [];
+    let chartVendas, chartCategoria, chartPagamento;
+
+    if(!sessionStorage.getItem('admin_logado')) { window.location.href = 'index.html'; }
+    document.getElementById('adminBadge').textContent = sessionStorage.getItem('admin_nome') || 'Gestor';
+
+    async function carregarDados() {
+        try {
+            const token = sessionStorage.getItem('token');
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            const [rProd, rVendas, rPedidos] = await Promise.all([
+                fetch(API_URL+'/produtos', {headers}),
+                fetch(API_URL+'/vendas', {headers}),
+                fetch(API_URL+'/pedidos', {headers})
+            ]);
+            if(rProd.ok) produtos = await rProd.json();
+            if(rVendas.ok) vendas = await rVendas.json();
+            if(rPedidos.ok) pedidos = await rPedidos.json();
+        } catch(e) { console.error('Erro ao carregar dados:', e); }
+    }
+
+    async function carregarDashboard() {
+        await carregarDados();
+        const totalVendas = vendas.reduce((s,v)=>s+(v.total||0),0);
+        const hojeStr = new Date().toISOString().split('T')[0];
+        const vendasHoje = vendas.filter(v=>String(v.data).startsWith(hojeStr)).reduce((s,v)=>s+(v.total||0),0);
+        const estoqueBaixo = produtos.filter(p=>p.estoque<=(p.estoqueMinimo||10)).length;
+
+        document.getElementById('dashboardStats').innerHTML = `
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-value">R$ ${vendasHoje.toFixed(2).replace('.', ',')}</div><div class="stat-label">Vendas Hoje</div></div></div>
+            <div class="stat-card brown"><div class="stat-icon brown"><i class="fas fa-chart-line"></i></div><div><div class="stat-value">R$ ${totalVendas.toFixed(2).replace('.', ',')}</div><div class="stat-label">Total em Vendas</div></div></div>
+            <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-bag"></i></div><div><div class="stat-value">${pedidos.length}</div><div class="stat-label">Total de Pedidos</div></div></div>
+            <div class="stat-card ${estoqueBaixo>0?'danger':''}"><div class="stat-icon ${estoqueBaixo>0?'danger':''}"><i class="fas fa-boxes"></i></div><div><div class="stat-value">${estoqueBaixo}</div><div class="stat-label">Estoque Crítico</div></div></div>
+        `;
+
+        const ult7=[], val7=[];
+        for(let i=6;i>=0;i--){ 
+            const d=new Date(); d.setDate(d.getDate()-i); 
+            const ds=d.toISOString().split('T')[0]; 
+            ult7.push(d.toLocaleDateString('pt-BR',{weekday:'short'}).replace('.','')); 
+            val7.push(vendas.filter(v=>String(v.data).startsWith(ds)).reduce((s,v)=>s+(v.total||0),0)); 
+        }
+
+        if(chartVendas) chartVendas.destroy();
+        chartVendas = new Chart(document.getElementById('vendasChart'),{
+            type:'line',
+            data:{
+                labels:ult7,
+                datasets:[{
+                    label:'Vendas (R$)',
+                    data:val7,
+                    borderColor:'#2d7d52',
+                    backgroundColor:'rgba(45,125,82,0.08)',
+                    fill:true,
+                    tension:0.35,
+                    pointBackgroundColor:'#2d7d52',
+                    pointRadius:4
+                }]
+            },
+            options:{
+                responsive:true,
+                plugins:{legend:{display:false}},
+                scales:{
+                    y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#64748b',font:{size:11}}},
+                    x:{grid:{display:false},ticks:{color:'#64748b',font:{size:11}}}
+                }
+            }
+        });
+
+        const vendasCat={};
+        vendas.forEach(v=>{
+            if(v.itens) v.itens.forEach(i=>{
+                const prod=produtos.find(p=>p.id===i.produtoId);
+                const cat=prod?.categoria||'Outros';
+                vendasCat[cat]=(vendasCat[cat]||0)+(i.precoUnitario||0)*(i.quantidade||0);
+            });
+        });
+
+        if(chartCategoria) chartCategoria.destroy();
+        chartCategoria = new Chart(document.getElementById('categoriaChart'),{
+            type:'doughnut',
+            data:{
+                labels:Object.keys(vendasCat),
+                datasets:[{
+                    data:Object.values(vendasCat),
+                    backgroundColor:['#2d7d52','#52b788','#7b4f2e','#a0714f','#d97706','#2563eb'],
+                    borderWidth:0
+                }]
+            },
+            options:{
+                responsive:true,
+                plugins:{legend:{position:'bottom',labels:{color:'#334155',font:{size:11},padding:12}}},
+                cutout:'65%'
+            }
+        });
+
+        const vendasProd={};
+        vendas.forEach(v=>{
+            if(v.itens) v.itens.forEach(i=>{
+                if(!vendasProd[i.produtoId]) vendasProd[i.produtoId]=0;
+                vendasProd[i.produtoId]+=i.quantidade;
+            });
+        });
+
+        const ranking=Object.entries(vendasProd).map(([id,q])=>({
+            nome:produtos.find(p=>p.id==parseInt(id))?.nome||'Item #'+id,
+            quantidade:q
+        })).sort((a,b)=>b.quantidade-a.quantidade).slice(0,5);
+
+        const maxQ=ranking[0]?.quantidade||1;
+        document.getElementById('rankingProdutos').innerHTML=ranking.length ? ranking.map((r,i)=>`
+            <div class="ranking-item">
+                <div class="ranking-pos">${i+1}°</div>
+                <div class="ranking-bar-wrap">
+                    <div class="ranking-name">${r.nome}</div>
+                    <div class="progress-bar"><div class="progress-fill" style="width:${(r.quantidade/maxQ)*100}%"></div></div>
+                </div>
+                <div class="ranking-qty">${r.quantidade} un.</div>
+            </div>
+        `).join('') : '<p class="text-muted text-sm" style="padding:1rem 0;">Nenhuma venda registrada ainda.</p>';
+
+        const pag={pix:0,dinheiro:0,cartao:0,fiado:0};
+        vendas.forEach(v=>{
+            const f=(v.formaPagamento||'dinheiro').toLowerCase();
+            if(f.includes('pix')) pag.pix+=v.total;
+            else if(f.includes('cartao')||f.includes('cartão')) pag.cartao+=v.total;
+            else if(f.includes('fiado')||f.includes('conta')) pag.fiado+=v.total;
+            else pag.dinheiro+=v.total;
+        });
+
+        if(chartPagamento) chartPagamento.destroy();
+        chartPagamento = new Chart(document.getElementById('pagamentoChart'),{
+            type:'bar',
+            data:{
+                labels:['PIX','Dinheiro','Cartão','Conta'],
+                datasets:[{
+                    label:'Valor (R$)',
+                    data:[pag.pix,pag.dinheiro,pag.cartao,pag.fiado],
+                    backgroundColor:['#10b981','#2d7d52','#3b82f6','#d97706'],
+                    borderRadius:6
+                }]
+            },
+            options:{
+                responsive:true,
+                plugins:{legend:{display:false}},
+                scales:{
+                    y:{beginAtZero:true,grid:{color:'rgba(0,0,0,0.04)'},ticks:{color:'#64748b',font:{size:11}}},
+                    x:{grid:{display:false},ticks:{color:'#64748b',font:{size:11}}}
+                }
+            }
+        });
+
+        document.getElementById('ultimosPedidos').innerHTML=(pedidos||[]).slice(0,5).map(p=>`
+            <div class="pedido-item">
+                <div style="display:flex;justify-content:space-between;align-items:start">
+                    <div>
+                        <div style="font-weight:700;font-size:0.88rem">#${p.id} — ${p.nomeCliente}</div>
+                        <div class="text-muted text-xs" style="margin-top:2px">${new Date(p.data).toLocaleString('pt-BR')} · <strong>R$ ${(p.total||0).toFixed(2).replace('.', ',')}</strong></div>
+                    </div>
+                    <span class="badge badge-${p.status==='pendente'?'warning':'success'}">${p.status?.toUpperCase()}</span>
+                </div>
+            </div>
+        `).join('') || '<p class="text-muted text-sm" style="padding:1rem 0;">Nenhum pedido recente</p>';
+
+        const baixo=produtos.filter(p=>p.estoque<=(p.estoqueMinimo||10));
+        document.getElementById('estoqueCritico').innerHTML=baixo.length ? baixo.slice(0,5).map(p=>`
+            <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border)">
+                <span style="font-size:0.85rem; font-weight:600;">${p.nome}</span>
+                <span class="badge badge-danger">${p.estoque} unidades</span>
+            </div>
+        `).join('') : '<p class="text-muted text-sm" style="padding:1rem 0; color:var(--primary); font-weight:600;"><i class="fas fa-check-circle"></i> Todos os níveis de estoque estão normais.</p>';
+    }
+
+    function abrirModalQRMesa() {
+        let modal = document.getElementById('modalQRMesa');
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'modalQRMesa';
+            modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px);';
+            modal.innerHTML = `
+                <div style="background:var(--bg-card,#fff); border-radius:16px; padding:24px; max-width:420px; width:90%; text-align:center; position:relative; box-shadow:var(--shadow-xl); border:1px solid var(--border);">
+                    <button onclick="document.getElementById('modalQRMesa').style.display='none'" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted);">&times;</button>
+                    <h3 style="color:var(--primary); margin-bottom:0.5rem;"><i class="fas fa-qrcode"></i> QR Code para Mesas</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Gere e imprima placas de mesa com acesso direto ao cardápio.</p>
+                    <input type="text" id="qrMesaInput" placeholder="Ex: Mesa 01" value="Mesa 01" class="form-control" style="margin-bottom:1rem; text-align:center; font-weight:700;">
+                    <div id="qrMesaPreview" style="background:var(--gray-50); padding:1rem; border-radius:16px; margin-bottom:1rem; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                        <img id="qrMesaImg" src="" style="width:190px; height:190px; border-radius:12px;" alt="QR Code Mesa">
+                        <div id="qrMesaLink" style="font-size:0.75rem; color:var(--text-muted); margin-top:8px; word-break:break-all;"></div>
+                    </div>
+                    <button onclick="gerarQRMesa()" class="btn btn-primary" style="width:100%; margin-bottom:8px;"><i class="fas fa-sync"></i> Gerar Novo QR Code</button>
+                    <button onclick="imprimirQRMesa()" class="btn btn-secondary" style="width:100%;"><i class="fas fa-print"></i> Imprimir Placa</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        modal.style.display = 'flex';
+        gerarQRMesa();
+    }
+
+    function gerarQRMesa() {
+        const mesa = document.getElementById('qrMesaInput')?.value?.trim() || 'Mesa 01';
+        const numMesa = mesa.replace(/\D/g, '') || '01';
+        const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+        const targetUrl = `${baseUrl}?mesa=${encodeURIComponent(numMesa)}`;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(targetUrl)}`;
+        const img = document.getElementById('qrMesaImg');
+        const linkText = document.getElementById('qrMesaLink');
+        if(img) img.src = qrUrl;
+        if(linkText) linkText.textContent = targetUrl;
+    }
+
+    function imprimirQRMesa() {
+        const mesa = document.getElementById('qrMesaInput')?.value?.trim() || 'Mesa 01';
+        const imgUrl = document.getElementById('qrMesaImg')?.src;
+        const win = window.open('', '', 'width=600,height=700');
+        win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>QR Code - ${mesa} · Doutor Paladar</title>
+                <style>
+                    body { font-family: 'Plus Jakarta Sans', sans-serif; text-align: center; padding: 40px; }
+                    .card { border: 3px solid #2d7d52; border-radius: 20px; padding: 40px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.08); }
+                    h1 { color: #2d7d52; margin-bottom: 5px; font-size: 1.8rem; }
+                    p { color: #555; font-size: 1rem; margin-bottom: 20px; }
+                    img { width: 240px; height: 240px; border-radius: 12px; margin-bottom: 20px; }
+                    .footer { font-weight: bold; color: #2d7d52; font-size: 1.1rem; }
+                </style>
+            </head>
+            <body>
+                <div class="card">
+                    <h1>DOUTOR PALADAR</h1>
+                    <p>Escaneie para fazer seu pedido na <strong>${mesa}</strong></p>
+                    <img src="${imgUrl}">
+                    <div class="footer">📍 ${mesa.toUpperCase()}</div>
+                </div>
+            </body>
+            </html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => win.print(), 500);
+    }
+
+    carregarDashboard();
+</script>
+</body>
+</html>

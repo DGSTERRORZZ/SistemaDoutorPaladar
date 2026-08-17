@@ -1,0 +1,794 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fila de Pedidos · Doutor Paladar</title>
+    <meta name="description" content="Central operacional de gestão de pedidos do Doutor Paladar">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); }
+
+        /* Abas Principais (Em Andamento vs Concluídos) */
+        .main-tabs-container {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 0.8rem;
+            margin-bottom: 1.2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.03);
+        }
+
+        .main-tabs {
+            display: flex;
+            gap: 8px;
+        }
+
+        .tab-main-btn {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            color: var(--text-muted);
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .tab-main-btn:hover { background: var(--border); color: var(--text); }
+        .tab-main-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 10px rgba(45, 125, 82, 0.25);
+        }
+
+        .tab-count-badge {
+            background: rgba(0,0,0,0.15);
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        /* Barra de Pesquisa e Filtros Rápidos */
+        .search-toolbar {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 1.2rem;
+        }
+
+        .search-input-wrap {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+
+        .search-input-wrap input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: var(--card);
+            color: var(--text);
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        .search-input-wrap input:focus { border-color: var(--primary); }
+
+        .search-input-wrap i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+        }
+
+        .filter-select {
+            background: var(--card);
+            border: 1px solid var(--border);
+            color: var(--text);
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            outline: none;
+        }
+
+        /* Fila de Pedidos */
+        .pedidos-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+        }
+
+        .pedido-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 1.2rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.03);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .pedido-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.06); }
+
+        .pedido-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 0.8rem;
+            padding-bottom: 0.6rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .pedido-id { font-size: 1.15rem; font-weight: 800; color: var(--text); }
+        .pedido-hora { font-size: 0.78rem; color: var(--text-muted); margin-top: 2px; }
+
+        .badge-status {
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 4px 10px;
+            border-radius: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .st-pendente { background: rgba(245, 158, 11, 0.15); color: #d97706; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .st-confirmado { background: rgba(59, 130, 246, 0.15); color: #2563eb; border: 1px solid rgba(59, 130, 246, 0.3); }
+        .st-preparando { background: rgba(139, 92, 246, 0.15); color: #7c3aed; border: 1px solid rgba(139, 92, 246, 0.3); }
+        .st-pronto { background: rgba(16, 185, 129, 0.15); color: #059669; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .st-entregue { background: rgba(45, 125, 82, 0.15); color: #2d7d52; border: 1px solid rgba(45, 125, 82, 0.3); }
+        .st-cancelado { background: rgba(239, 68, 68, 0.15); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.3); }
+
+        .cliente-block { margin-bottom: 0.8rem; }
+        .cliente-nome { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 6px; }
+        .cliente-tag { font-size: 0.7rem; font-weight: 600; padding: 2px 6px; border-radius: 6px; }
+        .tag-cadastrado { background: rgba(45,125,82,0.1); color: var(--primary); }
+        .tag-visitante { background: rgba(107,114,128,0.1); color: var(--text-muted); }
+
+        .detalhe-linha { font-size: 0.8rem; color: var(--text-muted); margin-top: 2px; }
+
+        .itens-box {
+            background: var(--bg);
+            border-radius: 10px;
+            padding: 8px 12px;
+            margin-bottom: 0.8rem;
+            max-height: 120px;
+            overflow-y: auto;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            margin-bottom: 3px;
+        }
+
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 0.6rem;
+            border-top: 1px dashed var(--border);
+            margin-top: 0.6rem;
+        }
+
+        .total-valor { font-size: 1.15rem; font-weight: 800; color: var(--primary); }
+
+        .actions-row {
+            display: flex;
+            gap: 6px;
+            margin-top: 0.8rem;
+        }
+
+        .btn-card-action {
+            flex: 1;
+            padding: 9px 10px;
+            border-radius: 10px;
+            border: none;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+        }
+
+        .btn-card-action:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+        .btn-aceitar { background: var(--primary); color: white; }
+        .btn-preparar { background: #7c3aed; color: white; }
+        .btn-pronto { background: #059669; color: white; }
+        .btn-entregue { background: var(--primary-dark); color: white; }
+        .btn-recusar { background: rgba(239, 68, 68, 0.1); color: #dc2626; border: 1px solid #dc2626; }
+        .btn-detalhes { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+
+        /* Modal de Detalhes */
+        .modal {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.6); display: none; align-items: center; justify-content: center;
+            z-index: 1000; padding: 1rem;
+        }
+        .modal.active { display: flex; }
+        .modal-body {
+            background: var(--card); border-radius: 16px; width: 100%; max-width: 520px;
+            max-height: 90vh; overflow-y: auto; padding: 1.5rem; border: 1px solid var(--border);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .state-box {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 3.5rem 1rem;
+            background: var(--card);
+            border-radius: 16px;
+            border: 2px dashed var(--border);
+            color: var(--text-muted);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Trava de Permissão Administrativa -->
+    <script>
+        if (sessionStorage.getItem('admin_logado') !== 'true') {
+            alert('Acesso restrito a Administradores.');
+            window.location.href = 'index.html';
+        }
+    </script>
+
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="admin.html" class="sidebar-brand">
+                    <div class="brand-icon"><i class="fas fa-utensils"></i></div>
+                    <div class="brand-text">
+                        <div class="brand-name">Doutor Paladar</div>
+                        <div class="brand-sub">Painel Admin</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item active"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
+                <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Relatórios & Suporte</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="desempenhos.html" class="nav-item"><i class="fas fa-chart-line"></i> Analytics & Desempenho</a>
+                <a href="chat.html" class="nav-item"><i class="fas fa-comments"></i> Chat ao Vivo</a>
+                <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div style="flex:1;overflow:hidden">
+                        <div class="user-name">Gestor</div>
+                        <div class="user-role">Administrador</div>
+                    </div>
+                    <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT OPERACIONAL -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="flex items-center gap-2">
+                    <div class="page-title"><i class="fas fa-clipboard-list" style="color:var(--primary)"></i> Fila de Pedidos</div>
+                </div>
+                <div class="topbar-right" style="display:flex;gap:10px;align-items:center;">
+                    <button class="btn btn-outline btn-sm" onclick="carregarPedidos()"><i class="fas fa-sync" id="btnSync"></i> Atualizar Fila</button>
+                    <a href="desempenhos.html?tab=pedidos" class="btn btn-secondary btn-sm" title="Ir para Relatórios e Analytics"><i class="fas fa-chart-line"></i> Ver Desempenho</a>
+                </div>
+            </header>
+
+            <div class="page-content" style="padding:1.2rem;">
+
+                <!-- ABAS PRINCIPAIS: EM ANDAMENTO VS CONCLUÍDOS -->
+                <div class="main-tabs-container">
+                    <div class="main-tabs">
+                        <button class="tab-main-btn active" id="tabMainAndamento" onclick="alternarAbaPrincipal('andamento')">
+                            <i class="fas fa-clock"></i> Em Andamento <span class="tab-count-badge" id="countAndamento">0</span>
+                        </button>
+                        <button class="tab-main-btn" id="tabMainConcluidos" onclick="alternarAbaPrincipal('concluidos')">
+                            <i class="fas fa-check-circle"></i> Concluídos <span class="tab-count-badge" id="countConcluidos">0</span>
+                        </button>
+                    </div>
+
+                    <!-- Subfiltro rápido para Em Andamento -->
+                    <div id="subfiltroStatusContainer" style="display:flex;gap:6px;">
+                        <button class="filter-chip active" style="font-size:0.78rem;padding:4px 10px;" onclick="setSubFiltroStatus('todos', this)">Todos</button>
+                        <button class="filter-chip" style="font-size:0.78rem;padding:4px 10px;" onclick="setSubFiltroStatus('pendente', this)">🟡 Pendentes</button>
+                        <button class="filter-chip" style="font-size:0.78rem;padding:4px 10px;" onclick="setSubFiltroStatus('preparando', this)">🔵 Preparando</button>
+                        <button class="filter-chip" style="font-size:0.78rem;padding:4px 10px;" onclick="setSubFiltroStatus('pronto', this)">🟠 Prontos</button>
+                    </div>
+                </div>
+
+                <!-- BARRA DE BUSCA OPERACIONAL -->
+                <div class="search-toolbar">
+                    <div class="search-input-wrap">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="inputBusca" placeholder="Pesquisar pedido por número (#), cliente, mesa ou item..." onkeyup="filtrarLocal()">
+                    </div>
+
+                    <select class="filter-select" id="selectPeriodo" onchange="carregarPedidos()">
+                        <option value="hoje" selected>Pedidos de Hoje</option>
+                        <option value="ontem">Ontem</option>
+                        <option value="7d">Últimos 7 dias</option>
+                        <option value="todos">Todos os Períodos</option>
+                    </select>
+                </div>
+
+                <!-- CONTAINER DE CARDS DA FILA -->
+                <div class="pedidos-grid" id="containerPedidos">
+                    <div class="state-box">
+                        <i class="fas fa-spinner fa-spin" style="font-size:2rem;margin-bottom:0.5rem;color:var(--primary);"></i>
+                        <p>Consultando fila de pedidos no servidor...</p>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- MODAL DE DETALHES DO PEDIDO -->
+    <div class="modal" id="modalDetalhesPedido">
+        <div class="modal-body">
+            <div style="display:flex;justify-content:space-between;align-items:center;padding-bottom:0.8rem;border-bottom:1px solid var(--border);">
+                <div>
+                    <h3 id="mdlPedidoId" style="font-size:1.2rem;font-weight:800;color:var(--text);">Pedido #0</h3>
+                    <span id="mdlStatusBadge" class="badge-status st-pendente">Pendente</span>
+                </div>
+                <button onclick="fecharModal('modalDetalhesPedido')" style="background:none;border:none;font-size:1.4rem;color:var(--text-muted);cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="padding:1rem 0;display:flex;flex-direction:column;gap:10px;">
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;font-size:0.85rem;background:var(--bg);padding:10px;border-radius:10px;">
+                    <div><strong>Cliente:</strong> <span id="mdlClienteNome">-</span></div>
+                    <div><strong>Tipo:</strong> <span id="mdlClienteTipo">-</span></div>
+                    <div><strong>Local/Mesa:</strong> <span id="mdlMesa">-</span></div>
+                    <div><strong>Horário:</strong> <span id="mdlHorario">-</span></div>
+                    <div><strong>Pagamento:</strong> <span id="mdlPagamento">-</span></div>
+                    <div><strong>Data/Hora:</strong> <span id="mdlData">-</span></div>
+                </div>
+
+                <div style="margin-top:6px;">
+                    <h4 style="font-size:0.9rem;font-weight:700;margin-bottom:6px;">Itens do Pedido:</h4>
+                    <table style="width:100%;border-collapse:collapse;font-size:0.85rem;">
+                        <thead>
+                            <tr style="border-bottom:1px solid var(--border);text-align:left;color:var(--text-muted);">
+                                <th style="padding:4px 0;">Item</th>
+                                <th style="padding:4px 0;text-align:center;">Qtd</th>
+                                <th style="padding:4px 0;text-align:right;">Preço</th>
+                                <th style="padding:4px 0;text-align:right;">Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody id="mdlTabelaItens"></tbody>
+                    </table>
+                </div>
+
+                <div id="mdlObsBox" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.3);padding:8px 12px;border-radius:8px;font-size:0.85rem;color:var(--text);display:none;">
+                    <strong>Observação:</strong> <span id="mdlObsText"></span>
+                </div>
+
+                <div style="display:flex;justify-content:space-between;align-items:center;padding-top:8px;border-top:1px dashed var(--border);font-size:1.1rem;font-weight:800;">
+                    <span>Total:</span>
+                    <span style="color:var(--primary);" id="mdlTotal">R$ 0,00</span>
+                </div>
+
+                <div id="mdlAuditoriaBox" style="font-size:0.75rem;color:var(--text-muted);background:var(--bg);padding:8px;border-radius:8px;max-height:80px;overflow-y:auto;margin-top:6px;">
+                    <strong>Auditoria de Status:</strong>
+                    <div id="mdlAuditoriaLog">Sem alterações registradas.</div>
+                </div>
+            </div>
+
+            <div style="display:flex;gap:10px;padding-top:0.8rem;border-top:1px solid var(--border);">
+                <button class="btn btn-outline" style="flex:1;" onclick="imprimirComprovante()"><i class="fas fa-print"></i> Imprimir Comprovante</button>
+                <button class="btn btn-secondary" onclick="fecharModal('modalDetalhesPedido')">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT DA FILA DE PEDIDOS OPERACIONAL -->
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let pedidosCache = [];
+        let abaAtiva = 'andamento'; // 'andamento' | 'concluidos'
+        let subFiltroStatus = 'todos';
+        let pedidoDetalhadoAtual = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarPedidos();
+            iniciarSocket();
+        });
+
+        // Buscar Pedidos REAIS do Banco MySQL (Sem dados fictícios ou mocks)
+        async function carregarPedidos() {
+            const container = document.getElementById('containerPedidos');
+            const btnSync = document.getElementById('btnSync');
+            if(btnSync) btnSync.classList.add('fa-spin');
+
+            const periodo = document.getElementById('selectPeriodo').value;
+
+            try {
+                const res = await fetch(`${API_URL}/pedidos?periodo=${periodo}`);
+                if (!res.ok) throw new Error('Falha ao buscar fila de pedidos do servidor');
+                
+                pedidosCache = await res.json();
+                atualizarContadoresAbas();
+                renderizarFilaPedidos();
+            } catch (error) {
+                console.error('Erro ao carregar pedidos:', error);
+                container.innerHTML = `
+                    <div class="state-box" style="border-color:var(--danger);">
+                        <i class="fas fa-exclamation-triangle" style="font-size:2rem;color:var(--danger);margin-bottom:0.5rem;"></i>
+                        <h3 style="color:var(--danger);margin-bottom:4px;">Erro ao carregar os pedidos</h3>
+                        <p style="font-size:0.85rem;">Não foi possível se conectar ao servidor real.</p>
+                        <button class="btn btn-outline btn-sm" onclick="carregarPedidos()" style="margin-top:10px;"><i class="fas fa-redo"></i> Tentar novamente</button>
+                    </div>`;
+            } finally {
+                if(btnSync) setTimeout(() => btnSync.classList.remove('fa-spin'), 400);
+            }
+        }
+
+        // Atualizar Contadores em Tempo Real
+        function atualizarContadoresAbas() {
+            const emAndamentoCount = pedidosCache.filter(p => p.status !== 'entregue' && p.status !== 'cancelado' && p.status !== 'recusado').length;
+            const concluidosCount = pedidosCache.filter(p => p.status === 'entregue' || p.status === 'cancelado' || p.status === 'recusado').length;
+
+            document.getElementById('countAndamento').textContent = emAndamentoCount;
+            document.getElementById('countConcluidos').textContent = concluidosCount;
+        }
+
+        // Alternar entre Abas "Em Andamento" e "Concluídos"
+        function alternarAbaPrincipal(aba) {
+            abaAtiva = aba;
+            document.getElementById('tabMainAndamento').classList.toggle('active', aba === 'andamento');
+            document.getElementById('tabMainConcluidos').classList.toggle('active', aba === 'concluidos');
+            
+            const subfiltroBox = document.getElementById('subfiltroStatusContainer');
+            if (subfiltroBox) subfiltroBox.style.display = (aba === 'andamento') ? 'flex' : 'none';
+
+            renderizarFilaPedidos();
+        }
+
+        function setSubFiltroStatus(st, el) {
+            subFiltroStatus = st;
+            if (el) {
+                document.querySelectorAll('#subfiltroStatusContainer .filter-chip').forEach(c => c.classList.remove('active'));
+                el.classList.add('active');
+            }
+            renderizarFilaPedidos();
+        }
+
+        // Renderizar Cards de Pedidos na Fila Operacional
+        function renderizarFilaPedidos() {
+            const container = document.getElementById('containerPedidos');
+            const busca = document.getElementById('inputBusca').value.toLowerCase().trim();
+
+            let filtrados = pedidosCache.filter(p => {
+                // Separador Estrito por Aba Principal
+                const isConcluido = (p.status === 'entregue' || p.status === 'cancelado' || p.status === 'recusado');
+                if (abaAtiva === 'andamento' && isConcluido) return false;
+                if (abaAtiva === 'concluidos' && !isConcluido) return false;
+
+                // Subfiltro para Em Andamento
+                if (abaAtiva === 'andamento' && subFiltroStatus !== 'todos') {
+                    if (subFiltroStatus === 'pendente' && p.status !== 'pendente') return false;
+                    if (subFiltroStatus === 'preparando' && (p.status !== 'preparando' && p.status !== 'confirmado')) return false;
+                    if (subFiltroStatus === 'pronto' && p.status !== 'pronto') return false;
+                }
+
+                // Busca Local por Texto
+                if (busca) {
+                    const matchId = String(p.id).includes(busca);
+                    const matchCliente = String(p.nomeCliente || p.clienteNome || '').toLowerCase().includes(busca);
+                    const matchMesa = String(p.mesa || '').toLowerCase().includes(busca);
+                    const matchItens = Array.isArray(p.itens) && p.itens.some(i => String(i.nome).toLowerCase().includes(busca));
+                    if (!matchId && !matchCliente && !matchMesa && !matchItens) return false;
+                }
+
+                return true;
+            });
+
+            // Estado Vazio (Clean Empty State)
+            if (filtrados.length === 0) {
+                if (abaAtiva === 'andamento') {
+                    container.innerHTML = `
+                        <div class="state-box">
+                            <i class="fas fa-check-circle" style="font-size:2.5rem;color:var(--success);margin-bottom:0.5rem;"></i>
+                            <h3 style="color:var(--text);margin-bottom:4px;">Nenhum pedido pendente</h3>
+                            <p style="font-size:0.85rem;">Todos os pedidos em andamento foram atendidos e entregues com sucesso!</p>
+                        </div>`;
+                } else {
+                    container.innerHTML = `
+                        <div class="state-box">
+                            <i class="fas fa-inbox" style="font-size:2.5rem;color:var(--text-muted);margin-bottom:0.5rem;"></i>
+                            <h3 style="color:var(--text);margin-bottom:4px;">Nenhum pedido concluído</h3>
+                            <p style="font-size:0.85rem;">Os pedidos finalizados aparecerão nesta seção.</p>
+                        </div>`;
+                }
+                return;
+            }
+
+            // Ordenar por ID (Mais recentes no topo em Em Andamento; mais recentes em Concluídos)
+            filtrados.sort((a, b) => b.id - a.id);
+
+            container.innerHTML = filtrados.map(p => {
+                const isCadastrado = Boolean(p.clienteAppId || p.cliente_id);
+                const clienteNome = p.nomeCliente || p.clienteNome || 'Visitante';
+                const horaStr = p.horarioRetirada || (p.data ? new Date(p.data).toLocaleTimeString('pt-BR', {hour:'2-digit', minute:'2-digit'}) : 'Agora');
+                const mesaStr = p.mesa ? `Mesa ${p.mesa}` : (p.turma ? `Turma ${p.turma}` : 'Balcão / Retirada');
+                const totalFormatted = `R$ ${parseFloat(p.total || 0).toFixed(2).replace('.', ',')}`;
+
+                let statusClass = 'st-pendente';
+                let statusLabel = 'Pendente';
+                if (p.status === 'confirmado') { statusClass = 'st-confirmado'; statusLabel = 'Confirmado'; }
+                else if (p.status === 'preparando') { statusClass = 'st-preparando'; statusLabel = 'Em Preparo'; }
+                else if (p.status === 'pronto') { statusClass = 'st-pronto'; statusLabel = 'Pronto'; }
+                else if (p.status === 'entregue') { statusClass = 'st-entregue'; statusLabel = 'Entregue'; }
+                else if (p.status === 'cancelado' || p.status === 'recusado') { statusClass = 'st-cancelado'; statusLabel = 'Cancelado'; }
+
+                let itensHtml = '';
+                if (Array.isArray(p.itens) && p.itens.length > 0) {
+                    itensHtml = p.itens.map(i => `
+                        <div class="item-row">
+                            <span>${i.quantidade}x ${i.nome}</span>
+                            <span style="font-weight:600;">R$ ${(parseFloat(i.precoUnitario || i.preco || 0) * i.quantidade).toFixed(2).replace('.',',')}</span>
+                        </div>
+                    `).join('');
+                } else {
+                    itensHtml = `<div class="item-row"><span>Itens do pedido</span><span>-</span></div>`;
+                }
+
+                // Ações da Fila Operacional por Status
+                let acoesHtml = '';
+                if (p.status === 'pendente') {
+                    acoesHtml = `
+                        <button class="btn-card-action btn-aceitar" onclick="alterarStatusPedido(${p.id}, 'preparando')"><i class="fas fa-check"></i> Aceitar</button>
+                        <button class="btn-card-action btn-recusar" onclick="alterarStatusPedido(${p.id}, 'cancelado')"><i class="fas fa-times"></i> Recusar</button>
+                    `;
+                } else if (p.status === 'confirmado') {
+                    acoesHtml = `
+                        <button class="btn-card-action btn-preparar" onclick="alterarStatusPedido(${p.id}, 'preparando')"><i class="fas fa-utensils"></i> Iniciar Preparo</button>
+                    `;
+                } else if (p.status === 'preparando') {
+                    acoesHtml = `
+                        <button class="btn-card-action btn-pronto" onclick="alterarStatusPedido(${p.id}, 'pronto')"><i class="fas fa-box"></i> Marcar Pronto</button>
+                    `;
+                } else if (p.status === 'pronto') {
+                    acoesHtml = `
+                        <button class="btn-card-action btn-entregue" onclick="alterarStatusPedido(${p.id}, 'entregue')"><i class="fas fa-check-circle"></i> Marcar Entregue</button>
+                    `;
+                }
+
+                return `
+                    <div class="pedido-card">
+                        <div>
+                            <div class="pedido-header">
+                                <div>
+                                    <div class="pedido-id">Pedido #${p.id}</div>
+                                    <div class="pedido-hora"><i class="fas fa-clock"></i> ${horaStr}</div>
+                                </div>
+                                <span class="badge-status ${statusClass}">${statusLabel}</span>
+                            </div>
+
+                            <div class="cliente-block">
+                                <div class="cliente-nome">
+                                    <i class="fas fa-user-circle"></i> ${clienteNome}
+                                    <span class="cliente-tag ${isCadastrado ? 'tag-cadastrado' : 'tag-visitante'}">${isCadastrado ? 'Cadastrado' : 'Visitante'}</span>
+                                </div>
+                                <div class="detalhe-linha"><i class="fas fa-map-marker-alt"></i> ${mesaStr}</div>
+                            </div>
+
+                            <div class="itens-box">
+                                ${itensHtml}
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="card-footer">
+                                <span style="font-size:0.8rem;color:var(--text-muted);text-transform:uppercase;">${p.formaPagamento || 'PIX'}</span>
+                                <span class="total-valor">${totalFormatted}</span>
+                            </div>
+
+                            <div class="actions-row">
+                                ${acoesHtml}
+                                <button class="btn-card-action btn-detalhes" onclick="abrirDetalhesModal(${p.id})"><i class="fas fa-eye"></i> Ver</button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Alterar Status do Pedido no Backend MySQL
+        async function alterarStatusPedido(pedidoId, novoStatus) {
+            try {
+                const res = await fetch(`${API_URL}/pedidos/${pedidoId}/status`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: novoStatus, responsavel: 'Gestor' })
+                });
+
+                if (res.ok) {
+                    await carregarPedidos();
+                } else {
+                    const err = await res.json();
+                    alert(err.erro || 'Erro ao atualizar status do pedido');
+                }
+            } catch (error) {
+                console.error('Erro ao atualizar status:', error);
+                alert('Erro de conexão ao atualizar o pedido');
+            }
+        }
+
+        function filtrarLocal() {
+            renderizarFilaPedidos();
+        }
+
+        // Abrir Detalhes em Modal
+        async function abrirDetalhesModal(pedidoId) {
+            const p = pedidosCache.find(x => x.id === pedidoId);
+            if (!p) return;
+
+            pedidoDetalhadoAtual = p;
+            document.getElementById('mdlPedidoId').textContent = `Pedido #${p.id}`;
+            document.getElementById('mdlClienteNome').textContent = p.nomeCliente || p.clienteNome || 'Visitante';
+            document.getElementById('mdlClienteTipo').textContent = (p.clienteAppId || p.cliente_id) ? 'Cliente Cadastrado' : 'Visitante Sem Login';
+            document.getElementById('mdlMesa').textContent = p.mesa ? `Mesa ${p.mesa}` : (p.turma ? `Turma ${p.turma}` : 'Balcão / Retirada');
+            document.getElementById('mdlHorario').textContent = p.horarioRetirada || 'Horário normal';
+            document.getElementById('mdlPagamento').textContent = String(p.formaPagamento || 'pix').toUpperCase();
+            document.getElementById('mdlData').textContent = p.data ? new Date(p.data).toLocaleString('pt-BR') : '-';
+            document.getElementById('mdlTotal').textContent = `R$ ${parseFloat(p.total || 0).toFixed(2).replace('.', ',')}`;
+
+            const tabelaBody = document.getElementById('mdlTabelaItens');
+            if (Array.isArray(p.itens) && p.itens.length > 0) {
+                tabelaBody.innerHTML = p.itens.map(i => {
+                    const unit = parseFloat(i.precoUnitario || i.preco || 0);
+                    const sub = unit * i.quantidade;
+                    return `
+                        <tr style="border-bottom:1px solid var(--border);">
+                            <td style="padding:6px 0;">${i.nome}</td>
+                            <td style="padding:6px 0;text-align:center;">${i.quantidade}</td>
+                            <td style="padding:6px 0;text-align:right;">R$ ${unit.toFixed(2).replace('.',',')}</td>
+                            <td style="padding:6px 0;text-align:right;font-weight:700;">R$ ${sub.toFixed(2).replace('.',',')}</td>
+                        </tr>`;
+                }).join('');
+            } else {
+                tabelaBody.innerHTML = `<tr><td colspan="4" style="text-align:center;padding:10px;color:var(--text-muted);">Informações de itens detalhadas não disponíveis.</td></tr>`;
+            }
+
+            const obsBox = document.getElementById('mdlObsBox');
+            if (p.observacao && p.observacao.trim()) {
+                document.getElementById('mdlObsText').textContent = p.observacao;
+                obsBox.style.display = 'block';
+            } else {
+                obsBox.style.display = 'none';
+            }
+
+            try {
+                const resAudit = await fetch(`${API_URL}/pedidos/${p.id}/historico`);
+                if (resAudit.ok) {
+                    const logs = await resAudit.json();
+                    if (logs.length > 0) {
+                        document.getElementById('mdlAuditoriaLog').innerHTML = logs.map(l => `
+                            <div>⏱️ <strong>${new Date(l.data).toLocaleTimeString('pt-BR')}</strong>: ${l.statusAnterior} → <strong>${l.statusNovo}</strong> (${l.responsavel || 'Sistema'})</div>
+                        `).join('');
+                    } else {
+                        document.getElementById('mdlAuditoriaLog').textContent = 'Sem alterações registradas.';
+                    }
+                }
+            } catch(e) {
+                document.getElementById('mdlAuditoriaLog').textContent = 'Log de auditoria indisponível.';
+            }
+
+            document.getElementById('modalDetalhesPedido').classList.add('active');
+        }
+
+        function fecharModal(id) {
+            document.getElementById(id).classList.remove('active');
+        }
+
+        function imprimirComprovante() {
+            if (!pedidoDetalhadoAtual) return;
+            const p = pedidoDetalhadoAtual;
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html>
+                <head>
+                    <title>Comprovante Pedido #${p.id}</title>
+                    <style>
+                        body { font-family: monospace; padding: 20px; width: 280px; }
+                        h2 { text-align: center; margin-bottom: 5px; }
+                        p { font-size: 12px; margin: 3px 0; }
+                        table { width: 100%; font-size: 12px; border-collapse: collapse; margin-top: 10px; }
+                        th, td { text-align: left; padding: 4px 0; }
+                        .total { font-size: 14px; font-weight: bold; text-align: right; margin-top: 10px; }
+                    </style>
+                </head>
+                <body>
+                    <h2>DOUTOR PALADAR</h2>
+                    <p style="text-align:center;">Comprovante de Pedido</p>
+                    <hr>
+                    <p><strong>Pedido:</strong> #${p.id}</p>
+                    <p><strong>Cliente:</strong> ${p.nomeCliente || 'Visitante'}</p>
+                    <p><strong>Local:</strong> ${p.mesa ? 'Mesa ' + p.mesa : (p.turma || 'Balcão')}</p>
+                    <p><strong>Data:</strong> ${new Date(p.data || Date.now()).toLocaleString('pt-BR')}</p>
+                    <hr>
+                    <table>
+                        <tr><th>Qtd</th><th>Item</th><th style="text-align:right">Sub</th></tr>
+                        ${(p.itens||[]).map(i => `<tr><td>${i.quantidade}x</td><td>${i.nome}</td><td style="text-align:right">R$ ${(i.quantidade * (i.precoUnitario||i.preco||0)).toFixed(2)}</td></tr>`).join('')}
+                    </table>
+                    <hr>
+                    <div class="total">Total: R$ ${parseFloat(p.total||0).toFixed(2)}</div>
+                    <p style="text-align:center;margin-top:20px;">Bom Apetite! 💚</p>
+                    <script>window.print(); setTimeout(() => window.close(), 1000);<\/script>
+                </body>
+                </html>
+            `);
+            win.document.close();
+        }
+
+        // WebSockets em Tempo Real (Socket.IO)
+        function iniciarSocket() {
+            try {
+                if (typeof io !== 'undefined') {
+                    const socket = io('http://localhost:3000');
+                    
+                    socket.on('novo_pedido', (novo) => {
+                        try {
+                            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                            const osc = audioCtx.createOscillator();
+                            osc.connect(audioCtx.destination);
+                            osc.frequency.value = 587.33;
+                            osc.start();
+                            osc.stop(audioCtx.currentTime + 0.3);
+                        } catch(e) {}
+
+                        carregarPedidos();
+                    });
+
+                    socket.on('status_pedido_atualizado', (data) => {
+                        carregarPedidos();
+                    });
+                }
+            } catch(e) {
+                console.error('Erro no Socket.IO:', e);
+            }
+        }
+    </script>
+</body>
+</html>

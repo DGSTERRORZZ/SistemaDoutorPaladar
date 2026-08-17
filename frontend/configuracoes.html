@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: var(--primary);
+            --primary-dark: var(--primary-dark);
+            --primary-light: #e8832a;
+            --bg: var(--primary-dark);
+            --card: var(--bg-card);
+            --text: #f1f5f9;
+            --text-muted: #94a3b8;
+            --border: #334155;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: var(--primary);
+            --shadow-3d: 0 20px 40px rgba(0,0,0,0.4);
+            --shadow-card: 0 8px 20px rgba(0,0,0,0.3);
+            --shadow-glow: 0 0 20px rgba(200,105,26,0.3);
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+        }
+        
+        /* Animações */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        
+        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
+        
+        /* Partículas */
+        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
+        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
+        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
+        
+        /* Topbar */
+        body { font-family: var(--font-sans, 'Inter', sans-serif); }
+        h1, h2, h3, h4, h5, h6, .logo, .page-title, .stat-value { font-family: var(--font-display, 'Playfair Display', serif); letter-spacing: -0.02em; }
+        
+        
+
+        
+        
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+        }
+        
+        .logo span {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            padding: 8px 12px;
+            border-radius: 12px;
+            color: white;
+            box-shadow: var(--shadow-glow);
+        }
+        
+        .btn-back {
+            background: rgba(200, 105, 26, 0.15);
+            border: none;
+            color: var(--primary);
+            padding: 8px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-back:hover { background: var(--primary); color: white; transform: translateY(-2px); }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+            border: none;
+            color: white;
+            padding: 10px 24px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-glow);
+        }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 0 30px rgba(200,105,26,0.5); }
+        
+        .btn-danger {
+            background: linear-gradient(135deg, var(--danger), #dc2626);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 30px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        .btn-danger:hover { transform: translateY(-2px); box-shadow: 0 0 20px rgba(239,68,68,0.4); }
+        
+        .btn-sm { padding: 6px 14px; border-radius: 20px; background: rgba(200,105,26,0.15); border: none; color: var(--primary); cursor: pointer; font-weight: 600; transition: all 0.3s; }
+        .btn-sm:hover { background: var(--primary); color: white; }
+        
+        /* Container */
+        .container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; position: relative; z-index: 1; }
+        
+        /* Grid de Configurações */
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .config-card {
+            background: var(--card);
+            border-radius: 24px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            transition: all 0.3s;
+            border: 1px solid rgba(200, 105, 26, 0.1);
+        }
+        
+        .config-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-3d);
+            border-color: var(--primary);
+        }
+        
+        .config-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.8rem;
+            border-bottom: 2px solid var(--border);
+        }
+        
+        .config-header i { font-size: 1.8rem; color: var(--primary); background: rgba(200, 105, 26, 0.15); padding: 10px; border-radius: 16px; }
+        .config-header h2 { font-size: 1.2rem; font-weight: 700; }
+        
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 600; font-size: 0.85rem; color: var(--text-muted); }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 14px;
+            background: var(--bg);
+            color: var(--text);
+            font-family: inherit;
+            transition: all 0.3s;
+        }
+        .form-group input:focus, .form-group select:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(200,105,26,0.2); }
+        
+        /* Toggle Switch */
+        .toggle-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border);
+        }
+        .toggle-row:last-child { border-bottom: none; }
+        .toggle-label { font-weight: 600; }
+        .toggle-switch { position: relative; width: 52px; height: 28px; display: inline-block; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background: var(--border); border-radius: 28px; transition: 0.3s;
+        }
+        .toggle-slider::before {
+            content: ""; position: absolute; height: 22px; width: 22px;
+            left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s;
+        }
+        input:checked + .toggle-slider { background: var(--primary); }
+        input:checked + .toggle-slider::before { transform: translateX(24px); }
+        
+        /* Backup Actions */
+        .backup-actions { display: flex; gap: 12px; margin-top: 1rem; flex-wrap: wrap; }
+        .backup-actions button { flex: 1; }
+        
+        /* Toast */
+        .toast {
+            position: fixed;
+            bottom: 20px; right: 20px;
+            padding: 12px 20px;
+            border-radius: 12px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            animation: fadeInUp 0.3s ease;
+            box-shadow: var(--shadow-3d);
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        @media (max-width: 768px) {
+            .config-grid { grid-template-columns: 1fr; }
+            .container { padding: 1rem; }
+            .topbar { flex-direction: column; gap: 10px; }
+            .backup-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <div class="particles" id="particles"></div>
+    
+    <div class="admin-layout">
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="admin.html" class="sidebar-brand">
+                    <div class="brand-icon"><i class="fas fa-utensils"></i></div>
+                    <div class="brand-text">
+                        <div class="brand-name">Doutor Paladar</div>
+                        <div class="brand-sub">Painel Admin</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
+                <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Relatórios & Suporte</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="desempenhos.html" class="nav-item"><i class="fas fa-chart-line"></i> Analytics & Desempenho</a>
+                <a href="chat.html" class="nav-item"><i class="fas fa-comments"></i> Chat ao Vivo</a>
+                <a href="configuracoes.html" class="nav-item active"><i class="fas fa-cog"></i> Configurações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div style="flex:1;overflow:hidden"><div class="user-name">Gestor</div><div class="user-role">Administrador</div></div>
+                    <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <div class="main-content">
+            <div class="topbar">
+                <div class="page-title" style="font-size: 1.3rem; font-weight: 700;"><i class="fas fa-cog" style="color: var(--primary);"></i> Configurações do Sistema</div>
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button class="btn-primary" style="background: linear-gradient(135deg, var(--danger), #dc2626);" onclick="logoutAdmin()">Sair</button>
+                </div>
+            </div>
+            
+            <div class="container">
+        <div class="config-grid">
+            <!-- Perfil do Administrador -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-user-shield"></i>
+                    <h2>Perfil do Gestor</h2>
+                </div>
+                <div class="form-group">
+                    <label>Nome do Administrador</label>
+                    <input type="text" id="adminNome" placeholder="Seu nome">
+                </div>
+                <div class="form-group">
+                    <label>E-mail para contato</label>
+                    <input type="email" id="adminEmail" placeholder="admin@doutorpaladar.com">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="salvarPerfil()">
+                    <i class="fas fa-save"></i> Salvar Perfil
+                </button>
+            </div>
+            
+            <!-- Alterar Senha -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-key"></i>
+                    <h2>Segurança</h2>
+                </div>
+                <div class="form-group">
+                    <label>Senha Atual</label>
+                    <input type="password" id="senhaAtual" placeholder="Digite sua senha atual">
+                </div>
+                <div class="form-group">
+                    <label>Nova Senha</label>
+                    <input type="password" id="novaSenha" placeholder="Nova senha (mín. 6 caracteres)">
+                </div>
+                <div class="form-group">
+                    <label>Confirmar Nova Senha</label>
+                    <input type="password" id="confirmarSenha" placeholder="Confirme a nova senha">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="alterarSenha()">
+                    <i class="fas fa-lock"></i> Alterar Senha
+                </button>
+            </div>
+            
+            <!-- Configurações da Cantina -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-store"></i>
+                    <h2>Dados da Cantina</h2>
+                </div>
+                <div class="form-group">
+                    <label>Nome da Cantina</label>
+                    <input type="text" id="nomeCantina" placeholder="Doutor Paladar">
+                <div class="form-group">
+                    <label>Telefone para Contato</label>
+                    <input type="tel" id="telefoneCantina" placeholder="(00) 00000-0000">
+                </div>
+                <button class="btn-primary" style="width: 100%; margin-top: 0.5rem;" onclick="salvarCantina()">
+                    <i class="fas fa-save"></i> Salvar Dados
+                </button>
+            </div>
+
+            <!-- QR Code de Mesa -->
+            <div class="config-card">
+                <div class="config-header">
+                    <i class="fas fa-qrcode"></i>
+                    <h2>QR Code de Mesa</h2>
+                </div>
+                <div class="form-group">
+                    <label>ID da Mesa</label>
+                    <input type="number" id="mesaId" placeholder="Ex: 1">
+                </div>
+                <button class="btn-primary" style="width: 100%;" onclick="gerarQRCode()">
+                    <i class="fas fa-qrcode"></i> Gerar QR Code
+                </button>
+                <div id="qrcodeDisplay" style="text-align: center; margin-top: 1rem;"></div>
+            </div>
+        </div>
+    </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/gh/davidshimjs/qrcodejs/qrcode.min.js"></script>
+    <script>
+        function salvarPerfil() { alert('Perfil salvo com sucesso!'); }
+        function alterarSenha() { alert('Senha alterada com sucesso!'); }
+        function salvarCantina() { alert('Dados da cantina salvos!'); }
+        
+        async function gerarQRCode() {
+            const mesaId = document.getElementById('mesaId').value;
+            if(!mesaId) return alert('Insira o número da mesa');
+            
+            let baseUrl = window.location.origin;
+            try {
+                const res = await fetch('/api/server-info');
+                if(res.ok) {
+                    const info = await res.json();
+                    if(info.ip && info.ip !== 'localhost') {
+                        baseUrl = `http://${info.ip}:${info.port || 3000}`;
+                    }
+                }
+            } catch(e) {}
+
+            const urlMesa = `${baseUrl}/index.html?mesa=${mesaId}`;
+            const display = document.getElementById('qrcodeDisplay');
+            display.innerHTML = `<p style="font-size:0.8rem;color:var(--text-muted);margin-bottom:8px;">URL: <a href="${urlMesa}" target="_blank" style="color:var(--primary);">${urlMesa}</a></p>`;
+            new QRCode(display, {
+                text: urlMesa,
+                width: 160,
+                height: 160
+            });
+        }
+        
+        function logoutAdmin() {
+            sessionStorage.clear();
+            window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>

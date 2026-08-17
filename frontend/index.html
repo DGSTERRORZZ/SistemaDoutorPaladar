@@ -1,0 +1,1724 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Doutor Paladar · Cardápio & Pedidos</title>
+    <meta name="description" content="Faça seu pedido online no Doutor Paladar. Salgados frescos, hambúrgueres artesanais, cafés, bebidas e sobremesas deliciosas.">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        /* ── MC-STYLE GLOBAL & HEADER ── */
+        body {
+            background-color: #f4f4f4;
+            color: #292929;
+        }
+
+        /* Barra Superior / Navbar */
+        .navbar-mc {
+            background: #ffffff;
+            border-bottom: 1px solid #e0e0e0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+
+        .navbar-mc-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            height: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1.5rem;
+        }
+
+        .logo-mc {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            text-decoration: none;
+            color: #1b4332;
+            font-family: var(--font-heading);
+            font-weight: 800;
+            font-size: 1.35rem;
+            letter-spacing: -0.02em;
+        }
+
+        .logo-badge-icon {
+            width: 44px;
+            height: 44px;
+            background: #1b4332;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #52b788;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 12px rgba(27,67,50,0.25);
+        }
+
+        .nav-links-mc {
+            display: flex;
+            align-items: center;
+            gap: 1.8rem;
+            list-style: none;
+        }
+
+        .nav-link-item {
+            color: #292929;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.92rem;
+            transition: var(--transition-fast);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .nav-link-item:hover {
+            color: #2d7d52;
+        }
+
+        .btn-mc-primary {
+            background: #2d7d52;
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 10px 22px;
+            border-radius: var(--radius-full);
+            border: none;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition);
+            box-shadow: 0 4px 14px rgba(45,125,82,0.25);
+            text-decoration: none;
+        }
+
+        .btn-mc-primary:hover {
+            background: #1b4332;
+            transform: translateY(-1px);
+        }
+
+        .btn-mc-outline {
+            background: transparent;
+            color: #292929;
+            font-weight: 700;
+            font-size: 0.88rem;
+            padding: 9px 18px;
+            border-radius: var(--radius-full);
+            border: 1.5px solid #d1d5db;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-fast);
+        }
+
+        .btn-mc-outline:hover {
+            border-color: #2d7d52;
+            color: #2d7d52;
+            background: #f0faf4;
+        }
+
+        /* ── HERO BANNER MC STYLE ── */
+        .hero-mc {
+            background: #ffffff;
+            border-bottom: 1px solid #eaeaea;
+            padding: 3.5rem 1.5rem 3rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-mc-inner {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            align-items: center;
+            gap: 3rem;
+        }
+
+        .hero-mc-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: #f0faf4;
+            color: #2d7d52;
+            border: 1px solid #d7f0e3;
+            padding: 6px 14px;
+            border-radius: var(--radius-full);
+            font-size: 0.82rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 1rem;
+        }
+
+        .hero-mc h1 {
+            font-size: 3.2rem;
+            font-weight: 800;
+            line-height: 1.12;
+            color: #1e293b;
+            letter-spacing: -0.03em;
+            margin-bottom: 1rem;
+        }
+
+        .hero-mc h1 span {
+            color: #2d7d52;
+        }
+
+        .hero-mc p {
+            font-size: 1.15rem;
+            color: #64748b;
+            line-height: 1.6;
+            margin-bottom: 1.8rem;
+            max-width: 540px;
+        }
+
+        .hero-mc-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-mc-image-box {
+            position: relative;
+            text-align: center;
+        }
+
+        .hero-mc-image-box img {
+            width: 100%;
+            max-width: 440px;
+            border-radius: 28px;
+            box-shadow: 0 20px 40px -10px rgba(15,23,42,0.18);
+            object-fit: cover;
+            height: 320px;
+        }
+
+        /* ── SEÇÃO CARDÁPIO COM CATEGORIAS MC PILL TABS ── */
+        .cardapio-mc-section {
+            max-width: 1240px;
+            margin: 0 auto;
+            padding: 3.5rem 1.5rem;
+        }
+
+        .section-mc-header {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .section-mc-title {
+            font-size: 2.2rem;
+            font-weight: 800;
+            color: #1e293b;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .section-mc-subtitle {
+            font-size: 0.95rem;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        /* Pílulas de Categoria estilo McDonald's (redondas, limpas, minimalistas) */
+        .categories-mc-bar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            margin-bottom: 2.5rem;
+            scrollbar-width: thin;
+        }
+
+        .categories-mc-bar::-webkit-scrollbar { height: 4px; }
+        .categories-mc-bar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+
+        .cat-mc-btn {
+            background: #ffffff;
+            color: #334155;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius-full);
+            padding: 10px 22px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: var(--transition-fast);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+        }
+
+        .cat-mc-btn:hover {
+            border-color: #2d7d52;
+            color: #2d7d52;
+            background: #f8fafc;
+        }
+
+        .cat-mc-btn.active {
+            background: #2d7d52;
+            color: #ffffff;
+            border-color: #2d7d52;
+            box-shadow: 0 4px 14px rgba(45,125,82,0.28);
+        }
+
+        /* ── GRID DE PRODUTOS NO FORMATO DE CARDS MC ── */
+        .products-mc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 1.8rem;
+        }
+
+        .product-mc-card {
+            background: #ffffff;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.04);
+            display: flex;
+            flex-direction: column;
+            transition: var(--transition);
+            position: relative;
+        }
+
+        .product-mc-card:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 16px 32px -4px rgba(15,23,42,0.12);
+            border-color: #cbd5e1;
+        }
+
+        .product-mc-media {
+            height: 180px;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .product-mc-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.35s ease;
+        }
+
+        .product-mc-card:hover .product-mc-media img {
+            transform: scale(1.06);
+        }
+
+        .product-mc-content {
+            padding: 1.3rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .product-mc-cat {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: #2d7d52;
+            margin-bottom: 4px;
+        }
+
+        .product-mc-title {
+            font-size: 1.05rem;
+            font-weight: 800;
+            color: #1e293b;
+            line-height: 1.3;
+            margin-bottom: 0.6rem;
+        }
+
+        .product-mc-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 0.9rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .product-mc-price {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #1b4332;
+            font-family: var(--font-heading);
+        }
+
+        .btn-mc-add {
+            background: #2d7d52;
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 8px 16px;
+            font-weight: 700;
+            font-size: 0.82rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: var(--transition-fast);
+        }
+
+        .btn-mc-add:hover {
+            background: #1b4332;
+            transform: scale(1.04);
+        }
+
+        /* ── SEÇÃO INFORMATIVA INSTITUCIONAL ── */
+        .features-mc-section {
+            background: #ffffff;
+            border-top: 1px solid #e2e8f0;
+            border-bottom: 1px solid #e2e8f0;
+            padding: 4rem 1.5rem;
+        }
+
+        .features-mc-grid {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+        }
+
+        .feature-mc-item {
+            text-align: left;
+        }
+
+        .feature-mc-icon-box {
+            width: 52px;
+            height: 52px;
+            background: #f0faf4;
+            color: #2d7d52;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            margin-bottom: 1rem;
+        }
+
+        .feature-mc-item h3 {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #1e293b;
+            margin-bottom: 0.4rem;
+        }
+
+        .feature-mc-item p {
+            font-size: 0.88rem;
+            color: #64748b;
+            line-height: 1.5;
+        }
+
+        /* ── FOOTER MC STYLE ── */
+        .footer-mc {
+            background: #1e293b;
+            color: #ffffff;
+            padding: 4rem 1.5rem 2rem;
+        }
+
+        .footer-mc-grid {
+            max-width: 1240px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 3rem;
+        }
+
+        .footer-mc h4 {
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 1.2rem;
+            letter-spacing: -0.01em;
+        }
+
+        .footer-mc p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .footer-mc a {
+            color: #cbd5e1;
+            text-decoration: none;
+            display: block;
+            margin-bottom: 0.6rem;
+            font-size: 0.88rem;
+            font-weight: 500;
+            transition: var(--transition-fast);
+        }
+
+        .footer-mc a:hover {
+            color: #52b788;
+            transform: translateX(4px);
+        }
+
+        .footer-mc-bottom {
+            max-width: 1240px;
+            margin: 3rem auto 0;
+            padding-top: 1.5rem;
+            border-top: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            color: #64748b;
+            font-size: 0.82rem;
+        }
+
+        /* ── FLOATING CART ── */
+        .cart-mc-fab {
+            position: fixed;
+            bottom: 28px;
+            right: 28px;
+            background: #2d7d52;
+            color: #ffffff;
+            border-radius: var(--radius-full);
+            padding: 14px 24px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            box-shadow: 0 10px 28px rgba(45,125,82,0.4);
+            z-index: 99;
+            transition: var(--transition);
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .cart-mc-fab:hover {
+            background: #1b4332;
+            transform: scale(1.04);
+        }
+
+        .cart-mc-badge {
+            background: #f59e0b;
+            color: #ffffff;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.75rem;
+            font-weight: 800;
+        }
+
+        @media (max-width: 900px) {
+            .hero-mc-inner { grid-template-columns: 1fr; gap: 2rem; }
+            .hero-mc h1 { font-size: 2.4rem; }
+            .nav-links-mc { display: none; }
+            .footer-mc-grid { grid-template-columns: 1fr; gap: 2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- NAVBAR ESTILO MCDONALD'S -->
+    <header class="navbar-mc">
+        <div class="navbar-mc-inner">
+            <a class="logo-mc" href="index.html">
+                <div class="logo-badge-icon"><i class="fas fa-utensils"></i></div>
+                <span>DOUTOR PALADAR</span>
+            </a>
+
+            <ul class="nav-links-mc">
+                <li><a href="#cardapio" class="nav-link-item"><i class="fas fa-burger"></i> Cardápio</a></li>
+                <li><a href="#" onclick="abrirModalAgendamentoCliente()" class="nav-link-item"><i class="fas fa-calendar-alt"></i> Agendar Refeição</a></li>
+                <li><a href="#" onclick="abrirModalChatCliente()" class="nav-link-item"><i class="fas fa-comments"></i> Atendimento</a></li>
+            </ul>
+
+            <div id="userArea" style="display: flex; align-items: center; gap: 10px;">
+                <button class="btn-mc-outline" id="loginBtn" onclick="abrirModalLogin()">
+                    <i class="fas fa-user"></i> Entrar
+                </button>
+                <button class="btn-mc-primary" onclick="scrollToCardapio()">
+                    <i class="fas fa-shopping-bag"></i> Fazer Pedido
+                </button>
+                <button class="btn-mc-outline" style="padding: 8px 12px;" onclick="abrirModalAdminLogin()" title="Acesso do Gestor">
+                    <i class="fas fa-lock"></i>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO PRINCIPAL (LAYOUT CLEAN & APETITOSO) -->
+    <section class="hero-mc">
+        <div class="hero-mc-inner">
+            <div>
+                <div class="hero-mc-tag"><i class="fas fa-star"></i> Cantina Gourmet Oficial</div>
+                <h1>Peça pelo site e <span>retire sem filas</span>.</h1>
+                <p>Descubra os salgados mais crocantes, opções fit, hambúrgueres artesanais, cafés e bebidas geladas feitas para o seu dia.</p>
+                <div class="hero-mc-actions">
+                    <button class="btn-mc-primary" onclick="scrollToCardapio()" style="padding: 13px 28px; font-size: 0.98rem;">
+                        <i class="fas fa-utensils"></i> Ver Cardápio Completo
+                    </button>
+                    <button class="btn-mc-outline" onclick="abrirModalAgendamentoCliente()" style="padding: 12px 24px; font-size: 0.98rem;">
+                        <i class="fas fa-calendar-check"></i> Agendar Almoço / Prato do Dia
+                    </button>
+                </div>
+            </div>
+            <div class="hero-mc-image-box">
+                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80" alt="Lanches Doutor Paladar">
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO DE CARDÁPIO -->
+    <section class="cardapio-mc-section" id="cardapio">
+        <div class="section-mc-header">
+            <div>
+                <h2 class="section-mc-title">Explore Nosso Cardápio</h2>
+                <p class="section-mc-subtitle">Selecione uma categoria ou busque pelo seu item preferido</p>
+            </div>
+            <div style="width: 100%; max-width: 380px;">
+                <input type="text" id="heroSearch" oninput="filtrarProdutos()" placeholder="🔍 Pesquisar salgado, bebida, doce..." class="form-control" style="border-radius: var(--radius-full); padding: 11px 20px; font-size: 0.9rem; background:#ffffff;">
+            </div>
+        </div>
+
+        <!-- Pílulas de Categoria estilo McDonald's -->
+        <div class="categories-mc-bar" id="categories"></div>
+
+        <!-- Grid de Produtos -->
+        <div class="products-mc-grid" id="productsGrid"></div>
+    </section>
+
+    <!-- DIFERENCIAIS INSTITUCIONAIS -->
+    <section class="features-mc-section">
+        <div class="features-mc-grid">
+            <div class="feature-mc-item">
+                <div class="feature-mc-icon-box"><i class="fas fa-bolt"></i></div>
+                <h3>Retirada Expressa</h3>
+                <p>Faça seu pedido online e pegue direto no balcão sem perder tempo na fila.</p>
+            </div>
+            <div class="feature-mc-item">
+                <div class="feature-mc-icon-box"><i class="fas fa-hand-holding-heart"></i></div>
+                <h3>Padrão de Qualidade</h3>
+                <p>Ingredientes frescos e fornecedores certificados diariamente.</p>
+            </div>
+            <div class="feature-mc-item">
+                <div class="feature-mc-icon-box"><i class="fas fa-qrcode"></i></div>
+                <h3>Pagamento Facilitado</h3>
+                <p>PIX instantâneo, cartões e controle de saldo para estudantes e colaboradores.</p>
+            </div>
+            <div class="feature-mc-item">
+                <div class="feature-mc-icon-box"><i class="fas fa-award"></i></div>
+                <h3>Fidelidade Premiada</h3>
+                <p>Acumule pontos em todas as compras e troque por bebidas e brindes.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER ESTILO INSTITUCIONAL -->
+    <footer class="footer-mc">
+        <div class="footer-mc-grid">
+            <div>
+                <h4>DOUTOR PALADAR</h4>
+                <p>Compromisso com o melhor sabor e atendimento gastronômico institucional com tecnologia e agilidade.</p>
+            </div>
+            <div>
+                <h4>Navegação</h4>
+                <a href="#cardapio"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Cardápio Online</a>
+                <a href="#" onclick="abrirModalAgendamentoCliente()"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Prato do Dia</a>
+                <a href="#" onclick="abrirModalLogin()"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Minha Conta</a>
+                <a href="#" onclick="abrirModalAdminLogin()"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Acesso do Gestor</a>
+            </div>
+            <div>
+                <h4>Atendimento</h4>
+                <p><i class="fas fa-clock"></i> Segunda a Sexta: 07h00 às 17h30</p>
+                <p><i class="fas fa-clock"></i> Sábados: 08h00 às 12h00</p>
+                <p><i class="fas fa-envelope"></i> atendimento@doutorpaladar.com.br</p>
+            </div>
+        </div>
+        <div class="footer-mc-bottom">
+            <div>&copy; 2026 Doutor Paladar · Todos os direitos reservados.</div>
+            <div>Feito para uma experiência rápida, moderna e saborosa.</div>
+        </div>
+    </footer>
+
+    <!-- BOTÃO FLUTUANTE DE PEDIDO -->
+    <div class="cart-mc-fab" id="cartFab" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag"></i>
+        <span>Meu Pedido</span>
+        <span class="cart-mc-badge" id="cartCount">0</span>
+    </div>
+
+    <!-- Carrinho Lateral -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1rem; border-bottom: 1px solid var(--border);">
+            <h3 style="font-size: 1.15rem; color: var(--text); display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-shopping-bag" style="color: var(--primary);"></i> Itens Selecionados
+            </h3>
+            <button class="close-cart" onclick="toggleCart()">&times;</button>
+        </div>
+        <div id="cartItems" style="flex: 1; overflow-y: auto; padding: 1rem 0;"></div>
+        <div style="border-top: 1px solid var(--border); padding-top: 1rem;">
+            <div class="cart-total" id="cartTotal">R$ 0,00</div>
+            <button class="btn-order" id="orderBtn" onclick="finalizarPedido()" disabled>Confirmar Pedido</button>
+            <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 0.6rem; text-align: center;">Retirada expressa no balcão</p>
+        </div>
+    </div>
+
+    <!-- MODAIS DO SISTEMA -->
+    <!-- Modal Login -->
+    <div class="modal" id="modalLogin">
+        <div class="modal-content" style="position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalLogin')" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+            <h2 style="text-align: center; color: var(--primary); margin-bottom: 1.2rem; font-size: 1.3rem;"><i class="fas fa-user-circle"></i> Acessar Conta</h2>
+            <div class="form-group">
+                <label class="form-label">Usuário ou Telefone</label>
+                <input type="text" id="loginUsuario" class="form-control" placeholder="Seu usuário ou telefone">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" id="loginSenha" class="form-control" placeholder="Sua senha">
+            </div>
+            <button class="btn btn-primary" onclick="fazerLogin()" style="width: 100%; margin-top: 0.5rem;">Entrar</button>
+            <div class="error-msg" id="loginError" style="margin-top: 0.8rem; color: var(--danger); font-size: 0.82rem; text-align: center; display: none;"></div>
+            <div style="text-align: center; margin-top: 1.2rem; font-size: 0.85rem; color: var(--text-muted);">
+                Não possui conta? <a onclick="fecharModal('modalLogin'); abrirModalCadastro()" style="color: var(--primary); font-weight: 700; cursor: pointer;">Cadastre-se</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cadastro -->
+    <div class="modal" id="modalCadastro">
+        <div class="modal-content" style="position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalCadastro')" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+            <h2 style="text-align: center; color: var(--primary); margin-bottom: 0.5rem; font-size: 1.3rem;"><i class="fas fa-user-plus"></i> Cadastro de Cliente</h2>
+            <p style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-bottom: 1.2rem;">Preencha seus dados para acumular pontos de fidelidade</p>
+            <div class="form-group">
+                <label class="form-label">Nome Completo *</label>
+                <input type="text" id="cadNome" class="form-control" placeholder="Seu nome">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Usuário *</label>
+                <input type="text" id="cadUsuario" class="form-control" placeholder="Ex: joao.silva">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Telefone / WhatsApp *</label>
+                <input type="tel" id="cadTelefone" class="form-control" placeholder="(11) 99999-9999">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Turma / Departamento (Opcional)</label>
+                <input type="text" id="cadTurma" class="form-control" placeholder="Ex: INFO3, Docentes...">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Senha * (mínimo 6 dígitos)</label>
+                <input type="password" id="cadSenha" class="form-control" placeholder="Crie uma senha segura">
+            </div>
+            <button class="btn btn-primary" onclick="fazerCadastro()" style="width: 100%; margin-top: 0.5rem;">Criar Minha Conta</button>
+            <div class="error-msg" id="cadastroError" style="margin-top: 0.8rem; font-size: 0.82rem; text-align: center; display: none;"></div>
+            <div style="text-align: center; margin-top: 1.2rem; font-size: 0.85rem; color: var(--text-muted);">
+                Já possui conta? <a onclick="fecharModal('modalCadastro'); abrirModalLogin()" style="color: var(--primary); font-weight: 700; cursor: pointer;">Entrar</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Admin Login -->
+    <div class="modal" id="modalAdminLogin">
+        <div class="modal-content" style="max-width: 380px; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalAdminLogin')" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+            <div style="text-align: center; margin-bottom: 1.2rem;">
+                <div style="width: 48px; height: 48px; background: var(--green-50); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.5rem;">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h2 style="color: var(--text); font-size: 1.2rem;">Acesso Gerencial</h2>
+                <p style="color: var(--text-muted); font-size: 0.82rem;">Painel Administrativo do Doutor Paladar</p>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Usuário</label>
+                <input type="text" id="adminUser" class="form-control" placeholder="admin">
+            </div>
+            <div class="form-group">
+                <label class="form-label">Senha</label>
+                <input type="password" id="adminPass" class="form-control" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" onclick="autenticarAdmin()" style="width: 100%; margin-top: 0.5rem;">Entrar no Painel</button>
+            <div id="adminLoginError" style="color: var(--danger); margin-top: 0.8rem; font-size: 0.82rem; text-align: center; display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Perfil -->
+    <div class="modal" id="modalPerfil">
+        <div class="modal-content" style="max-width: 480px; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalPerfil')" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+            <h2 style="color: var(--primary); font-size: 1.25rem; margin-bottom: 1.2rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-user-circle"></i> Perfil do Cliente
+            </h2>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <div style="background: var(--gray-50); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted);">NOME</span>
+                    <span id="perfilNome" style="font-weight: 600; color: var(--text);"></span>
+                </div>
+                <div style="background: var(--gray-50); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted);">TELEFONE</span>
+                    <span id="perfilTelefone" style="font-weight: 600; color: var(--text);"></span>
+                </div>
+                <div style="background: var(--gray-50); padding: 12px 16px; border-radius: var(--radius-md); border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 0.82rem; font-weight: 700; color: var(--text-muted);">TURMA / SETOR</span>
+                    <span id="perfilTurma" style="font-weight: 600; color: var(--text);"></span>
+                </div>
+                <div id="selosFidelidade" style="background: var(--warning-bg); border: 1.5px solid #fde68a; padding: 16px; border-radius: var(--radius-md); margin-top: 8px;">
+                    <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 6px;">
+                        <span style="font-size: 1.2rem;">🏆</span>
+                        <strong style="color: #92400e; font-size: 0.95rem;">Programa de Fidelidade</strong>
+                    </div>
+                    <p style="font-size: 0.8rem; color: #b45309; margin-bottom: 8px;">A cada 10 compras realizadas, ganhe uma bebida cortesia!</p>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;" id="selosGrid"></div>
+                    <div id="selosTexto" style="margin-top: 8px;"></div>
+                </div>
+            </div>
+            <button class="btn btn-secondary" onclick="fecharModal('modalPerfil')" style="width: 100%; margin-top: 1.2rem;">Fechar</button>
+        </div>
+    </div>
+
+    <!-- Modal Agendamentos do Cliente -->
+    <div class="modal" id="modalAgendamentoCliente">
+        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalAgendamentoCliente')" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+            <h2 style="color: var(--primary); font-size: 1.35rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-calendar-check"></i> Agendar Refeição
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Reserve o prato do dia com antecedência e garanta sua vaga.</p>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 10px;">
+                <button class="btn btn-sm" id="btnTabDisponiveis" onclick="mudarTabAgendamento('disponiveis')" style="background: var(--green-50); color: var(--primary); border: 1px solid var(--green-200);">
+                    🍽️ Horários Disponíveis
+                </button>
+                <button class="btn btn-sm btn-secondary" id="btnTabMeus" onclick="mudarTabAgendamento('meus')">
+                    📋 Minhas Reservas
+                </button>
+            </div>
+
+            <div id="painelAgendamentosDisponiveis">
+                <div id="listaAgendamentosClienteGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                    <p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Carregando horários...</p>
+                </div>
+            </div>
+
+            <div id="painelMeusAgendamentosCliente" style="display: none;">
+                <div id="listaMeusAgendamentosClienteGrid" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">Carregando suas reservas...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Escolha Checkout -->
+    <div class="modal" id="modalEscolhaCheckout">
+        <div class="modal-content" style="max-width: 440px; position: relative; text-align: center; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalEscolhaCheckout')" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+            <div style="width: 52px; height: 52px; background: var(--green-50); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 0.8rem;">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <h2 style="color: var(--text); font-size: 1.25rem; margin-bottom: 0.4rem;">Finalização do Pedido</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">Identifique-se para pontuar no programa de fidelidade ou continue como visitante.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-primary" onclick="fecharModal('modalEscolhaCheckout'); abrirModalLogin();" style="padding: 13px;">
+                    <i class="fas fa-sign-in-alt"></i> Entrar com Minha Conta
+                </button>
+                <button class="btn btn-secondary" onclick="fecharModal('modalEscolhaCheckout'); abrirCheckoutVisitante();" style="padding: 12px;">
+                    <i class="fas fa-user"></i> Continuar como Visitante
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Checkout Dados -->
+    <div class="modal" id="modalConvidado">
+        <div class="modal-content" style="max-width: 420px; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalConvidado')" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+            <h2 style="color: var(--primary); font-size: 1.25rem; margin-bottom: 0.4rem;"><i class="fas fa-check-circle"></i> Confirmar Pedido</h2>
+            <p id="convidadoSubtitulo" style="color: var(--text-muted); font-size: 0.84rem; margin-bottom: 1.2rem;">Informe seus dados para a chamada na cantina.</p>
+            
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label class="form-label">Nome *</label>
+                        <input type="text" id="convidadoNome" class="form-control" placeholder="Nome">
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="form-label">Sobrenome *</label>
+                        <input type="text" id="convidadoSobrenome" class="form-control" placeholder="Sobrenome">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Telefone / WhatsApp (Opcional)</label>
+                    <input type="tel" id="convidadoTelefone" class="form-control" placeholder="(11) 99999-9999">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label class="form-label">Turma / Setor</label>
+                        <input type="text" id="convidadoTurma" class="form-control" placeholder="Ex: INFO3">
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="form-label">Mesa (se aplicável)</label>
+                        <input type="text" id="convidadoMesa" class="form-control" placeholder="Mesa 01">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label">Forma de Pagamento</label>
+                    <select id="convidadoFormaPagamento" class="form-control">
+                        <option value="pix">📱 PIX (Aprovação Instantânea)</option>
+                        <option value="dinheiro">💵 Dinheiro no Balcão</option>
+                        <option value="cartao">💳 Cartão Débito / Crédito</option>
+                    </select>
+                </div>
+                <div id="convidadoError" style="color: var(--danger); font-size: 0.82rem; text-align: center; display: none;"></div>
+                <button class="btn btn-primary" onclick="confirmarPedidoConvidado()" style="margin-top: 6px; padding: 13px;">
+                    <i class="fas fa-check"></i> Enviar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PIX -->
+    <div class="modal" id="modalPix">
+        <div class="modal-content" style="max-width: 400px; text-align: center; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalPix')" style="position: absolute; top: 16px; right: 16px;">&times;</button>
+            <h2 style="color: var(--primary); font-size: 1.25rem; margin-bottom: 0.4rem;"><i class="fas fa-qrcode"></i> Pagamento via PIX</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.2rem;">Escaneie o QR Code no app do seu banco</p>
+            
+            <div id="pixQrCode" style="background: var(--gray-50); border: 1px solid var(--border); padding: 1.2rem; border-radius: var(--radius-lg); margin-bottom: 1.2rem; display: flex; align-items: center; justify-content: center; min-height: 200px;">
+                <img id="pixQrImg" src="" alt="QR Code PIX" style="max-width: 190px; border-radius: var(--radius-sm); display: none;">
+                <div id="pixQrPlaceholder"><i class="fas fa-spinner fa-spin" style="font-size: 2.5rem; color: var(--primary);"></i></div>
+            </div>
+            <div id="pixChaveCopia" style="background: var(--gray-100); padding: 10px 14px; border-radius: var(--radius-md); margin-bottom: 1rem; word-break: break-all; font-size: 0.8rem; color: var(--text); font-family: monospace; display: none;"></div>
+            <button id="pixCopiarBtn" onclick="copiarChavePix()" class="btn btn-outline" style="width: 100%; margin-bottom: 8px; display: none;"><i class="fas fa-copy"></i> Copiar Chave PIX</button>
+            <button onclick="simularPagamentoPix()" class="btn btn-primary" style="width: 100%;"><i class="fas fa-bolt"></i> Simular Confirmação Instantânea</button>
+            <div id="pixStatusMsg" style="margin-top: 10px; font-weight: 600; font-size: 0.85rem; display: none;"></div>
+        </div>
+    </div>
+
+    <!-- Modal Chat -->
+    <div class="modal" id="modalChatCliente">
+        <div class="modal-content" style="max-width: 480px; height: 80vh; display: flex; flex-direction: column; padding: 1.5rem; border-radius: var(--radius-xl);">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--green-50); color: var(--primary); display: flex; align-items: center; justify-content: center; font-size: 1.1rem; border: 1px solid var(--green-200);">👨‍🍳</div>
+                    <div>
+                        <h4 style="font-size: 0.95rem; color: var(--text); margin: 0;">Atendimento Doutor Paladar</h4>
+                        <span style="font-size: 0.72rem; color: var(--success); font-weight: 600;">● Online</span>
+                    </div>
+                </div>
+                <button class="close-modal" onclick="fecharModal('modalChatCliente')">&times;</button>
+            </div>
+            
+            <div id="corpoMensagensCliente" style="flex: 1; overflow-y: auto; padding: 1rem 0; display: flex; flex-direction: column; gap: 10px;">
+                <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">Carregando mensagens...</p>
+            </div>
+            
+            <div style="display: flex; gap: 8px; padding-top: 0.8rem; border-top: 1px solid var(--border);">
+                <input type="text" id="inputMensagemCliente" placeholder="Digite sua dúvida..." onkeypress="if(event.key==='Enter') enviarMensagemClienteModal()" class="form-control" style="flex: 1;">
+                <button class="btn btn-primary" onclick="enviarMensagemClienteModal()" style="padding: 0 16px;"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let produtos = [];
+        let carrinho = [];
+        let clienteLogado = null;
+        let categoriaAtiva = 'Todos';
+
+        const PRODUTOS_POR_PAGINA = 8;
+        let paginaAtual = 1;
+
+        const imagensReais = {
+            'hambúrgão':     'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80',
+            'hamburgao':     'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80',
+            'burger':        'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80',
+            'coxinha':       'https://images.unsplash.com/photo-1601924638867-3a6de6b7a500?w=400&q=80',
+            'risolis':       'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=80',
+            'esfiha':        'https://images.unsplash.com/photo-1621852003960-b7aad6e0f07f?w=400&q=80',
+            'pão de queijo': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80',
+            'pao de queijo': 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80',
+            'pão batata':    'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&q=80',
+            'pao batata':    'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&q=80',
+            'enroladinho':   'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80',
+            'pizza':         'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80',
+            'kibe':          'https://images.unsplash.com/photo-1621852003960-b7aad6e0f07f?w=400&q=80',
+            'pastel':        'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=80',
+            'coca-cola':     'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=80',
+            'coca cola':     'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=80',
+            'sprite':        'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&q=80',
+            'guaraná':       'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&q=80',
+            'guarana':       'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&q=80',
+            'água':          'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&q=80',
+            'agua':          'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&q=80',
+            'suco':          'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80',
+            'café':          'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80',
+            'cafe':          'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80',
+            'cremosinho':    'https://images.unsplash.com/photo-1488900128323-21503983a07e?w=400&q=80',
+            'sorvete':       'https://images.unsplash.com/photo-1488900128323-21503983a07e?w=400&q=80',
+            'açaí':          'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&q=80',
+            'acai':          'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&q=80',
+            'trento':        'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400&q=80',
+            'pão de mel':    'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80',
+            'brigadeiro':    'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&q=80',
+            'caldo':         'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80',
+            'halls':         'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&q=80',
+            'trident':       'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&q=80',
+        };
+
+        function getImagemUrl(p) {
+            if(p.imagem && p.imagem.startsWith('http')) return p.imagem;
+            const nomeLower = p.nome.toLowerCase();
+            const chavesSorted = Object.keys(imagensReais).sort((a,b) => b.length - a.length);
+            for (const key of chavesSorted) {
+                if (nomeLower.includes(key)) return imagensReais[key];
+            }
+            return null;
+        }
+
+        function getEmoji(cat) {
+            const map = {
+                'Salgados':'🥟', 'Bebidas':'🥤', 'Doces':'🍰',
+                'Lanches':'🍔', 'Sorvetes':'🍦', 'Todos':'⭐',
+                'Caldos':'🍲', 'Snacks':'🍬', 'Cremosinho':'🫙'
+            };
+            return map[cat] || '🍽️';
+        }
+
+        function renderCardProduto(p) {
+            const preco = parseFloat(p.preco) || 0;
+            const imagemUrl = getImagemUrl(p);
+            const imagemHtml = imagemUrl
+                ? `<img src="${imagemUrl}" alt="${p.nome}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'">\
+<div style="display:none; align-items:center; justify-content:center; height:100%; font-size:3rem;">${getEmoji(p.categoria)}</div>`
+                : `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:3.5rem;">${getEmoji(p.categoria)}</div>`;
+
+            return `
+                <div class="product-mc-card">
+                    <div class="product-mc-media" onclick="adicionarAoCarrinho(${p.id})">
+                        ${imagemHtml}
+                    </div>
+                    <div class="product-mc-content">
+                        <div>
+                            <div class="product-mc-cat">${p.categoria}</div>
+                            <div class="product-mc-title">${p.nome}</div>
+                        </div>
+                        <div class="product-mc-footer">
+                            <div class="product-mc-price">R$ ${preco.toFixed(2).replace('.', ',')}</div>
+                            <button class="btn-mc-add" onclick="adicionarAoCarrinho(${p.id})">
+                                <i class="fas fa-plus"></i> Adicionar
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        async function carregarProdutos() {
+            try {
+                const res = await fetch(API_URL + '/produtos');
+                if(res.ok) produtos = await res.json();
+            } catch(e) {}
+            produtos.forEach(p => { p.preco = parseFloat(p.preco) || 0; });
+            renderCategorias();
+            renderProdutos(1);
+        }
+
+        function renderCategorias() {
+            const cats = ['Todos', ...new Set(produtos.map(p => p.categoria).filter(Boolean))];
+            const container = document.getElementById('categories');
+            if(!container) return;
+            container.innerHTML = cats.map(c => `
+                <button class="cat-mc-btn ${categoriaAtiva === c ? 'active' : ''}" onclick="filtrarCategoria('${c}')">
+                    <span>${getEmoji(c)}</span>
+                    <span>${c}</span>
+                </button>
+            `).join('');
+        }
+
+        function filtrarCategoria(cat) {
+            categoriaAtiva = cat;
+            renderCategorias();
+            renderProdutos(1);
+        }
+
+        function removerAcentos(str) {
+            return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
+        function renderProdutos(pagina = 1) {
+            let lista = produtos;
+            if(categoriaAtiva !== 'Todos') lista = lista.filter(p => p.categoria === categoriaAtiva);
+            
+            const rawBusca = document.getElementById('heroSearch')?.value || '';
+            const termoBusca = removerAcentos(rawBusca.toLowerCase().trim());
+
+            if(termoBusca) {
+                lista = lista.filter(p => {
+                    const nomeNormal = removerAcentos(p.nome.toLowerCase());
+                    const catNormal = removerAcentos(p.categoria.toLowerCase());
+                    return nomeNormal.includes(termoBusca) || catNormal.includes(termoBusca);
+                });
+            }
+
+            const container = document.getElementById('productsGrid');
+            if(!container) return;
+
+            if(lista.length === 0) { 
+                container.innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; padding:3.5rem 1rem; color:var(--text-muted); background:#ffffff; border-radius:20px; border:1px solid #e2e8f0;">
+                        <div style="font-size:2.5rem; margin-bottom:0.6rem;">🔍</div>
+                        <h3 style="color:var(--text); margin-bottom:0.4rem;">Nenhum produto encontrado</h3>
+                        <p style="font-size:0.88rem;">Não encontramos nenhum item correspondente a "<strong>${rawBusca}</strong>".</p>
+                    </div>`; 
+                let pag = document.getElementById('paginacaoContainer');
+                if(pag) pag.innerHTML = '';
+                return; 
+            }
+
+            paginaAtual = pagina;
+            const totalPaginas = Math.ceil(lista.length / PRODUTOS_POR_PAGINA);
+            if(paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+            const inicio = (paginaAtual - 1) * PRODUTOS_POR_PAGINA;
+            const fatia = lista.slice(inicio, inicio + PRODUTOS_POR_PAGINA);
+
+            container.innerHTML = fatia.map(renderCardProduto).join('');
+
+            let pagContainer = document.getElementById('paginacaoContainer');
+            if(!pagContainer) {
+                pagContainer = document.createElement('div');
+                pagContainer.id = 'paginacaoContainer';
+                pagContainer.style.cssText = 'display:flex; justify-content:center; align-items:center; gap:8px; margin:2.5rem 0; grid-column:1/-1; flex-wrap:wrap;';
+                container.parentNode.insertBefore(pagContainer, container.nextSibling);
+            }
+
+            if(totalPaginas <= 1) {
+                pagContainer.innerHTML = '';
+                return;
+            }
+
+            let htmlPag = `<button onclick="renderProdutos(${paginaAtual - 1})" ${paginaAtual === 1 ? 'disabled' : ''} class="btn-mc-outline btn-sm"><i class="fas fa-chevron-left"></i> Anterior</button>`;
+            for(let i = 1; i <= totalPaginas; i++) {
+                htmlPag += `<button onclick="renderProdutos(${i})" class="${i === paginaAtual ? 'btn-mc-primary' : 'btn-mc-outline'}" style="min-width:40px; padding:8px 12px; border-radius:var(--radius-full);">${i}</button>`;
+            }
+            htmlPag += `<button onclick="renderProdutos(${paginaAtual + 1})" ${paginaAtual === totalPaginas ? 'disabled' : ''} class="btn-mc-outline btn-sm">Próxima <i class="fas fa-chevron-right"></i></button>`;
+            pagContainer.innerHTML = htmlPag;
+        }
+
+        function filtrarProdutos() { renderProdutos(1); }
+
+        function adicionarAoCarrinho(id) {
+            const p = produtos.find(x => x.id === id);
+            if(!p || p.estoque === 0) return;
+            const idx = carrinho.findIndex(i => i.produtoId === id);
+            if(idx !== -1) carrinho[idx].quantidade++;
+            else carrinho.push({ produtoId: id, nome: p.nome, precoUnitario: p.preco, quantidade: 1 });
+            atualizarCarrinhoUI();
+        }
+
+        function removerDoCarrinho(id) {
+            const idx = carrinho.findIndex(i => i.produtoId === id);
+            if(idx === -1) return;
+            if(carrinho[idx].quantidade > 1) carrinho[idx].quantidade--;
+            else carrinho.splice(idx, 1);
+            atualizarCarrinhoUI();
+        }
+
+        function atualizarCarrinhoUI() {
+            const t = carrinho.reduce((s,i) => s + i.quantidade * i.precoUnitario, 0);
+            const c = carrinho.reduce((s,i) => s + i.quantidade, 0);
+            document.getElementById('cartCount').textContent = c;
+            document.getElementById('cartTotal').textContent = `R$ ${t.toFixed(2).replace('.', ',')}`;
+            const con = document.getElementById('cartItems');
+            if(carrinho.length === 0) {
+                con.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2.5rem 0;font-size:0.9rem;">Seu pedido está vazio</p>';
+            } else {
+                con.innerHTML = carrinho.map(i => `
+                    <div class="cart-item">
+                        <div>
+                            <strong style="font-size:0.92rem; color:var(--text);">${i.nome}</strong><br>
+                            <small style="color:var(--text-muted);">R$ ${(parseFloat(i.precoUnitario)||0).toFixed(2).replace('.', ',')}</small>
+                        </div>
+                        <div style="display:flex;align-items:center;gap:8px;">
+                            <button onclick="removerDoCarrinho(${i.produtoId})" style="width:28px;height:28px;border-radius:50%;border:1px solid #d1d5db;cursor:pointer;background:#ffffff;font-weight:700;">−</button>
+                            <span style="font-weight:700;font-size:0.9rem;">${i.quantidade}</span>
+                            <button onclick="adicionarAoCarrinho(${i.produtoId})" style="width:28px;height:28px;border-radius:50%;border:1px solid #d1d5db;cursor:pointer;background:#ffffff;font-weight:700;">+</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('orderBtn').disabled = (carrinho.length === 0);
+        }
+
+        function toggleCart() { document.getElementById('cartSidebar').classList.toggle('open'); }
+        function abrirModalLogin() { document.getElementById('modalLogin').classList.add('active'); }
+        function abrirModalCadastro() { document.getElementById('modalCadastro').classList.add('active'); }
+        function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        let pedidoAtual = null;
+
+        function finalizarPedido() {
+            if(carrinho.length === 0) return;
+            if(!clienteLogado) {
+                document.getElementById('modalEscolhaCheckout').classList.add('active');
+            } else {
+                abrirCheckoutAutenticado();
+            }
+        }
+
+        function abrirCheckoutAutenticado() {
+            const mesaUrl = new URLSearchParams(window.location.search).get('mesa') || sessionStorage.getItem('mesa_atual') || '';
+            const partesNome = (clienteLogado.nome || '').split(' ');
+            document.getElementById('convidadoNome').value = partesNome[0] || '';
+            document.getElementById('convidadoSobrenome').value = partesNome.slice(1).join(' ') || '';
+            document.getElementById('convidadoTelefone').value = sessionStorage.getItem('cliente_telefone') || '';
+            document.getElementById('convidadoTurma').value = sessionStorage.getItem('cliente_turma') || '';
+            document.getElementById('convidadoMesa').value = mesaUrl;
+            document.getElementById('convidadoSubtitulo').textContent = 'Seus dados foram preenchidos automaticamente com sua conta.';
+            document.getElementById('convidadoError').style.display = 'none';
+            document.getElementById('modalConvidado').classList.add('active');
+        }
+
+        function abrirCheckoutVisitante() {
+            const mesaUrl = new URLSearchParams(window.location.search).get('mesa') || sessionStorage.getItem('mesa_atual') || '';
+            document.getElementById('convidadoNome').value = '';
+            document.getElementById('convidadoSobrenome').value = '';
+            document.getElementById('convidadoTelefone').value = '';
+            document.getElementById('convidadoTurma').value = '';
+            document.getElementById('convidadoMesa').value = mesaUrl;
+            document.getElementById('convidadoSubtitulo').textContent = 'Informe seu Nome e Sobrenome para identificação da retirada.';
+            document.getElementById('convidadoError').style.display = 'none';
+            document.getElementById('modalConvidado').classList.add('active');
+        }
+
+        async function confirmarPedidoConvidado() {
+            const nome = document.getElementById('convidadoNome').value.trim();
+            const sobrenome = document.getElementById('convidadoSobrenome').value.trim();
+            const telefone = document.getElementById('convidadoTelefone').value.trim();
+            const turma = document.getElementById('convidadoTurma').value.trim();
+            const mesa = document.getElementById('convidadoMesa').value.trim();
+            const formaPagamento = document.getElementById('convidadoFormaPagamento').value;
+            const err = document.getElementById('convidadoError');
+
+            if(!nome) { err.textContent = 'Por favor, informe seu Nome'; err.style.display = 'block'; return; }
+            if(!sobrenome) { err.textContent = 'Por favor, informe seu Sobrenome'; err.style.display = 'block'; return; }
+
+            const nomeCompleto = `${nome} ${sobrenome}`.trim();
+            const total = carrinho.reduce((s,i) => s + i.quantidade * i.precoUnitario, 0);
+            
+            pedidoAtual = {
+                nomeCliente: nomeCompleto,
+                turma: turma,
+                mesa: mesa || null,
+                formaPagamento: formaPagamento,
+                horarioRetirada: 'Em breve',
+                itens: [...carrinho],
+                total: total,
+                clienteAppId: clienteLogado ? clienteLogado.id : null,
+                observacao: telefone ? `Telefone: ${telefone}` : null
+            };
+
+            fecharModal('modalConvidado');
+
+            if(formaPagamento === 'pix') {
+                await abrirModalPix(total);
+            } else {
+                try {
+                    const res = await fetch(API_URL + '/pedidos', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(pedidoAtual)
+                    });
+                    if(res.ok) {
+                        alert(`✅ Pedido de ${nomeCompleto} realizado com sucesso! Aguarde a chamada.`);
+                        carrinho = [];
+                        atualizarCarrinhoUI();
+                        toggleCart();
+                    } else {
+                        const data = await res.json();
+                        alert('Erro ao enviar pedido: ' + (data.erro || 'Tente novamente'));
+                    }
+                } catch(e) {
+                    alert('Erro de conexão ao enviar pedido');
+                }
+            }
+        }
+
+        async function abrirModalPix(total) {
+            document.getElementById('modalPix').classList.add('active');
+            ['pixQrPlaceholder','pixQrImg','pixChaveCopia','pixCopiarBtn','pixStatusMsg'].forEach(id => {
+                document.getElementById(id).style.display = (id === 'pixQrPlaceholder') ? 'flex' : 'none';
+            });
+            try {
+                const res = await fetch(API_URL + '/pix/gerar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ valor: total, descricao: 'Pedido Doutor Paladar' })
+                });
+                const data = await res.json();
+                if(data.qrCodeBase64) {
+                    document.getElementById('pixQrImg').src = 'data:image/png;base64,' + data.qrCodeBase64;
+                    document.getElementById('pixQrImg').style.display = 'block';
+                    document.getElementById('pixQrPlaceholder').style.display = 'none';
+                }
+                if(data.txid) window._pixTxid = data.txid;
+                if(data.chavePix) {
+                    document.getElementById('pixChaveCopia').textContent = data.chavePix;
+                    document.getElementById('pixChaveCopia').style.display = 'block';
+                    document.getElementById('pixCopiarBtn').style.display = 'block';
+                    window._pixChave = data.chavePix;
+                }
+            } catch(e) {
+                document.getElementById('pixQrPlaceholder').innerHTML = '<p>Chave PIX:<br><strong>doutor.paladar@cantina.com</strong></p>';
+                document.getElementById('pixChaveCopia').textContent = 'doutor.paladar@cantina.com';
+                ['pixChaveCopia','pixCopiarBtn'].forEach(id => document.getElementById(id).style.display = 'block');
+                window._pixChave = 'doutor.paladar@cantina.com';
+            }
+        }
+
+        function copiarChavePix() {
+            navigator.clipboard.writeText(window._pixChave || 'doutor.paladar@cantina.com')
+                .then(() => alert('✅ Chave PIX copiada!'))
+                .catch(() => alert('Chave: ' + (window._pixChave || 'doutor.paladar@cantina.com')));
+        }
+
+        async function simularPagamentoPix() {
+            const s = document.getElementById('pixStatusMsg');
+            s.style.display = 'block';
+            s.style.color = '#f59e0b';
+            s.textContent = '⏳ Processando confirmação...';
+            try {
+                await fetch(API_URL + '/pix/simular-pagamento', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ txid: window._pixTxid })
+                });
+            } catch(e) {}
+            if(!pedidoAtual) return;
+            try {
+                const res = await fetch(API_URL + '/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(pedidoAtual)
+                });
+                if(res.ok) {
+                    s.style.color = '#10b981';
+                    s.textContent = '✅ Pagamento aprovado! Pedido confirmado.';
+                    setTimeout(() => {
+                        fecharModal('modalPix');
+                        carrinho = [];
+                        atualizarCarrinhoUI();
+                        toggleCart();
+                    }, 1800);
+                } else {
+                    const d = await res.json();
+                    s.style.color = 'var(--danger)';
+                    s.textContent = '❌ ' + (d.erro || 'Erro ao confirmar');
+                }
+            } catch(e) {
+                s.style.color = 'var(--danger)';
+                s.textContent = '❌ Erro de conexão';
+            }
+        }
+
+        async function carregarPontosFidelidadeCliente() {
+            if(!clienteLogado || !clienteLogado.token) return;
+            try {
+                const res = await fetch(API_URL + '/clientes-app/perfil', {
+                    headers: { Authorization: `Bearer ${clienteLogado.token}` }
+                });
+                if(res.ok) {
+                    const perfil = await res.json();
+                    clienteLogado.pontosFidelidade = perfil.pontosFidelidade || 0;
+                    sessionStorage.setItem('cliente_pontos', clienteLogado.pontosFidelidade);
+                }
+            } catch(e) {}
+        }
+
+        function abrirPerfil() {
+            if(!clienteLogado) return;
+            document.getElementById('perfilNome').textContent = clienteLogado.nome;
+            document.getElementById('perfilTelefone').textContent = sessionStorage.getItem('cliente_telefone') || 'Não informado';
+            document.getElementById('perfilTurma').textContent = sessionStorage.getItem('cliente_turma') || 'Não informada';
+            renderSelosFidelidade();
+            document.getElementById('modalPerfil').classList.add('active');
+        }
+
+        async function renderSelosFidelidade() {
+            await carregarPontosFidelidadeCliente();
+            const p = clienteLogado?.pontosFidelidade || 0;
+            const g = document.getElementById('selosGrid');
+            if(!g) return;
+            g.innerHTML = Array.from({length:10}, (_,i) => `<span style="font-size:1.5rem; filter:${i < (p % 10) ? 'none' : 'grayscale(1)'};">🏅</span>`).join('');
+            const txtContainer = document.getElementById('selosTexto');
+            if(txtContainer) {
+                txtContainer.innerHTML = `<div style="font-size:0.86rem;font-weight:700;color:#92400e;">Total acumulado: ${p} pontos</div>`;
+            }
+        }
+
+        function abrirModalAdminLogin() {
+            document.getElementById('adminUser').value = '';
+            document.getElementById('adminPass').value = '';
+            document.getElementById('adminLoginError').style.display = 'none';
+            document.getElementById('modalAdminLogin').classList.add('active');
+        }
+
+        async function autenticarAdmin() {
+            const usuario = document.getElementById('adminUser').value.trim();
+            const senha = document.getElementById('adminPass').value;
+            try {
+                const res = await fetch(API_URL + '/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: usuario, password: senha })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    sessionStorage.setItem('token', data.token);
+                    sessionStorage.setItem('admin_logado', 'true');
+                    sessionStorage.setItem('admin_nome', data.nome || 'Administrador');
+                    window.location.href = 'admin.html';
+                } else {
+                    document.getElementById('adminLoginError').textContent = '❌ ' + (data.erro || 'Usuário ou senha incorretos');
+                    document.getElementById('adminLoginError').style.display = 'block';
+                }
+            } catch(e) {
+                document.getElementById('adminLoginError').textContent = '❌ Erro de conexão com o servidor';
+                document.getElementById('adminLoginError').style.display = 'block';
+            }
+        }
+
+        async function fazerLogin() {
+            const login = document.getElementById('loginUsuario').value.trim();
+            const senha = document.getElementById('loginSenha').value;
+            const err = document.getElementById('loginError');
+            if(!login || !senha) { err.textContent = 'Preencha todos os campos'; err.style.display = 'block'; return; }
+            try {
+                const res = await fetch(API_URL + '/clientes/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login, senha })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    sessionStorage.setItem('cliente_token', data.token);
+                    sessionStorage.setItem('cliente_nome', data.nome);
+                    sessionStorage.setItem('cliente_id', data.id);
+                    sessionStorage.setItem('cliente_usuario', data.usuario);
+                    sessionStorage.setItem('cliente_telefone', data.telefone || '');
+                    sessionStorage.setItem('cliente_pontos', data.pontosFidelidade || 0);
+                    if(data.turma) sessionStorage.setItem('cliente_turma', data.turma);
+                    clienteLogado = { token: data.token, nome: data.nome, id: data.id, pontosFidelidade: parseInt(data.pontosFidelidade || 0, 10) };
+                    fecharModal('modalLogin');
+                    atualizarUI();
+                } else {
+                    err.textContent = data.erro || 'Credenciais inválidas';
+                    err.style.display = 'block';
+                }
+            } catch(e) {
+                err.textContent = 'Erro de conexão';
+                err.style.display = 'block';
+            }
+        }
+
+        async function fazerCadastro() {
+            const nome = document.getElementById('cadNome').value.trim();
+            const usuario = document.getElementById('cadUsuario').value.trim();
+            const telefone = document.getElementById('cadTelefone').value.replace(/\D/g, '');
+            const turma = document.getElementById('cadTurma').value.trim();
+            const senha = document.getElementById('cadSenha').value;
+            const err = document.getElementById('cadastroError');
+            
+            if(!nome || nome.length < 3) { err.textContent = 'Nome inválido'; err.style.display = 'block'; return; }
+            if(!usuario || usuario.length < 3) { err.textContent = 'Usuário deve ter pelo menos 3 caracteres'; err.style.display = 'block'; return; }
+            if(telefone.length < 10) { err.textContent = 'Telefone inválido'; err.style.display = 'block'; return; }
+            if(!senha || senha.length < 6) { err.textContent = 'Senha deve ter pelo menos 6 caracteres'; err.style.display = 'block'; return; }
+            
+            try {
+                const res = await fetch(API_URL + '/clientes/cadastrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, usuario, telefone, turma, senha })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    err.style.color = '#10b981';
+                    err.textContent = '✅ Cadastro realizado com sucesso! Faça login.';
+                    err.style.display = 'block';
+                    setTimeout(() => {
+                        fecharModal('modalCadastro');
+                        abrirModalLogin();
+                        err.style.display = 'none';
+                    }, 1500);
+                } else {
+                    err.style.color = '#ef4444';
+                    err.textContent = data.erro || 'Erro ao cadastrar';
+                    err.style.display = 'block';
+                }
+            } catch(e) {
+                err.textContent = 'Erro de conexão';
+                err.style.display = 'block';
+            }
+        }
+
+        function logout() {
+            sessionStorage.clear();
+            clienteLogado = null;
+            carrinho = [];
+            atualizarUI();
+        }
+
+        function atualizarUI() {
+            const userArea = document.getElementById('userArea');
+            if(clienteLogado) { 
+                const pts = clienteLogado.pontosFidelidade || parseInt(sessionStorage.getItem('cliente_pontos') || '0', 10);
+                userArea.innerHTML = `
+                    <div class="user-name-tag" onclick="abrirPerfil()" title="Ver Perfil e Fidelidade" style="background:#f0faf4; color:#1b4332; border:1px solid #d7f0e3; padding:7px 16px; border-radius:var(--radius-full); font-weight:700; cursor:pointer;">
+                        <i class="fas fa-user-circle" style="color:#2d7d52;"></i> ${clienteLogado.nome} 
+                        <span style="background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:10px; font-size:0.75rem; font-weight:800;">${pts} pts</span>
+                    </div>
+                    <button class="btn-mc-outline" onclick="logout()" title="Sair" style="padding:8px 12px;"><i class="fas fa-sign-out-alt"></i></button>
+                    <button class="btn-mc-outline" style="padding: 8px 12px;" onclick="abrirModalAdminLogin()" title="Acesso do Gestor"><i class="fas fa-lock"></i></button>
+                `; 
+            } else { 
+                userArea.innerHTML = `
+                    <button class="btn-mc-outline" id="loginBtn" onclick="abrirModalLogin()"><i class="fas fa-user"></i> Entrar</button>
+                    <button class="btn-mc-primary" onclick="scrollToCardapio()"><i class="fas fa-shopping-bag"></i> Fazer Pedido</button>
+                    <button class="btn-mc-outline" style="padding: 8px 12px;" onclick="abrirModalAdminLogin()" title="Acesso do Gestor"><i class="fas fa-lock"></i></button>
+                `; 
+            }
+            atualizarCarrinhoUI();
+        }
+
+        function abrirModalAgendamentoCliente() {
+            document.getElementById('modalAgendamentoCliente').classList.add('active');
+            mudarTabAgendamento('disponiveis');
+        }
+
+        function mudarTabAgendamento(tab) {
+            const btnDisp = document.getElementById('btnTabDisponiveis');
+            const btnMeus = document.getElementById('btnTabMeus');
+            const pDisp = document.getElementById('painelAgendamentosDisponiveis');
+            const pMeus = document.getElementById('painelMeusAgendamentosCliente');
+
+            if (tab === 'disponiveis') {
+                btnDisp.className = 'btn btn-sm btn-primary';
+                btnMeus.className = 'btn btn-sm btn-secondary';
+                pDisp.style.display = 'block';
+                pMeus.style.display = 'none';
+                carregarAgendamentosClienteDisponiveis();
+            } else {
+                btnMeus.className = 'btn btn-sm btn-primary';
+                btnDisp.className = 'btn btn-sm btn-secondary';
+                pDisp.style.display = 'none';
+                pMeus.style.display = 'block';
+                carregarMeusAgendamentosCliente();
+            }
+        }
+
+        async function carregarAgendamentosClienteDisponiveis() {
+            const grid = document.getElementById('listaAgendamentosClienteGrid');
+            try {
+                const res = await fetch(API_URL + '/agendamentos');
+                if(!res.ok) throw new Error('Erro ao carregar');
+                const agendamentos = await res.json();
+                const disponiveis = agendamentos.filter(a => a.status === 'disponivel' || (!a.bloqueado && (a.vagasDisponiveis > 0 || (a.vagasTotais - (a.vagasOcupadas || 0)) > 0)));
+
+                if(disponiveis.length === 0) {
+                    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-calendar-times" style="font-size: 2rem; margin-bottom: 0.5rem; color: var(--warning);"></i>
+                        <p style="font-weight: 600;">Nenhum agendamento disponível no momento.</p>
+                    </div>`;
+                    return;
+                }
+
+                grid.innerHTML = disponiveis.map(a => {
+                    const vagasRestantes = Math.max(0, a.vagasTotais - (a.vagasOcupadas || 0));
+                    const esgotado = vagasRestantes === 0;
+                    return `
+                        <div style="background: var(--bg-card); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between;">
+                            <div>
+                                <span class="badge badge-green">📅 ${a.data} · ${a.horario}</span>
+                                <h4 style="font-size: 1.05rem; margin: 0.8rem 0 0.2rem; font-weight: 800;">${a.pratoDoDia || a.pratoNome || 'Prato do Dia'}</h4>
+                                <p style="font-size: 1.15rem; font-weight: 800; color: var(--primary); margin-bottom: 0.6rem;">R$ ${parseFloat(a.preco || 0).toFixed(2).replace('.', ',')}</p>
+                                <p style="font-size: 0.78rem; color: var(--text-muted);">Vagas: ${a.vagasOcupadas || 0}/${a.vagasTotais} (${vagasRestantes} restantes)</p>
+                            </div>
+                            <button onclick="reservarAgendamentoCliente(${a.id})" ${esgotado ? 'disabled' : ''} class="btn btn-primary" style="margin-top: 1rem; width: 100%;">
+                                ${esgotado ? 'Vagas Esgotadas' : 'Reservar Vaga'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+            } catch(e) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--danger); grid-column: 1/-1;">Erro ao carregar horários.</p>`;
+            }
+        }
+
+        async function reservarAgendamentoCliente(agendamentoId) {
+            if (!clienteLogado) {
+                alert('Faça login para reservar uma refeição.');
+                fecharModal('modalAgendamentoCliente');
+                abrirModalLogin();
+                return;
+            }
+            try {
+                const res = await fetch(API_URL + '/agendamentos/reservar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        agendamentoId,
+                        clienteAppId: clienteLogado.id,
+                        nomeCliente: clienteLogado.nome,
+                        telefone: sessionStorage.getItem('cliente_telefone') || '',
+                        turma: sessionStorage.getItem('cliente_turma') || ''
+                    })
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    alert('🎉 Reserva efetuada com sucesso!');
+                    mudarTabAgendamento('meus');
+                } else {
+                    alert('⚠️ ' + (data.erro || 'Erro ao efetuar reserva.'));
+                }
+            } catch(e) {
+                alert('Erro de conexão ao realizar reserva.');
+            }
+        }
+
+        async function carregarMeusAgendamentosCliente() {
+            const grid = document.getElementById('listaMeusAgendamentosClienteGrid');
+            if(!clienteLogado) {
+                grid.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <p style="margin-bottom: 1rem;">Faça login para visualizar suas reservas.</p>
+                    <button class="btn btn-primary" onclick="fecharModal('modalAgendamentoCliente'); abrirModalLogin();">Entrar Agora</button>
+                </div>`;
+                return;
+            }
+            try {
+                const token = sessionStorage.getItem('cliente_token');
+                const res = await fetch(API_URL + '/agendamentos/meus-agendamentos', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                if(!res.ok) throw new Error('Erro ao buscar reservas');
+                const reservas = await res.json();
+                if(reservas.length === 0) {
+                    grid.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <p>Você não possui reservas ativas.</p>
+                    </div>`;
+                    return;
+                }
+                grid.innerHTML = reservas.map(r => `
+                    <div style="background: var(--bg-card); border-radius: var(--radius-md); padding: 1rem; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="font-size: 0.95rem;">${r.pratoNome || 'Prato do Dia'}</strong>
+                            <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">📅 ${r.data} · ${r.horario} · R$ ${parseFloat(r.preco || 0).toFixed(2).replace('.', ',')}</p>
+                        </div>
+                        <span class="badge badge-success">${r.status?.toUpperCase()}</span>
+                    </div>
+                `).join('');
+            } catch(e) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--danger);">Erro ao carregar reservas.</p>`;
+            }
+        }
+
+        async function abrirModalChatCliente() {
+            if (!clienteLogado) {
+                alert('Faça login para acessar o chat com a cantina.');
+                abrirModalLogin();
+                return;
+            }
+            document.getElementById('modalChatCliente').classList.add('active');
+            await carregarMensagensClienteModal();
+        }
+
+        async function carregarMensagensClienteModal() {
+            if (!clienteLogado) return;
+            const container = document.getElementById('corpoMensagensCliente');
+            try {
+                const res = await fetch(`${API_URL}/chat/conversa/${clienteLogado.id}`);
+                if (res.ok) {
+                    const mensagens = await res.json();
+                    if (mensagens.length === 0) {
+                        container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin-top:2rem;">Nenhuma mensagem ainda. Envie uma mensagem para iniciar o atendimento!</p>';
+                        return;
+                    }
+                    container.innerHTML = mensagens.map(m => {
+                        const isMe = m.autor_tipo === 'cliente';
+                        const hora = m.data ? new Date(m.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                        return `
+                            <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 80%; background: ${isMe ? 'var(--primary)' : 'var(--gray-800)'}; color: white; padding: 10px 14px; border-radius: var(--radius-md); font-size: 0.88rem;">
+                                <div style="font-size: 0.7rem; opacity: 0.8; margin-bottom: 2px;">${isMe ? 'Você' : (m.autor_nome || 'Cantina')}</div>
+                                <div>${m.mensagem}</div>
+                                <div style="font-size: 0.65rem; opacity: 0.7; text-align: right; margin-top: 4px;">${hora}</div>
+                            </div>`;
+                    }).join('');
+                    container.scrollTop = container.scrollHeight;
+                }
+            } catch(e) {}
+        }
+
+        async function enviarMensagemClienteModal() {
+            const input = document.getElementById('inputMensagemCliente');
+            const mensagem = input.value.trim();
+            if (!mensagem || !clienteLogado) return;
+            try {
+                const res = await fetch(`${API_URL}/chat/enviar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mensagem,
+                        autor_id: clienteLogado.id,
+                        autor_nome: clienteLogado.nome,
+                        autor_tipo: 'cliente',
+                        conversaId: clienteLogado.id
+                    })
+                });
+                if (res.ok) {
+                    input.value = '';
+                    await carregarMensagensClienteModal();
+                }
+            } catch(e) {}
+        }
+
+        function scrollToCardapio() {
+            document.getElementById('cardapio')?.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // Inicialização
+        const token = sessionStorage.getItem('cliente_token');
+        const nome = sessionStorage.getItem('cliente_nome');
+        const id = sessionStorage.getItem('cliente_id');
+        const ptsSalvos = sessionStorage.getItem('cliente_pontos');
+        if(token && nome && id) {
+            clienteLogado = { token, nome, id: parseInt(id), pontosFidelidade: parseInt(ptsSalvos || '0', 10) };
+        }
+
+        carregarProdutos();
+        if(clienteLogado) {
+            carregarPontosFidelidadeCliente().then(() => atualizarUI());
+        } else {
+            atualizarUI();
+        }
+    </script>
+</body>
+</html>

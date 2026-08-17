@@ -1,0 +1,74 @@
+﻿/* =====================================================
+   DOUTOR PALADAR — style.css (legado / compatibilidade)
+   Importa o novo design system theme.css
+   ===================================================== */
+@import url('theme.css');
+
+/* Aliases de compatibilidade para código legado */
+:root {
+    --card:        var(--bg-card);
+    --bg-body:     var(--bg);
+    --bg-hover:    #f0faf4;
+    --border-light: var(--border);
+    --border-input: var(--border);
+    --shadow-glow:  0 0 15px rgba(45,125,82,0.15);
+    --shadow-card:  var(--shadow-sm);
+    --radius:       var(--radius-lg);
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --radius-2xl:   28px;
+    --radius-full:  9999px;
+    --accent-glow:  rgba(45,125,82,0.2);
+    --text-primary: var(--text);
+    --text-secondary: var(--text-muted);
+    --bg-card:      #ffffff;
+    --bg-card-solid: #ffffff;
+    --bg-header:    rgba(255,255,255,0.97);
+    --bg-input:     var(--gray-50);
+    --bg-glass:     rgba(255,255,255,0.9);
+    --brown-sidebar: linear-gradient(180deg, #1b4332, #0d2818);
+    --shadow-3d:    var(--shadow-md);
+    --shadow-3d-sm: var(--shadow-sm);
+    --shadow-button: var(--shadow-green);
+    --primary-glow:  rgba(45,125,82,0.2);
+    --text-muted: #6b5a49;
+    --text-inverse: #ffffff;
+}
+
+/* Button aliases */
+.btn-primary { background: var(--primary); color: white; border: none; }
+.btn-secondary { background: var(--gray-50); color: var(--text); border: 1px solid var(--border); }
+
+/* Form aliases */
+.form-control { border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text); }
+.form-control:focus { border-color: var(--border-focus); box-shadow: 0 0 0 3px rgba(82,183,136,0.15); }
+
+/* Table aliases */
+.table-container { overflow-x: auto; }
+th { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); }
+td { font-size: 0.85rem; color: var(--text); vertical-align: middle; }
+
+/* Card aliases */
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+.card-header { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.card-title { font-size: 0.9rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.card-title i { color: var(--primary); }
+.card-body { padding: 20px; }
+
+/* Badge aliases */
+.badge-success { background: #f0faf4; color: #1e5c3a; }
+.badge-warning { background: #fffbeb; color: var(--warning); }
+.badge-danger  { background: #fef2f2; color: var(--danger); }
+
+/* Misc */
+.particles { display: none; }
+.topbar { background: var(--bg-card); border-bottom: 1px solid var(--border); padding: 0 24px; height: 60px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 50; box-shadow: var(--shadow-sm); }
+.page-title { font-size: 0.95rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 7px; }
+.topbar-right { display: flex; align-items: center; gap: 8px; }
+.main-content { flex: 1; margin-left: 255px; min-height: 100vh; display: flex; flex-direction: column; }
+.page-content { flex: 1; padding: 24px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 22px; right: 22px; padding: 11px 18px; border-radius: var(--radius-lg); color: white; font-weight: 600; font-size: 0.84rem; z-index: 2000; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 8px; max-width: 340px; }
+.toast.success { background: var(--primary); }
+.toast.error   { background: var(--danger); }

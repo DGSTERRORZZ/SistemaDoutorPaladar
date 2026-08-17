@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat ao Vivo · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #2d7d52;
+            --primary-dark: #1b4332;
+            --primary-light: #52b788;
+            --accent: #7b4f2e;
+            --bg: #f4f6f8;
+            --card: #ffffff;
+            --text: #1f2937;
+            --text-muted: #6b7280;
+            --border: #e5e7eb;
+            --danger: #ef4444;
+            --warning: #f59e0b;
+            --success: #2d6a4f;
+            --chat-bg: #efeae2;
+        }
+
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; }
+
+        /* Container Principal do Chat (WhatsApp Web Style) */
+        .chat-app { display: flex; height: 100vh; width: 100vw; background: var(--card); }
+
+        /* Painel Lateral Esquerdo (Lista de Conversas para Admin) */
+        .chat-sidebar {
+            width: 360px; border-right: 1px solid var(--border); display: flex;
+            flex-direction: column; background: var(--card); flex-shrink: 0;
+        }
+        
+        .sidebar-header-chat {
+            padding: 1rem 1.2rem; background: var(--primary-dark); color: white;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .conversa-item {
+            display: flex; align-items: center; gap: 12px; padding: 0.9rem 1.2rem;
+            border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s;
+            position: relative;
+        }
+        .conversa-item:hover { background: #f8fafc; }
+        .conversa-item.active { background: rgba(45,125,82,0.1); border-left: 4px solid var(--primary); }
+
+        .avatar-circle {
+            width: 44px; height: 44px; border-radius: 50%; background: var(--primary);
+            color: white; display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 1.1rem; flex-shrink: 0;
+        }
+
+        .badge-unread {
+            background: var(--danger); color: white; border-radius: 20px;
+            font-size: 0.75rem; font-weight: 800; padding: 2px 8px; margin-left: auto;
+        }
+
+        /* Área Principal da Conversa */
+        .chat-main { flex: 1; display: flex; flex-direction: column; background: var(--chat-bg); }
+
+        .chat-main-header {
+            padding: 0.8rem 1.5rem; background: var(--card); border-bottom: 1px solid var(--border);
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .chat-messages {
+            flex: 1; padding: 1.5rem; overflow-y: auto; display: flex; flex-direction: column; gap: 10px;
+        }
+
+        /* Balões de Mensagem */
+        .msg-bubble {
+            max-width: 65%; padding: 10px 14px; border-radius: 16px; font-size: 0.92rem;
+            line-height: 1.4; position: relative; word-break: break-word; box-shadow: 0 1px 2px rgba(0,0,0,0.06);
+        }
+        .msg-sent {
+            align-self: flex-end; background: #d9fdd3; color: #111b21; border-bottom-right-radius: 4px;
+        }
+        .msg-received {
+            align-self: flex-start; background: #ffffff; color: #111b21; border-bottom-left-radius: 4px;
+        }
+        .msg-info {
+            display: flex; justify-content: space-between; gap: 10px; font-size: 0.7rem;
+            color: #667781; margin-top: 4px; text-align: right;
+        }
+
+        /* Input de Envio */
+        .chat-input-bar {
+            padding: 1rem 1.5rem; background: var(--card); border-top: 1px solid var(--border);
+            display: flex; align-items: center; gap: 10px;
+        }
+        .chat-input-bar input {
+            flex: 1; padding: 12px 18px; border-radius: 24px; border: 2px solid var(--border);
+            font-size: 0.95rem; font-family: inherit; outline: none;
+        }
+        .chat-input-bar input:focus { border-color: var(--primary); }
+
+        .btn-send {
+            width: 46px; height: 46px; border-radius: 50%; border: none; background: var(--primary);
+            color: white; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center;
+            transition: transform 0.2s; box-shadow: var(--shadow-glow);
+        }
+        .btn-send:hover { transform: scale(1.05); }
+
+        /* Login Wall para Visitantes (Item 13) */
+        .login-wall {
+            position: fixed; inset: 0; background: rgba(0,0,0,0.85); backdrop-filter: blur(8px);
+            z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 2rem;
+        }
+        .wall-card {
+            background: var(--card); border-radius: 24px; padding: 2.5rem; max-width: 440px; text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Login Wall se não autenticado -->
+    <div class="login-wall" id="loginWall" style="display:none;">
+        <div class="wall-card">
+            <div style="font-size:3.5rem;color:var(--primary);margin-bottom:1rem;"><i class="fas fa-lock"></i></div>
+            <h2 style="color:var(--primary);margin-bottom:0.5rem;">Acesso Restrito ao Chat</h2>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">
+                O atendimento via chat é exclusivo para usuários cadastrados no sistema. Faça login para continuar.
+            </p>
+            <a href="index.html" style="display:inline-block;padding:12px 28px;border-radius:30px;background:var(--primary);color:white;font-weight:700;text-decoration:none;">
+                <i class="fas fa-sign-in-alt"></i> Fazer Login ou Criar Conta
+            </a>
+        </div>
+    </div>
+
+    <div class="chat-app">
+        <!-- Sidebar: Somente Visível para Admin (Item 15) -->
+        <div class="chat-sidebar" id="chatSidebar">
+            <div class="sidebar-header-chat">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <a href="admin.html" style="color:white;text-decoration:none;"><i class="fas fa-arrow-left"></i> Painel</a>
+                    <h3 style="font-size:1.1rem;"><i class="fas fa-comments"></i> Conversas</h3>
+                </div>
+            </div>
+            
+            <div style="padding:0.8rem;border-bottom:1px solid var(--border);">
+                <input type="text" id="buscaConversas" placeholder="🔍 Buscar cliente..." onkeyup="filtrarConversas()" style="width:100%;padding:8px 12px;border-radius:12px;border:1px solid var(--border);font-size:0.85rem;">
+            </div>
+
+            <div id="listaConversas" style="flex:1;overflow-y:auto;"></div>
+        </div>
+
+        <!-- Área Principal de Chat -->
+        <div class="chat-main">
+            <div class="chat-main-header">
+                <div style="display:flex;align-items:center;gap:12px;">
+                    <button id="btnVoltarNav" onclick="voltarPagina()" style="background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text);"><i class="fas fa-arrow-left"></i></button>
+                    <div class="avatar-circle" id="headerAvatar">C</div>
+                    <div>
+                        <h4 id="headerNome" style="font-size:1rem;color:var(--text);">Carregando...</h4>
+                        <span style="font-size:0.75rem;color:var(--success);font-weight:700;">🟢 Atendimento Online</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="chat-messages" id="chatMessages">
+                <p style="text-align:center;color:var(--text-muted);margin-top:2rem;">Carregando mensagens...</p>
+            </div>
+
+            <form class="chat-input-bar" onsubmit="enviarMensagem(event)">
+                <input type="text" id="msgInput" placeholder="Digite sua mensagem aqui..." autocomplete="off" required>
+                <button type="submit" class="btn-send"><i class="fas fa-paper-plane"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.socket.io/4.7.5/socket.io.min.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let usuarioLogado = null;
+        let isAdmin = false;
+        let conversaAtivaId = null;
+        let conversasLista = [];
+        let socket = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            verificarAutenticacao();
+            iniciarSocket();
+        });
+
+        function verificarAutenticacao() {
+            if(sessionStorage.getItem('admin_logado') === 'true') {
+                isAdmin = true;
+                usuarioLogado = { id: 0, nome: sessionStorage.getItem('admin_nome') || 'Gestor', tipo: 'admin' };
+                document.getElementById('chatSidebar').style.display = 'flex';
+                carregarConversasAdmin();
+            } else {
+                alert('Acesso negado: área exclusiva do administrador.');
+                window.location.href = 'index.html';
+            }
+        }
+
+        function iniciarSocket() {
+            try {
+                if(typeof io !== 'undefined') {
+                    socket = io('http://localhost:3000');
+                    socket.on('nova_mensagem', (msg) => {
+                        if(isAdmin) {
+                            carregarConversasAdmin();
+                            if(conversaAtivaId && msg.conversaId == conversaAtivaId) {
+                                carregarMensagensConversa(conversaAtivaId);
+                            }
+                        } else if(usuarioLogado && msg.conversaId == usuarioLogado.id) {
+                            carregarMensagensCliente();
+                        }
+                    });
+                }
+            } catch(e) { console.error('Erro no socket:', e); }
+        }
+
+        async function carregarConversasAdmin() {
+            try {
+                const res = await fetch(`${API_URL}/chat/conversas`, {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if(res.ok) {
+                    conversasLista = await res.json();
+                    renderListaConversas();
+                    
+                    const urlParams = new URLSearchParams(window.location.search);
+                    const paramCliente = urlParams.get('cliente');
+                    if(paramCliente) {
+                        selecionarConversa(parseInt(paramCliente));
+                    } else if(!conversaAtivaId && conversasLista.length > 0) {
+                        selecionarConversa(conversasLista[0].clienteId);
+                    } else if(conversasLista.length === 0) {
+                        document.getElementById('headerNome').textContent = 'Atendimento ao Cliente';
+                        document.getElementById('headerAvatar').textContent = '💬';
+                        renderMensagens([]);
+                    }
+                } else {
+                    renderMensagens([]);
+                }
+            } catch(e) {
+                console.error('Erro ao carregar conversas admin:', e);
+                renderMensagens([]);
+            }
+        }
+
+        function renderListaConversas() {
+            const container = document.getElementById('listaConversas');
+            if(!conversasLista.length) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:2rem;font-size:0.85rem;">Nenhuma conversa aberta no momento.</p>';
+                return;
+            }
+
+            container.innerHTML = conversasLista.map(c => {
+                const active = conversaAtivaId === c.clienteId ? 'active' : '';
+                const unreadBadge = c.naoLidas > 0 ? `<span class="badge-unread">${c.naoLidas}</span>` : '';
+                const ultima = c.ultimaMensagem || 'Conversa iniciada';
+                const inicial = c.clienteNome ? c.clienteNome.charAt(0).toUpperCase() : 'C';
+
+                return `
+                    <div class="conversa-item ${active}" onclick="selecionarConversa(${c.clienteId}, '${escapeHtml(c.clienteNome)}')">
+                        <div class="avatar-circle">${inicial}</div>
+                        <div style="flex:1;min-width:0;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;">
+                                <strong style="font-size:0.9rem;color:var(--text);">${escapeHtml(c.clienteNome)}</strong>
+                                ${unreadBadge}
+                            </div>
+                            <p style="font-size:0.8rem;color:var(--text-muted);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${escapeHtml(ultima)}</p>
+                        </div>
+                    </div>`;
+            }).join('');
+        }
+
+        function filtrarConversas() {
+            const q = document.getElementById('buscaConversas').value.toLowerCase();
+            const items = document.querySelectorAll('.conversa-item');
+            items.forEach(i => i.style.display = i.textContent.toLowerCase().includes(q) ? '' : 'none');
+        }
+
+        async function selecionarConversa(clienteId, nome) {
+            conversaAtivaId = clienteId;
+            const cliente = conversasLista.find(x => x.clienteId === clienteId);
+            const clienteNome = nome || (cliente ? cliente.clienteNome : `Cliente #${clienteId}`);
+
+            document.getElementById('headerNome').textContent = clienteNome;
+            document.getElementById('headerAvatar').textContent = clienteNome.charAt(0).toUpperCase();
+
+            renderListaConversas();
+            await carregarMensagensConversa(clienteId);
+        }
+
+        async function carregarMensagensCliente() {
+            if(!usuarioLogado || !usuarioLogado.id) {
+                renderMensagens([]);
+                return;
+            }
+            try {
+                const res = await fetch(`${API_URL}/chat/minhas-mensagens?clienteId=${usuarioLogado.id}`);
+                if(res.ok) {
+                    const mensagens = await res.json();
+                    renderMensagens(mensagens);
+                } else {
+                    renderMensagens([]);
+                }
+            } catch(e) {
+                renderMensagens([]);
+            }
+        }
+
+        async function carregarMensagensConversa(conversaId) {
+            try {
+                const res = await fetch(`${API_URL}/chat/conversa/${conversaId}`);
+                if(res.ok) {
+                    const mensagens = await res.json();
+                    renderMensagens(mensagens);
+                } else {
+                    renderMensagens([]);
+                }
+            } catch(e) {
+                renderMensagens([]);
+            }
+        }
+
+        function renderMensagens(mensagens) {
+            const container = document.getElementById('chatMessages');
+            if(!mensagens || !mensagens.length) {
+                const msgPlaceholder = isAdmin
+                    ? 'Nenhuma mensagem nesta conversa ainda. Quando o cliente digitar, a mensagem aparecerá aqui.'
+                    : 'Olá! Seja bem-vindo ao Chat do Doutor Paladar. Envie sua mensagem para tirar dúvidas ou fazer solicitações com a cantina!';
+
+                container.innerHTML = `
+                    <div style="text-align:center;color:var(--text-muted);margin:3rem auto;max-width:380px;padding:1.5rem;background:var(--card);border-radius:16px;box-shadow:0 2px 10px rgba(0,0,0,0.04);">
+                        <i class="fas fa-comments" style="font-size:2.5rem;color:var(--primary);margin-bottom:0.8rem;"></i>
+                        <p style="font-size:0.9rem;line-height:1.5;">${msgPlaceholder}</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = mensagens.map(m => {
+                const eMinha = (isAdmin && m.autor_tipo === 'admin') || (!isAdmin && m.autor_tipo === 'cliente');
+                const horaFmt = new Date(m.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+
+                return `
+                    <div class="msg-bubble ${eMinha ? 'msg-sent' : 'msg-received'}">
+                        <div>${escapeHtml(m.mensagem)}</div>
+                        <div class="msg-info">
+                            <span>${escapeHtml(m.autor_nome)}</span>
+                            <span>${horaFmt}</span>
+                        </div>
+                    </div>`;
+            }).join('');
+
+            container.scrollTop = container.scrollHeight;
+        }
+
+        async function enviarMensagem(e) {
+            e.preventDefault();
+            const input = document.getElementById('msgInput');
+            const texto = input.value.trim();
+            if(!texto || !usuarioLogado) return;
+
+            const body = {
+                mensagem: texto,
+                autor_id: usuarioLogado.id,
+                autor_nome: usuarioLogado.nome,
+                autor_tipo: usuarioLogado.tipo,
+                conversaId: conversaAtivaId || usuarioLogado.id
+            };
+
+            try {
+                const res = await fetch(`${API_URL}/chat/enviar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+
+                if(res.ok) {
+                    input.value = '';
+                    if(isAdmin) {
+                        await carregarMensagensConversa(conversaAtivaId);
+                    } else {
+                        await carregarMensagensCliente();
+                    }
+                } else {
+                    alert('Erro ao enviar mensagem');
+                }
+            } catch(err) { alert('Erro ao enviar mensagem'); }
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        }
+
+        function voltarPagina() {
+            if(isAdmin) window.location.href = 'admin.html';
+            else window.location.href = 'index.html';
+        }
+    </script>
+</body>
+</html>
