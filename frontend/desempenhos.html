@@ -1,12 +1,13 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Desempenhos · Doutor Paladar</title>
+    <title>Analytics & Desempenho · Doutor Paladar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <link rel="stylesheet" href="css/theme.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -14,7 +15,7 @@
             --primary: #2d7d52;
             --primary-dark: #1b4332;
             --primary-light: #52b788;
-            --brown: #6b4423;
+            --accent: #7b4f2e;
             --bg: #f8f9fa;
             --card: #ffffff;
             --text: #1f2937;
@@ -23,241 +24,124 @@
             --danger: #ef4444;
             --warning: #f59e0b;
             --success: #2d6a4f;
-            --shadow-3d: 0 10px 25px -5px rgba(0,0,0,0.08);
-            --shadow-card: 0 4px 15px rgba(0,0,0,0.04);
-            --shadow-glow: 0 0 15px rgba(45,106,79,0.15);
+            --shadow-card: 0 4px 16px rgba(0,0,0,0.06);
+            --shadow-glow: 0 0 15px rgba(45,125,82,0.15);
         }
         
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            overflow-x: hidden;
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        h1, h2, h3, h4, .page-title { font-family: 'Playfair Display', serif; }
+        
+        .admin-layout { display: flex; min-height: 100vh; }
+        .main-content { flex: 1; padding: 2rem; }
+        
+        .topbar {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-bottom: 1.5rem; background: var(--card); padding: 1.2rem 2rem;
+            border-radius: 20px; box-shadow: var(--shadow-card); flex-wrap: wrap; gap: 1rem;
         }
-        
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .fade-in-up { animation: fadeInUp 0.5s ease forwards; }
-        
-        .particles { position: fixed; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 0; overflow: hidden; }
-        .particle { position: absolute; border-radius: 50%; animation: floatUp linear infinite; opacity: 0; }
-        @keyframes floatUp { 0%{transform:translateY(110vh) scale(0);opacity:0} 10%{opacity:1} 90%{opacity:.6} 100%{transform:translateY(-10vh) scale(1);opacity:0} }
-        
-        body { font-family: var(--font-sans, 'Inter', sans-serif); }
-        h1, h2, h3, h4, h5, h6, .logo, .page-title, .stat-value { font-family: var(--font-display, 'Playfair Display', serif); letter-spacing: -0.02em; }
-        
-        
 
-        
-        
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 800;
-            background: linear-gradient(135deg, var(--primary), var(--primary-light));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            cursor: pointer;
+        /* Tabs de Navegação por Contexto */
+        .context-tabs {
+            display: flex; gap: 0.5rem; overflow-x: auto; padding-bottom: 0.5rem; margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--border);
         }
-        
-        .logo span {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            padding: 8px 12px;
-            border-radius: 12px;
-            color: white;
-            box-shadow: var(--shadow-glow);
+        .tab-item {
+            padding: 10px 20px; border-radius: 30px; background: var(--card); color: var(--text-muted);
+            font-weight: 600; font-size: 0.9rem; border: 1px solid var(--border); cursor: pointer;
+            display: flex; align-items: center; gap: 8px; white-space: nowrap; transition: all 0.2s;
         }
-        
-        .btn-back {
-            background: rgba(200, 105, 26, 0.15);
-            border: none;
-            color: var(--primary);
-            padding: 8px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            transition: all 0.3s;
+        .tab-item:hover { color: var(--primary); border-color: var(--primary); }
+        .tab-item.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: var(--shadow-glow); }
+
+        /* Barra de Filtros Completa */
+        .filter-card {
+            background: var(--card); padding: 1.2rem 1.5rem; border-radius: 20px; margin-bottom: 1.5rem;
+            box-shadow: var(--shadow-card); display: flex; gap: 1rem; flex-wrap: wrap; align-items: center;
         }
-        
-        .btn-back:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
+        .filter-group { display: flex; flex-direction: column; gap: 4px; }
+        .filter-group label { font-size: 0.75rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .filter-group select, .filter-group input {
+            padding: 8px 12px; border-radius: 12px; border: 2px solid var(--border); background: var(--bg);
+            color: var(--text); font-size: 0.9rem; font-family: inherit;
         }
-        
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 1.5rem;
-            position: relative;
-            z-index: 1;
-        }
-        
-        .filtros-container {
-            background: var(--card);
-            border-radius: 24px;
-            padding: 1.5rem;
-            margin-bottom: 1.5rem;
-            box-shadow: var(--shadow-card);
-            border: 1px solid rgba(200, 105, 26, 0.1);
-        }
-        
-        .periodo-selector {
-            display: flex;
-            gap: 0.8rem;
-            flex-wrap: wrap;
-            margin-top: 1rem;
-        }
-        
-        .periodo-btn {
-            padding: 0.6rem 1.2rem;
-            border: 2px solid var(--border);
-            background: var(--bg);
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-            color: var(--text-muted);
-        }
-        
-        .periodo-btn:hover, .periodo-btn.ativo {
-            background: var(--primary);
-            color: white;
-            border-color: var(--primary);
-            box-shadow: var(--shadow-glow);
-        }
-        
+
+        /* Grid de Cards Indicadores */
         .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 1rem;
-            margin-bottom: 1.5rem;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 1.2rem; margin-bottom: 1.5rem;
         }
-        
         .stat-card {
-            background: var(--card);
-            padding: 1.2rem;
-            border-radius: 20px;
-            border-left: 4px solid var(--primary);
-            transition: all 0.3s;
-            box-shadow: var(--shadow-card);
+            background: var(--card); padding: 1.4rem; border-radius: 20px; box-shadow: var(--shadow-card);
+            border: 1px solid var(--border); display: flex; flex-direction: column; justify-content: space-between;
+            position: relative; overflow: hidden;
         }
-        
-        .stat-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-3d); }
-        .stat-value { font-size: 2rem; font-weight: 800; color: var(--primary); }
-        .stat-label { font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        
-        .tabs-container {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 0.5rem;
-            margin-bottom: 1.5rem;
-            display: flex;
-            gap: 0.5rem;
-            flex-wrap: wrap;
+        .stat-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; background: var(--primary);
         }
-        
-        .tab-btn {
-            padding: 0.7rem 1.5rem;
-            border: none;
-            background: transparent;
-            border-radius: 30px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 0.85rem;
-            transition: all 0.3s;
-            color: var(--text-muted);
-        }
-        
-        .tab-btn:hover { background: rgba(200, 105, 26, 0.1); color: var(--primary); }
-        .tab-btn.active {
-            background: linear-gradient(135deg, var(--primary), var(--primary-dark));
-            color: white;
-            box-shadow: var(--shadow-glow);
-        }
-        
+        .stat-label { font-size: 0.82rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; }
+        .stat-value { font-size: 1.8rem; font-weight: 800; color: var(--text); margin: 0.4rem 0; }
+        .stat-sub { font-size: 0.78rem; color: var(--primary); font-weight: 600; }
+
+        /* Grid de Gráficos */
         .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 1.5rem;
-            margin-bottom: 1.5rem;
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 1.5rem; margin-bottom: 1.5rem;
         }
+        @media (max-width: 768px) { .charts-grid { grid-template-columns: 1fr; } }
         
         .chart-card {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 1.2rem;
-            transition: all 0.3s;
-            box-shadow: var(--shadow-card);
+            background: var(--card); padding: 1.5rem; border-radius: 20px; box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
         }
-        
-        .chart-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-3d); }
-        .chart-card canvas { max-height: 250px; width: 100%; }
-        
-        .card {
-            background: var(--card);
-            border-radius: 20px;
-            padding: 1.2rem;
-            margin-bottom: 1rem;
-            box-shadow: var(--shadow-card);
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+        .chart-title { font-size: 1.05rem; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+
+        /* Tabela Detalhada */
+        .table-card {
+            background: var(--card); padding: 1.5rem; border-radius: 20px; box-shadow: var(--shadow-card);
+            border: 1px solid var(--border); margin-bottom: 1.5rem;
         }
-        
-        .table-container { overflow-x: auto; border-radius: 16px; border: 1px solid var(--border); }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: var(--bg); padding: 12px; text-align: left; font-weight: 600; color: var(--text-muted); font-size: 0.8rem; border-bottom: 2px solid var(--border); }
-        td { padding: 12px; border-bottom: 1px solid var(--border); color: var(--text); }
-        tr:hover td { background: rgba(200, 105, 26, 0.05); }
-        
-        .empty-state { text-align: center; padding: 3rem; color: var(--text-muted); }
-        .empty-state i { font-size: 4rem; opacity: 0.3; margin-bottom: 1rem; }
-        
-        @media (max-width: 768px) {
-            .charts-grid { grid-template-columns: 1fr; }
-            .stats-grid { grid-template-columns: 1fr; }
-            .container { padding: 1rem; }
-            .topbar { flex-direction: column; gap: 10px; }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+        th, td { padding: 12px 16px; text-align: left; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
+        th { background: var(--bg); color: var(--text-muted); font-weight: 700; text-transform: uppercase; font-size: 0.75rem; }
+
+        .btn-export {
+            padding: 8px 16px; border-radius: 20px; border: none; font-weight: 600; cursor: pointer;
+            display: inline-flex; align-items: center; gap: 6px; font-size: 0.85rem; color: white;
         }
+        .btn-csv { background: #10b981; }
+        .btn-pdf { background: #6366f1; }
+        .btn-export:hover { opacity: 0.9; }
     </style>
 </head>
 <body>
-    <div class="particles" id="particles"></div>
-    
     <div class="admin-layout">
-                <aside class="sidebar">
+        <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-brand" onclick="window.location.href='admin.html'">
+                <a href="admin.html" class="sidebar-brand">
                     <div class="brand-icon"><i class="fas fa-utensils"></i></div>
                     <div class="brand-text">
                         <div class="brand-name">Doutor Paladar</div>
                         <div class="brand-sub">Painel Admin</div>
                     </div>
-                </div>
+                </a>
             </div>
             <nav class="sidebar-nav">
                 <div class="nav-section-title">Principal</div>
-                <a href="admin.html#dashboard" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
-                <a href="admin.html#pedidos" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
-                <div class="nav-section-title">Gestao</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
                 <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
-                <a href="estoque.html" class="nav-item "><i class="fas fa-box"></i> Produtos</a>
-                <a href="contas-receber.html" class="nav-item "><i class="fas fa-hand-holding-usd"></i> Contas a Receber</a>
-                <a href="despesas.html" class="nav-item "><i class="fas fa-receipt"></i> Despesas</a>
-                <a href="fornecedores.html" class="nav-item "><i class="fas fa-truck"></i> Fornecedores</a>
-                <div class="nav-section-title">Relatorios</div>
-                <a href="agendamentos.html" class="nav-item "><i class="fas fa-calendar-alt"></i> Agendamentos</a>
-                <a href="desempenhos.html" class="nav-item active"><i class="fas fa-chart-line"></i> Desempenhos</a>
-                <a href="configuracoes.html" class="nav-item "><i class="fas fa-cog"></i> Configuracoes</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Relatórios & Suporte</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="desempenhos.html" class="nav-item active"><i class="fas fa-chart-line"></i> Analytics & Desempenho</a>
+                <a href="chat.html" class="nav-item"><i class="fas fa-comments"></i> Chat ao Vivo</a>
+                <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
             </nav>
             <div class="sidebar-footer">
                 <div class="sidebar-user">
@@ -270,367 +154,421 @@
 
         <div class="main-content">
             <div class="topbar">
-                <div class="page-title" style="font-size: 1.3rem; font-weight: 700;"><i class="fas fa-chart-line" style="color: var(--primary);"></i> Relatórios de Desempenho</div>
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <button class="btn-primary" style="background: linear-gradient(135deg, var(--danger), #dc2626);" onclick="logoutAdmin()">Sair</button>
+                <div>
+                    <h2 class="page-title"><i class="fas fa-chart-line" style="color:var(--primary);"></i> Dashboard Analítico & Relatórios</h2>
+                    <p style="color:var(--text-muted);font-size:0.85rem;">Indicadores reais de vendas, pedidos, agendamentos, clientes e financeiro.</p>
+                </div>
+                <div style="display:flex;gap:10px;">
+                    <button onclick="exportarCSVAnalitico()" class="btn-export btn-csv"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+                    <button onclick="imprimirAnalitico()" class="btn-export btn-pdf"><i class="fas fa-print"></i> Imprimir PDF</button>
                 </div>
             </div>
-            
-            <div class="container">
-        <!-- Filtros -->
-        <div class="filtros-container">
-            <h3><i class="fas fa-calendar-alt"></i> Período de Análise</h3>
-            <div class="periodo-selector">
-                <button class="periodo-btn" data-periodo="hoje" onclick="mudarPeriodo('hoje')">Hoje</button>
-                <button class="periodo-btn" data-periodo="semana" onclick="mudarPeriodo('semana')">7 Dias</button>
-                <button class="periodo-btn" data-periodo="mes" onclick="mudarPeriodo('mes')">30 Dias</button>
-                <button class="periodo-btn" data-periodo="trimestre" onclick="mudarPeriodo('trimestre')">90 Dias</button>
-                <button class="periodo-btn" data-periodo="ano" onclick="mudarPeriodo('ano')">365 Dias</button>
+
+            <!-- Tabs por Contexto -->
+            <div class="context-tabs">
+                <div class="tab-item active" onclick="trocarAba('geral')" id="tab-geral"><i class="fas fa-globe"></i> Visão Geral</div>
+                <div class="tab-item" onclick="trocarAba('cardapio')" id="tab-cardapio"><i class="fas fa-hamburger"></i> Cardápio / Produtos</div>
+                <div class="tab-item" onclick="trocarAba('pedidos')" id="tab-pedidos"><i class="fas fa-receipt"></i> Pedidos</div>
+                <div class="tab-item" onclick="trocarAba('clientes')" id="tab-clientes"><i class="fas fa-users"></i> Clientes</div>
+                <div class="tab-item" onclick="trocarAba('agendamentos')" id="tab-agendamentos"><i class="fas fa-calendar-check"></i> Agendamentos</div>
+                <div class="tab-item" onclick="trocarAba('fidelidade')" id="tab-fidelidade"><i class="fas fa-award"></i> Fidelidade</div>
+                <div class="tab-item" onclick="trocarAba('vendas')" id="tab-vendas"><i class="fas fa-dollar-sign"></i> Financeiro / Crédito</div>
+            </div>
+
+            <!-- Barra de Filtros Dinâmicos -->
+            <div class="filter-card">
+                <div class="filter-group">
+                    <label>Período</label>
+                    <select id="filtroPeriodo" onchange="tratarFiltroPeriodo(); carregarDadosAnaliticos();">
+                        <option value="hoje">Hoje</option>
+                        <option value="ontem">Ontem</option>
+                        <option value="7d">Últimos 7 dias</option>
+                        <option value="30d" selected>Últimos 30 dias</option>
+                        <option value="mes_atual">Mês Atual</option>
+                        <option value="mes_anterior">Mês Anterior</option>
+                        <option value="ano_atual">Ano Atual</option>
+                        <option value="custom">Período Personalizado</option>
+                    </select>
+                </div>
+
+                <div class="filter-group" id="groupDataInicio" style="display:none;">
+                    <label>Data Início</label>
+                    <input type="date" id="filtroDataInicio" onchange="carregarDadosAnaliticos()">
+                </div>
+
+                <div class="filter-group" id="groupDataFim" style="display:none;">
+                    <label>Data Fim</label>
+                    <input type="date" id="filtroDataFim" onchange="carregarDadosAnaliticos()">
+                </div>
+
+                <div class="filter-group">
+                    <label>Forma de Pagamento</label>
+                    <select id="filtroPagamento" onchange="carregarDadosAnaliticos()">
+                        <option value="">Todas</option>
+                        <option value="pix">PIX</option>
+                        <option value="dinheiro">Dinheiro</option>
+                        <option value="cartao">Cartão</option>
+                        <option value="a_prazo">Venda a Prazo (Crédito)</option>
+                    </select>
+                </div>
+
+                <div class="filter-group">
+                    <label>Status do Pedido</label>
+                    <select id="filtroStatus" onchange="carregarDadosAnaliticos()">
+                        <option value="">Todos os Status</option>
+                        <option value="entregue">Entregues</option>
+                        <option value="confirmado">Confirmados</option>
+                        <option value="preparando">Em Preparo</option>
+                        <option value="pronto">Prontos</option>
+                        <option value="pendente">Pendentes</option>
+                        <option value="cancelado">Cancelados</option>
+                    </select>
+                </div>
+
+                <button onclick="carregarDadosAnaliticos()" style="padding:10px 18px;border-radius:12px;border:none;background:var(--primary);color:white;font-weight:700;cursor:pointer;margin-top:auto;"><i class="fas fa-sync"></i> Atualizar</button>
+            </div>
+
+            <!-- Cards de Indicadores Principais -->
+            <div class="stats-grid" id="statsGrid"></div>
+
+            <!-- Gráficos de Desempenho -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-chart-area" style="color:var(--primary);"></i> Evolução de Faturamento</span>
+                    </div>
+                    <canvas id="chartEvolucao" height="220"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-pie-chart" style="color:var(--accent);"></i> Formas de Pagamento</span>
+                    </div>
+                    <canvas id="chartPagamento" height="220"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-box-open" style="color:#6366f1;"></i> Top 5 Produtos Mais Vendidos</span>
+                    </div>
+                    <canvas id="chartTopProdutos" height="220"></canvas>
+                </div>
+
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <span class="chart-title"><i class="fas fa-clock" style="color:#f59e0b;"></i> Pedidos por Horário do Dia</span>
+                    </div>
+                    <canvas id="chartHorarios" height="220"></canvas>
+                </div>
+            </div>
+
+            <!-- Tabela Detalhada com Relatório Impresso -->
+            <div class="table-card" id="areaRelatorioImpressao">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+                    <h3 style="color:var(--text);font-size:1.1rem;"><i class="fas fa-table" style="color:var(--primary);"></i> Detalhamento Analítico</h3>
+                    <input type="text" id="buscaTabela" placeholder="🔍 Pesquisar na tabela..." onkeyup="filtrarTabelaLocal()" style="padding:6px 14px;border-radius:20px;border:1px solid var(--border);font-size:0.85rem;">
+                </div>
+                
+                <div style="overflow-x:auto;">
+                    <table id="tabelaDetalhada">
+                        <thead>
+                            <tr id="tableHeader"></tr>
+                        </thead>
+                        <tbody id="tableBody"></tbody>
+                    </table>
+                </div>
             </div>
         </div>
-        
-        <!-- KPIs -->
-        <div class="stats-grid" id="statsGrid"></div>
-        
-        <!-- Tabs -->
-        <div class="tabs-container">
-            <button class="tab-btn active" data-tab="visaoGeral">📊 Visão Geral</button>
-            <button class="tab-btn" data-tab="vendas">💰 Vendas</button>
-            <button class="tab-btn" data-tab="produtos">📦 Produtos</button>
-            <button class="tab-btn" data-tab="contasReceber">📝 Contas a Receber</button>
-            <button class="tab-btn" data-tab="financeiro">📉 Financeiro</button>
-        </div>
-        
-        <!-- Conteúdo -->
-        <div id="visaoGeral" class="tab-content active"></div>
-        <div id="vendas" class="tab-content"></div>
-        <div id="produtos" class="tab-content"></div>
-        <div id="contasReceber" class="tab-content"></div>
-        <div id="financeiro" class="tab-content"></div>
     </div>
-    </div> <!-- fecha main-content -->
-    </div> <!-- fecha admin-layout -->
-    
+
+    <script src="js/export.js"></script>
     <script>
         const API_URL = 'http://localhost:3000/api';
-        let vendas = [];
-        let produtos = [];
-        let despesas = [];
-        let fiados = [];
-        let dataInicio = new Date();
-        let dataFim = new Date();
-        let chartAtual = null;
-        
-        if(!sessionStorage.getItem('admin_logado')) {
-            window.location.href = 'index.html';
+        let dadosAnaliticos = null;
+        let abaAtiva = 'geral';
+
+        let chartEvolucaoInst, chartPagamentoInst, chartTopProdutosInst, chartHorariosInst;
+
+        // Detectar parâmetro ?tab= na URL para redirecionamento contextual (Item 3)
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const tabParam = urlParams.get('tab');
+            if(tabParam && ['geral','cardapio','pedidos','clientes','agendamentos','fidelidade','vendas'].includes(tabParam)) {
+                trocarAba(tabParam);
+            } else {
+                carregarDadosAnaliticos();
+            }
+        });
+
+        function trocarAba(aba) {
+            abaAtiva = aba;
+            document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+            const tabEl = document.getElementById(`tab-${aba}`);
+            if(tabEl) tabEl.classList.add('active');
+            carregarDadosAnaliticos();
         }
-        
-        // Inicializar
-        (async function() {
-            const hoje = new Date();
-            dataFim = new Date(hoje);
-            dataInicio = new Date(hoje);
-            dataInicio.setDate(hoje.getDate() - 30);
-            document.querySelector('.periodo-btn[data-periodo="mes"]').classList.add('ativo');
-            await carregarTodosDados();
-        })();
-        
-        async function carregarTodosDados() {
+
+        function tratarFiltroPeriodo() {
+            const val = document.getElementById('filtroPeriodo').value;
+            const isCustom = val === 'custom';
+            document.getElementById('groupDataInicio').style.display = isCustom ? 'flex' : 'none';
+            document.getElementById('groupDataFim').style.display = isCustom ? 'flex' : 'none';
+        }
+
+        async function carregarDadosAnaliticos() {
+            const periodo = document.getElementById('filtroPeriodo').value;
+            const dataInicio = document.getElementById('filtroDataInicio').value;
+            const dataFim = document.getElementById('filtroDataFim').value;
+            const formaPagamento = document.getElementById('filtroPagamento').value;
+            const status = document.getElementById('filtroStatus').value;
+
+            let query = `?periodo=${periodo}`;
+            if(periodo === 'custom' && dataInicio && dataFim) query += `&dataInicio=${dataInicio}&dataFim=${dataFim}`;
+            if(formaPagamento) query += `&formaPagamento=${formaPagamento}`;
+            if(status) query += `&status=${status}`;
+
             try {
-                const [resVendas, resProdutos, resDespesas, resFiado] = await Promise.all([
-                    fetch(API_URL + '/vendas'),
-                    fetch(API_URL + '/produtos'),
-                    fetch(API_URL + '/despesas'),
-                    fetch(API_URL + '/fiado/clientes')
-                ]);
-                if(resVendas.ok) vendas = await resVendas.json();
-                if(resProdutos.ok) produtos = await resProdutos.json();
-                if(resDespesas.ok) despesas = await resDespesas.json();
-                if(resFiado.ok) {
-                    const data = await resFiado.json();
-                    fiados = data.clientes || [];
+                const res = await fetch(`${API_URL}/analytics${query}`, {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if(res.ok) {
+                    dadosAnaliticos = await res.json();
+                    renderIndicadores();
+                    renderGraficos();
+                    renderTabela();
                 }
             } catch(e) {
-                gerarDadosExemplo();
-            }
-            atualizarKPIs();
-            ativarTabs();
-        }
-        
-        function gerarDadosExemplo() {
-            const hoje = new Date();
-            vendas = [];
-            for(let i=0; i<30; i++) {
-                const data = new Date(hoje);
-                data.setDate(hoje.getDate() - i);
-                vendas.push({
-                    id: i+1,
-                    data: data.toISOString().split('T')[0],
-                    total: Math.floor(Math.random() * 500) + 100,
-                    formaPagamento: ['dinheiro', 'cartao', 'fiado'][Math.floor(Math.random() * 3)],
-                    itens: [{ produtoId: Math.floor(Math.random() * 5) + 1, quantidade: Math.floor(Math.random() * 3) + 1 }]
-                });
-            }
-            produtos = [
-                { id:1, nome:'Coxinha', categoria:'Salgados', preco:6.5, estoque:45 },
-                { id:2, nome:'Pastel', categoria:'Salgados', preco:7, estoque:38 },
-                { id:3, nome:'Refrigerante', categoria:'Bebidas', preco:5, estoque:120 },
-                { id:4, nome:'Suco', categoria:'Bebidas', preco:7.5, estoque:35 },
-                { id:5, nome:'Brigadeiro', categoria:'Doces', preco:3.5, estoque:80 }
-            ];
-            despesas = [];
-            for(let i=0; i<20; i++) {
-                const data = new Date(hoje);
-                data.setDate(hoje.getDate() - i);
-                despesas.push({
-                    id: i+1,
-                    data: data.toISOString().split('T')[0],
-                    valor: Math.floor(Math.random() * 200) + 50,
-                    categoria: ['Insumos', 'Limpeza', 'Manutenção'][Math.floor(Math.random() * 3)]
-                });
+                console.error('Erro ao buscar analytics:', e);
             }
         }
-        
-        function mudarPeriodo(periodo) {
-            const hoje = new Date();
-            dataFim = new Date(hoje);
-            dataInicio = new Date(hoje);
-            
-            switch(periodo) {
-                case 'hoje': break;
-                case 'semana': dataInicio.setDate(hoje.getDate() - 7); break;
-                case 'mes': dataInicio.setDate(hoje.getDate() - 30); break;
-                case 'trimestre': dataInicio.setDate(hoje.getDate() - 90); break;
-                case 'ano': dataInicio.setDate(hoje.getDate() - 365); break;
+
+        function renderIndicadores() {
+            if(!dadosAnaliticos || !dadosAnaliticos.indicadores) return;
+            const ind = dadosAnaliticos.indicadores;
+            const grid = document.getElementById('statsGrid');
+
+            if(abaAtiva === 'geral') {
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-label">Total de Vendas (Geral)</div>
+                        <div class="stat-value">R$ ${ind.totalVendasGeral.toFixed(2)}</div>
+                        <div class="stat-sub">Vendas acumuladas no caixa</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Vendas do Período</div>
+                        <div class="stat-value">R$ ${ind.vendasPeriodo.toFixed(2)}</div>
+                        <div class="stat-sub">No período selecionado</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Quantidade de Pedidos</div>
+                        <div class="stat-value">${ind.qtdPedidos}</div>
+                        <div class="stat-sub">Pedidos no período</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Ticket Médio</div>
+                        <div class="stat-value">R$ ${ind.ticketMedio.toFixed(2)}</div>
+                        <div class="stat-sub">Média por pedido</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Vendas Hoje</div>
+                        <div class="stat-value" style="color:var(--primary);">R$ ${ind.vendasHoje.toFixed(2)}</div>
+                        <div class="stat-sub">Fechamento do dia atual</div>
+                    </div>`;
+            } else if(abaAtiva === 'cardapio') {
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-label">Categorias Ativas</div>
+                        <div class="stat-value">${dadosAnaliticos.categoriasVendidas?.length || 0}</div>
+                        <div class="stat-sub">Com movimentação</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Top Produto em Vendas</div>
+                        <div class="stat-value" style="font-size:1.3rem;">${dadosAnaliticos.topProdutos[0]?.nome || 'Nenhum'}</div>
+                        <div class="stat-sub">${dadosAnaliticos.topProdutos[0]?.qtdTotal || 0} unidades vendidas</div>
+                    </div>`;
+            } else if(abaAtiva === 'clientes') {
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-label">Total de Clientes</div>
+                        <div class="stat-value">${ind.totalClientes}</div>
+                        <div class="stat-sub">Cadastrados no app</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Novos Clientes</div>
+                        <div class="stat-value" style="color:var(--primary);">${ind.novosClientes}</div>
+                        <div class="stat-sub">Cadastrados no período</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Clientes Recorrentes</div>
+                        <div class="stat-value">${ind.clientesRecorrentes}</div>
+                        <div class="stat-sub">Com 2+ pedidos no histórico</div>
+                    </div>`;
+            } else if(abaAtiva === 'agendamentos') {
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-label">Total de Reservas</div>
+                        <div class="stat-value">${ind.totalAgendamentos}</div>
+                        <div class="stat-sub">Reservas realizadas</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Taxa de Ocupação</div>
+                        <div class="stat-value" style="color:var(--primary);">${ind.taxaUtilizacaoAgendamentos}%</div>
+                        <div class="stat-sub">Das vagas disponibilizadas</div>
+                    </div>`;
+            } else if(abaAtiva === 'fidelidade') {
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-label">Pontos Concedidos</div>
+                        <div class="stat-value" style="color:#f59e0b;">${ind.pontosFidelidadeTotais} pts</div>
+                        <div class="stat-sub">Acumulados pelos alunos</div>
+                    </div>`;
+            } else if(abaAtiva === 'vendas') {
+                grid.innerHTML = `
+                    <div class="stat-card">
+                        <div class="stat-label">Vendas a Prazo (Crédito)</div>
+                        <div class="stat-value">R$ ${ind.vendasCredito.toFixed(2)}</div>
+                        <div class="stat-sub">Total financiado aos alunos</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Valores Pendentes</div>
+                        <div class="stat-value" style="color:var(--danger);">R$ ${ind.valoresPendentesCredito.toFixed(2)}</div>
+                        <div class="stat-sub">Saldo devedor total em aberto</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Valores Recebidos (Crédito)</div>
+                        <div class="stat-value" style="color:var(--primary);">R$ ${ind.valoresRecebidosCredito.toFixed(2)}</div>
+                        <div class="stat-sub">Pagamentos de fiado quitados</div>
+                    </div>`;
             }
-            
-            document.querySelectorAll('.periodo-btn').forEach(btn => btn.classList.remove('ativo'));
-            document.querySelector(`.periodo-btn[data-periodo="${periodo}"]`).classList.add('ativo');
-            atualizarKPIs();
-            ativarTabs();
         }
-        
-        function atualizarKPIs() {
-            const inicio = dataInicio.toISOString().split('T')[0];
-            const fim = dataFim.toISOString().split('T')[0];
-            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
-            const despesasFiltradas = despesas.filter(d => d.data >= inicio && d.data <= fim);
-            
-            const totalVendas = vendasFiltradas.reduce((s, v) => s + (v.total || 0), 0);
-            const totalDespesas = despesasFiltradas.reduce((s, d) => s + (d.valor || 0), 0);
-            const lucro = totalVendas - totalDespesas;
-            const totalPedidos = vendasFiltradas.length;
-            const ticketMedio = totalPedidos > 0 ? totalVendas / totalPedidos : 0;
-            
-            document.getElementById('statsGrid').innerHTML = `
-                <div class="stat-card"><div class="stat-value">R$ ${totalVendas.toFixed(2)}</div><div class="stat-label">Vendas</div></div>
-                <div class="stat-card"><div class="stat-value">R$ ${totalDespesas.toFixed(2)}</div><div class="stat-label">Despesas</div></div>
-                <div class="stat-card"><div class="stat-value" style="color: ${lucro >= 0 ? 'var(--primary)' : '#ef4444'}">R$ ${Math.abs(lucro).toFixed(2)}</div><div class="stat-label">${lucro >= 0 ? 'Lucro' : 'Prejuízo'}</div></div>
-                <div class="stat-card"><div class="stat-value">${totalPedidos}</div><div class="stat-label">Pedidos</div></div>
-                <div class="stat-card"><div class="stat-value">R$ ${ticketMedio.toFixed(2)}</div><div class="stat-label">Ticket Médio</div></div>
-            `;
-        }
-        
-        function ativarTabs() {
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.addEventListener('click', () => {
-                    const tab = btn.dataset.tab;
-                    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-                    document.getElementById(tab).classList.add('active');
-                    carregarTab(tab);
-                });
+
+        function renderGraficos() {
+            if(!dadosAnaliticos) return;
+
+            // Destruir gráficos anteriores
+            if(chartEvolucaoInst) chartEvolucaoInst.destroy();
+            if(chartPagamentoInst) chartPagamentoInst.destroy();
+            if(chartTopProdutosInst) chartTopProdutosInst.destroy();
+            if(chartHorariosInst) chartHorariosInst.destroy();
+
+            // 1. Gráfico de Evolução
+            const ctxEvolucao = document.getElementById('chartEvolucao').getContext('2d');
+            const evolData = dadosAnaliticos.evolucaoVendas || [];
+            chartEvolucaoInst = new Chart(ctxEvolucao, {
+                type: 'line',
+                data: {
+                    labels: evolData.map(e => e.dia ? e.dia.split('-').reverse().slice(0,2).join('/') : ''),
+                    datasets: [{
+                        label: 'Vendas (R$)',
+                        data: evolData.map(e => parseFloat(e.total)),
+                        borderColor: '#2d7d52',
+                        backgroundColor: 'rgba(45,125,82,0.1)',
+                        fill: true,
+                        tension: 0.3
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
             });
-            carregarTab('visaoGeral');
+
+            // 2. Gráfico Formas de Pagamento
+            const ctxPagamento = document.getElementById('chartPagamento').getContext('2d');
+            const pagData = dadosAnaliticos.formasPagamento || [];
+            chartPagamentoInst = new Chart(ctxPagamento, {
+                type: 'doughnut',
+                data: {
+                    labels: pagData.map(p => p.formaPagamento === 'a_prazo' ? 'A Prazo (Crédito)' : p.formaPagamento.toUpperCase()),
+                    datasets: [{
+                        data: pagData.map(p => parseFloat(p.total)),
+                        backgroundColor: ['#2d7d52', '#3b82f6', '#f59e0b', '#8b5cf6', '#ef4444']
+                    }]
+                },
+                options: { responsive: true }
+            });
+
+            // 3. Top Produtos
+            const ctxTop = document.getElementById('chartTopProdutos').getContext('2d');
+            const topData = dadosAnaliticos.topProdutos || [];
+            chartTopProdutosInst = new Chart(ctxTop, {
+                type: 'bar',
+                data: {
+                    labels: topData.map(t => t.nome),
+                    datasets: [{
+                        label: 'Qtd Vendida',
+                        data: topData.map(t => parseInt(t.qtdTotal)),
+                        backgroundColor: '#6366f1'
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
+
+            // 4. Horários
+            const ctxHoras = document.getElementById('chartHorarios').getContext('2d');
+            const horasData = dadosAnaliticos.pedidosPorHorario || [];
+            chartHorariosInst = new Chart(ctxHoras, {
+                type: 'bar',
+                data: {
+                    labels: horasData.map(h => `${h.hora}:00`),
+                    datasets: [{
+                        label: 'Pedidos',
+                        data: horasData.map(h => parseInt(h.qtd)),
+                        backgroundColor: '#f59e0b'
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { display: false } } }
+            });
         }
-        
-        function carregarTab(tab) {
-            if(tab === 'visaoGeral') mostrarVisaoGeral();
-            if(tab === 'vendas') mostrarVendas();
-            if(tab === 'produtos') mostrarProdutos();
-            if(tab === 'contasReceber') mostrarContasReceber();
-            if(tab === 'financeiro') mostrarFinanceiro();
-        }
-        
-        function mostrarVisaoGeral() {
-            const inicio = dataInicio.toISOString().split('T')[0];
-            const fim = dataFim.toISOString().split('T')[0];
-            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
-            
-            if(vendasFiltradas.length === 0) {
-                document.getElementById('visaoGeral').innerHTML = '<div class="empty-state"><i class="fas fa-chart-line"></i><h3>Nenhum dado no período</h3></div>';
-                return;
+
+        function renderTabela() {
+            const thead = document.getElementById('tableHeader');
+            const tbody = document.getElementById('tableBody');
+
+            if(abaAtiva === 'cardapio' && dadosAnaliticos.topProdutos) {
+                thead.innerHTML = `<tr><th>Produto</th><th>Qtd Vendida</th><th>Faturamento Total</th></tr>`;
+                tbody.innerHTML = dadosAnaliticos.topProdutos.map(p => `
+                    <tr>
+                        <td><strong>${p.nome}</strong></td>
+                        <td>${p.qtdTotal} un</td>
+                        <td>R$ ${parseFloat(p.faturamentoTotal || 0).toFixed(2)}</td>
+                    </tr>`).join('');
+            } else if(abaAtiva === 'vendas' && dadosAnaliticos.formasPagamento) {
+                thead.innerHTML = `<tr><th>Forma de Pagamento</th><th>Qtd Pedidos</th><th>Total Acumulado</th></tr>`;
+                tbody.innerHTML = dadosAnaliticos.formasPagamento.map(p => `
+                    <tr>
+                        <td><strong>${p.formaPagamento === 'a_prazo' ? 'Venda a Prazo (Crédito)' : p.formaPagamento.toUpperCase()}</strong></td>
+                        <td>${p.qtd} pedidos</td>
+                        <td>R$ ${parseFloat(p.total).toFixed(2)}</td>
+                    </tr>`).join('');
+            } else {
+                // Tabela Geral de Evolução Diária
+                const evol = dadosAnaliticos?.evolucaoVendas || [];
+                thead.innerHTML = `<tr><th>Data</th><th>Quantidade de Vendas</th><th>Total no Dia (R$)</th></tr>`;
+                tbody.innerHTML = evol.map(e => `
+                    <tr>
+                        <td><strong>${e.dia ? e.dia.split('-').reverse().join('/') : ''}</strong></td>
+                        <td>${e.qtd} vendas</td>
+                        <td>R$ ${parseFloat(e.total).toFixed(2)}</td>
+                    </tr>`).join('');
             }
-            
-            // Vendas por dia
-            const vendasPorDia = {};
-            vendasFiltradas.forEach(v => { vendasPorDia[v.data] = (vendasPorDia[v.data] || 0) + (v.total || 0); });
-            const labels = Object.keys(vendasPorDia).sort().slice(-7);
-            const valores = labels.map(d => vendasPorDia[d]);
-            
-            // Top produtos
-            const produtosVendidos = {};
-            vendasFiltradas.forEach(v => {
-                if(v.itens) {
-                    v.itens.forEach(item => {
-                        if(!produtosVendidos[item.produtoId]) produtosVendidos[item.produtoId] = 0;
-                        produtosVendidos[item.produtoId] += item.quantidade;
-                    });
-                }
-            });
-            const ranking = Object.entries(produtosVendidos).map(([id, qtd]) => {
-                const p = produtos.find(pr => pr.id === parseInt(id));
-                return { nome: p?.nome || 'Desconhecido', quantidade: qtd };
-            }).sort((a,b) => b.quantidade - a.quantidade).slice(0,5);
-            
-            let html = `
-                <div class="charts-grid">
-                    <div class="chart-card"><h3>📈 Evolução de Vendas</h3><canvas id="chartVisao"></canvas></div>
-                    <div class="card"><h3>🏆 Top 5 Produtos</h3>${ranking.map((r,i) => `<div>${i+1}º ${r.nome} - ${r.quantidade} un.</div>`).join('') || '<p>Nenhum produto vendido</p>'}</div>
-                </div>
-            `;
-            document.getElementById('visaoGeral').innerHTML = html;
-            
-            setTimeout(() => {
-                const ctx = document.getElementById('chartVisao')?.getContext('2d');
-                if(ctx && chartAtual) chartAtual.destroy();
-                if(ctx) {
-                    chartAtual = new Chart(ctx, {
-                        type: 'line',
-                        data: { labels: labels.map(d => d.slice(5)), datasets: [{ label: 'Vendas (R$)', data: valores, borderColor: 'var(--primary)', fill: true }] },
-                        options: { responsive: true }
-                    });
-                }
-            }, 100);
         }
-        
-        function mostrarVendas() {
-            const inicio = dataInicio.toISOString().split('T')[0];
-            const fim = dataFim.toISOString().split('T')[0];
-            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
-            
-            if(vendasFiltradas.length === 0) {
-                document.getElementById('vendas').innerHTML = '<div class="empty-state"><i class="fas fa-shopping-cart"></i><h3>Nenhuma venda no período</h3></div>';
-                return;
-            }
-            
-            const porData = {};
-            vendasFiltradas.forEach(v => { porData[v.data] = (porData[v.data] || 0) + (v.total || 0); });
-            const labels = Object.keys(porData).sort();
-            const valores = labels.map(d => porData[d]);
-            
-            let html = `<div class="chart-card"><h3>📈 Evolução de Vendas</h3><canvas id="chartVendasLinha"></canvas></div>`;
-            html += `<div class="table-container"><table><thead><tr><th>Data</th><th>Valor</th><th>Pagamento</th></tr></thead><tbody>`;
-            vendasFiltradas.sort((a,b)=>new Date(b.data)-new Date(a.data)).forEach(v => {
-                html += `<tr><td>${new Date(v.data).toLocaleDateString('pt-BR')}</td><td>R$ ${(v.total||0).toFixed(2)}</td><td>${v.formaPagamento||'Dinheiro'}</td></tr>`;
+
+        function filtrarTabelaLocal() {
+            const q = document.getElementById('buscaTabela').value.toLowerCase();
+            const rows = document.querySelectorAll('#tableBody tr');
+            rows.forEach(r => {
+                const txt = r.textContent.toLowerCase();
+                r.style.display = txt.includes(q) ? '' : 'none';
             });
-            html += `</tbody></table></div>`;
-            document.getElementById('vendas').innerHTML = html;
-            
-            setTimeout(() => {
-                const ctx = document.getElementById('chartVendasLinha')?.getContext('2d');
-                if(ctx) {
-                    if(chartAtual) chartAtual.destroy();
-                    chartAtual = new Chart(ctx, {
-                        type: 'line',
-                        data: { labels: labels.map(d => d.slice(5)), datasets: [{ label: 'Vendas (R$)', data: valores, borderColor: 'var(--primary)', fill: true }] },
-                        options: { responsive: true }
-                    });
-                }
-            }, 100);
         }
-        
-        function mostrarProdutos() {
-            const inicio = dataInicio.toISOString().split('T')[0];
-            const fim = dataFim.toISOString().split('T')[0];
-            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
-            
-            if(vendasFiltradas.length === 0) {
-                document.getElementById('produtos').innerHTML = '<div class="empty-state"><i class="fas fa-box"></i><h3>Nenhuma venda no período</h3></div>';
-                return;
-            }
-            
-            const produtosVendidos = {};
-            vendasFiltradas.forEach(v => {
-                if(v.itens) {
-                    v.itens.forEach(item => {
-                        if(!produtosVendidos[item.produtoId]) produtosVendidos[item.produtoId] = 0;
-                        produtosVendidos[item.produtoId] += item.quantidade;
-                    });
-                }
-            });
-            const ranking = Object.entries(produtosVendidos).map(([id, qtd]) => {
-                const p = produtos.find(pr => pr.id === parseInt(id));
-                return { nome: p?.nome || 'Desconhecido', quantidade: qtd };
-            }).sort((a,b) => b.quantidade - a.quantidade);
-            
-            let html = `<div class="table-container"><table><thead><tr><th>#</th><th>Produto</th><th>Quantidade</th></tr></thead><tbody>`;
-            ranking.forEach((p,i) => { html += `<tr><td>${i+1}º</td><td>${p.nome}</td><td>${p.quantidade}</td></tr>`; });
-            html += `</tbody></table></div>`;
-            document.getElementById('produtos').innerHTML = html;
+
+        function exportarCSVAnalitico() {
+            const data = dadosAnaliticos?.evolucaoVendas || [];
+            if(!data.length) { alert('Sem dados para exportar'); return; }
+            exportarParaCSV(`relatorio_analytics_${abaAtiva}`, data);
         }
-        
-        function mostrarContasReceber() {
-            let totalPendente = 0;
-            let clientesAtivos = 0;
-            fiados.forEach(cliente => {
-                if(cliente.dividas) {
-                    cliente.dividas.forEach(divida => {
-                        if(!divida.pago) {
-                            totalPendente += (divida.total - (divida.valorPago || 0));
-                            clientesAtivos++;
-                        }
-                    });
-                }
-            });
-            
-            let html = `
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-value">R$ ${totalPendente.toFixed(2)}</div><div class="stat-label">Total Pendente</div></div>
-                    <div class="stat-card"><div class="stat-value">${clientesAtivos}</div><div class="stat-label">Clientes com Pendência</div></div>
-                </div>
-            `;
-            document.getElementById('contasReceber').innerHTML = html;
+
+        function imprimirAnalitico() {
+            imprimirRelatorio(`Relatório Analítico (${abaAtiva.toUpperCase()})`, 'areaRelatorioImpressao');
         }
-        
-        function mostrarFinanceiro() {
-            const inicio = dataInicio.toISOString().split('T')[0];
-            const fim = dataFim.toISOString().split('T')[0];
-            const vendasFiltradas = vendas.filter(v => v.data >= inicio && v.data <= fim);
-            const despesasFiltradas = despesas.filter(d => d.data >= inicio && d.data <= fim);
-            const receita = vendasFiltradas.reduce((s, v) => s + (v.total || 0), 0);
-            const despesaTotal = despesasFiltradas.reduce((s, d) => s + (d.valor || 0), 0);
-            const lucro = receita - despesaTotal;
-            
-            let html = `
-                <div class="stats-grid">
-                    <div class="stat-card"><div class="stat-value">R$ ${receita.toFixed(2)}</div><div class="stat-label">Receita</div></div>
-                    <div class="stat-card"><div class="stat-value">R$ ${despesaTotal.toFixed(2)}</div><div class="stat-label">Despesas</div></div>
-                    <div class="stat-card"><div class="stat-value" style="color: ${lucro >= 0 ? 'var(--primary)' : '#ef4444'}">R$ ${Math.abs(lucro).toFixed(2)}</div><div class="stat-label">${lucro >= 0 ? 'Lucro' : 'Prejuízo'}</div></div>
-                </div>
-                <div class="table-container"><table><thead><tr><th>Data</th><th>Descrição</th><th>Valor</th></tr></thead><tbody>
-            `;
-            despesasFiltradas.sort((a,b)=>new Date(b.data)-new Date(a.data)).slice(0,10).forEach(d => {
-                html += `<tr><td>${new Date(d.data).toLocaleDateString('pt-BR')}</td><td>${d.descricao}</td><td style="color:#ef4444;">R$ ${(d.valor||0).toFixed(2)}</td></tr>`;
-            });
-            html += `</tbody></table></div>`;
-            document.getElementById('financeiro').innerHTML = html;
-        }
-        
-        (function(){
-            const c=document.getElementById('particles');
-            for(let i=0;i<20;i++){
-                const p=document.createElement('div');
-                p.className='particle';
-                p.style.left=Math.random()*100+'%';
-                p.style.width=p.style.height=(Math.random()*4+2)+'px';
-                p.style.background=`rgba(200,105,26,${Math.random()*0.3+0.1})`;
-                p.style.animationDuration=(Math.random()*14+10)+'s';
-                p.style.animationDelay=(Math.random()*8)+'s';
-                c.appendChild(p);
-            }
-        })();
     </script>
 </body>
 </html>

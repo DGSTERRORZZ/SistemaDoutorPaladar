@@ -842,12 +842,15 @@
 
     <div class="navbar">
         <div class="logo" onclick="location.reload()">DOUTOR PALADAR</div>
-        <div id="userArea" style="display: flex; align-items: center; gap: 10px;">
+        <div id="userArea" style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <button class="btn-login" style="border-color: var(--primary-light); background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: var(--shadow-glow);" onclick="abrirModalAgendamentoCliente()">
+                <i class="fas fa-calendar-alt"></i> Agendar Refeição
+            </button>
             <button class="btn-login" id="loginBtn" onclick="abrirModalLogin()">
                 <i class="fas fa-user"></i> Entrar
             </button>
-            <button class="btn-login" style="border-color: var(--text-muted); color: var(--text-muted);" onclick="abrirModalAdminLogin()">
-                <i class="fas fa-shield-alt"></i> Áreas Restritas
+            <button class="btn-login" style="border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); padding: 8px 12px;" onclick="abrirModalAdminLogin()" title="Acesso Administrativo">
+                <i class="fas fa-lock"></i>
             </button>
         </div>
     </div>
@@ -921,14 +924,14 @@
     <div class="footer">
         <div class="footer-grid">
             <div><h4>Doutor Paladar</h4><p>Feito com ingredientes de verdade.</p><div class="social-icons"><a href="#" onclick="window.open('https://instagram.com', '_blank')"><i class="fab fa-instagram"></i></a><a href="#" onclick="window.open('https://facebook.com', '_blank')"><i class="fab fa-facebook"></i></a><a href="#" onclick="window.open('https://wa.me/5511999999999', '_blank')"><i class="fab fa-whatsapp"></i></a></div></div>
-            <div><h4>Links Rápidos</h4><a href="#" onclick="scrollToCardapio()"><i class="fas fa-utensils"></i> Cardápio</a><a href="#" onclick="abrirModalLogin()"><i class="fas fa-user"></i> Minha Conta</a><a href="#" onclick="abrirModalAdminLogin()"><i class="fas fa-shield-alt"></i> Painel Gestor</a><a href="#" onclick="scrollToSobre()"><i class="fas fa-info-circle"></i> Sobre Nós</a><a href="#" onclick="window.location.href='chat.html'"><i class="fas fa-comments"></i> Chat</a></div>
+            <div><h4>Links Rápidos</h4><a href="#" onclick="scrollToCardapio()"><i class="fas fa-utensils"></i> Cardápio</a><a href="#" onclick="abrirModalLogin()"><i class="fas fa-user"></i> Minha Conta</a><a href="#" onclick="abrirModalAdminLogin()"><i class="fas fa-shield-alt"></i> Painel Gestor</a><a href="#" onclick="scrollToSobre()"><i class="fas fa-info-circle"></i> Sobre Nós</a><a href="#" onclick="abrirModalChatCliente()"><i class="fas fa-comments"></i> Chat</a></div>
             <div><h4>Contato</h4><p><i class="fas fa-phone"></i> (11) 99999-9999</p><p><i class="fas fa-envelope"></i> cantina@ifsp.edu.br</p><p><i class="fas fa-map-marker-alt"></i> Rua Principal, 100 - Salas</p></div>
         </div>
         <div class="copyright"><p>Feito com 💚 pela equipe Doutor Paladar · IFSP © 2026</p></div>
     </div>
 
     <!-- Chat Flutuante -->
-    <div class="chat-floating" id="chatFloat" onclick="window.location.href='chat.html'">
+    <div class="chat-floating" id="chatFloat" onclick="abrirModalChatCliente()">
         <i class="fas fa-comments" style="font-size: 1.5rem; color: white;"></i>
     </div>
 
@@ -982,44 +985,172 @@
             <div class="input-group" style="margin-bottom: 1rem;"><input type="text" id="adminUser" placeholder="Usuário" style="width: 100%; padding: 10px; border-radius: 14px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"></div>
             <div class="input-group" style="margin-bottom: 1rem;"><input type="password" id="adminPass" placeholder="Senha" style="width: 100%; padding: 10px; border-radius: 14px; border: 2px solid var(--border); background: var(--bg); color: var(--text);"></div>
             <button class="btn-primary" onclick="autenticarAdmin()" style="width: 100%; padding: 12px; border-radius: 30px;">Entrar como Gestor</button>
-            <div id="adminLoginError" style="color: var(--danger); margin-top: 0.8rem; font-size: 0.8rem; display: none;"></div>
+            <div id="adminLoginError" style="color:var(--danger);margin-top:0.8rem;font-size:0.8rem;display:none;"></div>
         </div>
     </div>
 
+    <!-- Modal Perfil -->
     <div class="modal" id="modalPerfil">
-        <div class="modal-content" style="max-width: 450px; max-height: 90vh; overflow-y: auto; position: relative;">
-            <button class="close-cart" onclick="fecharModal('modalPerfil')" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);">&times;</button>
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;"><h2 style="color: var(--primary); font-size: 1.3rem;"><i class="fas fa-user-circle"></i> Meu Perfil</h2></div>
-            
-            <div style="text-align: center; margin-bottom: 1.5rem; position: relative;">
-                <div id="avatarContainer" style="position: relative; display: inline-block;">
-                    <img id="profileAvatar" class="profile-avatar-img" src="" alt="Avatar" style="width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 3px solid var(--primary); display: none;">
-                    <div id="avatarPlaceholder" style="width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); display: flex; align-items: center; justify-content: center; margin: 0 auto;"><i class="fas fa-user" style="font-size: 3rem; color: white;"></i></div>
-                    <div onclick="abrirUploadFoto()" style="position: absolute; bottom: 5px; right: 5px; background: var(--primary); width: 30px; height: 30px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--bg);"><i class="fas fa-camera" style="font-size: 0.8rem; color: white;"></i></div>
+        <div class="modal-content" style="max-width:450px;max-height:90vh;overflow-y:auto;position:relative;">
+            <button onclick="fecharModal('modalPerfil')" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);">&times;</button>
+            <h2 style="color:var(--primary);font-size:1.3rem;margin-bottom:1rem;"><i class="fas fa-user-circle"></i> Meu Perfil</h2>
+            <div style="text-align:center;margin-bottom:1.5rem;">
+                <div id="avatarContainer" style="position:relative;display:inline-block;">
+                    <img id="profileAvatar" src="" alt="" style="width:100px;height:100px;border-radius:50%;object-fit:cover;border:3px solid var(--primary);display:none;">
+                    <div id="avatarPlaceholder" style="width:100px;height:100px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--primary-dark));display:flex;align-items:center;justify-content:center;margin:0 auto;">
+                        <i class="fas fa-user" style="font-size:3rem;color:white;"></i>
+                    </div>
+                    <div onclick="abrirUploadFoto()" style="position:absolute;bottom:5px;right:5px;background:var(--primary);width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;border:2px solid var(--bg);">
+                        <i class="fas fa-camera" style="font-size:0.8rem;color:white;"></i>
+                    </div>
                 </div>
-                <input type="file" id="uploadFoto" accept="image/*" style="display: none;" onchange="atualizarFoto(event)">
+                <input type="file" id="uploadFoto" accept="image/*" style="display:none;" onchange="atualizarFoto(event)">
             </div>
-            
-            <div style="margin-top: 1rem;">
-                <div style="background: var(--bg); padding: 0.8rem; border-radius: 12px; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;"><label style="font-weight: 600; color: var(--text-muted);"><i class="fas fa-user"></i> Nome</label><span id="perfilNome" style="color: var(--text);"></span><i class="fas fa-edit" style="color: var(--primary); cursor: pointer;" onclick="editarCampo('nome')"></i></div>
-                <div style="background: var(--bg); padding: 0.8rem; border-radius: 12px; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;"><label style="font-weight: 600; color: var(--text-muted);"><i class="fas fa-phone"></i> Telefone</label><span id="perfilTelefone" style="color: var(--text);"></span><i class="fas fa-edit" style="color: var(--primary); cursor: pointer;" onclick="editarCampo('telefone')"></i></div>
-                <div style="background: var(--bg); padding: 0.8rem; border-radius: 12px; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;"><label style="font-weight: 600; color: var(--text-muted);"><i class="fas fa-graduation-cap"></i> Turma</label><span id="perfilTurma" style="color: var(--text);"></span><i class="fas fa-edit" style="color: var(--primary); cursor: pointer;" onclick="editarCampo('turma')"></i></div>
-                <div style="background: var(--bg); padding: 0.8rem; border-radius: 12px; margin-bottom: 0.8rem; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.5rem;"><label style="font-weight: 600; color: var(--text-muted);"><i class="fas fa-calendar"></i> Desde</label><span id="perfilData" style="color: var(--text);"></span></div>
+            <div style="margin-top:1rem;">
+                <div style="background:var(--bg);padding:0.8rem;border-radius:12px;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                    <label style="font-weight:600;color:var(--text-muted);"><i class="fas fa-user"></i> Nome</label>
+                    <span id="perfilNome" style="color:var(--text);"></span>
+                    <i class="fas fa-edit" style="color:var(--primary);cursor:pointer;" onclick="editarCampo('nome')"></i>
+                </div>
+                <div style="background:var(--bg);padding:0.8rem;border-radius:12px;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                    <label style="font-weight:600;color:var(--text-muted);"><i class="fas fa-phone"></i> Telefone</label>
+                    <span id="perfilTelefone" style="color:var(--text);"></span>
+                    <i class="fas fa-edit" style="color:var(--primary);cursor:pointer;" onclick="editarCampo('telefone')"></i>
+                </div>
+                <div style="background:var(--bg);padding:0.8rem;border-radius:12px;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                    <label style="font-weight:600;color:var(--text-muted);"><i class="fas fa-graduation-cap"></i> Turma</label>
+                    <span id="perfilTurma" style="color:var(--text);"></span>
+                    <i class="fas fa-edit" style="color:var(--primary);cursor:pointer;" onclick="editarCampo('turma')"></i>
+                </div>
+                <div style="background:var(--bg);padding:0.8rem;border-radius:12px;margin-bottom:0.8rem;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:0.5rem;">
+                    <label style="font-weight:600;color:var(--text-muted);"><i class="fas fa-calendar"></i> Desde</label>
+                    <span id="perfilData" style="color:var(--text);"></span>
+                </div>
+                <!-- Selos de Fidelidade -->
+                <div id="selosFidelidade" style="background:linear-gradient(135deg,#fff8f0,#fff3e0);border:2px solid #f59e0b;padding:1rem;border-radius:14px;margin-bottom:0.8rem;">
+                    <div style="display:flex;align-items:center;gap:8px;margin-bottom:0.5rem;">
+                        <span style="font-size:1.3rem;">🏅</span>
+                        <strong style="color:#b45309;">Programa de Fidelidade</strong>
+                    </div>
+                    <p style="font-size:0.8rem;color:#92400e;margin-bottom:0.5rem;">A cada 10 compras de salgados → 1 bebida grátis!</p>
+                    <div style="display:flex;gap:5px;flex-wrap:wrap;" id="selosGrid"></div>
+                    <p id="selosTexto" style="font-size:0.75rem;color:#92400e;margin-top:0.5rem;"></p>
+                </div>
             </div>
-            
-            <button class="btn-primary" style="width: 100%; margin-top: 1rem; padding: 10px; border-radius: 30px; border: none; background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; font-weight: 600; cursor: pointer;" onclick="abrirAlterarSenha()"><i class="fas fa-key"></i> Alterar Senha</button>
+            <button class="btn-primary" style="width:100%;margin-top:1rem;padding:10px;border-radius:30px;border:none;background:linear-gradient(135deg,var(--primary),var(--primary-dark));color:white;font-weight:600;cursor:pointer;" onclick="abrirAlterarSenha()"><i class="fas fa-key"></i> Alterar Senha</button>
         </div>
     </div>
 
-    <div class="modal" id="modalEditarCampo">
-        <div class="modal-content" style="position: relative;">
-            <button class="close-cart" onclick="fecharModal('modalEditarCampo')" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);">&times;</button>
-            <h3 id="editCampoTitulo">Editar</h3>
-            <input type="text" id="editCampoValor" style="margin-bottom: 1rem; width: 100%; padding: 10px; border-radius: 14px; border: 2px solid var(--border); background: var(--bg); color: var(--text);">
-            <div style="display: flex; gap: 0.5rem;">
-                <button class="btn-order" onclick="salvarEdicaoCampo()" style="flex:1;">Salvar</button>
-                <button class="close-cart" onclick="fecharModal('modalEditarCampo')" style="background: var(--bg); padding: 10px; border-radius: 14px; cursor: pointer;">Cancelar</button>
+    <!-- Modal Agendamentos do Cliente -->
+    <div class="modal" id="modalAgendamentoCliente">
+        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto; position: relative;">
+            <button onclick="fecharModal('modalAgendamentoCliente')" style="position: absolute; top: 16px; right: 16px; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+            <h2 style="color: var(--primary); font-size: 1.4rem; margin-bottom: 0.5rem;"><i class="fas fa-calendar-alt"></i> Agendar Refeição & Prato do Dia</h2>
+            <p style="color: var(--text-muted); font-size: 0.85rem; margin-bottom: 1.2rem; text-align: center;">Reserve seu prato com antecedência e evite filas na cantina!</p>
+
+            <div style="display: flex; gap: 8px; margin-bottom: 1.2rem; border-bottom: 2px solid var(--border); padding-bottom: 8px;">
+                <button class="tab-agendamento-btn active" id="btnTabDisponiveis" onclick="mudarTabAgendamento('disponiveis')" style="flex:1; padding: 8px 12px; border: none; background: rgba(45,125,82,0.1); color: var(--primary); font-weight: 700; border-radius: 12px; cursor: pointer;">
+                    🍽️ Horários Disponíveis
+                </button>
+                <button class="tab-agendamento-btn" id="btnTabMeus" onclick="mudarTabAgendamento('meus')" style="flex:1; padding: 8px 12px; border: none; background: transparent; color: var(--text-muted); font-weight: 700; border-radius: 12px; cursor: pointer;">
+                    📋 Meus Agendamentos
+                </button>
             </div>
+
+            <!-- Aba 1: Horários Disponíveis -->
+            <div id="painelAgendamentosDisponiveis">
+                <div id="listaAgendamentosClienteGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem;">
+                    <p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Carregando horários...</p>
+                </div>
+            </div>
+
+            <!-- Aba 2: Meus Agendamentos -->
+            <div id="painelMeusAgendamentosCliente" style="display: none;">
+                <div id="listaMeusAgendamentosClienteGrid" style="display: flex; flex-direction: column; gap: 0.8rem;">
+                    <p style="text-align: center; color: var(--text-muted); padding: 2rem;">Carregando suas reservas...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal" id="modalEditarCampo">
+        <div class="modal-content" style="position:relative;">
+            <button onclick="fecharModal('modalEditarCampo')" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);">&times;</button>
+            <h3 id="editCampoTitulo">Editar</h3>
+            <input type="text" id="editCampoValor" style="margin-bottom:1rem;width:100%;padding:10px;border-radius:14px;border:2px solid var(--border);background:var(--bg);color:var(--text);">
+            <div style="display:flex;gap:0.5rem;">
+                <button class="btn-order" onclick="salvarEdicaoCampo()" style="flex:1;">Salvar</button>
+                <button onclick="fecharModal('modalEditarCampo')" style="background:var(--bg);padding:10px;border-radius:14px;cursor:pointer;border:none;">Cancelar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Escolha Checkout (Com Login vs Visitante) -->
+    <div class="modal" id="modalEscolhaCheckout">
+        <div class="modal-content" style="max-width:440px;position:relative;text-align:center;padding:2rem;">
+            <button onclick="fecharModal('modalEscolhaCheckout')" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);">&times;</button>
+            <div style="font-size:3rem;margin-bottom:0.5rem;color:var(--primary);"><i class="fas fa-user-shield"></i></div>
+            <h2 style="color:var(--primary);margin-bottom:0.5rem;">Como deseja continuar?</h2>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1.5rem;">Aproveite mais benefícios ao se identificar no sistema ou continue como visitante.</p>
+            
+            <div style="display:flex;flex-direction:column;gap:0.8rem;">
+                <button onclick="fecharModal('modalEscolhaCheckout');abrirModalLogin();" style="padding:14px;border-radius:14px;background:linear-gradient(135deg, var(--primary), var(--primary-dark));color:white;border:none;font-weight:700;font-size:0.95rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;box-shadow:var(--shadow-card);">
+                    <i class="fas fa-sign-in-alt"></i> Entrar / Criar Conta (Com Benefícios)
+                </button>
+                <div style="background:var(--bg);padding:0.6rem;border-radius:10px;font-size:0.78rem;color:var(--text-muted);text-align:left;">
+                    ✨ <strong>Benefícios do Login:</strong> Histórico de pedidos, Programa de Fidelidade, Atendimento via Chat e Compras no Crédito.
+                </div>
+                
+                <hr style="border:none;border-top:1px solid var(--border);margin:0.5rem 0;">
+                
+                <button onclick="fecharModal('modalEscolhaCheckout');abrirCheckoutVisitante();" style="padding:12px;border-radius:14px;background:transparent;color:var(--text);border:2px solid var(--border);font-weight:600;font-size:0.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;">
+                    <i class="fas fa-user-clock"></i> Continuar como Visitante (Sem Cadastro)
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Convidado / Dados do Pedido -->
+    <div class="modal" id="modalConvidado">
+        <div class="modal-content" style="max-width:400px;position:relative;">
+            <button onclick="fecharModal('modalConvidado')" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);">&times;</button>
+            <h2 style="color:var(--primary);margin-bottom:0.5rem;"><i class="fas fa-shopping-bag"></i> Finalizar Pedido</h2>
+            <p id="convidadoSubtitulo" style="color:var(--text-muted);font-size:0.85rem;margin-bottom:1rem;">Informe seu Nome e Sobrenome para identificação do pedido.</p>
+            <div style="display:flex;flex-direction:column;gap:0.75rem;">
+                <div style="display:flex;gap:0.5rem;">
+                    <input type="text" id="convidadoNome" placeholder="Nome *" style="flex:1;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);">
+                    <input type="text" id="convidadoSobrenome" placeholder="Sobrenome *" style="flex:1;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);">
+                </div>
+                <input type="tel" id="convidadoTelefone" placeholder="Telefone / WhatsApp (Opcional)" style="width:100%;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);">
+                <div style="display:flex;gap:0.5rem;">
+                    <input type="text" id="convidadoTurma" placeholder="Turma (Opcional)" style="flex:1;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);">
+                    <input type="text" id="convidadoMesa" placeholder="Mesa / Local" style="flex:1;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);">
+                </div>
+                <select id="convidadoFormaPagamento" style="width:100%;padding:10px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--text);">
+                    <option value="pix">📱 PIX (Aprovação Instantânea)</option>
+                    <option value="dinheiro">💵 Dinheiro na Entrega</option>
+                    <option value="cartao">💳 Cartão de Crédito/Débito</option>
+                </select>
+                <div id="convidadoError" style="color:var(--danger);font-size:0.85rem;display:none;"></div>
+                <button class="btn-order" onclick="confirmarPedidoConvidado()" style="width:100%;padding:12px;border-radius:30px;font-size:1rem;margin-top:0.5rem;"><i class="fas fa-check-circle"></i> Confirmar e Pagar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal PIX -->
+    <div class="modal" id="modalPix">
+        <div class="modal-content" style="max-width:400px;text-align:center;position:relative;">
+            <button onclick="fecharModal('modalPix')" style="position:absolute;top:16px;right:16px;background:none;border:none;font-size:1.2rem;cursor:pointer;color:var(--text-muted);">&times;</button>
+            <h2 style="color:var(--primary);margin-bottom:0.5rem;"><i class="fas fa-qrcode"></i> Pagar com PIX</h2>
+            <p style="color:var(--text-muted);font-size:0.9rem;margin-bottom:1rem;">Escaneie o QR Code com seu banco</p>
+            <div id="pixQrCode" style="background:#f0fdf4;padding:1rem;border-radius:16px;margin-bottom:1rem;display:flex;align-items:center;justify-content:center;min-height:200px;">
+                <img id="pixQrImg" src="" alt="QR Code PIX" style="max-width:200px;display:none;">
+                <div id="pixQrPlaceholder"><i class="fas fa-spinner fa-spin" style="font-size:3rem;color:var(--primary);"></i></div>
+            </div>
+            <div id="pixChaveCopia" style="background:var(--bg);padding:0.8rem;border-radius:12px;margin-bottom:1rem;word-break:break-all;font-size:0.8rem;color:var(--text-muted);display:none;"></div>
+            <button id="pixCopiarBtn" onclick="copiarChavePix()" style="width:100%;padding:10px;border-radius:30px;background:var(--primary);color:white;border:none;font-weight:600;cursor:pointer;margin-bottom:0.5rem;display:none;"><i class="fas fa-copy"></i> Copiar Chave PIX</button>
+            <button onclick="simularPagamentoPix()" style="width:100%;padding:10px;border-radius:30px;background:#22c55e;color:white;border:none;font-weight:600;cursor:pointer;margin-bottom:0.5rem;"><i class="fas fa-bolt"></i> ✅ Simular Aprovação (Teste)</button>
+            <p style="font-size:0.7rem;color:var(--text-muted);">Aguardando confirmação automática do pagamento...</p>
+            <div id="pixStatusMsg" style="margin-top:0.5rem;font-weight:600;display:none;"></div>
         </div>
     </div>
 
@@ -1030,10 +1161,10 @@
         let clienteLogado = null;
         let categoriaAtiva = 'Todos';
 
-        // ── PAGINAÇÃO "Mostrar Mais" ──
-        const PRODUTOS_POR_PAGINA = 10;
-        let produtosPaginados = [];
-        let paginacaoOffset = 0;
+        // ── PAGINAÇÃO (8 Itens por Página) ──
+        const PRODUTOS_POR_PAGINA = 8;
+        let paginaAtual = 1;
+        let produtosFiltradosCache = [];
 
         // Mapa de imagens reais por palavra-chave no nome do produto (chaves longas são testadas primeiro)
         const imagensReais = {
@@ -1209,7 +1340,7 @@
                     if(userNameSpan && !userNameSpan.querySelector('.vip-star')) {
                         const vipBadge = document.createElement('span');
                         vipBadge.className = 'vip-star';
-                        vipBadge.textContent = ' ⭐ VIP';
+                        vipBadge.textContent = ' ⭐ Frequente';
                         vipBadge.style.color = '#fbbf24';
                         userNameSpan.appendChild(vipBadge);
                     }
@@ -1298,47 +1429,81 @@
         function scrollToCardapio() { document.querySelector('.section')?.scrollIntoView({ behavior: 'smooth' }); }
         function scrollToSobre() { document.querySelector('.features-grid')?.closest('.section')?.scrollIntoView({ behavior: 'smooth' }); }
         
+        function removerAcentos(str) {
+            if(!str) return '';
+            return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+        }
+
         function filtrarCategoria(cat) { categoriaAtiva = cat; renderCategorias(); renderProdutos(); }
         
-        // Renderiza os produtos no grid, com imagens reais e paginação "Mostrar Mais"
-        function renderProdutos(resetar = true) {
+        function renderProdutos(pagina = 1) {
             let lista = produtos;
             if(categoriaAtiva !== 'Todos') lista = lista.filter(p => p.categoria === categoriaAtiva);
-            const termoBusca = document.getElementById('heroSearch')?.value?.toLowerCase()?.trim() || '';
-            if(termoBusca && termoBusca !== 'lua') {
-                lista = lista.filter(p => p.nome.toLowerCase().includes(termoBusca) || p.categoria.toLowerCase().includes(termoBusca));
+            
+            const rawBusca = document.getElementById('heroSearch')?.value || '';
+            const termoBusca = removerAcentos(rawBusca.toLowerCase().trim());
+
+            if(termoBusca === 'lua') {
+                ativarModoNoturnoEspecial();
+            } else if(termoBusca) {
+                lista = lista.filter(p => {
+                    const nomeNormal = removerAcentos(p.nome.toLowerCase());
+                    const catNormal = removerAcentos(p.categoria.toLowerCase());
+                    return nomeNormal.includes(termoBusca) || catNormal.includes(termoBusca);
+                });
             }
+
             const container = document.getElementById('productsGrid');
             if(!container) return;
-            if(lista.length === 0) { container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem;">Nenhum produto encontrado</div>'; return; }
 
-            if(resetar) { produtosPaginados = lista; paginacaoOffset = 0; container.innerHTML = ''; }
-
-            const fatia = produtosPaginados.slice(paginacaoOffset, paginacaoOffset + PRODUTOS_POR_PAGINA);
-            container.insertAdjacentHTML('beforeend', fatia.map(renderCardProduto).join(''));
-            paginacaoOffset += fatia.length;
-
-            // Remove botão anterior e re-adiciona se ainda houver mais produtos
-            const btnAnterior = document.getElementById('btnMostrarMais');
-            if(btnAnterior) btnAnterior.remove();
-            if(paginacaoOffset < produtosPaginados.length) {
-                const btn = document.createElement('button');
-                btn.id = 'btnMostrarMais';
-                btn.textContent = `Mostrar mais (${produtosPaginados.length - paginacaoOffset} restantes)`;
-                btn.style.cssText = `
-                    display:block; margin:2rem auto; padding:0.75rem 2.5rem;
-                    background:transparent; border:2px solid var(--primary);
-                    color:var(--primary); border-radius:999px; font-size:1rem;
-                    font-weight:600; cursor:pointer; transition:all 0.25s;
-                    grid-column:1/-1;
-                `;
-                btn.onmouseenter = () => { btn.style.background='var(--primary)'; btn.style.color='#fff'; };
-                btn.onmouseleave = () => { btn.style.background='transparent'; btn.style.color='var(--primary)'; };
-                btn.onclick = () => renderProdutos(false);
-                // Inserir após o grid
-                container.parentNode.insertBefore(btn, container.nextSibling);
+            if(lista.length === 0) { 
+                container.innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; padding:3.5rem 1rem; color:var(--text-muted); background:var(--bg-card); border-radius:20px; border:2px dashed var(--border);">
+                        <div style="font-size:3rem; margin-bottom:0.8rem;">🔍</div>
+                        <h3 style="color:var(--text); margin-bottom:0.5rem;">Nenhum produto encontrado</h3>
+                        <p style="font-size:0.9rem;">Não encontramos nenhum item correspondente a "<strong>${rawBusca}</strong>". Tente outro termo.</p>
+                    </div>`; 
+                const pagContainer = document.getElementById('paginacaoContainer');
+                if(pagContainer) pagContainer.innerHTML = '';
+                return; 
             }
+
+            produtosFiltradosCache = lista;
+            paginaAtual = pagina;
+            const totalPaginas = Math.ceil(lista.length / PRODUTOS_POR_PAGINA);
+            if(paginaAtual > totalPaginas) paginaAtual = totalPaginas;
+
+            const inicio = (paginaAtual - 1) * PRODUTOS_POR_PAGINA;
+            const fatia = lista.slice(inicio, inicio + PRODUTOS_POR_PAGINA);
+
+            container.innerHTML = fatia.map(renderCardProduto).join('');
+
+            // Renderiza barra de paginação numerada
+            let pagContainer = document.getElementById('paginacaoContainer');
+            if(!pagContainer) {
+                pagContainer = document.createElement('div');
+                pagContainer.id = 'paginacaoContainer';
+                pagContainer.style.cssText = 'display:flex; justify-content:center; align-items:center; gap:8px; margin:2.5rem 0; grid-column:1/-1; flex-wrap:wrap;';
+                container.parentNode.insertBefore(pagContainer, container.nextSibling);
+            }
+
+            if(totalPaginas <= 1) {
+                pagContainer.innerHTML = '';
+                return;
+            }
+
+            let htmlPag = `<button onclick="renderProdutos(${paginaAtual - 1})" ${paginaAtual === 1 ? 'disabled' : ''} style="padding:8px 16px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; font-weight:600; opacity:${paginaAtual === 1 ? '0.5' : '1'};"><i class="fas fa-chevron-left"></i> Anterior</button>`;
+            for(let i = 1; i <= totalPaginas; i++) {
+                htmlPag += `<button onclick="renderProdutos(${i})" style="width:38px; height:38px; border-radius:50%; border:none; background:${i === paginaAtual ? 'var(--primary)' : 'var(--card)'}; color:${i === paginaAtual ? '#fff' : 'var(--text)'}; font-weight:700; cursor:pointer; box-shadow:0 2px 5px rgba(0,0,0,0.05);">${i}</button>`;
+            }
+            htmlPag += `<button onclick="renderProdutos(${paginaAtual + 1})" ${paginaAtual === totalPaginas ? 'disabled' : ''} style="padding:8px 16px; border-radius:20px; border:1px solid var(--border); background:var(--card); color:var(--text); cursor:pointer; font-weight:600; opacity:${paginaAtual === totalPaginas ? '0.5' : '1'};">Próxima <i class="fas fa-chevron-right"></i></button>`;
+            pagContainer.innerHTML = htmlPag;
         }
+
+        function filtrarProdutos() {
+            renderProdutos(1);
+        }
+
         function adicionarAoCarrinho(id) {
             const p = produtos.find(x => x.id === id);
             if(!p || p.estoque === 0) return;
@@ -1355,50 +1520,177 @@
             else carrinho.splice(idx, 1);
             atualizarCarrinhoUI();
         }
+
+        function atualizarCarrinhoUI(){const t=carrinho.reduce((s,i)=>s+i.quantidade*i.precoUnitario,0),c=carrinho.reduce((s,i)=>s+i.quantidade,0);document.getElementById('cartCount').textContent=c;document.getElementById('cartTotal').textContent=`R$ ${t.toFixed(2)}`;const con=document.getElementById('cartItems');if(carrinho.length===0){con.innerHTML='<p style="text-align:center;color:var(--text-muted);">Seu carrinho está vazio</p>';}else{con.innerHTML=carrinho.map(i=>`<div class="cart-item"><div><strong>${i.nome}</strong><br><small>R$ ${(parseFloat(i.precoUnitario)||0).toFixed(2)}</small></div><div style="display:flex;align-items:center;gap:8px;"><button onclick="removerDoCarrinho(${i.produtoId})" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:var(--border);color:white;">−</button><span>${i.quantidade}</span><button onclick="adicionarAoCarrinho(${i.produtoId})" style="width:28px;height:28px;border-radius:50%;border:none;cursor:pointer;background:var(--border);color:white;">+</button></div></div>`).join('');}document.getElementById('orderBtn').disabled=carrinho.length===0;verificarComboPerfeito();}
+        function toggleCart(){document.getElementById('cartSidebar').classList.toggle('open');}
+        function abrirModalLogin(){document.getElementById('modalLogin').classList.add('active');}
+        function abrirModalCadastro(){document.getElementById('modalCadastro').classList.add('active');}
+        function fecharModal(id){document.getElementById(id).classList.remove('active');}
         
-        function atualizarCarrinhoUI() {
-            const total = carrinho.reduce((s, i) => s + i.quantidade * i.precoUnitario, 0);
-            const count = carrinho.reduce((s, i) => s + i.quantidade, 0);
-            document.getElementById('cartCount').textContent = count;
-            document.getElementById('cartTotal').textContent = `R$ ${total.toFixed(2)}`;
-            const container = document.getElementById('cartItems');
-            if(carrinho.length === 0) { container.innerHTML = '<p style="text-align:center; color:var(--text-muted);">Seu carrinho está vazio</p>'; }
-            else {
-                container.innerHTML = carrinho.map(i => `<div class="cart-item"><div><strong>${i.nome}</strong><br><small>R$ ${(parseFloat(i.precoUnitario)||0).toFixed(2)}</small></div><div style="display:flex; align-items:center; gap:8px;"><button onclick="removerDoCarrinho(${i.produtoId})" style="width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; background:var(--border); color:white;">−</button><span>${i.quantidade}</span><button onclick="adicionarAoCarrinho(${i.produtoId})" style="width:28px; height:28px; border-radius:50%; border:none; cursor:pointer; background:var(--border); color:white;">+</button></div></div>`).join('');
-            }
-            document.getElementById('orderBtn').disabled = !clienteLogado || carrinho.length === 0;
-            
-            // Verificar combo perfeito
-            verificarComboPerfeito();
-        }
-        
-        async function finalizarPedido() {
-            if(!clienteLogado) { abrirModalLogin(); return; }
+        let pedidoAtual = null;
+
+        function finalizarPedido() {
             if(carrinho.length === 0) return;
-            const total = carrinho.reduce((s, i) => s + i.quantidade * i.precoUnitario, 0);
-            const turma = sessionStorage.getItem('cliente_turma') || '';
+            
+            // Se usuário não está logado, abre modal de escolha explícita (Item 5)
+            if(!clienteLogado) {
+                document.getElementById('modalEscolhaCheckout').classList.add('active');
+            } else {
+                abrirCheckoutAutenticado();
+            }
+        }
+
+        function abrirCheckoutAutenticado() {
+            const mesaUrl = new URLSearchParams(window.location.search).get('mesa') || sessionStorage.getItem('mesa_atual') || '';
+            const partesNome = (clienteLogado.nome || '').split(' ');
+            document.getElementById('convidadoNome').value = partesNome[0] || '';
+            document.getElementById('convidadoSobrenome').value = partesNome.slice(1).join(' ') || '';
+            document.getElementById('convidadoTelefone').value = sessionStorage.getItem('cliente_telefone') || '';
+            document.getElementById('convidadoTurma').value = sessionStorage.getItem('cliente_turma') || '';
+            document.getElementById('convidadoMesa').value = mesaUrl;
+            document.getElementById('convidadoSubtitulo').textContent = 'Seus dados foram preenchidos automaticamente com sua conta.';
+            document.getElementById('convidadoError').style.display = 'none';
+            document.getElementById('modalConvidado').classList.add('active');
+        }
+
+        function abrirCheckoutVisitante() {
+            const mesaUrl = new URLSearchParams(window.location.search).get('mesa') || sessionStorage.getItem('mesa_atual') || '';
+            document.getElementById('convidadoNome').value = '';
+            document.getElementById('convidadoSobrenome').value = '';
+            document.getElementById('convidadoTelefone').value = '';
+            document.getElementById('convidadoTurma').value = '';
+            document.getElementById('convidadoMesa').value = mesaUrl;
+            document.getElementById('convidadoSubtitulo').textContent = 'Informe apenas seu Nome e Sobrenome para identificação da retirada.';
+            document.getElementById('convidadoError').style.display = 'none';
+            document.getElementById('modalConvidado').classList.add('active');
+        }
+
+        async function confirmarPedidoConvidado() {
+            const nome = document.getElementById('convidadoNome').value.trim();
+            const sobrenome = document.getElementById('convidadoSobrenome').value.trim();
+            const telefone = document.getElementById('convidadoTelefone').value.trim();
+            const turma = document.getElementById('convidadoTurma').value.trim();
+            const mesa = document.getElementById('convidadoMesa').value.trim();
+            const formaPagamento = document.getElementById('convidadoFormaPagamento').value;
+            const err = document.getElementById('convidadoError');
+
+            if(!nome) { err.textContent = 'Por favor, informe seu Nome'; err.style.display = 'block'; return; }
+            if(!sobrenome) { err.textContent = 'Por favor, informe seu Sobrenome'; err.style.display = 'block'; return; }
+
+            const nomeCompleto = `${nome} ${sobrenome}`.trim();
+            const total = carrinho.reduce((s,i) => s + i.quantidade * i.precoUnitario, 0);
+            
+            pedidoAtual = {
+                nomeCliente: nomeCompleto,
+                turma: turma,
+                mesa: mesa || null,
+                formaPagamento: formaPagamento,
+                horarioRetirada: 'Em breve',
+                itens: [...carrinho],
+                total: total,
+                clienteAppId: clienteLogado ? clienteLogado.id : null,
+                observacao: telefone ? `Telefone: ${telefone}` : null
+            };
+
+            fecharModal('modalConvidado');
+
+            if(formaPagamento === 'pix') {
+                await abrirModalPix(total);
+            } else {
+                try {
+                    const res = await fetch(API_URL + '/pedidos', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(pedidoAtual)
+                    });
+                    if(res.ok) {
+                        alert(`✅ Pedido de ${nomeCompleto} realizado com sucesso! Aguarde a chamada do seu nome.`);
+                        carrinho = [];
+                        atualizarCarrinhoUI();
+                        toggleCart();
+                    } else {
+                        const data = await res.json();
+                        alert('Erro ao enviar pedido: ' + (data.erro || 'Tente novamente'));
+                    }
+                } catch(e) {
+                    alert('Erro de conexão ao enviar pedido');
+                }
+            }
+        }
+        async function abrirModalPix(total){document.getElementById('modalPix').classList.add('active');['pixQrPlaceholder','pixQrImg','pixChaveCopia','pixCopiarBtn','pixStatusMsg'].forEach(id=>document.getElementById(id).style.display=id==='pixQrPlaceholder'?'flex':'none');try{const res=await fetch(API_URL+'/pix/gerar',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({valor:total,descricao:'Pedido Doutor Paladar'})});const data=await res.json();if(data.qrCodeBase64){document.getElementById('pixQrImg').src='data:image/png;base64,'+data.qrCodeBase64;document.getElementById('pixQrImg').style.display='block';document.getElementById('pixQrPlaceholder').style.display='none';}if(data.txid)window._pixTxid=data.txid;if(data.chavePix){document.getElementById('pixChaveCopia').textContent=data.chavePix;document.getElementById('pixChaveCopia').style.display='block';document.getElementById('pixCopiarBtn').style.display='block';window._pixChave=data.chavePix;}}catch(e){document.getElementById('pixQrPlaceholder').innerHTML='<p>Chave PIX:<br><strong>doutor.paladar@cantina.com</strong></p>';document.getElementById('pixChaveCopia').textContent='doutor.paladar@cantina.com';['pixChaveCopia','pixCopiarBtn'].forEach(id=>document.getElementById(id).style.display='block');window._pixChave='doutor.paladar@cantina.com';}}
+        function copiarChavePix(){navigator.clipboard.writeText(window._pixChave||'doutor.paladar@cantina.com').then(()=>alert('✅ Chave PIX copiada!')).catch(()=>alert('Chave: '+(window._pixChave||'doutor.paladar@cantina.com')));}
+        async function simularPagamentoPix(){const s=document.getElementById('pixStatusMsg');s.style.display='block';s.style.color='#f59e0b';s.textContent='⏳ Processando...';try{await fetch(API_URL+'/pix/simular-pagamento',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({txid:window._pixTxid})});}catch(e){}if(!pedidoAtual)return;try{const res=await fetch(API_URL+'/pedidos',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(pedidoAtual)});if(res.ok){s.style.color='#10b981';s.textContent='✅ Aprovado! Pedido confirmado.';setTimeout(()=>{fecharModal('modalPix');carrinho=[];atualizarCarrinhoUI();toggleCart();verificarClienteVIP();renderSelosFidelidade();},2000);}else{const d=await res.json();s.style.color='var(--danger)';s.textContent='❌ '+(d.erro||'Erro ao confirmar');}}catch(e){s.style.color='var(--danger)';s.textContent='❌ Erro de conexão';}}
+        async function carregarPontosFidelidadeCliente() {
+            if(!clienteLogado || !clienteLogado.token) return;
             try {
-                const res = await fetch(API_URL + '/pedidos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ nomeCliente: clienteLogado.nome, turma, horarioRetirada: '12:00', itens: carrinho, total, clienteAppId: clienteLogado.id }) });
-                if(res.ok) { alert('✅ Pedido realizado com sucesso!'); carrinho = []; atualizarCarrinhoUI(); toggleCart(); verificarClienteVIP(); }
-                else alert('Erro ao realizar pedido');
-            } catch(e) { alert('Erro de conexão'); }
+                const res = await fetch(API_URL + '/clientes-app/perfil', {
+                    headers: { Authorization: `Bearer ${clienteLogado.token}` }
+                });
+                if(res.ok) {
+                    const perfil = await res.json();
+                    clienteLogado.pontosFidelidade = perfil.pontosFidelidade || 0;
+                    sessionStorage.setItem('cliente_pontos', clienteLogado.pontosFidelidade);
+                }
+            } catch(e) {}
         }
-        
-        function toggleCart() { document.getElementById('cartSidebar').classList.toggle('open'); }
-        function abrirModalLogin() { document.getElementById('modalLogin').classList.add('active'); }
-        function abrirModalCadastro() { document.getElementById('modalCadastro').classList.add('active'); }
-        function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
-        
-        // Filtra produtos pela busca e detecta o easter egg "lua"
-        function filtrarProdutos() {
-            const termo = document.getElementById('heroSearch')?.value?.toLowerCase()?.trim() || '';
-            if(termo === 'lua') { ativarModoNoturnoEspecial(); }
-            renderProdutos();
+
+        function resgatarBebidaGratis() {
+            if (!clienteLogado) return;
+            const pts = clienteLogado.pontosFidelidade || 0;
+            if (pts < 10) {
+                alert(`Você possui ${pts} pontos. São necessários 10 pontos para resgatar uma bebida cortesia!`);
+                return;
+            }
+
+            const cortesiaNoCarrinho = carrinho.find(i => i.isCortesia);
+            if (cortesiaNoCarrinho) {
+                alert('Você já possui uma Bebida Cortesia no seu carrinho!');
+                return;
+            }
+
+            carrinho.push({
+                id: 9999,
+                nome: '🥤 Suco / Refrigerante Cortesia (Fidelidade)',
+                preco: 0.00,
+                quantidade: 1,
+                imagem: '🥤',
+                isCortesia: true
+            });
+
+            atualizarCarrinhoUI();
+            fecharModal('modalPerfil');
+            alert('🎉 Bebida Cortesia adicionada ao seu carrinho gratuitamente!');
         }
-        
-        // PERFIL
-        let campoEditando = null;
-        function abrirPerfil() { if(!clienteLogado) return;
+
+        async function renderSelosFidelidade(){
+            await carregarPontosFidelidadeCliente();
+            const p = clienteLogado?.pontosFidelidade || 0;
+            const g = document.getElementById('selosGrid');
+            if(!g) return;
+
+            g.innerHTML = Array.from({length:10}, (_,i) => `<span style="font-size:1.6rem;filter:${i < (p % 10) ? 'none' : 'grayscale(1)'};">🏅</span>`).join('');
+            
+            const disponiveisResgate = Math.floor(p / 10);
+            const faltam = 10 - (p % 10);
+            const txtContainer = document.getElementById('selosTexto');
+
+            if(txtContainer) {
+                let htmlTexto = `<div style="font-size:0.9rem;font-weight:700;color:var(--text);margin-top:6px;">🏆 Total: ${p} Pontos de Fidelidade</div>`;
+                if(p < 10) {
+                    htmlTexto += `<div style="font-size:0.8rem;color:var(--text-muted);">Faltam ${faltam} ponto(s) para ganhar uma bebida cortesia!</div>`;
+                } else {
+                    htmlTexto += `
+                        <div style="margin-top:8px;">
+                            <span style="color:var(--success);font-weight:800;font-size:0.85rem;">🎉 Você possui ${disponiveisResgate} bebida(s) cortesia disponível(is)!</span>
+                            <button onclick="resgatarBebidaGratis()" style="margin-top:8px;width:100%;background:linear-gradient(135deg,#10b981,#059669);color:white;border:none;padding:10px;border-radius:12px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;box-shadow:0 4px 10px rgba(16,185,129,0.3);"><i class="fas fa-gift"></i> Resgatar Bebida Grátis no Carrinho</button>
+                        </div>`;
+                }
+                txtContainer.innerHTML = htmlTexto;
+            }
+        }
+
+        let campoEditando=null;
+        function abrirPerfil(){if(!clienteLogado)return;renderSelosFidelidade();
             document.getElementById('perfilNome').textContent = clienteLogado.nome;
             document.getElementById('perfilTelefone').textContent = sessionStorage.getItem('cliente_telefone') || 'Não informado';
             document.getElementById('perfilTurma').textContent = sessionStorage.getItem('cliente_turma') || 'Não informada';
@@ -1429,14 +1721,204 @@
 
         function atualizarUI() {
             const userArea = document.getElementById('userArea');
-            const btnAdmin = `<button class="btn-login" style="border-color: var(--text-muted); color: var(--text-muted);" onclick="abrirModalAdminLogin()"><i class="fas fa-shield-alt"></i> Painel Gestor</button>`;
+            const btnAgendar = `<button class="btn-login" style="border-color: var(--primary-light); background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; box-shadow: var(--shadow-glow);" onclick="abrirModalAgendamentoCliente()"><i class="fas fa-calendar-alt"></i> Agendar Refeição</button>`;
+            const btnAdmin = `<button class="btn-login" style="border-color: rgba(255,255,255,0.2); color: rgba(255,255,255,0.8); padding: 8px 12px;" onclick="abrirModalAdminLogin()" title="Acesso Administrativo"><i class="fas fa-lock"></i></button>`;
             if(clienteLogado) { 
-                userArea.innerHTML = `<div class="user-info"><span class="user-name" onclick="abrirPerfil()"><i class="fas fa-user-circle"></i> ${clienteLogado.nome}</span><button class="btn-logout" onclick="logout()">Sair</button>${btnAdmin}</div>`; 
+                userArea.innerHTML = `<div class="user-info">${btnAgendar}<span class="user-name" onclick="abrirPerfil()"><i class="fas fa-user-circle"></i> ${clienteLogado.nome}</span><button class="btn-logout" onclick="logout()">Sair</button>${btnAdmin}</div>`; 
                 verificarClienteVIP(); 
             } else { 
-                userArea.innerHTML = `<button class="btn-login" id="loginBtn" onclick="abrirModalLogin()"><i class="fas fa-user"></i> Entrar</button>${btnAdmin}`; 
+                userArea.innerHTML = `${btnAgendar}<button class="btn-login" id="loginBtn" onclick="abrirModalLogin()"><i class="fas fa-user"></i> Entrar</button>${btnAdmin}`; 
             }
             atualizarCarrinhoUI();
+        }
+
+        function abrirModalAgendamentoCliente() {
+            document.getElementById('modalAgendamentoCliente').classList.add('active');
+            mudarTabAgendamento('disponiveis');
+        }
+
+        function mudarTabAgendamento(tab) {
+            const btnDisp = document.getElementById('btnTabDisponiveis');
+            const btnMeus = document.getElementById('btnTabMeus');
+            const pDisp = document.getElementById('painelAgendamentosDisponiveis');
+            const pMeus = document.getElementById('painelMeusAgendamentosCliente');
+
+            if (tab === 'disponiveis') {
+                btnDisp.style.background = 'rgba(45,125,82,0.1)';
+                btnDisp.style.color = 'var(--primary)';
+                btnMeus.style.background = 'transparent';
+                btnMeus.style.color = 'var(--text-muted)';
+                pDisp.style.display = 'block';
+                pMeus.style.display = 'none';
+                carregarAgendamentosClienteDisponiveis();
+            } else {
+                btnMeus.style.background = 'rgba(45,125,82,0.1)';
+                btnMeus.style.color = 'var(--primary)';
+                btnDisp.style.background = 'transparent';
+                btnDisp.style.color = 'var(--text-muted)';
+                pDisp.style.display = 'none';
+                pMeus.style.display = 'block';
+                carregarMeusAgendamentosCliente();
+            }
+        }
+
+        async function carregarAgendamentosClienteDisponiveis() {
+            const grid = document.getElementById('listaAgendamentosClienteGrid');
+            try {
+                const res = await fetch(API_URL + '/agendamentos');
+                if(!res.ok) throw new Error('Erro ao carregar horários');
+                const agendamentos = await res.json();
+                
+                const disponiveis = agendamentos.filter(a => a.status === 'disponivel' || (!a.bloqueado && (a.vagasDisponiveis > 0 || (a.vagasTotais - (a.vagasOcupadas || 0)) > 0)));
+
+                if(disponiveis.length === 0) {
+                    grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-calendar-times" style="font-size: 2.5rem; margin-bottom: 0.5rem; color: var(--warning);"></i>
+                        <p style="font-weight: 600;">Nenhum agendamento disponível no momento.</p>
+                        <p style="font-size: 0.8rem;">Volte mais tarde para verificar o prato do dia!</p>
+                    </div>`;
+                    return;
+                }
+
+                grid.innerHTML = disponiveis.map(a => {
+                    const vagasRestantes = Math.max(0, a.vagasTotais - (a.vagasOcupadas || 0));
+                    const esgotado = vagasRestantes === 0;
+                    const percentual = Math.min(100, Math.round(((a.vagasOcupadas || 0) / a.vagasTotais) * 100));
+
+                    return `
+                        <div style="background: var(--bg); border: 2px solid ${esgotado ? 'var(--danger)' : 'var(--primary-light)'}; border-radius: 16px; padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; transition: all 0.3s;">
+                            <div>
+                                <span style="background: rgba(45,125,82,0.1); color: var(--primary); font-size: 0.75rem; padding: 4px 10px; border-radius: 20px; font-weight: 700;">📅 ${a.data} - ${a.horario}</span>
+                                <h4 style="font-size: 1.1rem; color: var(--text); margin: 0.6rem 0 0.2rem; font-weight: 800;">${a.pratoDoDia || a.pratoNome || 'Prato da Cantina'}</h4>
+                                <p style="font-size: 1.1rem; font-weight: 800; color: var(--primary); margin-bottom: 0.6rem;">R$ ${parseFloat(a.preco || 0).toFixed(2).replace('.', ',')}</p>
+                                
+                                <div style="margin: 0.5rem 0;">
+                                    <div style="display: flex; justify-content: space-between; font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 4px;">
+                                        <span>Vagas: ${a.vagasOcupadas || 0}/${a.vagasTotais}</span>
+                                        <span>${vagasRestantes} restantes</span>
+                                    </div>
+                                    <div style="height: 6px; background: var(--border); border-radius: 4px; overflow: hidden;">
+                                        <div style="width: ${percentual}%; height: 100%; background: ${esgotado ? 'var(--danger)' : 'var(--primary)'}; transition: width 0.3s;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <button onclick="reservarAgendamentoCliente(${a.id})" ${esgotado ? 'disabled' : ''} style="margin-top: 1rem; width: 100%; padding: 10px; border-radius: 12px; border: none; background: ${esgotado ? 'var(--border)' : 'linear-gradient(135deg, var(--primary), var(--primary-dark))'}; color: white; font-weight: 700; cursor: ${esgotado ? 'not-allowed' : 'pointer'};">
+                                ${esgotado ? '❌ Vagas Esgotadas' : '🍽️ Reservar Minha Vaga'}
+                            </button>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch(e) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--danger); grid-column: 1/-1;">Erro ao carregar disponibilidades. Verifique se o servidor está ativo.</p>`;
+            }
+        }
+
+        async function reservarAgendamentoCliente(agendamentoId) {
+            if (!clienteLogado) {
+                alert('Por favor, faça login para agendar sua refeição!');
+                fecharModal('modalAgendamentoCliente');
+                abrirModalLogin();
+                return;
+            }
+
+            try {
+                const res = await fetch(API_URL + '/agendamentos/reservar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        agendamentoId,
+                        clienteAppId: clienteLogado.id,
+                        nomeCliente: clienteLogado.nome,
+                        telefone: sessionStorage.getItem('cliente_telefone') || '',
+                        turma: sessionStorage.getItem('cliente_turma') || ''
+                    })
+                });
+
+                const data = await res.json();
+                if(res.ok) {
+                    alert('🎉 Reserva efetuada com sucesso!');
+                    mudarTabAgendamento('meus');
+                } else {
+                    alert('⚠️ ' + (data.erro || 'Erro ao efetuar reserva.'));
+                }
+            } catch(e) {
+                alert('Erro de conexão ao realizar reserva.');
+            }
+        }
+
+        async function carregarMeusAgendamentosCliente() {
+            const grid = document.getElementById('listaMeusAgendamentosClienteGrid');
+            if(!clienteLogado) {
+                grid.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <p style="margin-bottom: 1rem;">Faça login para visualizar seus agendamentos ativos.</p>
+                    <button class="btn-login" onclick="fecharModal('modalAgendamentoCliente'); abrirModalLogin();">Entrar Agora</button>
+                </div>`;
+                return;
+            }
+
+            try {
+                const token = sessionStorage.getItem('cliente_token');
+                const res = await fetch(API_URL + '/agendamentos/meus-agendamentos', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                if(!res.ok) throw new Error('Erro ao buscar seus agendamentos');
+                const reservas = await res.json();
+
+                if(reservas.length === 0) {
+                    grid.innerHTML = `<div style="text-align: center; padding: 2rem; color: var(--text-muted);">
+                        <i class="fas fa-receipt" style="font-size: 2.5rem; margin-bottom: 0.5rem; opacity: 0.6;"></i>
+                        <p style="font-weight: 600;">Você ainda não possui nenhuma reserva.</p>
+                        <button onclick="mudarTabAgendamento('disponiveis')" style="margin-top: 0.8rem; background: var(--primary); color: white; border: none; padding: 8px 16px; border-radius: 20px; font-weight: 600; cursor: pointer;">Explorar Pratos do Dia</button>
+                    </div>`;
+                    return;
+                }
+
+                grid.innerHTML = reservas.map(r => {
+                    const isAtivo = r.status === 'agendado';
+                    const statusColor = isAtivo ? '#10b981' : (r.status === 'cancelado' ? '#ef4444' : '#3b82f6');
+                    const statusText = isAtivo ? 'Agendado ✅' : (r.status === 'cancelado' ? 'Cancelado ❌' : 'Concluído 🍽️');
+
+                    return `
+                        <div style="background: var(--bg); border-radius: 14px; padding: 1rem; border: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 0.8rem;">
+                            <div>
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-weight: 800; font-size: 1rem; color: var(--text);">${r.pratoNome || 'Prato do Dia'}</span>
+                                    <span style="background: rgba(0,0,0,0.05); color: ${statusColor}; font-size: 0.72rem; padding: 3px 8px; border-radius: 12px; font-weight: 700;">${statusText}</span>
+                                </div>
+                                <p style="font-size: 0.82rem; color: var(--text-muted); margin-top: 4px;">
+                                    📅 ${r.data} - ${r.horario} | R$ ${parseFloat(r.preco || 0).toFixed(2).replace('.', ',')}
+                                </p>
+                            </div>
+                            ${isAtivo ? `<button onclick="cancelarMeuAgendamento(${r.id})" style="background: rgba(239,68,68,0.1); color: var(--danger); border: 1px solid var(--danger); padding: 6px 14px; border-radius: 12px; font-weight: 700; font-size: 0.8rem; cursor: pointer;">Cancelar Reserva</button>` : ''}
+                        </div>
+                    `;
+                }).join('');
+
+            } catch(e) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--danger);">Erro ao carregar histórico de reservas.</p>`;
+            }
+        }
+
+        async function cancelarMeuAgendamento(reservaId) {
+            if(!confirm('Deseja realmente cancelar esta reserva?')) return;
+            try {
+                const token = sessionStorage.getItem('cliente_token');
+                const res = await fetch(API_URL + `/agendamentos/cancelar/${reservaId}`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await res.json();
+                if(res.ok) {
+                    alert('Reserva cancelada com sucesso!');
+                    carregarMeusAgendamentosCliente();
+                } else {
+                    alert('⚠️ ' + (data.erro || 'Erro ao cancelar reserva.'));
+                }
+            } catch(e) {
+                alert('Erro de conexão ao cancelar reserva.');
+            }
         }
         
         async function fazerLogin() {
@@ -1509,12 +1991,113 @@
         const id = sessionStorage.getItem('cliente_id');
         if(token && nome && id) clienteLogado = { token, nome, id: parseInt(id) };
         
-         renderProdutos();
+        renderProdutos();
         carregarProdutos();
         atualizarUI();
         carregarHorarioPico();
         
-        console.log('%c🍔 DOUTOR PALADAR 🍟\n%cComando secreto: ⬆️⬆️⬇️⬇️⬅️➡️⬅️➡️␣↵\nUsuário: admin | Senha: admin123\n\n🔓 Easter Eggs:\n- Clique 5x no logo\n- Digite "lua" na busca\n- Combo: Coxinha + Suco + Brigadeiro\n- Faça 3 pedidos e vire VIP', 'color: #10b981; font-size: 16px; font-weight: bold;', 'color: #f59e0b; font-size: 12px;');
+        let socketCliente = null;
+
+        async function abrirModalChatCliente() {
+            if (!clienteLogado) {
+                alert('Por favor, faça login para conversar com a cantina.');
+                abrirModalLogin();
+                return;
+            }
+            document.getElementById('modalChatCliente').classList.add('active');
+            await carregarMensagensClienteModal();
+
+            if (!socketCliente && typeof io !== 'undefined') {
+                try {
+                    socketCliente = io('http://localhost:3000');
+                    socketCliente.on('nova_mensagem', (msg) => {
+                        if (clienteLogado && (msg.conversaId == clienteLogado.id || msg.autor_id == clienteLogado.id)) {
+                            carregarMensagensClienteModal();
+                        }
+                    });
+                } catch(e) {}
+            }
+        }
+
+        async function carregarMensagensClienteModal() {
+            if (!clienteLogado) return;
+            const container = document.getElementById('corpoMensagensCliente');
+            try {
+                const res = await fetch(`${API_URL}/chat/conversa/${clienteLogado.id}`);
+                if (res.ok) {
+                    const mensagens = await res.json();
+                    if (mensagens.length === 0) {
+                        container.innerHTML = '<p style="text-align:center;color:var(--text-muted);font-size:0.85rem;margin-top:2rem;">Nenhuma mensagem enviada ainda. Digite abaixo para iniciar!</p>';
+                        return;
+                    }
+                    container.innerHTML = mensagens.map(m => {
+                        const isMe = m.autor_tipo === 'cliente';
+                        const hora = m.data ? new Date(m.data).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) : '';
+                        return `
+                            <div style="align-self: ${isMe ? 'flex-end' : 'flex-start'}; max-width: 80%; background: ${isMe ? 'var(--primary)' : '#334155'}; color: white; padding: 10px 14px; border-radius: 16px; font-size: 0.9rem; position: relative;">
+                                <div style="font-size: 0.7rem; opacity: 0.8; margin-bottom: 2px;">${isMe ? 'Você' : (m.autor_nome || 'Gestor')}</div>
+                                <div>${m.mensagem}</div>
+                                <div style="font-size: 0.65rem; opacity: 0.7; text-align: right; margin-top: 4px;">${hora}</div>
+                            </div>`;
+                    }).join('');
+                    container.scrollTop = container.scrollHeight;
+                }
+            } catch(e) {
+                console.error('Erro ao buscar mensagens do cliente:', e);
+            }
+        }
+
+        async function enviarMensagemClienteModal() {
+            const input = document.getElementById('inputMensagemCliente');
+            const mensagem = input.value.trim();
+            if (!mensagem || !clienteLogado) return;
+
+            try {
+                const res = await fetch(`${API_URL}/chat/enviar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        mensagem,
+                        autor_id: clienteLogado.id,
+                        autor_nome: clienteLogado.nome,
+                        autor_tipo: 'cliente',
+                        conversaId: clienteLogado.id
+                    })
+                });
+
+                if (res.ok) {
+                    input.value = '';
+                    await carregarMensagensClienteModal();
+                }
+            } catch(e) {
+                console.error('Erro ao enviar mensagem:', e);
+            }
+        }
     </script>
+
+    <!-- Modal Chat ao Vivo do Cliente -->
+    <div class="modal" id="modalChatCliente">
+        <div class="modal-content" style="max-width: 480px; height: 80vh; display: flex; flex-direction: column; padding: 1.2rem; background: var(--bg-card); border-radius: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 0.8rem; border-bottom: 1px solid var(--border);">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 40px; height: 40px; border-radius: 50%; background: var(--primary); color: white; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">👨‍🍳</div>
+                    <div>
+                        <h4 style="font-size: 1rem; color: var(--text);">Cantina Doutor Paladar</h4>
+                        <span style="font-size: 0.75rem; color: var(--success); font-weight: 600;">● Suporte ao Vivo</span>
+                    </div>
+                </div>
+                <button onclick="fecharModal('modalChatCliente')" style="background: none; border: none; font-size: 1.4rem; color: var(--text-muted); cursor: pointer;">&times;</button>
+            </div>
+            
+            <div id="corpoMensagensCliente" style="flex: 1; overflow-y: auto; padding: 1rem 0; display: flex; flex-direction: column; gap: 10px;">
+                <p style="text-align: center; color: var(--text-muted); font-size: 0.85rem;">Carregando mensagens...</p>
+            </div>
+            
+            <div style="display: flex; gap: 8px; padding-top: 0.8rem; border-top: 1px solid var(--border);">
+                <input type="text" id="inputMensagemCliente" placeholder="Digite sua mensagem..." onkeypress="if(event.key==='Enter') enviarMensagemClienteModal()" style="flex: 1; padding: 10px 14px; border-radius: 20px; border: 1px solid var(--border); background: var(--card); color: var(--text); outline: none;">
+                <button onclick="enviarMensagemClienteModal()" style="background: var(--primary); color: white; border: none; width: 42px; height: 42px; border-radius: 50%; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fas fa-paper-plane"></i></button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>

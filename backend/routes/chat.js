@@ -2,72 +2,131 @@ const express = require('express');
 const router = express.Router();
 const { query, execute } = require('../database');
 
-// GET /api/chat/mensagens - retorna todas as mensagens (filtragem de privacidade é feita no frontend)
-router.get('/mensagens', async (req, res) => {
+// GET /api/chat/minhas-mensagens - mensagens da conversa do cliente logado
+router.get('/minhas-mensagens', async (req, res) => {
   try {
-    const mensagens = await query('SELECT * FROM chat_mensagens ORDER BY id ASC');
+    const { clienteId } = req.query;
+    if (!clienteId) {
+      return res.status(400).json({ erro: 'ID do cliente é obrigatório para visualizar mensagens.' });
+    }
+
+    const mensagens = await query(
+      'SELECT * FROM chat_mensagens WHERE conversaId = ? ORDER BY id ASC',
+      [clienteId]
+    );
+
+    // Marcar como lidas as mensagens vindas do admin
+    await execute("UPDATE chat_mensagens SET lida = 1 WHERE conversaId = ? AND autor_tipo = 'admin'", [clienteId]);
+
     res.json(mensagens);
   } catch (error) {
-    console.error('Erro ao buscar mensagens:', error);
+    console.error('Erro ao buscar mensagens do cliente:', error);
     res.status(500).json({ erro: 'Erro ao buscar mensagens' });
   }
 });
 
-// GET /api/chat/conversas - lista de conversas únicas (admin)
+// GET /api/chat/conversas - painel do admin: listar todas as conversas/clientes com mensagens não lidas
 router.get('/conversas', async (req, res) => {
   try {
-    const conversas = await query(`
-      SELECT conversa_id, MAX(autor_nome) as nome, MAX(id) as ultimaMensagemId,
-             (SELECT mensagem FROM chat_mensagens c2 WHERE c2.conversa_id = c1.conversa_id ORDER BY id DESC LIMIT 1) as ultimaMensagem,
-             (SELECT data FROM chat_mensagens c2 WHERE c2.conversa_id = c1.conversa_id ORDER BY id DESC LIMIT 1) as data
-      FROM chat_mensagens c1
-      WHERE autor_tipo = 'cliente'
-      GROUP BY conversa_id
-      ORDER BY ultimaMensagemId DESC
+    // Buscar todos os clientes_app que possuem mensagens ou que estejam cadastrados
+    const clientesComMensagens = await query(`
+      SELECT 
+        c.id as clienteId,
+        c.nome as clienteNome,
+        c.usuario as clienteUsuario,
+        c.foto,
+        (SELECT mensagem FROM chat_mensagens m WHERE m.conversaId = c.id ORDER BY m.id DESC LIMIT 1) as ultimaMensagem,
+        (SELECT data FROM chat_mensagens m WHERE m.conversaId = c.id ORDER BY m.id DESC LIMIT 1) as dataUltimaMensagem,
+        (SELECT COUNT(*) FROM chat_mensagens m WHERE m.conversaId = c.id AND m.lida = 0 AND m.autor_tipo = 'cliente') as naoLidas
+      FROM clientes_app c
+      ORDER BY dataUltimaMensagem DESC, c.nome ASC
     `);
-    res.json(conversas);
+
+    res.json(clientesComMensagens);
   } catch (error) {
-    console.error('Erro ao buscar conversas:', error);
-    res.status(500).json({ erro: 'Erro ao buscar conversas' });
+    console.error('Erro ao listar conversas para o admin:', error);
+    res.status(500).json({ erro: 'Erro ao carregar lista de conversas' });
   }
 });
 
-// GET /api/chat/conversa/:conversaId - mensagens de uma conversa específica
+// GET /api/chat/conversa/:conversaId - admin busca historico completo com um cliente especifico
 router.get('/conversa/:conversaId', async (req, res) => {
   try {
-    const mensagens = await query('SELECT * FROM chat_mensagens WHERE conversa_id = ? ORDER BY id ASC', [req.params.conversaId]);
+    const { conversaId } = req.params;
+    const mensagens = await query(
+      'SELECT * FROM chat_mensagens WHERE conversaId = ? ORDER BY id ASC',
+      [conversaId]
+    );
+
+    // Marcar como lidas mensagens do cliente
+    await execute("UPDATE chat_mensagens SET lida = 1 WHERE conversaId = ? AND autor_tipo = 'cliente'", [conversaId]);
+
     res.json(mensagens);
   } catch (error) {
-    console.error('Erro ao buscar conversa:', error);
-    res.status(500).json({ erro: 'Erro ao buscar conversa' });
+    console.error('Erro ao buscar conversa específica:', error);
+    res.status(500).json({ erro: 'Erro ao buscar mensagens' });
   }
 });
 
-// POST /api/chat/enviar - enviar nova mensagem
+// POST /api/chat/enviar - cliente ou admin envia mensagem
 router.post('/enviar', async (req, res) => {
-  const { mensagem, autor_id, autor_nome, autor_tipo, conversa_id } = req.body;
-  if (!mensagem || !autor_id || !autor_nome || !autor_tipo) {
-    return res.status(400).json({ erro: 'Dados incompletos' });
+  const { mensagem, autor_id, autor_nome, autor_tipo, conversaId } = req.body;
+  
+  if (!mensagem || !mensagem.trim()) {
+    return res.status(400).json({ erro: 'Mensagem vazia' });
   }
+  if (autor_id === undefined || autor_id === null || !autor_nome || !autor_tipo) {
+    return res.status(400).json({ erro: 'Identificação do autor é obrigatória' });
+  }
+
+  // Se o autor é cliente, a conversaId é o próprio autor_id. Se é admin, deve informar a conversaId (ID do cliente).
+  const targetConversaId = autor_tipo === 'cliente' ? parseInt(autor_id) : parseInt(conversaId || autor_id || 0);
+
+  if (!targetConversaId) {
+    return res.status(400).json({ erro: 'Conversa não especificada' });
+  }
+
   try {
-    const data = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    // conversa_id: se cliente, é o próprio autor_id; se admin, deve ser informado (id do cliente)
-    const convId = conversa_id || (autor_tipo === 'cliente' ? autor_id : autor_id);
+    const dataHora = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
     const result = await execute(
-      'INSERT INTO chat_mensagens (mensagem, autor_id, autor_nome, autor_tipo, conversa_id, data) VALUES (?, ?, ?, ?, ?, ?)',
-      [mensagem.trim(), autor_id, autor_nome, autor_tipo, convId, data]
+      'INSERT INTO chat_mensagens (conversaId, autor_id, autor_nome, autor_tipo, mensagem, lida, data) VALUES (?, ?, ?, ?, ?, 0, ?)',
+      [targetConversaId, autor_id, autor_nome, autor_tipo, mensagem.trim(), dataHora]
     );
 
-    const novaMensagem = { id: result.insertId, mensagem: mensagem.trim(), autor_id, autor_nome, autor_tipo, conversa_id: convId, data };
+    const novaMensagem = {
+      id: result.insertId,
+      conversaId: targetConversaId,
+      autor_id,
+      autor_nome,
+      autor_tipo,
+      mensagem: mensagem.trim(),
+      lida: 0,
+      data: dataHora
+    };
 
     const io = req.app.get('io');
-    if (io) io.emit('nova_mensagem', novaMensagem);
+    if (io) {
+      io.emit('nova_mensagem', novaMensagem);
+    }
 
     res.status(201).json(novaMensagem);
   } catch (error) {
     console.error('Erro ao enviar mensagem:', error);
-    res.status(500).json({ erro: 'Erro ao enviar mensagem' });
+    res.status(500).json({ erro: 'Erro ao enviar mensagem no chat' });
+  }
+});
+
+// PUT /api/chat/marcar-lidas/:conversaId
+router.put('/marcar-lidas/:conversaId', async (req, res) => {
+  try {
+    const { autor_tipo } = req.body; // se admin chamou, marca as do cliente como lidas; se cliente chamou, marca as do admin
+    const tipoParaMarcar = autor_tipo === 'admin' ? 'cliente' : 'admin';
+    await execute('UPDATE chat_mensagens SET lida = 1 WHERE conversaId = ? AND autor_tipo = ?', [req.params.conversaId, tipoParaMarcar]);
+    res.json({ sucesso: true });
+  } catch (error) {
+    console.error('Erro ao marcar mensagens como lidas:', error);
+    res.status(500).json({ erro: 'Erro ao atualizar status de leitura' });
   }
 });
 

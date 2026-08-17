@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -26,41 +26,41 @@
     <!-- SIDEBAR -->
     <aside class="sidebar">
         <div class="sidebar-header">
-            <div class="sidebar-brand" onclick="window.location.href='index.html'">
+            <a href="admin.html" class="sidebar-brand">
                 <div class="brand-icon"><i class="fas fa-utensils"></i></div>
                 <div class="brand-text">
                     <div class="brand-name">Doutor Paladar</div>
                     <div class="brand-sub">Painel Admin</div>
                 </div>
-            </div>
+            </a>
         </div>
-
         <nav class="sidebar-nav">
             <div class="nav-section-title">Principal</div>
-            <div class="nav-item active" data-tab="dashboard"><i class="fas fa-chart-pie"></i> Dashboard</div>
-            <div class="nav-item" data-tab="pedidos"><i class="fas fa-clipboard-list"></i> Pedidos</div>
+            <a href="admin.html" class="nav-item active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
 
             <div class="nav-section-title">Gestão</div>
-            <div class="nav-item" data-tab="pdv"><i class="fas fa-cash-register"></i> Ponto de Venda</div>
-            <div class="nav-item" data-tab="produtos"><i class="fas fa-box"></i> Produtos</div>
-            <div class="nav-item" data-tab="contasReceber"><i class="fas fa-hand-holding-usd"></i> Contas a Receber</div>
-            <div class="nav-item" data-tab="despesas"><i class="fas fa-receipt"></i> Despesas</div>
-            <div class="nav-item" data-tab="fornecedores"><i class="fas fa-truck"></i> Fornecedores</div>
+            <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+            <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos</a>
+            <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+            <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+            <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+            <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
 
-            <div class="nav-section-title">Relatórios</div>
-            <div class="nav-item" data-tab="agendamentos"><i class="fas fa-calendar-alt"></i> Agendamentos</div>
-            <div class="nav-item" data-tab="desempenhos"><i class="fas fa-chart-line"></i> Desempenhos</div>
-            <div class="nav-item" data-tab="configuracoes"><i class="fas fa-cog"></i> Configurações</div>
+            <div class="nav-section-title">Relatórios & Suporte</div>
+            <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+            <a href="desempenhos.html" class="nav-item"><i class="fas fa-chart-line"></i> Analytics & Desempenho</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-comments"></i> Chat ao Vivo</a>
+            <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
         </nav>
-
         <div class="sidebar-footer">
             <div class="sidebar-user">
                 <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
-                <div class="user-info" style="flex:1;overflow:hidden;">
+                <div style="flex:1;overflow:hidden;">
                     <div class="user-name" id="adminBadge">Gestor</div>
                     <div class="user-role">Administrador</div>
                 </div>
-                <button class="btn-logout" onclick="logoutAdmin()" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
             </div>
         </div>
     </aside>
@@ -72,6 +72,7 @@
                 <div class="page-title" id="pageTitle"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Dashboard</div>
             </div>
             <div class="topbar-right">
+                <button class="btn btn-primary btn-sm" onclick="abrirModalQRMesa()"><i class="fas fa-qrcode"></i> QR Code Mesa</button>
                 <span class="badge-pill badge-green"><i class="fas fa-circle" style="font-size:0.45rem"></i> Online</span>
                 <a href="index.html" class="btn btn-secondary btn-sm"><i class="fas fa-store"></i> Ver Loja</a>
             </div>
@@ -241,9 +242,45 @@
 
     async function carregarPedidos() {
         await carregarDados();
-        const container=document.getElementById('pedidosList');
-        if(!pedidos.length){container.innerHTML='<p class="text-muted text-sm" style="text-align:center;padding:2rem">Nenhum pedido encontrado</p>';return;}
-        container.innerHTML=pedidos.map(p=>`<div class="pedido-item"><div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px"><div><div style="font-weight:700;font-size:0.88rem">Pedido #${p.id} — ${p.nomeCliente}</div><div class="text-muted text-xs" style="margin-top:3px">${new Date(p.data).toLocaleString('pt-BR')} · Retirada: ${p.horarioRetirada} · <strong>R$ ${(p.total||0).toFixed(2)}</strong></div></div><span class="badge badge-${p.status==='pendente'?'warning':p.status==='confirmado'?'success':'danger'}">${p.status?.toUpperCase()}</span></div><div class="pedido-acoes">${p.status==='pendente'?`<button class="btn btn-primary btn-sm" onclick="mudarStatus(${p.id},'confirmado')"><i class="fas fa-check"></i> Confirmar</button><button class="btn btn-danger btn-sm" onclick="mudarStatus(${p.id},'recusado')"><i class="fas fa-times"></i> Recusar</button>`:''}</div></div>`).join('');
+        const container = document.getElementById('pedidosList');
+        if(!pedidos.length) { container.innerHTML = '<p class="text-muted text-sm" style="text-align:center;padding:2rem">Nenhum pedido encontrado</p>'; return; }
+        container.innerHTML = pedidos.map(p => {
+            let acoesHtml = '';
+            let badgeClass = 'warning';
+            if (p.status === 'pendente') {
+                badgeClass = 'warning';
+                acoesHtml = `<button class="btn btn-primary btn-sm" onclick="mudarStatus(${p.id},'confirmado')"><i class="fas fa-check"></i> Confirmar</button>
+                             <button class="btn btn-danger btn-sm" onclick="mudarStatus(${p.id},'recusado')"><i class="fas fa-times"></i> Recusar</button>`;
+            } else if (p.status === 'confirmado') {
+                badgeClass = 'success';
+                acoesHtml = `<button class="btn btn-primary btn-sm" onclick="mudarStatus(${p.id},'preparando')"><i class="fas fa-fire"></i> Em Preparo</button>
+                             <button class="btn btn-danger btn-sm" onclick="mudarStatus(${p.id},'recusado')"><i class="fas fa-times"></i> Recusar</button>`;
+            } else if (p.status === 'preparando') {
+                badgeClass = 'warn';
+                acoesHtml = `<button class="btn btn-primary btn-sm" onclick="mudarStatus(${p.id},'pronto')"><i class="fas fa-bell"></i> Pronto para Retirada</button>`;
+            } else if (p.status === 'pronto') {
+                badgeClass = 'success';
+                acoesHtml = `<button class="btn btn-success btn-sm" style="background:#22c55e;color:white;" onclick="mudarStatus(${p.id},'entregue')"><i class="fas fa-check-double"></i> Marcar como Entregue ✅</button>`;
+            } else if (p.status === 'entregue') {
+                badgeClass = 'success';
+                acoesHtml = `<span style="color:#10b981;font-weight:700;font-size:0.8rem;"><i class="fas fa-check-circle"></i> Entregue e Concluído</span>`;
+            } else if (p.status === 'recusado') {
+                badgeClass = 'danger';
+                acoesHtml = `<span style="color:var(--danger);font-size:0.8rem;">Recusado</span>`;
+            }
+
+            return `<div class="pedido-item">
+                <div style="display:flex;justify-content:space-between;align-items:start;flex-wrap:wrap;gap:8px">
+                    <div>
+                        <div style="font-weight:700;font-size:0.88rem">Pedido #${p.id} — ${p.nomeCliente} ${p.mesa ? `(Mesa ${p.mesa})` : ''}</div>
+                        <div class="text-muted text-xs" style="margin-top:3px">${new Date(p.data).toLocaleString('pt-BR')} · Horário: ${p.horarioRetirada} · <strong>R$ ${(p.total||0).toFixed(2)}</strong></div>
+                        ${p.observacao ? `<div style="font-size:0.78rem;color:var(--primary);margin-top:2px;">ℹ️ ${p.observacao}</div>` : ''}
+                    </div>
+                    <span class="badge badge-${badgeClass}">${p.status?.toUpperCase()}</span>
+                </div>
+                <div class="pedido-acoes" style="margin-top:8px;">${acoesHtml}</div>
+            </div>`;
+        }).join('');
     }
 
     async function mudarStatus(id, novoStatus) {
@@ -276,6 +313,77 @@
         const navItem = document.querySelector(`.nav-item[data-tab="${hash}"]`);
         if(navItem) navItem.click();
     })();
+
+    function abrirModalQRMesa() {
+        let modal = document.getElementById('modalQRMesa');
+        if(!modal) {
+            modal = document.createElement('div');
+            modal.id = 'modalQRMesa';
+            modal.style.cssText = 'display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:9999; align-items:center; justify-content:center; backdrop-filter:blur(4px);';
+            modal.innerHTML = `
+                <div style="background:var(--card,#fff); border-radius:16px; padding:24px; max-width:420px; width:90%; text-align:center; position:relative; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+                    <button onclick="document.getElementById('modalQRMesa').style.display='none'" style="position:absolute; top:16px; right:16px; background:none; border:none; font-size:1.2rem; cursor:pointer; color:var(--text-muted);">&times;</button>
+                    <h3 style="color:var(--primary); margin-bottom:0.5rem;"><i class="fas fa-qrcode"></i> Gerador de QR Code de Mesa</h3>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:1rem;">Selecione ou digite o número da mesa/local para gerar o QR Code de pedido direto.</p>
+                    <input type="text" id="qrMesaInput" placeholder="Ex: Mesa 01, Mesa 02, Balcão 01" value="Mesa 01" style="width:100%; padding:10px; border-radius:12px; border:2px solid var(--border,#e5e7eb); margin-bottom:1rem; text-align:center; font-weight:700;">
+                    <div id="qrMesaPreview" style="background:#f8fafc; padding:1rem; border-radius:16px; margin-bottom:1rem; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+                        <img id="qrMesaImg" src="" style="width:200px; height:200px; border-radius:12px;" alt="QR Code Mesa">
+                        <div id="qrMesaLink" style="font-size:0.75rem; color:var(--text-muted); margin-top:8px; word-break:break-all;"></div>
+                    </div>
+                    <button onclick="gerarQRMesa()" class="btn btn-primary" style="width:100%; margin-bottom:8px;"><i class="fas fa-sync"></i> Gerar Novo QR Code</button>
+                    <button onclick="imprimirQRMesa()" class="btn btn-secondary" style="width:100%;"><i class="fas fa-print"></i> Imprimir Placa de Mesa</button>
+                </div>
+            `;
+            document.body.appendChild(modal);
+        }
+        modal.style.display = 'flex';
+        gerarQRMesa();
+    }
+
+    function gerarQRMesa() {
+        const mesa = document.getElementById('qrMesaInput')?.value?.trim() || 'Mesa 01';
+        const numMesa = mesa.replace(/\D/g, '') || '01';
+        const baseUrl = window.location.origin + window.location.pathname.replace('admin.html', 'index.html');
+        const targetUrl = `${baseUrl}?mesa=${encodeURIComponent(numMesa)}`;
+        const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(targetUrl)}`;
+        const img = document.getElementById('qrMesaImg');
+        const linkText = document.getElementById('qrMesaLink');
+        if(img) img.src = qrUrl;
+        if(linkText) linkText.textContent = targetUrl;
+    }
+
+    function imprimirQRMesa() {
+        const mesa = document.getElementById('qrMesaInput')?.value?.trim() || 'Mesa 01';
+        const imgUrl = document.getElementById('qrMesaImg')?.src;
+        const win = window.open('', '', 'width=600,height=700');
+        win.document.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>QR Code - ${mesa} · Doutor Paladar</title>
+                <style>
+                    body { font-family: 'Inter', sans-serif; text-align: center; padding: 40px; }
+                    .card { border: 4px solid #2d6a4f; border-radius: 24px; padding: 40px; display: inline-block; box-shadow: 0 10px 30px rgba(0,0,0,0.1); }
+                    h1 { color: #2d6a4f; margin-bottom: 5px; font-size: 2rem; }
+                    p { color: #555; font-size: 1.1rem; margin-bottom: 20px; }
+                    img { width: 260px; height: 260px; border-radius: 16px; margin-bottom: 20px; }
+                    .footer { font-weight: bold; color: #2d6a4f; font-size: 1.2rem; }
+                </style>
+            </head>
+            <body>
+                <div class="card">
+                    <h1>🍔 Doutor Paladar</h1>
+                    <p>Escaneie para fazer seu pedido na <strong>${mesa}</strong></p>
+                    <img src="${imgUrl}">
+                    <div class="footer">📍 ${mesa.toUpperCase()}</div>
+                </div>
+            </body>
+            </html>
+        `);
+        win.document.close();
+        win.focus();
+        setTimeout(() => win.print(), 500);
+    }
 </script>
 </body>
 </html>

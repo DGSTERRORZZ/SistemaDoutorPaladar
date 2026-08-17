@@ -39,7 +39,7 @@ async function login(req, res) {
     const senhaValida = bcrypt.compareSync(senha, user.senha_hash);
     if (!senhaValida) return res.status(401).json({ erro: 'Credenciais inválidas' });
     const token = generateToken({ id: user.id, nome: user.nome, tipo: 'cliente' });
-    res.json({ token, id: user.id, nome: user.nome, usuario: user.usuario, telefone: user.telefone, turma: user.turma, foto: user.foto || '' });
+    res.json({ token, id: user.id, nome: user.nome, usuario: user.usuario, telefone: user.telefone, turma: user.turma, foto: user.foto || '', pontosFidelidade: user.pontosFidelidade || 0 });
   } catch (error) {
     console.error('Erro no login:', error);
     res.status(500).json({ erro: 'Erro interno do servidor' });
@@ -51,7 +51,7 @@ async function getPerfil(req, res) {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ erro: 'Token não fornecido' });
     const decoded = jwt.verify(token, SECRET);
-    const users = await query('SELECT id, nome, usuario, telefone, turma, foto, dataCadastro, totalPedidos FROM clientes_app WHERE id = ?', [decoded.id]);
+    const users = await query('SELECT id, nome, usuario, telefone, turma, foto, pontosFidelidade, dataCadastro, totalPedidos FROM clientes_app WHERE id = ?', [decoded.id]);
     if (users.length === 0) return res.status(404).json({ erro: 'Usuário não encontrado' });
     res.json(users[0]);
   } catch (error) {
@@ -119,4 +119,31 @@ async function getHistoricoPedidos(req, res) {
   }
 }
 
-module.exports = { cadastrar, login, getPerfil, alterarSenha, atualizarPerfil, getHistoricoPedidos };
+async function listarClientesAdmin(req, res) {
+  try {
+    const clientes = await query(`
+      SELECT 
+        c.id, c.nome, c.usuario, c.telefone, c.turma, c.foto, c.pontosFidelidade, c.limiteCredito, c.dataCadastro,
+        COALESCE((SELECT COUNT(*) FROM pedidos p WHERE p.clienteAppId = c.id), 0) as totalPedidos,
+        COALESCE((SELECT SUM(p.total) FROM pedidos p WHERE p.clienteAppId = c.id AND p.status = 'entregue'), 0.00) as totalGasto,
+        cf.saldoDevedor, cf.id as creditoId
+      FROM clientes_app c
+      LEFT JOIN clientes_fiado cf ON cf.clienteAppId = c.id
+      ORDER BY c.id DESC
+    `);
+
+    clientes.forEach(c => {
+      c.totalGasto = parseFloat(c.totalGasto || 0);
+      c.saldoDevedor = parseFloat(c.saldoDevedor || 0);
+      c.limiteCredito = parseFloat(c.limiteCredito || 50.00);
+      c.pontosFidelidade = parseInt(c.pontosFidelidade || 0, 10);
+    });
+
+    res.json(clientes);
+  } catch (error) {
+    console.error('Erro ao listar clientes para admin:', error);
+    res.status(500).json({ erro: 'Erro ao listar clientes' });
+  }
+}
+
+module.exports = { cadastrar, login, getPerfil, alterarSenha, atualizarPerfil, getHistoricoPedidos, listarClientesAdmin };

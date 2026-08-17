@@ -34,4 +34,15 @@ function verifyAdmin(req, res, next) {
   });
 }
 
-module.exports = { generateToken, verifyToken, verifyAdmin, SECRET };
+function verifyClienteToken(req, res, next) {
+  verifyToken(req, res, () => {
+    if (req.user) {
+      req.cliente = req.user;
+      next();
+    } else {
+      res.status(403).json({ erro: 'Acesso restrito ao cliente' });
+    }
+  });
+}
+
+module.exports = { generateToken, verifyToken, verifyAdmin, verifyClienteToken, SECRET };

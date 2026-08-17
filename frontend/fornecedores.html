@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -267,30 +267,34 @@
     <div class="particles" id="particles"></div>
     
     <div class="admin-layout">
-                <aside class="sidebar">
+        <aside class="sidebar">
             <div class="sidebar-header">
-                <div class="sidebar-brand" onclick="window.location.href='admin.html'">
+                <a href="admin.html" class="sidebar-brand">
                     <div class="brand-icon"><i class="fas fa-utensils"></i></div>
                     <div class="brand-text">
                         <div class="brand-name">Doutor Paladar</div>
                         <div class="brand-sub">Painel Admin</div>
                     </div>
-                </div>
+                </a>
             </div>
             <nav class="sidebar-nav">
                 <div class="nav-section-title">Principal</div>
-                <a href="admin.html#dashboard" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
-                <a href="admin.html#pedidos" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
-                <div class="nav-section-title">Gestao</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
                 <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
-                <a href="estoque.html" class="nav-item "><i class="fas fa-box"></i> Produtos</a>
-                <a href="contas-receber.html" class="nav-item "><i class="fas fa-hand-holding-usd"></i> Contas a Receber</a>
-                <a href="despesas.html" class="nav-item "><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
                 <a href="fornecedores.html" class="nav-item active"><i class="fas fa-truck"></i> Fornecedores</a>
-                <div class="nav-section-title">Relatorios</div>
-                <a href="agendamentos.html" class="nav-item "><i class="fas fa-calendar-alt"></i> Agendamentos</a>
-                <a href="desempenhos.html" class="nav-item "><i class="fas fa-chart-line"></i> Desempenhos</a>
-                <a href="configuracoes.html" class="nav-item "><i class="fas fa-cog"></i> Configuracoes</a>
+
+                <div class="nav-section-title">Relatórios & Suporte</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="desempenhos.html" class="nav-item"><i class="fas fa-chart-line"></i> Analytics & Desempenho</a>
+                <a href="chat.html" class="nav-item"><i class="fas fa-comments"></i> Chat ao Vivo</a>
+                <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
             </nav>
             <div class="sidebar-footer">
                 <div class="sidebar-user">
@@ -305,8 +309,8 @@
             <div class="topbar">
                 <div class="page-title" style="font-size: 1.3rem; font-weight: 700;"><i class="fas fa-truck" style="color: var(--primary);"></i> Gestão de Fornecedores</div>
                 <div style="display: flex; gap: 12px; align-items: center;">
+                    <a href="desempenhos.html" class="btn-sm" style="padding:8px 16px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-chart-line"></i> 📊 Ver Desempenho</a>
                     <button class="btn-primary" onclick="abrirModalFornecedor()"><i class="fas fa-plus"></i> Novo Fornecedor</button>
-                    <button class="btn-primary" style="background: linear-gradient(135deg, var(--danger), #dc2626);" onclick="logoutAdmin()">Sair</button>
                 </div>
             </div>
             
