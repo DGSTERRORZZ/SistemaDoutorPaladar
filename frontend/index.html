@@ -839,6 +839,10 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             carregarDestaques();
+            if (sessionStorage.getItem('abrir_agendamento') === 'true') {
+                sessionStorage.removeItem('abrir_agendamento');
+                setTimeout(() => abrirModalAgendamentoCliente(), 300);
+            }
             if (sessionStorage.getItem('cliente_token')) {
                 const loginBtn = document.getElementById('loginBtn');
                 if (loginBtn) {
