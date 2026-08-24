@@ -1,18 +1,26 @@
 {
   "name": "doutor-paladar-backend",
-  "version": "2.0.0",
-  "description": "Backend do sistema Doutor Paladar - Gestão de Cantina Escolar",
+  "version": "3.0.0",
+  "description": "Backend do sistema Doutor Paladar - Gestão de Cantina Escolar IFSP",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
+    "dev": "npx -y nodemon server.js",
     "seed": "node seed.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "compression": "^1.7.4",
     "cors": "^2.8.5",
     "dotenv": "^16.4.5",
     "express": "^4.18.2",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
     "jsonwebtoken": "^9.0.2",
+    "morgan": "^1.10.0",
     "mysql2": "^3.9.7",
     "socket.io": "^4.7.5"
   }

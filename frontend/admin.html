@@ -7,6 +7,7 @@
     <meta name="description" content="Painel de controle e inteligência gerencial do Doutor Paladar">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/theme.css">
+    <script src="/socket.io/socket.io.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         .pedido-item { padding: 14px 0; border-bottom: 1px solid var(--border); }
@@ -368,6 +369,38 @@
         setTimeout(() => win.print(), 500);
     }
 
+    // Socket.IO
+    function iniciarSocket() {
+        try {
+            if (typeof io !== 'undefined') {
+                const socket = io('http://localhost:3000');
+                
+                socket.on('novo_pedido', (novo) => {
+                    try {
+                        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                        const osc = audioCtx.createOscillator();
+                        osc.connect(audioCtx.destination);
+                        osc.frequency.value = 587.33;
+                        osc.start();
+                        osc.stop(audioCtx.currentTime + 0.3);
+                    } catch(e) {}
+
+                    if (typeof window.showToast === 'function') {
+                        window.showToast(`🔔 Novo Pedido: #${novo.id}`, 'success');
+                    }
+                    carregarDashboard();
+                });
+
+                socket.on('status_pedido_atualizado', () => {
+                    carregarDashboard();
+                });
+            }
+        } catch(e) {
+            console.error('Erro no Socket.IO:', e);
+        }
+    }
+
+    iniciarSocket();
     carregarDashboard();
 </script>
 </body>

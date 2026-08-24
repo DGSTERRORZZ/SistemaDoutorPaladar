@@ -1,643 +1,1089 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Doutor Paladar · Cantina & Cafeteria Gourmet</title>
-    <meta name="description" content="Peça online seus salgados frescos, hambúrgueres artesanais, cafés e sobremesas no Doutor Paladar. Retire no balcão sem filas.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <meta name="description"
+        content="Peça online seus salgados frescos, hambúrgueres artesanais, cafés e sobremesas no Doutor Paladar. Peça e retire ou saboreie na mesa.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="css/theme.css">
     <style>
+        :root {
+            --mcd-gold: #ffbc0d;
+            --mcd-gold-hover: #e5a700;
+            --mcd-dark: #121619;
+            --mcd-red: #da291c;
+            --dp-green: #1b4332;
+            --dp-emerald: #2d7d52;
+            --dp-light-green: #e8f5e9;
+        }
+
         body {
             background-color: #f8fafc;
             color: #1e293b;
+            font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
         }
 
-        /* ── NAVBAR INSTITUCIONAL LIMPA ── */
-        .navbar-mc {
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
+        /* ── NAVBAR PRINCIPAL TRANSPARENTE / HERO INTEGRADO ── */
+        .mcd-navbar {
+            background: rgba(18, 22, 25, 0.95);
+            backdrop-filter: blur(12px);
             position: sticky;
             top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            transition: all 0.3s ease;
         }
 
-        .navbar-mc-inner {
-            max-width: 1240px;
+        .mcd-navbar-inner {
+            max-width: 1320px;
             margin: 0 auto;
             padding: 0 1.5rem;
-            height: 72px;
+            height: 76px;
             display: flex;
             align-items: center;
             justify-content: space-between;
             gap: 1.5rem;
         }
 
-        .logo-mc {
+        .mcd-nav-left {
             display: flex;
             align-items: center;
-            gap: 12px;
+            gap: 2.2rem;
+        }
+
+        .mcd-hamburger {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.4rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 42px;
+            height: 42px;
+            border-radius: 10px;
+            transition: background 0.2s;
+        }
+
+        .mcd-hamburger:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .mcd-logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
             text-decoration: none;
-            color: #1b4332;
-            font-family: var(--font-heading);
+            color: #ffffff;
+            font-family: var(--font-heading, 'Outfit', sans-serif);
             font-weight: 800;
             font-size: 1.35rem;
             letter-spacing: -0.02em;
         }
 
-        .logo-badge-icon {
+        .mcd-logo-icon {
             width: 44px;
             height: 44px;
-            background: #1b4332;
-            border-radius: 12px;
+            background: linear-gradient(135deg, #2d7d52, #1b4332);
+            border-radius: 14px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: #52b788;
-            font-size: 1.25rem;
+            color: var(--mcd-gold);
+            font-size: 1.3rem;
+            box-shadow: 0 4px 12px rgba(45, 125, 82, 0.35);
         }
 
-        .nav-links-mc {
+        .mcd-logo-text {
             display: flex;
-            align-items: center;
-            gap: 2rem;
-            list-style: none;
+            flex-direction: column;
+            line-height: 1.1;
         }
 
-        .nav-link-item {
-            color: #334155;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 0.92rem;
-            transition: var(--transition-fast);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .nav-link-item:hover {
-            color: #2d7d52;
-        }
-
-        .btn-mc-primary {
-            background: #2d7d52;
+        .mcd-logo-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
             color: #ffffff;
+        }
+
+        .mcd-logo-sub {
+            font-size: 0.68rem;
+            color: var(--mcd-gold);
             font-weight: 700;
-            font-size: 0.88rem;
-            padding: 10px 22px;
-            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .mcd-nav-links {
+            display: flex;
+            align-items: center;
+            gap: 1.8rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .mcd-nav-links a {
+            color: rgba(255, 255, 255, 0.82);
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.95rem;
+            transition: color 0.2s;
+            position: relative;
+            padding: 6px 0;
+        }
+
+        .mcd-nav-links a:hover,
+        .mcd-nav-links a.active {
+            color: #ffffff;
+        }
+
+        .mcd-nav-links a.active::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 3px;
+            background: var(--mcd-gold);
+            border-radius: 2px;
+        }
+
+        .mcd-nav-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .btn-mcd-gold {
+            background: var(--mcd-gold);
+            color: #121619;
+            font-weight: 800;
+            font-size: 0.92rem;
+            padding: 10px 24px;
+            border-radius: 999px;
             border: none;
             cursor: pointer;
+            text-decoration: none;
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            transition: var(--transition);
-            box-shadow: 0 4px 14px rgba(45, 125, 82, 0.25);
-            text-decoration: none;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 14px rgba(255, 188, 13, 0.3);
         }
 
-        .btn-mc-primary:hover {
-            background: #1b4332;
+        .btn-mcd-gold:hover {
+            background: var(--mcd-gold-hover);
             transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(255, 188, 13, 0.45);
         }
 
-        .btn-mc-outline {
-            background: transparent;
-            color: #292929;
-            font-weight: 700;
-            font-size: 0.88rem;
-            padding: 9px 18px;
-            border-radius: var(--radius-full);
-            border: 1.5px solid #cbd5e1;
-            cursor: pointer;
+        .btn-mcd-icon {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            color: #ffffff;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
-            transition: var(--transition-fast);
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s;
             text-decoration: none;
         }
 
-        .btn-mc-outline:hover {
-            border-color: #2d7d52;
-            color: #2d7d52;
-            background: #f0faf4;
+        .btn-mcd-icon:hover {
+            background: rgba(255, 255, 255, 0.2);
+            color: var(--mcd-gold);
         }
 
-        /* ── HERO BANNER COM CARROSSEL DE CARDS ── */
-        .hero-carousel-section {
+        /* ── HERO BANNER MC STYLE ── */
+        .mcd-hero {
+            position: relative;
+            background: #121619;
+            min-height: 520px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
+        .mcd-hero-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 58%;
+            background-image: linear-gradient(to right, #121619 0%, rgba(18, 22, 25, 0.4) 40%, rgba(18, 22, 25, 0.1) 100%), url('https://images.unsplash.com/photo-1550547660-d9450f859349?w=1400&q=85');
+            background-size: cover;
+            background-position: center;
+            opacity: 0.95;
+        }
+
+        .mcd-hero-content {
+            position: relative;
+            z-index: 2;
+            max-width: 1320px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 4rem 1.5rem;
+        }
+
+        .mcd-hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(255, 188, 13, 0.15);
+            color: var(--mcd-gold);
+            border: 1px solid rgba(255, 188, 13, 0.3);
+            padding: 6px 16px;
+            border-radius: 999px;
+            font-size: 0.84rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+            margin-bottom: 1.5rem;
+        }
+
+        .mcd-hero h1 {
+            font-size: 3.6rem;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin: 0 0 1.8rem 0;
+            max-width: 620px;
+            color: #ffffff;
+        }
+
+        .mcd-hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-order-pill {
+            background: #ffffff;
+            color: #121619;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 14px 28px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.25s;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+            border: 2px solid transparent;
+        }
+
+        .btn-order-pill:hover {
+            background: var(--mcd-gold);
+            color: #121619;
+            transform: translateY(-2px);
+            box-shadow: 0 12px 30px rgba(255, 188, 13, 0.4);
+        }
+
+        .btn-order-pill i {
+            color: var(--mcd-red);
+            font-size: 1.1rem;
+        }
+
+        .btn-order-pill:hover i {
+            color: #121619;
+        }
+
+        .btn-order-outline {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(8px);
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 14px 28px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.25s;
+            cursor: pointer;
+        }
+
+        .btn-order-outline:hover {
+            background: rgba(255, 255, 255, 0.2);
+            border-color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* ── BARRA DE CATEGORIAS HORIZONTAL (MC MENU BAR) ── */
+        .mcd-categories-bar {
             background: #ffffff;
             border-bottom: 1px solid #e2e8f0;
-            padding: 3.5rem 1.5rem 4rem;
-            position: relative;
-            overflow: hidden;
+            position: sticky;
+            top: 76px;
+            z-index: 90;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+            overflow-x: auto;
+            scrollbar-width: none;
         }
 
-        .hero-carousel-inner {
-            max-width: 1240px;
+        .mcd-categories-bar::-webkit-scrollbar {
+            display: none;
+        }
+
+        .mcd-categories-inner {
+            max-width: 1320px;
             margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1.15fr 0.95fr;
-            align-items: center;
-            gap: 3.5rem;
-        }
-
-        .hero-content h1 {
-            font-size: 3.4rem;
-            font-weight: 800;
-            line-height: 1.12;
-            color: #0f172a;
-            letter-spacing: -0.03em;
-            margin-bottom: 1rem;
-        }
-
-        .hero-content h1 span {
-            color: #2d7d52;
-        }
-
-        .hero-content p {
-            font-size: 1.15rem;
-            color: #64748b;
-            line-height: 1.6;
-            margin-bottom: 2rem;
-            max-width: 520px;
-        }
-
-        /* Carrossel Slider de Destaques */
-        .slider-wrapper {
-            position: relative;
-            width: 100%;
-            max-width: 440px;
-            margin: 0 auto;
-        }
-
-        .slider-card-container {
-            position: relative;
-            height: 380px;
+            padding: 0.8rem 1.5rem;
             display: flex;
             align-items: center;
-            justify-content: center;
+            gap: 1.8rem;
+            white-space: nowrap;
         }
 
-        .hero-food-card {
-            position: absolute;
-            width: 100%;
-            background: #ffffff;
-            border-radius: 24px;
-            box-shadow: 0 20px 45px -10px rgba(15, 23, 42, 0.15);
-            border: 1px solid #e2e8f0;
-            overflow: hidden;
-            transition: all 0.45s cubic-bezier(0.4, 0, 0.2, 1);
-            opacity: 0;
-            transform: scale(0.9) translateX(50px);
-            pointer-events: none;
-        }
-
-        .hero-food-card.active {
-            opacity: 1;
-            transform: scale(1) translateX(0);
-            pointer-events: auto;
-            z-index: 2;
-        }
-
-        .hero-food-card-img {
-            height: 220px;
-            width: 100%;
-            object-fit: cover;
-        }
-
-        .hero-food-card-body {
-            padding: 1.4rem;
+        .mcd-cat-item {
             display: flex;
-            justify-content: space-between;
+            flex-direction: column;
             align-items: center;
+            gap: 6px;
+            text-decoration: none;
+            color: #475569;
+            font-size: 0.78rem;
+            font-weight: 700;
+            padding: 6px 12px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+            cursor: pointer;
         }
 
-        .hero-food-card-info h3 {
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 4px;
+        .mcd-cat-item:hover,
+        .mcd-cat-item.active {
+            color: var(--dp-emerald);
+            background: #f0faf4;
+            transform: translateY(-2px);
         }
 
-        .hero-food-card-info p {
-            font-size: 0.85rem;
-            color: #64748b;
-            margin: 0;
-        }
-
-        .hero-food-card-price {
-            font-size: 1.4rem;
-            font-weight: 800;
-            color: #2d7d52;
-            font-family: var(--font-heading);
-        }
-
-        /* Controles das Setas */
-        .slider-controls {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 16px;
-            margin-top: 1.2rem;
-        }
-
-        .btn-arrow {
+        .mcd-cat-icon-wrapper {
             width: 44px;
             height: 44px;
             border-radius: 50%;
-            background: #ffffff;
-            border: 1.5px solid #cbd5e1;
-            color: #1e293b;
+            background: #f1f5f9;
             display: flex;
             align-items: center;
             justify-content: center;
-            cursor: pointer;
-            transition: var(--transition);
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-            font-size: 1rem;
+            font-size: 1.25rem;
+            color: #334155;
+            transition: all 0.2s ease;
         }
 
-        .btn-arrow:hover {
-            background: #2d7d52;
+        .mcd-cat-item:hover .mcd-cat-icon-wrapper,
+        .mcd-cat-item.active .mcd-cat-icon-wrapper {
+            background: var(--dp-emerald);
             color: #ffffff;
-            border-color: #2d7d52;
-            transform: scale(1.08);
+            box-shadow: 0 4px 12px rgba(45, 125, 82, 0.25);
         }
 
-        /* ── SEÇÃO DOS 3 DESTAQUES DA CANTINA ── */
-        .promo-triplet-section {
-            max-width: 1240px;
-            margin: 4rem auto;
+        /* ── SEÇÃO DE CARDS / OFERTAS & LANÇAMENTOS ── */
+        .mcd-section {
+            max-width: 1320px;
+            margin: 3.5rem auto;
             padding: 0 1.5rem;
         }
 
-        .promo-triplet-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 2rem;
+        .mcd-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2rem;
         }
 
-        .promo-box-mc {
+        .mcd-section-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            margin: 0;
+            line-height: 1.15;
+        }
+
+        .mcd-section-subtitle {
+            color: #64748b;
+            font-size: 1rem;
+            margin-top: 6px;
+        }
+
+        .mcd-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.8rem;
+        }
+
+        .mcd-card {
             background: #ffffff;
-            border-radius: 20px;
+            border-radius: 24px;
             border: 1px solid #e2e8f0;
             overflow: hidden;
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
             display: flex;
             flex-direction: column;
-            transition: var(--transition);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
         }
 
-        .promo-box-mc:hover {
+        .mcd-card:hover {
             transform: translateY(-6px);
-            box-shadow: 0 16px 32px -4px rgba(15, 23, 42, 0.12);
+            box-shadow: 0 20px 40px -10px rgba(15, 23, 42, 0.14);
+            border-color: #cbd5e1;
         }
 
-        .promo-box-img {
-            height: 200px;
+        .mcd-card-tag {
+            position: absolute;
+            top: 16px;
+            left: 16px;
+            background: var(--mcd-gold);
+            color: #121619;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: 999px;
+            z-index: 5;
+            text-transform: uppercase;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .mcd-card-img-container {
+            height: 220px;
             width: 100%;
-            object-fit: cover;
+            position: relative;
+            background: #f1f5f9;
+            overflow: hidden;
         }
 
-        .promo-box-body {
-            padding: 1.8rem;
+        .mcd-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.4s ease;
+        }
+
+        .mcd-card:hover .mcd-card-img {
+            transform: scale(1.06);
+        }
+
+        .mcd-card-body {
+            padding: 1.5rem;
             display: flex;
             flex-direction: column;
             flex: 1;
             justify-content: space-between;
         }
 
-        .promo-box-body h3 {
-            font-size: 1.3rem;
+        .mcd-card-heading {
+            font-size: 1.25rem;
             font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 0.6rem;
+            color: #0f172a;
+            margin: 0 0 0.4rem 0;
             line-height: 1.25;
         }
 
-        .promo-box-body p {
-            font-size: 0.92rem;
-            color: #64748b;
-            line-height: 1.55;
-            margin-bottom: 1.5rem;
-        }
-
-        /* ── INFORMAÇÕES DE BENEFÍCIOS ── */
-        .features-mc-section {
-            background: #ffffff;
-            border-top: 1px solid #e2e8f0;
-            border-bottom: 1px solid #e2e8f0;
-            padding: 4rem 1.5rem;
-        }
-
-        .features-mc-grid {
-            max-width: 1240px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 2.5rem;
-        }
-
-        .feature-mc-item h3 {
-            font-size: 1.15rem;
-            font-weight: 800;
-            color: #1e293b;
-            margin-bottom: 0.4rem;
-        }
-
-        .feature-mc-item p {
+        .mcd-card-desc {
             font-size: 0.88rem;
             color: #64748b;
             line-height: 1.5;
+            margin: 0 0 1.2rem 0;
         }
 
-        /* ── FOOTER ── */
-        .footer-mc {
-            background: #0f172a;
+        .mcd-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+        }
+
+        .mcd-card-price {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: var(--dp-emerald);
+            font-family: var(--font-heading, 'Outfit', sans-serif);
+        }
+
+        .btn-card-action {
+            background: #f1f5f9;
+            color: #1e293b;
+            font-weight: 700;
+            font-size: 0.85rem;
+            padding: 8px 18px;
+            border-radius: 999px;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-card-action:hover {
+            background: var(--dp-emerald);
             color: #ffffff;
-            padding: 4rem 1.5rem 2rem;
         }
 
-        .footer-mc-grid {
-            max-width: 1240px;
+        /* ── SEÇÃO PROMOCIONAL BANNER LARGO ── */
+        .mcd-banner-promo {
+            background: linear-gradient(135deg, #1b4332 0%, #0d2818 100%);
+            border-radius: 28px;
+            padding: 3.5rem;
+            color: #ffffff;
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            align-items: center;
+            gap: 2.5rem;
+            position: relative;
+            overflow: hidden;
+            margin-top: 4rem;
+            box-shadow: 0 20px 50px rgba(27, 67, 50, 0.25);
+        }
+
+        .mcd-banner-promo::after {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(82, 183, 136, 0.2) 0%, rgba(27, 67, 50, 0) 70%);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        .mcd-banner-promo h2 {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 0 0 1rem 0;
+            color: #ffffff;
+            letter-spacing: -0.02em;
+        }
+
+        .mcd-banner-promo p {
+            color: #d7f0e3;
+            font-size: 1.05rem;
+            line-height: 1.6;
+            margin-bottom: 2rem;
+            max-width: 500px;
+        }
+
+        .mcd-banner-promo-img {
+            width: 100%;
+            max-height: 280px;
+            object-fit: cover;
+            border-radius: 20px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
+        }
+
+        /* ── SIDEBAR DRAWER MENU ── */
+        .mcd-drawer-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .mcd-drawer-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .mcd-drawer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 320px;
+            height: 100%;
+            background: #ffffff;
+            z-index: 2001;
+            transform: translateX(-100%);
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .mcd-drawer-overlay.active .mcd-drawer {
+            transform: translateX(0);
+        }
+
+        .mcd-drawer-header {
+            padding: 1.5rem;
+            background: #121619;
+            color: #ffffff;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .mcd-drawer-close {
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.3rem;
+            cursor: pointer;
+        }
+
+        .mcd-drawer-nav {
+            padding: 1.5rem 1rem;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .mcd-drawer-link {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 12px 16px;
+            border-radius: 12px;
+            color: #1e293b;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+            transition: background 0.2s;
+        }
+
+        .mcd-drawer-link:hover {
+            background: #f1f5f9;
+            color: var(--dp-emerald);
+        }
+
+        .mcd-drawer-link i {
+            width: 22px;
+            color: var(--dp-emerald);
+            font-size: 1.1rem;
+        }
+
+        /* ── FOOTER ESTILO INSTITUCIONAL ── */
+        .mcd-footer {
+            background: #121619;
+            color: #ffffff;
+            padding: 4.5rem 1.5rem 2.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            margin-top: 5rem;
+        }
+
+        .mcd-footer-grid {
+            max-width: 1320px;
             margin: 0 auto;
             display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr;
+            grid-template-columns: 1.5fr 1fr 1fr 1fr;
             gap: 3rem;
         }
 
-        .footer-mc h4 {
+        .mcd-footer h4 {
             color: #ffffff;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 800;
             margin-bottom: 1.2rem;
+            letter-spacing: -0.01em;
         }
 
-        .footer-mc p {
+        .mcd-footer p {
             color: #94a3b8;
             font-size: 0.9rem;
             line-height: 1.6;
         }
 
-        .footer-mc a {
+        .mcd-footer a {
             color: #cbd5e1;
             text-decoration: none;
             display: block;
-            margin-bottom: 0.6rem;
-            font-size: 0.88rem;
+            margin-bottom: 0.65rem;
+            font-size: 0.9rem;
             font-weight: 500;
-            transition: var(--transition-fast);
+            transition: all 0.2s;
         }
 
-        .footer-mc a:hover {
-            color: #52b788;
+        .mcd-footer a:hover {
+            color: var(--mcd-gold);
             transform: translateX(4px);
         }
 
-        .footer-mc-bottom {
-            max-width: 1240px;
-            margin: 3rem auto 0;
-            padding-top: 1.5rem;
-            border-top: 1px solid #1e293b;
+        .mcd-footer-bottom {
+            max-width: 1320px;
+            margin: 3.5rem auto 0;
+            padding-top: 1.8rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 1rem;
+            gap: 1.2rem;
             color: #64748b;
-            font-size: 0.82rem;
+            font-size: 0.85rem;
         }
 
-        @media (max-width: 900px) {
-            .hero-carousel-inner { grid-template-columns: 1fr; gap: 2.5rem; }
-            .hero-content h1 { font-size: 2.4rem; }
-            .nav-links-mc { display: none; }
-            .footer-mc-grid { grid-template-columns: 1fr; gap: 2rem; }
+        @media (max-width: 960px) {
+            .mcd-hero-bg {
+                width: 100%;
+                opacity: 0.35;
+            }
+
+            .mcd-hero h1 {
+                font-size: 2.6rem;
+            }
+
+            .mcd-nav-links {
+                display: none;
+            }
+
+            .mcd-banner-promo {
+                grid-template-columns: 1fr;
+                padding: 2rem;
+            }
+
+            .mcd-footer-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .mcd-hero h1 {
+                font-size: 2.1rem;
+            }
+
+            .mcd-footer-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .mcd-hero-actions {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn-order-pill,
+            .btn-order-outline {
+                justify-content: center;
+            }
         }
     </style>
 </head>
+
 <body>
 
-    <!-- NAVBAR -->
-    <header class="navbar-mc">
-        <div class="navbar-mc-inner">
-            <a class="logo-mc" href="index.html">
-                <div class="logo-badge-icon"><i class="fas fa-utensils"></i></div>
-                <span>DOUTOR PALADAR</span>
-            </a>
+    <!-- SIDEBAR DRAWER (ABERTO PELO HAMBÚRGUER) -->
+    <div class="mcd-drawer-overlay" id="drawerOverlay" onclick="fecharDrawer()">
+        <div class="mcd-drawer" onclick="event.stopPropagation()">
+            <div class="mcd-drawer-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div
+                        style="width: 36px; height: 36px; background: var(--dp-emerald); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--mcd-gold); font-size: 1.1rem;">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <span style="font-weight: 800; font-size: 1.1rem;">DOUTOR PALADAR</span>
+                </div>
+                <button class="mcd-drawer-close" onclick="fecharDrawer()">&times;</button>
+            </div>
+            <div class="mcd-drawer-nav">
+                <a href="cardapio.html" class="mcd-drawer-link"><i class="fas fa-burger"></i> Cardápio Completo</a>
+                <a href="#" onclick="fecharDrawer(); abrirModalAgendamentoCliente()" class="mcd-drawer-link"><i
+                        class="fas fa-calendar-alt"></i> Agendar Refeição</a>
+                <a href="faq.html" class="mcd-drawer-link"><i class="fas fa-question-circle"></i> Perguntas Frequentes
+                    (FAQ)</a>
+                <a href="chat.html" class="mcd-drawer-link"><i class="fas fa-comments"></i> Chat ao Vivo com
+                    Atendente</a>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 10px 0;">
+                <a href="#" onclick="fecharDrawer(); abrirModalLogin()" class="mcd-drawer-link"><i
+                        class="fas fa-user"></i> Minha Conta / Login</a>
+                <a href="#" onclick="fecharDrawer(); abrirModalCadastro()" class="mcd-drawer-link"><i
+                        class="fas fa-award"></i> Programa de Fidelidade</a>
+                <a href="#" onclick="fecharDrawer(); abrirModalAdminLogin()" class="mcd-drawer-link"><i
+                        class="fas fa-lock"></i> Painel do Gestor</a>
+            </div>
+        </div>
+    </div>
 
-            <ul class="nav-links-mc">
-                <li><a href="cardapio.html" class="nav-link-item"><i class="fas fa-burger"></i> Cardápio Completo</a></li>
-                <li><a href="#" onclick="abrirModalAgendamentoCliente()" class="nav-link-item"><i class="fas fa-calendar-alt"></i> Agendar Refeição</a></li>
-                <li><a href="faq.html" class="nav-link-item"><i class="fas fa-question-circle"></i> Perguntas Frequentes (FAQ)</a></li>
-            </ul>
+    <!-- NAVBAR INSTITUCIONAL MC STYLE -->
+    <header class="mcd-navbar">
+        <div class="mcd-navbar-inner">
+            <div class="mcd-nav-left">
+                <button class="mcd-hamburger" onclick="abrirDrawer()" title="Abrir Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a class="mcd-logo" href="index.html">
+                    <div class="mcd-logo-icon"><i class="fas fa-utensils"></i></div>
+                    <div class="mcd-logo-text">
+                        <span class="mcd-logo-title">DOUTOR PALADAR</span>
+                        <span class="mcd-logo-sub">Gourmet & Lanches</span>
+                    </div>
+                </a>
+                <ul class="mcd-nav-links">
+                    <li><a href="cardapio.html" class="active">Cardápio</a></li>
+                    <li><a href="#" onclick="abrirModalAgendamentoCliente()">Prato do Dia</a></li>
+                    <li><a href="faq.html">FAQ & Ajuda</a></li>
+                </ul>
+            </div>
 
-            <div id="userArea" style="display: flex; align-items: center; gap: 10px;">
-                <button class="btn-mc-outline" id="loginBtn" onclick="abrirModalLogin()">
+            <div class="mcd-nav-right">
+                <button class="btn-mcd-gold" id="loginBtn" onclick="abrirModalLogin()">
                     <i class="fas fa-user"></i> Entrar
                 </button>
-                <a href="cardapio.html" class="btn-mc-primary">
-                    <i class="fas fa-shopping-bag"></i> Fazer Pedido
+                <a href="cardapio.html" class="btn-mcd-icon" title="Ver Sacola / Cardápio">
+                    <i class="fas fa-shopping-bag"></i>
                 </a>
-                <button class="btn-mc-outline" style="padding: 8px 12px;" onclick="abrirModalAdminLogin()" title="Acesso do Gestor">
-                    <i class="fas fa-lock"></i>
+                <button class="btn-mcd-icon" onclick="abrirModalAdminLogin()" title="Acesso do Gestor">
+                    <i class="fas fa-shield-alt"></i>
                 </button>
             </div>
         </div>
     </header>
 
-    <!-- HERO PRINCIPAL COM CARROSSEL DE CARDS -->
-    <section class="hero-carousel-section">
-        <div class="hero-carousel-inner">
-            <div class="hero-content">
-                <div style="display: inline-flex; align-items: center; gap: 6px; background: #f0faf4; color: #2d7d52; padding: 6px 14px; border-radius: var(--radius-full); font-size: 0.82rem; font-weight: 700; text-transform: uppercase; margin-bottom: 1rem;">
-                    <i class="fas fa-award"></i> Destaques do Dia
-                </div>
-                <h1>O melhor sabor, <span>pronto para você</span>.</h1>
-                <p>Descubra os salgados artesanais, hambúrgueres especiais e bebidas geladas feitas para transformar sua refeição.</p>
-                
-                <div style="display: flex; gap: 12px; flex-wrap: wrap;">
-                    <a href="cardapio.html" class="btn-mc-primary" style="padding: 13px 28px; font-size: 1rem;">
-                        <i class="fas fa-utensils"></i> Acessar Cardápio Oficial
-                    </a>
-                </div>
+    <!-- HERO PRINCIPAL (COMO VOCÊ QUER SEU PEDIDO HOJE?) -->
+    <section class="mcd-hero">
+        <div class="mcd-hero-bg"></div>
+        <div class="mcd-hero-content">
+            <div class="mcd-hero-badge">
+                <i class="fas fa-fire"></i> Sabor & Agilidade Sem Filas
             </div>
+            <h1>Como você quer seu pedido hoje?</h1>
 
-            <!-- SLIDER COM SETAS -->
-            <div class="slider-wrapper">
-                <div class="slider-card-container" id="heroSliderContainer">
-                    <div class="hero-food-card active" data-slide="0">
-                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80" alt="Hambúrguer Artesanal" class="hero-food-card-img">
-                        <div class="hero-food-card-body">
-                            <div class="hero-food-card-info">
-                                <h3>Hambúrgão Especial</h3>
-                                <p>Carne artesanal, queijo derretido e molho da casa</p>
-                            </div>
-                            <div class="hero-food-card-price">R$ 9,00</div>
-                        </div>
-                    </div>
-                    <div class="hero-food-card" data-slide="1">
-                        <img src="https://images.unsplash.com/photo-1601924638867-3a6de6b7a500?w=600&q=80" alt="Coxinha de Frango" class="hero-food-card-img">
-                        <div class="hero-food-card-body">
-                            <div class="hero-food-card-info">
-                                <h3>Coxinha Cremosa</h3>
-                                <p>Massa artesanal crocante recheada com frango</p>
-                            </div>
-                            <div class="hero-food-card-price">R$ 6,50</div>
-                        </div>
-                    </div>
-                    <div class="hero-food-card" data-slide="2">
-                        <img src="https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=600&q=80" alt="Enroladinho Bauru" class="hero-food-card-img">
-                        <div class="hero-food-card-body">
-                            <div class="hero-food-card-info">
-                                <h3>Enroladinho Bauru</h3>
-                                <p>Presunto, queijo mussarela derretido e orégano</p>
-                            </div>
-                            <div class="hero-food-card-price">R$ 6,50</div>
-                        </div>
-                    </div>
-                    <div class="hero-food-card" data-slide="3">
-                        <img src="https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=600&q=80" alt="Suco Natural" class="hero-food-card-img">
-                        <div class="hero-food-card-body">
-                            <div class="hero-food-card-info">
-                                <h3>Suco Natural 400ml</h3>
-                                <p>Preparado com frutas frescas selecionadas</p>
-                            </div>
-                            <div class="hero-food-card-price">R$ 7,50</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="slider-controls">
-                    <button class="btn-arrow" onclick="slideAnterior()" title="Item Anterior"><i class="fas fa-arrow-left"></i></button>
-                    <span id="sliderIndicador" style="font-size: 0.85rem; font-weight: 700; color: #64748b;">1 / 4</span>
-                    <button class="btn-arrow" onclick="proximoSlide()" title="Próximo Item"><i class="fas fa-arrow-right"></i></button>
-                </div>
+            <div class="mcd-hero-actions">
+                <a href="cardapio.html" class="btn-order-pill">
+                    <i class="fas fa-map-marker-alt"></i> Peça e Retire no Balcão
+                </a>
+                <a href="cardapio.html?mesa=1" class="btn-order-outline">
+                    <i class="fas fa-qrcode" style="color: var(--mcd-gold);"></i> Pedir na Mesa
+                </a>
             </div>
         </div>
     </section>
 
-    <!-- 3 BLOCOS INSTITUCIONAIS -->
-    <section class="promo-triplet-section">
-        <div style="text-align: center; margin-bottom: 2.5rem;">
-            <h2 style="font-size: 2.2rem; font-weight: 800; color: #1e293b; letter-spacing: -0.02em;">Conheça Nossos Serviços</h2>
-            <p style="color: #64748b; font-size: 1rem; margin-top: 4px;">Praticidade, agilidade e os melhores pratos todos os dias</p>
+    <!-- BARRA DE CATEGORIAS EM MINIATURA (MC CATEGORIES) -->
+    <nav class="mcd-categories-bar">
+        <div class="mcd-categories-inner">
+            <a href="cardapio.html" class="mcd-cat-item active">
+                <div class="mcd-cat-icon-wrapper"><i class="fas fa-star"></i></div>
+                <span>Destaques</span>
+            </a>
+            <a href="cardapio.html?cat=Salgados" class="mcd-cat-item">
+                <div class="mcd-cat-icon-wrapper"><i class="fas fa-bread-slice"></i></div>
+                <span>Salgados Assados</span>
+            </a>
+            <a href="cardapio.html?cat=Salgados" class="mcd-cat-item">
+                <div class="mcd-cat-icon-wrapper"><i class="fas fa-hamburger"></i></div>
+                <span>Hambúrgueres</span>
+            </a>
+            <a href="cardapio.html?cat=Bebidas" class="mcd-cat-item">
+                <div class="mcd-cat-icon-wrapper"><i class="fas fa-wine-bottle"></i></div>
+                <span>Bebidas Frias</span>
+            </a>
+            <a href="cardapio.html?cat=Bebidas" class="mcd-cat-item">
+                <div class="mcd-cat-icon-wrapper"><i class="fas fa-mug-hot"></i></div>
+                <span>Café & Quentes</span>
+            </a>
+            <a href="cardapio.html?cat=Doces" class="mcd-cat-item">
+                <div class="mcd-cat-icon-wrapper"><i class="fas fa-ice-cream"></i></div>
+                <span>Sobremesas</span>
+            </a>
+            <a href="cardapio.html?cat=Caldos" class="mcd-cat-item">
+                <div class="mcd-cat-icon-wrapper"><i class="fas fa-bowl-rice"></i></div>
+                <span>Caldos & Sopas</span>
+            </a>
+            <a href="cardapio.html?cat=Snacks" class="mcd-cat-item">
+                <div class="mcd-cat-icon-wrapper"><i class="fas fa-cookie"></i></div>
+                <span>Snacks & Drops</span>
+            </a>
         </div>
+    </nav>
 
-        <div class="promo-triplet-grid">
-            <div class="promo-box-mc">
-                <img src="https://images.unsplash.com/photo-1550547660-d9450f859349?w=500&q=80" alt="Cardápio Oficial" class="promo-box-img">
-                <div class="promo-box-body">
-                    <div>
-                        <h3>Cardápio Digital Completo</h3>
-                        <p>Acesse o catálogo de salgados artesanais, hambúrgueres, cafés, bebidas e sobremesas com retirada expressa.</p>
-                    </div>
-                    <a href="cardapio.html" class="btn-mc-primary" style="width: 100%; justify-content: center;">
-                        <i class="fas fa-utensils"></i> Acessar Cardápio
-                    </a>
-                </div>
-            </div>
-
-            <div class="promo-box-mc">
-                <img src="https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=500&q=80" alt="Prato do Dia" class="promo-box-img">
-                <div class="promo-box-body">
-                    <div>
-                        <h3>Refeições & Almoço</h3>
-                        <p>Reserve seu horário de almoço ou prato executivo com antecedência e garanta seu lugar sem filas.</p>
-                    </div>
-                    <button class="btn-mc-outline" onclick="abrirModalAgendamentoCliente()" style="width: 100%; justify-content: center;">
-                        <i class="fas fa-calendar-alt"></i> Agendar Refeição
-                    </button>
-                </div>
-            </div>
-
-            <div class="promo-box-mc">
-                <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=500&q=80" alt="Fidelidade" class="promo-box-img">
-                <div class="promo-box-body">
-                    <div>
-                        <h3>Programa de Fidelidade</h3>
-                        <p>Acumule pontos em todas as suas compras na cantina e troque por bebidas geladas e recompensas especiais.</p>
-                    </div>
-                    <button class="btn-mc-outline" onclick="abrirModalCadastro()" style="width: 100%; justify-content: center;">
-                        <i class="fas fa-award"></i> Cadastre-se Grátis
-                    </button>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- INFORMAÇÕES DE BENEFÍCIOS -->
-    <section class="features-mc-section">
-        <div class="features-mc-grid">
-            <div class="feature-mc-item">
-                <div style="width: 48px; height: 48px; background: #f0faf4; color: #2d7d52; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.8rem;">
-                    <i class="fas fa-bolt"></i>
-                </div>
-                <h3>Retirada Expressa</h3>
-                <p>Faça o pedido no celular ou computador e retire direto no balcão sem fila.</p>
-            </div>
-            <div class="feature-mc-item">
-                <div style="width: 48px; height: 48px; background: #f0faf4; color: #2d7d52; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.8rem;">
-                    <i class="fas fa-heart"></i>
-                </div>
-                <h3>Ingredientes Selecionados</h3>
-                <p>Receitas preparadas diariamente com matéria-prima de procedência garantida.</p>
-            </div>
-            <div class="feature-mc-item">
-                <div style="width: 48px; height: 48px; background: #f0faf4; color: #2d7d52; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.8rem;">
-                    <i class="fas fa-qrcode"></i>
-                </div>
-                <h3>PIX Instantâneo</h3>
-                <p>Confirmação automática de pagamento na hora sem complicação.</p>
-            </div>
-            <div class="feature-mc-item">
-                <div style="width: 48px; height: 48px; background: #f0faf4; color: #2d7d52; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.8rem;">
-                    <i class="fas fa-headset"></i>
-                </div>
-                <h3>Suporte ao Vivo</h3>
-                <p>Canal de chat direto com os atendentes da cantina para dúvidas e pedidos especiais.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="footer-mc">
-        <div class="footer-mc-grid">
+    <!-- SEÇÃO 1: OS MAIS PEDIDOS DA CANTINA -->
+    <section class="mcd-section">
+        <div class="mcd-section-header">
             <div>
-                <h4>DOUTOR PALADAR</h4>
-                <p>A cantina gourmet com atendimento rápido, tecnologia de pedidos e compromisso com o melhor sabor.</p>
+                <h2 class="mcd-section-title">Lançamentos & Mais Pedidos</h2>
+                <div class="mcd-section-subtitle">Preparados na hora com os melhores ingredientes</div>
+            </div>
+            <a href="cardapio.html" class="btn-card-action" style="font-weight: 800; background: #e2e8f0;">
+                Ver Todos <i class="fas fa-arrow-right"></i>
+            </a>
+        </div>
+
+        <div class="mcd-cards-grid">
+            <!-- Card 1 -->
+            <div class="mcd-card">
+                <div class="mcd-card-tag">Mais Vendido</div>
+                <div class="mcd-card-img-container">
+                    <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80"
+                        alt="Hambúrgão com Bacon" class="mcd-card-img" loading="lazy" decoding="async"
+                        onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\' viewBox=\'0 0 600 400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'24\' font-weight=\'bold\' fill=\'%2364748b\' text-anchor=\'middle\' dominant-baseline=\'middle\'>🍔 Hambúrgão c/ Bacon</text></svg>'">
+                </div>
+                <div class="mcd-card-body">
+                    <div>
+                        <h3 class="mcd-card-heading">Hambúrgão c/ Bacon</h3>
+                        <p class="mcd-card-desc">Salgado assado recheado com hambúrguer artesanal suculento, queijo
+                            derretido e fatias crocantes de bacon.</p>
+                    </div>
+                    <div class="mcd-card-footer">
+                        <div class="mcd-card-price">R$ 9,00</div>
+                        <a href="cardapio.html" class="btn-card-action"><i class="fas fa-plus"></i> Pedir</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 2 -->
+            <div class="mcd-card">
+                <div class="mcd-card-tag" style="background: #2d7d52; color: #ffffff;">Clássico</div>
+                <div class="mcd-card-img-container">
+                    <img src="https://images.unsplash.com/photo-1601924638867-3a6de6b7a500?w=600&q=80"
+                        alt="Coxinha de Frango" class="mcd-card-img" loading="lazy" decoding="async"
+                        onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\' viewBox=\'0 0 600 400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'24\' font-weight=\'bold\' fill=\'%2364748b\' text-anchor=\'middle\' dominant-baseline=\'middle\'>🍗 Coxinha Crocante</text></svg>'">
+                </div>
+                <div class="mcd-card-body">
+                    <div>
+                        <h3 class="mcd-card-heading">Coxinha de Frango</h3>
+                        <p class="mcd-card-desc">Massa crocante tradicional com recheio cremoso e farto de peito de
+                            frango desfiado artesanalmente.</p>
+                    </div>
+                    <div class="mcd-card-footer">
+                        <div class="mcd-card-price">R$ 5,50</div>
+                        <a href="cardapio.html" class="btn-card-action"><i class="fas fa-plus"></i> Pedir</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card 3 -->
+            <div class="mcd-card">
+                <div class="mcd-card-tag" style="background: #da291c; color: #ffffff;">Geladinha</div>
+                <div class="mcd-card-img-container">
+                    <img src="https://images.unsplash.com/photo-1554866585-cd94860890b7?w=600&q=80"
+                        alt="Coca-Cola 350ml" class="mcd-card-img" loading="lazy" decoding="async"
+                        onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\' viewBox=\'0 0 600 400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'24\' font-weight=\'bold\' fill=\'%2364748b\' text-anchor=\'middle\' dominant-baseline=\'middle\'>🥤 Coca-Cola Gelada</text></svg>'">
+                </div>
+                <div class="mcd-card-body">
+                    <div>
+                        <h3 class="mcd-card-heading">Coca-Cola Lata 350ml</h3>
+                        <p class="mcd-card-desc">Refrigerante tradicional servido na temperatura ideal para acompanhar
+                            seu lanche.</p>
+                    </div>
+                    <div class="mcd-card-footer">
+                        <div class="mcd-card-price">R$ 7,00</div>
+                        <a href="cardapio.html" class="btn-card-action"><i class="fas fa-plus"></i> Pedir</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- BANNER PROMOCIONAL LARGO ESTILO MC -->
+        <div class="mcd-banner-promo">
+            <div>
+                <div
+                    style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255, 188, 13, 0.2); color: var(--mcd-gold); padding: 6px 14px; border-radius: 999px; font-weight: 800; font-size: 0.8rem; text-transform: uppercase; margin-bottom: 1rem;">
+                    <i class="fas fa-gift"></i> Clube Doutor Paladar
+                </div>
+                <h2>Cadastre-se e ganhe pontos em cada pedido!</h2>
+                <p>Acumule pontos em todas as compras feitas no balcão ou pelo site e resgate por salgados, sobremesas e
+                    bebidas gratuitas.</p>
+                <button class="btn-mcd-gold" onclick="abrirModalCadastro()"
+                    style="padding: 14px 32px; font-size: 1rem;">
+                    <i class="fas fa-award"></i> Criar Conta Gratuita
+                </button>
             </div>
             <div>
-                <h4>Links Rápidos</h4>
-                <a href="cardapio.html"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Cardápio Completo</a>
-                <a href="#" onclick="abrirModalAgendamentoCliente()"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Prato do Dia</a>
-                <a href="#" onclick="abrirModalLogin()"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Minha Conta</a>
-                <a href="#" onclick="abrirModalAdminLogin()"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Acesso do Gestor</a>
+                <img src="https://images.unsplash.com/photo-1559526324-4b87b5e36e44?w=800&q=80" alt="Clube Fidelidade"
+                    class="mcd-banner-promo-img" loading="lazy" decoding="async"
+                    onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\' viewBox=\'0 0 600 400\'><rect width=\'600\' height=\'400\' fill=\'%231b4332\'/><text x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'24\' font-weight=\'bold\' fill=\'%2352b788\' text-anchor=\'middle\' dominant-baseline=\'middle\'>🎁 Clube Fidelidade</text></svg>'">
             </div>
+        </div>
+    </section>
+
+    <!-- FOOTER INSTITUCIONAL -->
+    <footer class="mcd-footer">
+        <div class="mcd-footer-grid">
+            <div>
+                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 1.2rem;">
+                    <div
+                        style="width: 36px; height: 36px; background: var(--dp-emerald); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--mcd-gold); font-size: 1.1rem;">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <span style="font-weight: 800; font-size: 1.2rem; letter-spacing: -0.02em;">DOUTOR PALADAR</span>
+                </div>
+                <p>A melhor experiência gastronômica da cantina com atendimento ágil, pedidos online e máxima qualidade.
+                </p>
+            </div>
+
+            <div>
+                <h4>Nossos Serviços</h4>
+                <a href="cardapio.html"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Cardápio
+                    Digital</a>
+                <a href="#" onclick="abrirModalAgendamentoCliente()"><i class="fas fa-chevron-right"
+                        style="font-size:0.7rem;"></i> Almoço & Prato do Dia</a>
+                <a href="#" onclick="abrirModalCadastro()"><i class="fas fa-chevron-right"
+                        style="font-size:0.7rem;"></i> Clube Fidelidade</a>
+                <a href="cardapio.html?mesa=1"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Pedido na
+                    Mesa (QR Code)</a>
+            </div>
+
+            <div>
+                <h4>Ajuda & Acesso</h4>
+                <a href="faq.html"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Dúvidas Frequentes
+                    (FAQ)</a>
+                <a href="chat.html"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Atendimento via
+                    Chat</a>
+                <a href="#" onclick="abrirModalLogin()"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i>
+                    Entrar na Minha Conta</a>
+                <a href="#" onclick="abrirModalAdminLogin()"><i class="fas fa-chevron-right"
+                        style="font-size:0.7rem;"></i> Acesso do Gestor</a>
+            </div>
+
             <div>
                 <h4>Horários de Atendimento</h4>
-                <p><i class="fas fa-clock"></i> Segunda a Sexta: 07h00 às 17h30</p>
-                <p><i class="fas fa-clock"></i> Sábados: 08h00 às 12h00</p>
-                <p><i class="fas fa-envelope"></i> atendimento@doutorpaladar.com.br</p>
+                <p><i class="fas fa-clock" style="color: var(--mcd-gold);"></i> Seg a Sex: 07h00 às 17h30</p>
+                <p><i class="fas fa-clock" style="color: var(--mcd-gold);"></i> Sábados: 08h00 às 12h00</p>
+                <p><i class="fas fa-envelope" style="color: var(--mcd-gold);"></i> contato@doutorpaladar.com</p>
             </div>
         </div>
-        <div class="footer-mc-bottom">
+
+        <div class="mcd-footer-bottom">
             <div>&copy; 2026 Doutor Paladar · Todos os direitos reservados.</div>
-            <div>Desenvolvido com excelência e agilidade.</div>
+            <div>Inovação e agilidade em alimentação escolar & corporativa.</div>
         </div>
     </footer>
 
-    <!-- BOTÃO FLUTUANTE DE CHAT NO CANTO -->
-    <a href="chat.html" class="floating-chat-btn" title="Falar no Chat ao Vivo" style="position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: #2d7d52; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 8px 24px rgba(45, 125, 82, 0.4); text-decoration: none; z-index: 999; transition: transform 0.2s, background 0.2s;">
+    <!-- BOTÃO FLUTUANTE DE CHAT -->
+    <a href="chat.html" class="floating-chat-btn" title="Falar no Chat ao Vivo"
+        style="position: fixed; bottom: 24px; right: 24px; width: 56px; height: 56px; border-radius: 50%; background: #2d7d52; color: #ffffff; display: flex; align-items: center; justify-content: center; font-size: 1.4rem; box-shadow: 0 8px 24px rgba(45, 125, 82, 0.4); text-decoration: none; z-index: 999; transition: transform 0.2s, background 0.2s;">
         <i class="fas fa-comments"></i>
     </a>
 
     <!-- MODAIS DO SISTEMA -->
     <div class="modal" id="modalLogin">
         <div class="modal-content" style="position: relative; padding: 2.2rem;">
-            <button class="close-modal" onclick="fecharModal('modalLogin')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
-            <h2 style="text-align: center; color: var(--primary); margin-bottom: 1.2rem; font-size: 1.3rem;"><i class="fas fa-user-circle"></i> Acessar Conta</h2>
+            <button class="close-modal" onclick="fecharModal('modalLogin')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h2 style="text-align: center; color: var(--primary); margin-bottom: 1.2rem; font-size: 1.3rem;"><i
+                    class="fas fa-user-circle"></i> Acessar Conta</h2>
             <div class="form-group">
                 <label class="form-label">Usuário ou Telefone</label>
                 <input type="text" id="loginUsuario" class="form-control" placeholder="Seu usuário ou telefone">
@@ -646,19 +1092,26 @@
                 <label class="form-label">Senha</label>
                 <input type="password" id="loginSenha" class="form-control" placeholder="Sua senha">
             </div>
-            <button class="btn btn-primary" onclick="fazerLogin()" style="width: 100%; margin-top: 0.5rem;">Entrar</button>
-            <div class="error-msg" id="loginError" style="margin-top: 0.8rem; color: var(--danger); font-size: 0.82rem; text-align: center; display: none;"></div>
+            <button class="btn btn-primary" onclick="fazerLogin()"
+                style="width: 100%; margin-top: 0.5rem;">Entrar</button>
+            <div class="error-msg" id="loginError"
+                style="margin-top: 0.8rem; color: var(--danger); font-size: 0.82rem; text-align: center; display: none;">
+            </div>
             <div style="text-align: center; margin-top: 1.2rem; font-size: 0.85rem; color: var(--text-muted);">
-                Não possui conta? <a onclick="fecharModal('modalLogin'); abrirModalCadastro()" style="color: var(--primary); font-weight: 700; cursor: pointer;">Cadastre-se</a>
+                Não possui conta? <a onclick="fecharModal('modalLogin'); abrirModalCadastro()"
+                    style="color: var(--primary); font-weight: 700; cursor: pointer;">Cadastre-se</a>
             </div>
         </div>
     </div>
 
     <div class="modal" id="modalCadastro">
         <div class="modal-content" style="position: relative; padding: 2.2rem;">
-            <button class="close-modal" onclick="fecharModal('modalCadastro')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
-            <h2 style="text-align: center; color: var(--primary); margin-bottom: 0.5rem; font-size: 1.3rem;"><i class="fas fa-user-plus"></i> Cadastro de Cliente</h2>
-            <p style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-bottom: 1.2rem;">Preencha seus dados para acumular pontos de fidelidade</p>
+            <button class="close-modal" onclick="fecharModal('modalCadastro')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h2 style="text-align: center; color: var(--primary); margin-bottom: 0.5rem; font-size: 1.3rem;"><i
+                    class="fas fa-user-plus"></i> Cadastro de Cliente</h2>
+            <p style="font-size: 0.78rem; color: var(--text-muted); text-align: center; margin-bottom: 1.2rem;">Preencha
+                seus dados para acumular pontos de fidelidade</p>
             <div class="form-group">
                 <label class="form-label">Nome Completo *</label>
                 <input type="text" id="cadNome" class="form-control" placeholder="Seu nome">
@@ -679,19 +1132,24 @@
                 <label class="form-label">Senha * (mínimo 6 dígitos)</label>
                 <input type="password" id="cadSenha" class="form-control" placeholder="Crie uma senha segura">
             </div>
-            <button class="btn btn-primary" onclick="fazerCadastro()" style="width: 100%; margin-top: 0.5rem;">Criar Minha Conta</button>
-            <div class="error-msg" id="cadastroError" style="margin-top: 0.8rem; font-size: 0.82rem; text-align: center; display: none;"></div>
+            <button class="btn btn-primary" onclick="fazerCadastro()" style="width: 100%; margin-top: 0.5rem;">Criar
+                Minha Conta</button>
+            <div class="error-msg" id="cadastroError"
+                style="margin-top: 0.8rem; font-size: 0.82rem; text-align: center; display: none;"></div>
             <div style="text-align: center; margin-top: 1.2rem; font-size: 0.85rem; color: var(--text-muted);">
-                Já possui conta? <a onclick="fecharModal('modalCadastro'); abrirModalLogin()" style="color: var(--primary); font-weight: 700; cursor: pointer;">Entrar</a>
+                Já possui conta? <a onclick="fecharModal('modalCadastro'); abrirModalLogin()"
+                    style="color: var(--primary); font-weight: 700; cursor: pointer;">Entrar</a>
             </div>
         </div>
     </div>
 
     <div class="modal" id="modalAdminLogin">
         <div class="modal-content" style="max-width: 380px; position: relative; padding: 2.2rem;">
-            <button class="close-modal" onclick="fecharModal('modalAdminLogin')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <button class="close-modal" onclick="fecharModal('modalAdminLogin')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
             <div style="text-align: center; margin-bottom: 1.2rem;">
-                <div style="width: 48px; height: 48px; background: var(--green-50); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.5rem;">
+                <div
+                    style="width: 48px; height: 48px; background: var(--green-50); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.3rem; margin-bottom: 0.5rem;">
                     <i class="fas fa-shield-alt"></i>
                 </div>
                 <h2 style="color: var(--text); font-size: 1.2rem;">Acesso Gerencial</h2>
@@ -705,20 +1163,29 @@
                 <label class="form-label">Senha</label>
                 <input type="password" id="adminPass" class="form-control" placeholder="••••••••">
             </div>
-            <button class="btn btn-primary" onclick="autenticarAdmin()" style="width: 100%; margin-top: 0.5rem;">Entrar no Painel</button>
-            <div id="adminLoginError" style="color: var(--danger); margin-top: 0.8rem; font-size: 0.82rem; text-align: center; display: none;"></div>
+            <button class="btn btn-primary" onclick="autenticarAdmin()" style="width: 100%; margin-top: 0.5rem;">Entrar
+                no Painel</button>
+            <div id="adminLoginError"
+                style="color: var(--danger); margin-top: 0.8rem; font-size: 0.82rem; text-align: center; display: none;">
+            </div>
         </div>
     </div>
 
     <div class="modal" id="modalAgendamentoCliente">
-        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem;">
-            <button class="close-modal" onclick="fecharModal('modalAgendamentoCliente')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
-            <h2 style="color: var(--primary); font-size: 1.35rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 8px;">
+        <div class="modal-content"
+            style="max-width: 680px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalAgendamentoCliente')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h2
+                style="color: var(--primary); font-size: 1.35rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 8px;">
                 <i class="fas fa-calendar-check"></i> Agendar Refeição & Prato do Dia
             </h2>
-            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Reserve o prato do dia com antecedência e garanta sua vaga.</p>
-            <div id="listaAgendamentosClienteGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
-                <p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Carregando opções de refeições...</p>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Reserve o prato do dia com
+                antecedência e garanta sua vaga.</p>
+            <div id="listaAgendamentosClienteGrid"
+                style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                <p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Carregando
+                    opções de refeições...</p>
             </div>
         </div>
     </div>
@@ -726,29 +1193,14 @@
     <!-- SCRIPTS -->
     <script>
         const API_URL = 'http://localhost:3000/api';
-        let slideAtual = 0;
-        const totalSlides = 4;
 
-        function atualizarSlide() {
-            const cards = document.querySelectorAll('.hero-food-card');
-            cards.forEach((card, idx) => {
-                if (idx === slideAtual) card.classList.add('active');
-                else card.classList.remove('active');
-            });
-            document.getElementById('sliderIndicador').textContent = `${slideAtual + 1} / ${totalSlides}`;
+        function abrirDrawer() {
+            document.getElementById('drawerOverlay')?.classList.add('active');
         }
 
-        function proximoSlide() {
-            slideAtual = (slideAtual + 1) % totalSlides;
-            atualizarSlide();
+        function fecharDrawer() {
+            document.getElementById('drawerOverlay')?.classList.remove('active');
         }
-
-        function slideAnterior() {
-            slideAtual = (slideAtual - 1 + totalSlides) % totalSlides;
-            atualizarSlide();
-        }
-
-        setInterval(proximoSlide, 5000);
 
         function fecharModal(id) { document.getElementById(id)?.classList.remove('active'); }
         function abrirModalLogin() { document.getElementById('modalLogin')?.classList.add('active'); }
@@ -765,7 +1217,7 @@
                     body: JSON.stringify({ username: usuario, password: senha })
                 });
                 const data = await res.json();
-                if(res.ok) {
+                if (res.ok) {
                     sessionStorage.setItem('token', data.token);
                     sessionStorage.setItem('admin_logado', 'true');
                     sessionStorage.setItem('admin_nome', data.nome || 'Administrador');
@@ -774,7 +1226,7 @@
                     document.getElementById('adminLoginError').textContent = '❌ ' + (data.erro || 'Usuário ou senha incorretos');
                     document.getElementById('adminLoginError').style.display = 'block';
                 }
-            } catch(e) {
+            } catch (e) {
                 document.getElementById('adminLoginError').textContent = '❌ Erro de conexão';
                 document.getElementById('adminLoginError').style.display = 'block';
             }
@@ -784,7 +1236,7 @@
             const login = document.getElementById('loginUsuario').value.trim();
             const senha = document.getElementById('loginSenha').value;
             const err = document.getElementById('loginError');
-            if(!login || !senha) { err.textContent = 'Preencha todos os campos'; err.style.display = 'block'; return; }
+            if (!login || !senha) { err.textContent = 'Preencha todos os campos'; err.style.display = 'block'; return; }
             try {
                 const res = await fetch(API_URL + '/clientes/login', {
                     method: 'POST',
@@ -792,7 +1244,7 @@
                     body: JSON.stringify({ login, senha })
                 });
                 const data = await res.json();
-                if(res.ok) {
+                if (res.ok) {
                     sessionStorage.setItem('cliente_token', data.token);
                     sessionStorage.setItem('cliente_nome', data.nome);
                     sessionStorage.setItem('cliente_id', data.id);
@@ -802,7 +1254,7 @@
                     err.textContent = data.erro || 'Credenciais inválidas';
                     err.style.display = 'block';
                 }
-            } catch(e) {
+            } catch (e) {
                 err.textContent = 'Erro de conexão';
                 err.style.display = 'block';
             }
@@ -815,9 +1267,9 @@
             const turma = document.getElementById('cadTurma').value.trim();
             const senha = document.getElementById('cadSenha').value;
             const err = document.getElementById('cadastroError');
-            
-            if(!nome || !usuario || !telefone || !senha) { err.textContent = 'Preencha os campos obrigatórios'; err.style.display = 'block'; return; }
-            
+
+            if (!nome || !usuario || !telefone || !senha) { err.textContent = 'Preencha os campos obrigatórios'; err.style.display = 'block'; return; }
+
             try {
                 const res = await fetch(API_URL + '/clientes/cadastrar', {
                     method: 'POST',
@@ -825,7 +1277,7 @@
                     body: JSON.stringify({ nome, usuario, telefone, turma, senha })
                 });
                 const data = await res.json();
-                if(res.ok) {
+                if (res.ok) {
                     err.style.color = '#10b981';
                     err.textContent = '✅ Cadastro realizado com sucesso!';
                     err.style.display = 'block';
@@ -838,7 +1290,8 @@
                     err.textContent = data.erro || 'Erro ao cadastrar';
                     err.style.display = 'block';
                 }
-            } catch(e) {
+            } catch (e) {
+                err.style.color = '#ef4444';
                 err.textContent = 'Erro de conexão';
                 err.style.display = 'block';
             }
@@ -849,11 +1302,11 @@
             const grid = document.getElementById('listaAgendamentosClienteGrid');
             try {
                 const res = await fetch(API_URL + '/agendamentos');
-                if(!res.ok) throw new Error('Erro');
+                if (!res.ok) throw new Error('Erro');
                 const agendamentos = await res.json();
                 const disponiveis = agendamentos.filter(a => a.status === 'disponivel' || (!a.bloqueado && (a.vagasDisponiveis > 0 || (a.vagasTotais - (a.vagasOcupadas || 0)) > 0)));
 
-                if(disponiveis.length === 0) {
+                if (disponiveis.length === 0) {
                     grid.innerHTML = `<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Nenhum agendamento disponível no momento.</p>`;
                     return;
                 }
@@ -870,10 +1323,14 @@
                         </a>
                     </div>
                 `).join('');
-            } catch(e) {
+            } catch (e) {
                 grid.innerHTML = `<p style="text-align: center; color: var(--danger); grid-column: 1/-1;">Erro ao carregar horários.</p>`;
             }
         }
     </script>
+
+
+
 </body>
+
 </html>

@@ -5,105 +5,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>Doutor Paladar · Perguntas Frequentes (FAQ)</title>
     <meta name="description" content="Tire suas dúvidas sobre horários, pagamentos via PIX, cartões, retirada de pedidos e fidelidade no Doutor Paladar.">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="css/theme.css">
     <style>
         body {
             background-color: #f8fafc;
             color: #1e293b;
-        }
-
-        .navbar-mc {
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-
-        .navbar-mc-inner {
-            max-width: 1240px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-            height: 72px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1.5rem;
-        }
-
-        .logo-mc {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            text-decoration: none;
-            color: #1b4332;
-            font-family: var(--font-heading);
-            font-weight: 800;
-            font-size: 1.35rem;
-        }
-
-        .logo-badge-icon {
-            width: 44px;
-            height: 44px;
-            background: #1b4332;
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #52b788;
-            font-size: 1.25rem;
-        }
-
-        .btn-mc-primary {
-            background: #2d7d52;
-            color: #ffffff;
-            font-weight: 700;
-            font-size: 0.88rem;
-            padding: 10px 22px;
-            border-radius: var(--radius-full);
-            border: none;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition);
-            text-decoration: none;
-        }
-
-        .btn-mc-primary:hover {
-            background: #1b4332;
-            transform: translateY(-1px);
-        }
-
-        .btn-mc-outline {
-            background: transparent;
-            color: #292929;
-            font-weight: 700;
-            font-size: 0.88rem;
-            padding: 9px 18px;
-            border-radius: var(--radius-full);
-            border: 1.5px solid #cbd5e1;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: var(--transition-fast);
-            text-decoration: none;
-        }
-
-        .btn-mc-outline:hover {
-            border-color: #2d7d52;
-            color: #2d7d52;
-            background: #f0faf4;
+            font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
+            margin: 0;
+            padding: 0;
         }
 
         /* ── CONTAINER DA FAQ ── */
         .faq-page-container {
-            max-width: 900px;
+            max-width: 960px;
             margin: 0 auto;
-            padding: 3.5rem 1.5rem 5rem;
+            padding: 3.5rem 1.5rem 6rem;
         }
 
         .faq-header-box {
@@ -112,11 +31,12 @@
         }
 
         .faq-header-box h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
+            font-size: 2.6rem;
+            font-weight: 900;
             color: #0f172a;
             letter-spacing: -0.03em;
             margin-top: 8px;
+            margin-bottom: 0.5rem;
         }
 
         .faq-header-box p {
@@ -127,14 +47,14 @@
 
         /* Barra de Busca de Dúvidas na FAQ */
         .faq-search-wrapper {
-            max-width: 540px;
-            margin: 1.5rem auto 0;
+            max-width: 580px;
+            margin: 1.8rem auto 0;
             position: relative;
         }
 
         .faq-search-wrapper i {
             position: absolute;
-            left: 16px;
+            left: 18px;
             top: 50%;
             transform: translateY(-50%);
             color: #94a3b8;
@@ -143,18 +63,18 @@
 
         .faq-search-input {
             width: 100%;
-            padding: 13px 20px 13px 44px;
+            padding: 14px 20px 14px 48px;
             border-radius: var(--radius-full);
             border: 1.5px solid #cbd5e1;
             font-size: 0.95rem;
             background: #ffffff;
             outline: none;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
             transition: var(--transition);
         }
 
         .faq-search-input:focus {
-            border-color: #2d7d52;
+            border-color: var(--dp-emerald);
             box-shadow: 0 0 0 4px rgba(45, 125, 82, 0.15);
         }
 
@@ -171,66 +91,71 @@
             background: #ffffff;
             border: 1.5px solid #e2e8f0;
             border-radius: var(--radius-full);
-            padding: 8px 18px;
+            padding: 9px 20px;
             font-weight: 700;
-            font-size: 0.85rem;
+            font-size: 0.88rem;
             color: #475569;
             cursor: pointer;
-            transition: var(--transition-fast);
+            transition: all 0.2s ease;
         }
 
         .faq-pill-btn:hover {
-            border-color: #2d7d52;
-            color: #2d7d52;
+            border-color: var(--dp-emerald);
+            color: var(--dp-emerald);
+            background: #f0faf4;
+            transform: translateY(-1px);
         }
 
         .faq-pill-btn.active {
-            background: #2d7d52;
+            background: var(--dp-emerald);
             color: #ffffff;
-            border-color: #2d7d52;
+            border-color: var(--dp-emerald);
+            box-shadow: 0 4px 12px rgba(45, 125, 82, 0.25);
         }
 
-        /* Lista de Perguntas (Sanfona / Accordion) */
+        /* Lista de Perguntas (Accordion) */
         .faq-list {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 14px;
         }
 
         .faq-item {
             background: #ffffff;
-            border-radius: 16px;
+            border-radius: 20px;
             border: 1px solid #e2e8f0;
-            padding: 1.2rem 1.6rem;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-            transition: var(--transition);
+            padding: 1.3rem 1.8rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
         }
 
         .faq-item:hover {
             border-color: #cbd5e1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
         }
 
         .faq-question {
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             font-weight: 800;
-            color: #1e293b;
+            color: #0f172a;
             cursor: pointer;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
         }
 
         .faq-question i {
             color: #94a3b8;
-            font-size: 0.9rem;
+            font-size: 0.95rem;
             transition: transform 0.25s ease;
         }
 
         .faq-answer {
-            font-size: 0.92rem;
+            font-size: 0.95rem;
             color: #475569;
-            line-height: 1.6;
+            line-height: 1.65;
             margin-top: 1rem;
             padding-top: 1rem;
             border-top: 1px solid #f1f5f9;
@@ -238,117 +163,156 @@
         }
 
         .faq-item.active {
-            border-color: #2d7d52;
-            box-shadow: 0 8px 20px -4px rgba(45, 125, 82, 0.12);
+            border-color: var(--dp-emerald);
+            box-shadow: 0 10px 28px -4px rgba(45, 125, 82, 0.15);
         }
 
-        .faq-item.active .faq-question { color: #2d7d52; }
-        .faq-item.active .faq-question i { transform: rotate(180deg); color: #2d7d52; }
+        .faq-item.active .faq-question { color: var(--dp-emerald); }
+        .faq-item.active .faq-question i { transform: rotate(180deg); color: var(--dp-emerald); }
         .faq-item.active .faq-answer { display: block; }
 
         /* Card de Dúvida Não Encontrada */
         .faq-cta-card {
-            background: #1e293b;
-            color: #ffffff;
-            border-radius: 20px;
-            padding: 2.5rem;
+            background: linear-gradient(135deg, #1b4332 0%, #0d2818 100%);
+            border-radius: 28px;
+            padding: 3.5rem 2rem;
             text-align: center;
-            margin-top: 3.5rem;
+            color: #ffffff;
+            margin-top: 4rem;
+            box-shadow: 0 20px 40px rgba(27, 67, 50, 0.2);
+            position: relative;
+            overflow: hidden;
         }
 
         .faq-cta-card h3 {
-            font-size: 1.35rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0 0 0.8rem;
+            color: #ffffff;
         }
 
         .faq-cta-card p {
-            color: #94a3b8;
-            font-size: 0.95rem;
-            margin-bottom: 1.5rem;
+            color: #d7f0e3;
+            font-size: 1.05rem;
+            margin: 0 auto 2rem;
+            max-width: 520px;
         }
     </style>
 </head>
 <body>
 
-    <!-- NAVBAR -->
-    <header class="navbar-mc">
-        <div class="navbar-mc-inner">
-            <a class="logo-mc" href="index.html">
-                <div class="logo-badge-icon"><i class="fas fa-utensils"></i></div>
-                <span>DOUTOR PALADAR</span>
-            </a>
+    <!-- SIDEBAR DRAWER (ABERTO PELO HAMBÚRGUER) -->
+    <div class="mcd-drawer-overlay" id="drawerOverlay" onclick="fecharDrawer()">
+        <div class="mcd-drawer" onclick="event.stopPropagation()">
+            <div class="mcd-drawer-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; background: var(--dp-emerald); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--mcd-gold); font-size: 1.1rem;">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <span style="font-weight: 800; font-size: 1.1rem;">DOUTOR PALADAR</span>
+                </div>
+                <button class="mcd-drawer-close" onclick="fecharDrawer()">&times;</button>
+            </div>
+            <div class="mcd-drawer-nav">
+                <a href="index.html" class="mcd-drawer-link"><i class="fas fa-home"></i> Início</a>
+                <a href="cardapio.html" class="mcd-drawer-link"><i class="fas fa-burger"></i> Cardápio Completo</a>
+                <a href="faq.html" class="mcd-drawer-link" style="color: var(--dp-emerald); background: #f1f5f9;"><i class="fas fa-question-circle"></i> Perguntas Frequentes (FAQ)</a>
+                <a href="chat.html" class="mcd-drawer-link"><i class="fas fa-comments"></i> Chat ao Vivo com Atendente</a>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 10px 0;">
+                <a href="index.html" class="mcd-drawer-link"><i class="fas fa-user"></i> Minha Conta / Login</a>
+                <a href="admin.html" class="mcd-drawer-link"><i class="fas fa-lock"></i> Painel do Gestor</a>
+            </div>
+        </div>
+    </div>
 
-            <div style="display: flex; align-items: center; gap: 12px;">
-                <a href="index.html" class="btn-mc-outline"><i class="fas fa-home"></i> Início</a>
-                <a href="cardapio.html" class="btn-mc-primary"><i class="fas fa-burger"></i> Ver Cardápio</a>
+    <!-- NAVBAR INSTITUCIONAL MC STYLE -->
+    <header class="mcd-navbar">
+        <div class="mcd-navbar-inner">
+            <div class="mcd-nav-left">
+                <button class="mcd-hamburger" onclick="abrirDrawer()" title="Abrir Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a class="mcd-logo" href="index.html">
+                    <div class="mcd-logo-icon"><i class="fas fa-utensils"></i></div>
+                    <div class="mcd-logo-text">
+                        <span class="mcd-logo-title">DOUTOR PALADAR</span>
+                        <span class="mcd-logo-sub">Gourmet & Lanches</span>
+                    </div>
+                </a>
+                <ul class="mcd-nav-links">
+                    <li><a href="index.html">Início</a></li>
+                    <li><a href="cardapio.html">Cardápio</a></li>
+                    <li><a href="faq.html" class="active">FAQ & Ajuda</a></li>
+                </ul>
+            </div>
+
+            <div class="mcd-nav-right">
+                <a href="cardapio.html" class="btn-mcd-gold">
+                    <i class="fas fa-shopping-bag"></i> Fazer Pedido
+                </a>
+                <a href="index.html" class="btn-mcd-icon" title="Início">
+                    <i class="fas fa-home"></i>
+                </a>
             </div>
         </div>
     </header>
 
-    <!-- CONTEÚDO FAQ -->
+    <!-- CONTEÚDO PRINCIPAL DA FAQ -->
     <main class="faq-page-container">
         <div class="faq-header-box">
-            <span class="badge badge-green" style="font-size:0.82rem; text-transform:uppercase; font-weight:700;">Central de Ajuda</span>
-            <h1>Perguntas Frequentes (FAQ)</h1>
-            <p>Encontre respostas rápidas sobre pedidos, formas de pagamento, horários e funcionamento da cantina.</p>
+            <span class="badge" style="background: rgba(255, 188, 13, 0.2); color: #b45309; padding: 6px 16px; border-radius: var(--radius-full); font-weight: 800; font-size: 0.82rem; text-transform: uppercase;">
+                <i class="fas fa-info-circle"></i> Central de Ajuda & Dúvidas
+            </span>
+            <h1>Como podemos ajudar você hoje?</h1>
+            <p>Encontre respostas rápidas para as principais dúvidas sobre pedidos, pagamentos, agendamentos e fidelidade.</p>
 
             <div class="faq-search-wrapper">
                 <i class="fas fa-search"></i>
-                <input type="text" id="faqSearchInput" class="faq-search-input" placeholder="Buscar por palavra-chave (ex: pix, horário, almoço, pontos)..." oninput="filtrarFaq()">
+                <input type="text" id="faqSearchInput" onkeyup="filtrarFaq()" placeholder="Digite sua dúvida (ex: PIX, horários, cancelamento, fidelidade)..." class="faq-search-input">
             </div>
         </div>
 
-        <!-- Pílulas de Categoria de Dúvidas -->
+        <!-- Filtros Rápidos de Categoria de FAQ -->
         <div class="faq-category-pills">
-            <button class="faq-pill-btn active" onclick="filtrarCategoriaFaq('todos', this)">⭐ Todas as Perguntas</button>
-            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('horarios', this)">⏰ Horários & Funcionamento</button>
-            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('pagamentos', this)">💳 Pagamentos & PIX</button>
-            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('pedidos', this)">⚡ Pedidos & Retirada</button>
-            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('fidelidade', this)">🎁 Programa de Fidelidade</button>
-            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('almoco', this)">🍽️ Almoço & Prato do Dia</button>
+            <button class="faq-pill-btn active" onclick="filtrarCategoriaFaq('todos', this)">🌟 Todas as Dúvidas</button>
+            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('pedidos', this)">🍔 Pedidos & Retirada</button>
+            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('pagamento', this)">💳 Pagamento & PIX</button>
+            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('fidelidade', this)">⭐ Clube de Pontos</button>
+            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('almoco', this)">🍽️ Prato do Dia</button>
         </div>
 
-        <!-- Lista Sanfona de Dúvidas -->
+        <!-- Lista de Accordions -->
         <div class="faq-list" id="faqList">
             <!-- Item 1 -->
-            <div class="faq-item active" data-cat="horarios">
+            <div class="faq-item" data-cat="pagamento">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>💳 Quais são as formas de pagamento aceitas?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Aceitamos <strong>PIX instantâneo com QR Code dinâmico</strong>, cartões de crédito e débito de todas as principais bandeiras, dinheiro em espécie no balcão e saldo de crédito pré-pago para clientes cadastrados.
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="faq-item" data-cat="pedidos">
                 <div class="faq-question" onclick="toggleFaq(this)">
                     <span>⏰ Qual o horário de atendimento e funcionamento da cantina?</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    A cantina do Doutor Paladar funciona nos seguintes horários:<br>
-                    • <strong>Segunda a Sexta-feira:</strong> das 07h00 às 17h30 continuamente.<br>
-                    • <strong>Sábados:</strong> das 08h00 às 12h00.<br>
-                    • <strong>Domingos e Feriados:</strong> Fechado.<br>
-                    Salgados artesanais e cafés são preparados ao longo de todo o expediente.
-                </div>
-            </div>
-
-            <!-- Item 2 -->
-            <div class="faq-item" data-cat="pagamentos">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    <span>💳 Quais as formas de pagamento aceitas no site e no balcão?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    Aceitamos com total segurança:<br>
-                    • <strong>PIX:</strong> Chave e QR Code instantâneo com confirmação imediata.<br>
-                    • <strong>Cartões:</strong> Débito e Crédito (Visa, Mastercard, Elo, etc.).<br>
-                    • <strong>Dinheiro em Espécie:</strong> Pagamento direto no balcão ao retirar.<br>
-                    • <strong>Vendas a Prazo / Conta Corrente:</strong> Para clientes cadastrados e autorizados.
+                    Nosso atendimento presencial e os pedidos online funcionam de <strong>segunda a sexta-feira, das 07h00 às 17h30</strong>, e aos <strong>sábados das 08h00 às 12h00</strong>.
                 </div>
             </div>
 
             <!-- Item 3 -->
             <div class="faq-item" data-cat="pedidos">
                 <div class="faq-question" onclick="toggleFaq(this)">
-                    <span>⚡ Como funciona a retirada sem filas no balcão express?</span>
+                    <span>📱 Como faço para pedir e retirar sem pegar fila?</span>
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Você pode acessar o <strong>Cardápio Completo</strong> pelo celular ou computador, escolher seus salgados e bebidas, adicionar ao carrinho e confirmar seu pedido. Ao chegar na cantina, basta se dirigir ao balcão de retirada e informar seu nome para pegar seus itens já separados.
+                    Você pode acessar o <strong>Cardápio Completo</strong> pelo celular ou computador, escolher seus salgados e bebidas, adicionar ao carrinho e confirmar seu pedido. Ao chegar na cantina, basta se dirigir ao balcão de retirada rápida e informar seu nome para pegar seus itens já separados.
                 </div>
             </div>
 
@@ -370,7 +334,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Para garantir que sua refeição esteja reservada e você não fique sem sua opção preferida nos horários de pico, disponibilizamos o menu <strong>Agendar Refeição</strong>. Você escolhe o dia, o horário do seu intervalo e a opção (Executivo, Light ou Tradicional).
+                    Para garantir que sua refeição esteja reservada e você não fique sem sua opção preferida nos horários de pico, disponibilizamos o menu <strong>Agendar Refeição</strong>. Você escolhe o dia, o horário do seu intervalo e a opção do prato.
                 </div>
             </div>
 
@@ -381,7 +345,7 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Como o preparo e a separação dos salgados começam imediatamente, dirija-se imediatamente ao balcão da cantina informando seu nome ou número de pedido para que a equipe realize a troca ou cancelamento.
+                    Como o preparo e a separação dos salgados começam imediatamente, dirija-se imediatamente ao balcão da cantina ou envie uma mensagem no <strong>Chat ao Vivo</strong> informando seu nome ou número de pedido.
                 </div>
             </div>
         </div>
@@ -389,14 +353,27 @@
         <!-- CTA para o Cardápio -->
         <div class="faq-cta-card">
             <h3>Ficou com alguma dúvida ou pronto para pedir?</h3>
-            <p>Confira todas as delícias disponíveis agora mesmo no cardápio digital.</p>
-            <a href="cardapio.html" class="btn-mc-primary" style="padding: 13px 28px; font-size: 1rem;">
+            <p>Confira todas as delícias e novidades disponíveis agora mesmo no nosso cardápio digital.</p>
+            <a href="cardapio.html" class="btn-mcd-gold" style="padding: 15px 36px; font-size: 1.05rem;">
                 <i class="fas fa-shopping-bag"></i> Ir para o Cardápio Oficial
             </a>
         </div>
     </main>
 
+    <!-- BOTÃO FLUTUANTE DE CHAT (FIXO NO CANTO INFERIOR DIREITO UNIVERSAL) -->
+    <a href="chat.html" class="floating-chat-btn" title="Falar no Chat ao Vivo">
+        <i class="fas fa-comments"></i>
+    </a>
+
     <script>
+        function abrirDrawer() {
+            document.getElementById('drawerOverlay')?.classList.add('active');
+        }
+
+        function fecharDrawer() {
+            document.getElementById('drawerOverlay')?.classList.remove('active');
+        }
+
         function toggleFaq(el) {
             const item = el.parentElement;
             item.classList.toggle('active');

@@ -778,6 +778,10 @@
                             osc.stop(audioCtx.currentTime + 0.3);
                         } catch(e) {}
 
+                        if (typeof window.showToast === 'function') {
+                            window.showToast(`🔔 Novo Pedido: #${novo.id} - ${novo.nomeCliente || 'Visitante'}`, 'success', 5000);
+                        }
+                        
                         carregarPedidos();
                     });
 

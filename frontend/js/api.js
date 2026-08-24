@@ -102,7 +102,9 @@ function logoutAdmin() {
 // PRODUTOS
 // =============================================
 async function getProdutos() {
-  return await apiFetch('/produtos');
+  const res = await apiFetch('/produtos');
+  // Suporte ao formato paginado { dados: [...], paginacao: {...} }
+  return Array.isArray(res) ? res : (res.dados || []);
 }
 
 async function adicionarProduto(produto) {
@@ -421,3 +423,71 @@ const registrarCompraFiado = registrarCompraContasReceber;
 const registrarPagamentoFiado = registrarPagamentoContasReceber;
 const getTotalFiadoPendente = getTotalContasReceberPendente;
 const getClienteFiado = getClienteContasReceber;
+
+// =====================================================
+// TOAST NOTIFICATION SYSTEM (Global)
+// =====================================================
+window.showToast = function(message, type = 'info', duration = 4000) {
+    let container = document.getElementById('toastContainer');
+    if (!container) {
+        container = document.createElement('div');
+        container.id = 'toastContainer';
+        container.className = 'toast-container';
+        document.body.appendChild(container);
+    }
+
+    const icons = {
+        success: 'fas fa-check-circle',
+        error: 'fas fa-times-circle',
+        warning: 'fas fa-exclamation-triangle',
+        info: 'fas fa-info-circle'
+    };
+
+    const toast = document.createElement('div');
+    toast.className = `toast toast-${type}`;
+    toast.innerHTML = `
+        <i class="toast-icon ${icons[type] || icons.info}"></i>
+        <span class="toast-content">${message}</span>
+        <button class="toast-close" onclick="this.parentElement.classList.add('toast-exit'); setTimeout(() => this.parentElement.remove(), 300)">
+            <i class="fas fa-times"></i>
+        </button>
+    `;
+
+    container.appendChild(toast);
+
+    setTimeout(() => {
+        if (toast.parentElement) {
+            toast.classList.add('toast-exit');
+            setTimeout(() => toast.remove(), 300);
+        }
+    }, duration);
+
+    while (container.children.length > 5) {
+        container.firstElementChild.remove();
+    }
+};
+
+// =====================================================
+// SCROLL REVEAL ANIMATION (Global)
+// =====================================================
+document.addEventListener('DOMContentLoaded', () => {
+    document.querySelectorAll('section, .mcd-section, .mcd-category-header, .mcd-stats-strip, .card').forEach(el => {
+        if (!el.classList.contains('reveal')) {
+            el.classList.add('reveal');
+        }
+    });
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.classList.add('revealed');
+                observer.unobserve(entry.target);
+            }
+        });
+    }, {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+});

@@ -5,23 +5,72 @@ const { getDatabase, query, execute } = require('../database');
 // GET todos os pedidos (admin) ou filtrar
 router.get('/', async (req, res) => {
   try {
-    const { nome, status, data } = req.query;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(200, Math.max(1, parseInt(req.query.limit) || 50));
+    const offset = (page - 1) * limit;
+    const { nome, status, data, periodo } = req.query;
+
     let sql = 'SELECT * FROM pedidos WHERE 1=1';
+    let countSql = 'SELECT COUNT(*) as total FROM pedidos WHERE 1=1';
     const params = [];
+    const countParams = [];
 
-    if (nome) { sql += ' AND nomeCliente LIKE ?'; params.push(`%${nome}%`); }
-    if (status) { sql += ' AND status = ?'; params.push(status); }
-    if (data) { sql += ' AND DATE(data) = DATE(?)'; params.push(data); }
+    if (nome) { 
+      sql += ' AND nomeCliente LIKE ?'; 
+      countSql += ' AND nomeCliente LIKE ?'; 
+      params.push(`%${nome}%`); 
+      countParams.push(`%${nome}%`); 
+    }
+    if (status) { 
+      sql += ' AND status = ?'; 
+      countSql += ' AND status = ?'; 
+      params.push(status); 
+      countParams.push(status); 
+    }
+    if (data) { 
+      sql += ' AND DATE(data) = DATE(?)'; 
+      countSql += ' AND DATE(data) = DATE(?)'; 
+      params.push(data); 
+      countParams.push(data); 
+    } else if (periodo) {
+      if (periodo === 'hoje') {
+        sql += ' AND DATE(data) = CURDATE()';
+        countSql += ' AND DATE(data) = CURDATE()';
+      } else if (periodo === 'ontem') {
+        sql += ' AND DATE(data) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)';
+        countSql += ' AND DATE(data) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)';
+      } else if (periodo === '7d') {
+        sql += ' AND data >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
+        countSql += ' AND data >= DATE_SUB(NOW(), INTERVAL 7 DAY)';
+      }
+    }
 
-    sql += ' ORDER BY id DESC';
+    sql += ` ORDER BY id DESC LIMIT ${Number(limit)} OFFSET ${Number(offset)}`;
 
     const pedidos = await query(sql, params);
+    const totalRow = await query(countSql, countParams);
+    const total = totalRow[0]?.total || 0;
+
     for (const pedido of pedidos) {
       pedido.total = parseFloat(pedido.total);
       pedido.itens = await query('SELECT * FROM itens_pedido WHERE pedidoId = ?', [pedido.id]);
       pedido.itens.forEach(item => { item.precoUnitario = parseFloat(item.precoUnitario); });
     }
-    res.json(pedidos);
+
+    // Se a requisição pediu paginação explícita ou não
+    if (req.query.paginado === 'true') {
+      res.json({
+        dados: pedidos,
+        paginacao: {
+          pagina: page,
+          porPagina: limit,
+          total,
+          totalPaginas: Math.ceil(total / limit)
+        }
+      });
+    } else {
+      res.json(pedidos);
+    }
   } catch (error) {
     console.error('Erro ao listar pedidos:', error);
     res.status(500).json({ erro: 'Erro ao listar pedidos' });
@@ -31,13 +80,30 @@ router.get('/', async (req, res) => {
 // GET buscar pedido por nome do cliente (público)
 router.get('/buscar/:nome', async (req, res) => {
   try {
-    const pedidos = await query('SELECT * FROM pedidos WHERE nomeCliente = ? ORDER BY id DESC', [req.params.nome]);
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.min(100, Math.max(1, parseInt(req.query.limit) || 50));
+    const offset = (page - 1) * limit;
+
+    const countSql = 'SELECT COUNT(*) as total FROM pedidos WHERE nomeCliente LIKE ?';
+    const totalRow = await query(countSql, [`%${req.params.nome}%`]);
+    const total = totalRow[0]?.total || 0;
+
+    const pedidos = await query(`SELECT * FROM pedidos WHERE nomeCliente LIKE ? ORDER BY id DESC LIMIT ${Number(limit)} OFFSET ${Number(offset)}`, [`%${req.params.nome}%`]);
     for (const pedido of pedidos) {
       pedido.total = parseFloat(pedido.total);
       pedido.itens = await query('SELECT * FROM itens_pedido WHERE pedidoId = ?', [pedido.id]);
       pedido.itens.forEach(item => { item.precoUnitario = parseFloat(item.precoUnitario); });
     }
-    res.json(pedidos);
+    
+    res.json({
+      dados: pedidos,
+      paginacao: {
+        pagina: page,
+        porPagina: limit,
+        total,
+        totalPaginas: Math.ceil(total / limit)
+      }
+    });
   } catch (error) {
     console.error('Erro ao buscar pedidos:', error);
     res.status(500).json({ erro: 'Erro ao buscar pedidos' });
@@ -47,17 +113,47 @@ router.get('/buscar/:nome', async (req, res) => {
 // POST criar pedido (público - aceita convidados e clientes logados)
 router.post('/', async (req, res) => {
   const { nomeCliente, turma, mesa, formaPagamento, horarioRetirada, itens, total, clienteAppId, observacao } = req.body;
-  if (!nomeCliente || !horarioRetirada || !itens || !itens.length || total === undefined) {
-    return res.status(400).json({ erro: 'Dados incompletos' });
+
+  // Validações estritas
+  if (!nomeCliente || typeof nomeCliente !== 'string' || nomeCliente.trim().length === 0) {
+    return res.status(400).json({ erro: 'Nome do cliente é obrigatório e inválido' });
+  }
+  if (!horarioRetirada) {
+    return res.status(400).json({ erro: 'Horário de retirada é obrigatório' });
+  }
+  if (!itens || !Array.isArray(itens) || itens.length === 0) {
+    return res.status(400).json({ erro: 'O pedido deve conter pelo menos um item' });
+  }
+  if (total === undefined || parseFloat(total) <= 0) {
+    return res.status(400).json({ erro: 'Total do pedido inválido' });
+  }
+
+  const formasValidas = ['dinheiro', 'pix', 'cartao_credito', 'cartao_debito', 'a_prazo', 'fiado'];
+  const fp = formaPagamento || 'dinheiro';
+  if (!formasValidas.includes(fp)) {
+    return res.status(400).json({ erro: `Forma de pagamento inválida. Válidas: ${formasValidas.join(', ')}` });
   }
 
   const db = await getDatabase();
   const conn = await db.getConnection();
 
   try {
-    // Se a forma de pagamento for fiado, verificar se existe cliente cadastrado e limite
-    if (formaPagamento === 'fiado') {
-      const [fiadoList] = await conn.execute('SELECT * FROM clientes_fiado WHERE nome LIKE ?', [`%${nomeCliente}%`]);
+    // 1. Verificar Estoque
+    for (const item of itens) {
+      const [rows] = await conn.execute('SELECT nome, estoque FROM produtos WHERE id = ?', [item.produtoId]);
+      if (rows.length === 0) {
+        conn.release();
+        return res.status(400).json({ erro: `Produto ID ${item.produtoId} não existe.` });
+      }
+      if (rows[0].estoque < item.quantidade) {
+        conn.release();
+        return res.status(400).json({ erro: `Estoque insuficiente para "${rows[0].nome}". Disponível: ${rows[0].estoque}` });
+      }
+    }
+
+    // 2. Verificar Fiado (se aplicável)
+    if (fp === 'fiado') {
+      const [fiadoList] = await conn.execute('SELECT * FROM clientes_fiado WHERE nome LIKE ?', [`%${nomeCliente.trim()}%`]);
       if (fiadoList.length > 0) {
         const clienteFiado = fiadoList[0];
         const limite = parseFloat(clienteFiado.limite || 50);
@@ -77,7 +173,7 @@ router.post('/', async (req, res) => {
     const dataPedido = new Date().toISOString().slice(0, 19).replace('T', ' ');
     const [result] = await conn.execute(
       'INSERT INTO pedidos (clienteAppId, nomeCliente, turma, mesa, formaPagamento, horarioRetirada, total, status, data, observacao) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-      [clienteAppId || null, nomeCliente, turma || '', mesa || null, formaPagamento || 'dinheiro', horarioRetirada, parseFloat(total), 'pendente', dataPedido, observacao || null]
+      [clienteAppId || null, nomeCliente.trim(), turma || '', mesa || null, fp, horarioRetirada, parseFloat(total), 'pendente', dataPedido, observacao || null]
     );
     const pedidoId = result.insertId;
 
@@ -86,16 +182,19 @@ router.post('/', async (req, res) => {
         'INSERT INTO itens_pedido (pedidoId, produtoId, nome, quantidade, precoUnitario) VALUES (?, ?, ?, ?, ?)',
         [pedidoId, item.produtoId, item.nome || '', item.quantidade, parseFloat(item.precoUnitario)]
       );
+      // Opcional: já prender o estoque no momento do pedido (pendente) para não ter overbooking.
+      // Aqui vamos prender logo, se for cancelado depois a gente devolve.
+      await conn.execute('UPDATE produtos SET estoque = GREATEST(0, estoque - ?) WHERE id = ?', [item.quantidade, item.produtoId]);
     }
 
     await conn.commit();
 
     const novoPedido = {
       id: pedidoId,
-      nomeCliente,
+      nomeCliente: nomeCliente.trim(),
       turma,
       mesa,
-      formaPagamento: formaPagamento || 'dinheiro',
+      formaPagamento: fp,
       horarioRetirada,
       total: parseFloat(total),
       status: 'pendente',
@@ -161,12 +260,17 @@ router.put('/:id/status', async (req, res) => {
       [req.params.id, statusAnterior, status, responsavel || 'Administrador', dataHoraLog]
     );
 
-    // Se passou para entregue ou confirmado (e antes não estava), dar baixa no estoque e registrar em vendas
-    if ((status === 'entregue' || status === 'confirmado') && statusAnterior !== 'entregue' && statusAnterior !== 'confirmado') {
+    // Se o pedido foi cancelado/recusado (e antes não estava), devolver estoque
+    if ((status === 'cancelado' || status === 'recusado') && statusAnterior !== 'cancelado' && statusAnterior !== 'recusado') {
       const [itens] = await conn.execute('SELECT * FROM itens_pedido WHERE pedidoId = ?', [req.params.id]);
       for (const item of itens) {
-        await conn.execute('UPDATE produtos SET estoque = GREATEST(0, estoque - ?) WHERE id = ?', [item.quantidade, item.produtoId]);
+        await conn.execute('UPDATE produtos SET estoque = estoque + ? WHERE id = ?', [item.quantidade, item.produtoId]);
       }
+    }
+
+    // Se passou para entregue ou confirmado (e antes não estava), registrar em vendas
+    if ((status === 'entregue' || status === 'confirmado') && statusAnterior !== 'entregue' && statusAnterior !== 'confirmado') {
+      const [itens] = await conn.execute('SELECT * FROM itens_pedido WHERE pedidoId = ?', [req.params.id]);
 
       // Inserir registro na tabela vendas para contabilização centralizada de caixa
       let dataVenda = pedido.data;

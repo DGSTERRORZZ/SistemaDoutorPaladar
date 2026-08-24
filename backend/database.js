@@ -1,6 +1,7 @@
 require('dotenv').config();
 const mysql = require('mysql2/promise');
 const bcrypt = require('bcryptjs');
+const logger = require('./utils/logger');
 
 let pool = null;
 
@@ -11,21 +12,59 @@ const dbConfig = {
   password: process.env.DB_PASS || 'Doutor@2026',
   database: process.env.DB_NAME || 'doutor_paladar',
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 20,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 30000,
   timezone: '-03:00'
 };
+
+/**
+ * Verifica se uma coluna já existe em uma tabela via INFORMATION_SCHEMA
+ */
+async function columnExists(conn, tableName, columnName) {
+  const [rows] = await conn.execute(
+    `SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? AND COLUMN_NAME = ?`,
+    [process.env.DB_NAME || 'doutor_paladar', tableName, columnName]
+  );
+  return rows.length > 0;
+}
+
+/**
+ * Adiciona coluna de forma segura (só se não existir)
+ */
+async function addColumnIfNotExists(conn, table, column, definition) {
+  const exists = await columnExists(conn, table, column);
+  if (!exists) {
+    await conn.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${definition}`);
+    logger.debug(`  Coluna adicionada: ${table}.${column}`);
+  }
+}
+
+/**
+ * Cria índice de forma segura (ignora se já existir)
+ */
+async function createIndexIfNotExists(conn, indexName, table, columns) {
+  try {
+    await conn.execute(`CREATE INDEX ${indexName} ON ${table}(${columns})`);
+    logger.debug(`  Índice criado: ${indexName}`);
+  } catch (e) {
+    // Índice já existe — silenciar
+  }
+}
 
 async function getDatabase() {
   if (!pool) {
     pool = mysql.createPool(dbConfig);
     try {
       const conn = await pool.getConnection();
-      console.log('✅ Conectado ao MySQL!');
+      logger.success('Conectado ao MySQL!');
       conn.release();
       await criarTabelas();
+      await criarIndices();
       await inserirDadosPadrao();
     } catch (err) {
-      console.error('❌ Falha ao conectar ao MySQL:', err.message);
+      logger.error('Falha ao conectar ao MySQL:', err.message);
       throw err;
     }
   }
@@ -245,28 +284,51 @@ async function criarTabelas() {
       FOREIGN KEY (clienteId) REFERENCES clientes_app(id) ON DELETE CASCADE
     )`);
 
-    // Migrações dinâmicas para colunas adicionais em tabelas existentes
-    try { await conn.execute("ALTER TABLE clientes_app ADD COLUMN pontosFidelidade INT DEFAULT 0"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE clientes_app ADD COLUMN limiteCredito DECIMAL(10,2) DEFAULT 50.00"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE pedidos ADD COLUMN mesa VARCHAR(50) DEFAULT NULL"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE pedidos ADD COLUMN formaPagamento VARCHAR(50) DEFAULT 'dinheiro'"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE pedidos ADD COLUMN canal VARCHAR(30) DEFAULT 'app'"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE agendamentos ADD COLUMN data DATE DEFAULT NULL"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE agendamentos ADD COLUMN horario VARCHAR(10) DEFAULT '12:00'"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE agendamentos ADD COLUMN pratoDoDia VARCHAR(150) DEFAULT ''"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE agendamentos ADD COLUMN vagasTotais INT DEFAULT 50"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE agendamentos ADD COLUMN vagasOcupadas INT DEFAULT 0"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE agendamentos ADD COLUMN preco DECIMAL(10,2) DEFAULT 0.00"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE agendamentos ADD COLUMN dataCriacao DATETIME DEFAULT CURRENT_TIMESTAMP"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE clientes_fiado ADD COLUMN clienteAppId INT DEFAULT NULL"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE chat_mensagens ADD COLUMN conversaId INT DEFAULT 0"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE chat_mensagens ADD COLUMN lida TINYINT(1) DEFAULT 0"); } catch (e) {}
-    try { await conn.execute("ALTER TABLE vendas ADD COLUMN pedidoId INT DEFAULT NULL"); } catch (e) {}
+    // Migrações dinâmicas seguras (via INFORMATION_SCHEMA)
+    await addColumnIfNotExists(conn, 'clientes_app', 'pontosFidelidade', 'INT DEFAULT 0');
+    await addColumnIfNotExists(conn, 'clientes_app', 'limiteCredito', 'DECIMAL(10,2) DEFAULT 50.00');
+    await addColumnIfNotExists(conn, 'pedidos', 'mesa', 'VARCHAR(50) DEFAULT NULL');
+    await addColumnIfNotExists(conn, 'pedidos', 'formaPagamento', "VARCHAR(50) DEFAULT 'dinheiro'");
+    await addColumnIfNotExists(conn, 'pedidos', 'canal', "VARCHAR(30) DEFAULT 'app'");
+    await addColumnIfNotExists(conn, 'agendamentos', 'data', 'DATE DEFAULT NULL');
+    await addColumnIfNotExists(conn, 'agendamentos', 'horario', "VARCHAR(10) DEFAULT '12:00'");
+    await addColumnIfNotExists(conn, 'agendamentos', 'pratoDoDia', "VARCHAR(150) DEFAULT ''");
+    await addColumnIfNotExists(conn, 'agendamentos', 'vagasTotais', 'INT DEFAULT 50');
+    await addColumnIfNotExists(conn, 'agendamentos', 'vagasOcupadas', 'INT DEFAULT 0');
+    await addColumnIfNotExists(conn, 'agendamentos', 'preco', 'DECIMAL(10,2) DEFAULT 0.00');
+    await addColumnIfNotExists(conn, 'agendamentos', 'dataCriacao', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
+    await addColumnIfNotExists(conn, 'clientes_fiado', 'clienteAppId', 'INT DEFAULT NULL');
+    await addColumnIfNotExists(conn, 'chat_mensagens', 'conversaId', 'INT DEFAULT 0');
+    await addColumnIfNotExists(conn, 'chat_mensagens', 'lida', 'TINYINT(1) DEFAULT 0');
+    await addColumnIfNotExists(conn, 'vendas', 'pedidoId', 'INT DEFAULT NULL');
 
-    console.log('✅ Tabelas e migrações criadas/verificadas com sucesso!');
+    logger.success('Tabelas e migrações criadas/verificadas!');
   } catch (error) {
-    console.error('❌ Erro ao criar tabelas:', error.message);
+    logger.error('Erro ao criar tabelas:', error.message);
     throw error;
+  } finally {
+    conn.release();
+  }
+}
+
+/**
+ * Cria índices para performance de consultas
+ */
+async function criarIndices() {
+  const conn = await pool.getConnection();
+  try {
+    await createIndexIfNotExists(conn, 'idx_pedidos_data', 'pedidos', 'data');
+    await createIndexIfNotExists(conn, 'idx_pedidos_status', 'pedidos', 'status');
+    await createIndexIfNotExists(conn, 'idx_pedidos_cliente', 'pedidos', 'clienteAppId');
+    await createIndexIfNotExists(conn, 'idx_vendas_data', 'vendas', 'data');
+    await createIndexIfNotExists(conn, 'idx_itens_venda_vendaId', 'itens_venda', 'vendaId');
+    await createIndexIfNotExists(conn, 'idx_itens_pedido_pedidoId', 'itens_pedido', 'pedidoId');
+    await createIndexIfNotExists(conn, 'idx_chat_conversaId', 'chat_mensagens', 'conversaId');
+    await createIndexIfNotExists(conn, 'idx_produtos_categoria', 'produtos', 'categoria');
+    await createIndexIfNotExists(conn, 'idx_produtos_ativo', 'produtos', 'ativo');
+    logger.success('Índices de performance verificados!');
+  } catch (error) {
+    logger.warn('Aviso ao criar índices:', error.message);
   } finally {
     conn.release();
   }
@@ -283,7 +345,7 @@ async function inserirDadosPadrao() {
         'INSERT INTO admin_users (username, senha_hash, nome) VALUES (?, ?, ?)',
         ['admin', hash, 'Deyse Nayana']
       );
-      console.log('👑 Admin criado: admin / admin123');
+      logger.success('Admin criado: admin / admin123');
     }
 
     // ─── HORÁRIOS DE FUNCIONAMENTO ───────────────────────────────────────────────
@@ -308,7 +370,7 @@ async function inserirDadosPadrao() {
           [inicio, fim, limite]
         );
       }
-      console.log('✅ Horários de agendamento inseridos');
+      logger.success('Horários de agendamento inseridos');
     }
 
     // ─── CONFIGURAÇÕES PADRÃO ───────────────────────────────────────────────────
@@ -328,36 +390,63 @@ async function inserirDadosPadrao() {
           [chave, valor]
         );
       }
-      console.log('✅ Configurações padrão inseridas');
+      logger.success('Configurações padrão inseridas');
     }
 
     // ─── PRODUTOS PADRÃO ────────────────────────────────────────────────────────
     const [prods] = await conn.execute('SELECT id FROM produtos LIMIT 1');
     if (prods.length === 0) {
       const produtosPadrao = [
-        // Salgados
-        ['Coxinha de Frango', 'Salgados', 6.50, 45, 10, 'https://images.unsplash.com/photo-1601924638867-3a6de6b7a500?w=400&q=80'],
+        // --- SALGADOS ---
+        ['Hambúrgão Cheddar', 'Salgados', 8.00, 15, 5, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80'],
+        ['Hambúrgão c/ Bacon', 'Salgados', 9.00, 20, 5, 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=400&q=80'],
+        ['Coxinha de Frango', 'Salgados', 5.50, 20, 10, 'https://images.unsplash.com/photo-1601924638867-3a6de6b7a500?w=400&q=80'],
         ['Pastel de Carne', 'Salgados', 7.00, 38, 10, 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=80'],
-        ['Risolis de Queijo', 'Salgados', 6.50, 30, 10, 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=80'],
-        ['Risolis de Carne', 'Salgados', 6.50, 30, 10, 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=80'],
-        ['Esfiha de Carne', 'Salgados', 6.00, 25, 10, 'https://images.unsplash.com/photo-1621852003960-b7aad6e0f07f?w=400&q=80'],
-        ['Kibe', 'Salgados', 6.00, 25, 10, 'https://images.unsplash.com/photo-1621852003960-b7aad6e0f07f?w=400&q=80'],
-        ['Pão de Queijo', 'Salgados', 4.50, 50, 15, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80'],
-        ['Pão Batata Frango', 'Salgados', 7.50, 20, 5, 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&q=80'],
-        ['Pão Batata Calabresa', 'Salgados', 7.50, 20, 5, 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&q=80'],
-        ['Enroladinho Bauru', 'Salgados', 6.50, 30, 10, 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80'],
-        ['Enroladinho Salsicha', 'Salgados', 6.50, 30, 10, 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80'],
-        ['Hambúrgão c/ Bacon', 'Salgados', 9.00, 25, 5, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80'],
-        // Bebidas
-        ['Refrigerante Lata', 'Bebidas', 5.00, 120, 20, 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=80'],
-        ['Suco Natural', 'Bebidas', 7.50, 35, 10, 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80'],
-        ['Água Mineral 500ml', 'Bebidas', 3.50, 80, 15, 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&q=80'],
-        ['Café Expresso', 'Bebidas', 3.00, 100, 20, 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80'],
-        // Doces
+        ['Risolis de Queijo', 'Salgados', 5.00, 20, 10, 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=80'],
+        ['Risolis de Carne', 'Salgados', 5.00, 20, 10, 'https://images.unsplash.com/photo-1574071318508-1cdbab80d002?w=400&q=80'],
+        ['Esfiha de Carne', 'Salgados', 4.50, 20, 10, 'https://images.unsplash.com/photo-1621852003960-b7aad6e0f07f?w=400&q=80'],
+        ['Pão de Queijo 90g', 'Salgados', 4.00, 30, 15, 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400&q=80'],
+        ['Pão Batata Frango', 'Salgados', 6.00, 20, 5, 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&q=80'],
+        ['Pão Batata Calabresa', 'Salgados', 6.00, 20, 5, 'https://images.unsplash.com/photo-1509722747041-616f39b57569?w=400&q=80'],
+        ['Enroladinho Bauru', 'Salgados', 5.00, 20, 10, 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80'],
+        ['Enroladinho Salsicha', 'Salgados', 5.00, 15, 10, 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80'],
+        ['Pizza Fria', 'Salgados', 6.00, 20, 5, 'https://images.unsplash.com/photo-1565299624946-b28f40a0ae38?w=400&q=80'],
+        ['Kibe', 'Salgados', 5.00, 20, 10, 'https://images.unsplash.com/photo-1621852003960-b7aad6e0f07f?w=400&q=80'],
+        // --- BEBIDAS ---
+        ['Coca-Cola Lata 350ml', 'Bebidas', 7.00, 60, 20, 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=80'],
+        ['Coca-Cola Pet 600ml', 'Bebidas', 7.00, 60, 20, 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=80'],
+        ['Coca-Cola Zero 350ml', 'Bebidas', 7.00, 36, 10, 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=80'],
+        ['Coca-Cola Zero 200ml', 'Bebidas', 5.00, 72, 15, 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=400&q=80'],
+        ['Sprite Lata 350ml', 'Bebidas', 6.00, 24, 10, 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&q=80'],
+        ['Guaraná Antarctica Zero Lata', 'Bebidas', 5.00, 60, 20, 'https://images.unsplash.com/photo-1625772299848-391b6a87d7b3?w=400&q=80'],
+        ['Água Passa Quatro c/ Gás', 'Bebidas', 4.00, 36, 15, 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&q=80'],
+        ['Água Passa Quatro s/ Gás', 'Bebidas', 4.00, 48, 15, 'https://images.unsplash.com/photo-1548839140-29a749e1cf4d?w=400&q=80'],
+        ['Suco K-mais Integral 300ml', 'Bebidas', 5.00, 36, 10, 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80'],
+        ['Suco K-mais Uva 300ml', 'Bebidas', 5.00, 12, 5, 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80'],
+        ['Suco K-mais Goiaba 300ml', 'Bebidas', 5.00, 12, 5, 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80'],
+        ['Suco K-mais Caju 300ml', 'Bebidas', 5.00, 12, 5, 'https://images.unsplash.com/photo-1621506289937-a8e4df240d0b?w=400&q=80'],
+        ['Café Coado (copo)', 'Bebidas', 3.00, 99, 20, 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80'],
+        // --- DOCES & SORVETES ---
+        ['Cremosinho Sorvete Iogurte', 'Doces', 2.50, 30, 10, 'https://images.unsplash.com/photo-1488900128323-21503983a07e?w=400&q=80'],
+        ['Geladão de Açaí', 'Doces', 7.00, 10, 5, 'https://images.unsplash.com/photo-1590301157890-4810ed352733?w=400&q=80'],
+        ['Trento Chocolate', 'Doces', 3.50, 24, 10, 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400&q=80'],
+        ['Trento Branco', 'Doces', 3.50, 24, 10, 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400&q=80'],
+        ['Pão de Mel 50g', 'Doces', 4.00, 20, 10, 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80'],
         ['Brigadeiro', 'Doces', 3.50, 80, 15, 'https://images.unsplash.com/photo-1587314168485-3236d6710814?w=400&q=80'],
-        ['Pão de Mel', 'Doces', 5.00, 40, 10, 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=400&q=80'],
-        ['Trento Chocolate', 'Doces', 4.00, 60, 10, 'https://images.unsplash.com/photo-1549007994-cb92caebd54b?w=400&q=80'],
-        // Cremosinho / Polpas
+        // --- CALDOS ---
+        ['Caldo Sopa de Legumes', 'Caldos', 20.00, 5, 2, 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80'],
+        ['Caldo Mandioquinha c/ Frango', 'Caldos', 20.00, 5, 2, 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80'],
+        ['Caldo de Abóbora Seca Barriga', 'Caldos', 20.00, 5, 2, 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80'],
+        ['Caldo Verde c/ Carne', 'Caldos', 20.00, 5, 2, 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80'],
+        ['Caldo Vaca Atolada', 'Caldos', 20.00, 5, 2, 'https://images.unsplash.com/photo-1547592166-23ac45744acd?w=400&q=80'],
+        // --- SNACKS ---
+        ['Halls Melancia', 'Snacks', 2.00, 21, 5, 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&q=80'],
+        ['Halls Morango', 'Snacks', 2.00, 21, 5, 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&q=80'],
+        ['Halls Menta', 'Snacks', 2.00, 21, 5, 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&q=80'],
+        ['Trident Hortela', 'Snacks', 2.50, 21, 5, 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&q=80'],
+        ['Trident Morango', 'Snacks', 2.50, 21, 5, 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&q=80'],
+        ['Trident Tutti Frutti', 'Snacks', 2.50, 21, 5, 'https://images.unsplash.com/photo-1621939514649-280e2ee25f60?w=400&q=80'],
+        // --- CREMOSINHO / POLPAS ---
         ['Cremosinho Abacaxi', 'Cremosinho', 4.00, 30, 5, 'https://images.unsplash.com/photo-1550258987-190a2d41a8ba?w=400&q=80'],
         ['Cremosinho Maracujá', 'Cremosinho', 4.00, 30, 5, 'https://images.unsplash.com/photo-1604495772376-9657f0035a54?w=400&q=80'],
         ['Cremosinho Morango', 'Cremosinho', 4.00, 30, 5, 'https://images.unsplash.com/photo-1488900128323-21503983a07e?w=400&q=80'],
@@ -369,10 +458,10 @@ async function inserirDadosPadrao() {
           [nome, categoria, preco, estoque, estoqueMinimo, imagem]
         );
       }
-      console.log('✅ Produtos padrão inseridos no banco de dados');
+      logger.success('48 Produtos oficiais inseridos no banco de dados');
     }
   } catch (error) {
-    console.error('❌ Erro ao inserir dados padrão:', error.message);
+    logger.error('Erro ao inserir dados padrão:', error.message);
   } finally {
     conn.release();
   }

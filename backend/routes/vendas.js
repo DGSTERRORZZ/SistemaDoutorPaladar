@@ -106,15 +106,38 @@ router.get('/stats', async (req, res) => {
   }
 });
 
-// POST nova venda (PDV)
+// POST nova venda (PDV) — com validação e verificação de estoque
 router.post('/', async (req, res) => {
   const { itens, total, formaPagamento, data } = req.body;
-  if (!itens || !itens.length || !total || !formaPagamento) {
-    return res.status(400).json({ erro: 'Dados incompletos' });
+
+  // Validação de entrada
+  if (!itens || !Array.isArray(itens) || itens.length === 0) {
+    return res.status(400).json({ erro: 'Itens do pedido são obrigatórios' });
   }
+  if (!total || parseFloat(total) <= 0) {
+    return res.status(400).json({ erro: 'Total deve ser um valor positivo' });
+  }
+  const formasValidas = ['dinheiro', 'pix', 'cartao_credito', 'cartao_debito', 'a_prazo', 'fiado'];
+  if (!formaPagamento || !formasValidas.includes(formaPagamento)) {
+    return res.status(400).json({ erro: `Forma de pagamento inválida. Válidas: ${formasValidas.join(', ')}` });
+  }
+
   const db = await getDatabase();
   const conn = await db.getConnection();
   try {
+    // Verificar estoque antes de registrar
+    for (const item of itens) {
+      const [rows] = await conn.execute('SELECT id, nome, estoque FROM produtos WHERE id = ?', [item.produtoId]);
+      if (rows.length === 0) {
+        conn.release();
+        return res.status(400).json({ erro: `Produto ID ${item.produtoId} não encontrado` });
+      }
+      if (rows[0].estoque < item.quantidade) {
+        conn.release();
+        return res.status(400).json({ erro: `Estoque insuficiente para "${rows[0].nome}": disponível ${rows[0].estoque}, pedido ${item.quantidade}` });
+      }
+    }
+
     await conn.beginTransaction();
     const dataVenda = data ? new Date(data).toISOString().slice(0, 19).replace('T', ' ') : new Date().toISOString().slice(0, 19).replace('T', ' ');
     const [result] = await conn.execute(
@@ -127,7 +150,7 @@ router.post('/', async (req, res) => {
         'INSERT INTO itens_venda (vendaId, produtoId, nome, quantidade, precoUnitario) VALUES (?, ?, ?, ?, ?)',
         [vendaId, item.produtoId, item.nome, item.quantidade, parseFloat(item.precoUnitario)]
       );
-      await conn.execute('UPDATE produtos SET estoque = estoque - ? WHERE id = ?', [item.quantidade, item.produtoId]);
+      await conn.execute('UPDATE produtos SET estoque = GREATEST(0, estoque - ?) WHERE id = ?', [item.quantidade, item.produtoId]);
     }
     await conn.commit();
     res.status(201).json({ id: vendaId, total: parseFloat(total), formaPagamento, data: dataVenda });
