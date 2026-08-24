@@ -216,10 +216,11 @@
             <div class="mcd-drawer-nav">
                 <a href="index.html" class="mcd-drawer-link"><i class="fas fa-home"></i> Início</a>
                 <a href="cardapio.html" class="mcd-drawer-link"><i class="fas fa-burger"></i> Cardápio Completo</a>
+                <a href="index.html#agendamento" onclick="sessionStorage.setItem('abrir_agendamento', 'true')" class="mcd-drawer-link"><i class="fas fa-calendar-alt"></i> Agendar Refeição</a>
                 <a href="faq.html" class="mcd-drawer-link" style="color: var(--dp-emerald); background: #f1f5f9;"><i class="fas fa-question-circle"></i> Perguntas Frequentes (FAQ)</a>
-
                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 10px 0;">
                 <a href="index.html" class="mcd-drawer-link"><i class="fas fa-user"></i> Minha Conta / Login</a>
+                <a href="index.html" class="mcd-drawer-link"><i class="fas fa-award"></i> Programa de Fidelidade</a>
                 <a href="admin.html" class="mcd-drawer-link"><i class="fas fa-lock"></i> Painel do Gestor</a>
             </div>
         </div>
@@ -242,16 +243,20 @@
                 <ul class="mcd-nav-links">
                     <li><a href="index.html">Início</a></li>
                     <li><a href="cardapio.html">Cardápio</a></li>
+                    <li><a href="index.html#agendamento" onclick="sessionStorage.setItem('abrir_agendamento', 'true')">Prato do Dia</a></li>
                     <li><a href="faq.html" class="active">FAQ & Ajuda</a></li>
                 </ul>
             </div>
 
             <div class="mcd-nav-right">
-                <a href="cardapio.html" class="btn-mcd-gold">
-                    <i class="fas fa-shopping-bag"></i> Fazer Pedido
-                </a>
-                <a href="index.html" class="btn-mcd-icon" title="Início">
+                <button class="btn-mcd-gold" id="loginBtn" onclick="window.location.href='index.html'">
+                    <i class="fas fa-user"></i> Entrar
+                </button>
+                <a href="index.html" class="btn-mcd-icon" title="Página Inicial">
                     <i class="fas fa-home"></i>
+                </a>
+                <a href="admin.html" class="btn-mcd-icon" title="Acesso do Gestor">
+                    <i class="fas fa-shield-alt"></i>
                 </a>
             </div>
         </div>
