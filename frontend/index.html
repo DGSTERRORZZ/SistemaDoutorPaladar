@@ -133,74 +133,6 @@
             transform: translateY(-2px);
         }
 
-        /* ── BARRA DE CATEGORIAS HORIZONTAL (MC MENU BAR) ── */
-        .mcd-categories-bar {
-            background: #ffffff;
-            border-bottom: 1px solid #e2e8f0;
-            position: sticky;
-            top: 76px;
-            z-index: 90;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
-            overflow-x: auto;
-            scrollbar-width: none;
-        }
-
-        .mcd-categories-bar::-webkit-scrollbar {
-            display: none;
-        }
-
-        .mcd-categories-inner {
-            max-width: 1320px;
-            margin: 0 auto;
-            padding: 0.8rem 1.5rem;
-            display: flex;
-            align-items: center;
-            gap: 1.8rem;
-            white-space: nowrap;
-        }
-
-        .mcd-cat-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 6px;
-            text-decoration: none;
-            color: #475569;
-            font-size: 0.78rem;
-            font-weight: 700;
-            padding: 6px 12px;
-            border-radius: 12px;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-
-        .mcd-cat-item:hover,
-        .mcd-cat-item.active {
-            color: var(--dp-emerald);
-            background: #f0faf4;
-            transform: translateY(-2px);
-        }
-
-        .mcd-cat-icon-wrapper {
-            width: 44px;
-            height: 44px;
-            border-radius: 50%;
-            background: #f1f5f9;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.25rem;
-            color: #334155;
-            transition: all 0.2s ease;
-        }
-
-        .mcd-cat-item:hover .mcd-cat-icon-wrapper,
-        .mcd-cat-item.active .mcd-cat-icon-wrapper {
-            background: var(--dp-emerald);
-            color: #ffffff;
-            box-shadow: 0 4px 12px rgba(45, 125, 82, 0.25);
-        }
-
         /* ── SEÇÃO DE CARDS / OFERTAS & LANÇAMENTOS ── */
         .mcd-section {
             max-width: 1320px;
@@ -521,44 +453,6 @@
             </div>
         </div>
     </section>
-
-    <!-- BARRA DE CATEGORIAS EM MINIATURA (MC CATEGORIES) -->
-    <nav class="mcd-categories-bar">
-        <div class="mcd-categories-inner">
-            <a href="cardapio.html" class="mcd-cat-item active">
-                <div class="mcd-cat-icon-wrapper"><i class="fas fa-star"></i></div>
-                <span>Destaques</span>
-            </a>
-            <a href="cardapio.html?cat=Salgados" class="mcd-cat-item">
-                <div class="mcd-cat-icon-wrapper"><i class="fas fa-bread-slice"></i></div>
-                <span>Salgados Assados</span>
-            </a>
-            <a href="cardapio.html?cat=Salgados" class="mcd-cat-item">
-                <div class="mcd-cat-icon-wrapper"><i class="fas fa-hamburger"></i></div>
-                <span>Hambúrgueres</span>
-            </a>
-            <a href="cardapio.html?cat=Bebidas" class="mcd-cat-item">
-                <div class="mcd-cat-icon-wrapper"><i class="fas fa-wine-bottle"></i></div>
-                <span>Bebidas Frias</span>
-            </a>
-            <a href="cardapio.html?cat=Bebidas" class="mcd-cat-item">
-                <div class="mcd-cat-icon-wrapper"><i class="fas fa-mug-hot"></i></div>
-                <span>Café & Quentes</span>
-            </a>
-            <a href="cardapio.html?cat=Doces" class="mcd-cat-item">
-                <div class="mcd-cat-icon-wrapper"><i class="fas fa-ice-cream"></i></div>
-                <span>Sobremesas</span>
-            </a>
-            <a href="cardapio.html?cat=Caldos" class="mcd-cat-item">
-                <div class="mcd-cat-icon-wrapper"><i class="fas fa-bowl-rice"></i></div>
-                <span>Caldos & Sopas</span>
-            </a>
-            <a href="cardapio.html?cat=Snacks" class="mcd-cat-item">
-                <div class="mcd-cat-icon-wrapper"><i class="fas fa-cookie"></i></div>
-                <span>Snacks & Drops</span>
-            </a>
-        </div>
-    </nav>
 
     <!-- SEÇÃO 1: OS MAIS PEDIDOS DA CANTINA (DINÂMICO) -->
     <section class="mcd-section">
