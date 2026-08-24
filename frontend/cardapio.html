@@ -387,8 +387,8 @@
             </div>
 
             <div class="mcd-nav-right">
-                <button class="btn-mcd-gold" onclick="toggleCart()">
-                    <i class="fas fa-shopping-bag"></i> Ver Sacola (<span id="navCartCount">0</span>)
+                <button class="btn-mcd-gold" id="loginBtn" onclick="window.location.href='index.html'">
+                    <i class="fas fa-user"></i> Entrar
                 </button>
                 <a href="index.html" class="btn-mcd-icon" title="Página Inicial">
                     <i class="fas fa-home"></i>
@@ -707,9 +707,12 @@
             const totalItens = carrinho.reduce((sum, i) => sum + i.quantidade, 0);
             const totalValor = carrinho.reduce((sum, i) => sum + (i.quantidade * i.precoUnitario), 0);
 
-            document.getElementById('navCartCount').textContent = totalItens;
-            document.getElementById('cartCount').textContent = totalItens;
-            document.getElementById('cartTotal').textContent = `R$ ${totalValor.toFixed(2).replace('.', ',')}`;
+            const navCount = document.getElementById('navCartCount');
+            if (navCount) navCount.textContent = totalItens;
+            const fabCount = document.getElementById('cartCount');
+            if (fabCount) fabCount.textContent = totalItens;
+            const totalEl = document.getElementById('cartTotal');
+            if (totalEl) totalEl.textContent = `R$ ${totalValor.toFixed(2).replace('.', ',')}`;
 
             const container = document.getElementById('cartItems');
             if (carrinho.length === 0) {
