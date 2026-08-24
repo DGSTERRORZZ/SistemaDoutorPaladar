@@ -2,13 +2,13 @@ const express = require('express');
 const router = express.Router();
 const { getDatabase, query, queryOne, execute } = require('../database');
 
-// GET todos os clientes com fiado
+// GET todos os clientes com limite / fiado
 router.get('/clientes', async (req, res) => {
   try {
-    const clientes = await query('SELECT * FROM clientes_fiado ORDER BY nome');
+    const clientes = await query('SELECT id, nome, usuario, telefone, turma, limiteCredito as limite, saldoDevedor, pontosFidelidade, totalPedidos, dataCadastro FROM clientes_app ORDER BY nome');
     for (const cliente of clientes) {
-      cliente.limite = parseFloat(cliente.limite);
-      cliente.saldoDevedor = parseFloat(cliente.saldoDevedor);
+      cliente.limite = parseFloat(cliente.limite || 50.00);
+      cliente.saldoDevedor = parseFloat(cliente.saldoDevedor || 0.00);
       const dividas = await query('SELECT * FROM dividas WHERE clienteId = ? ORDER BY id DESC', [cliente.id]);
       for (const divida of dividas) {
         divida.total = parseFloat(divida.total);
@@ -23,7 +23,7 @@ router.get('/clientes', async (req, res) => {
     const historicoPagamentos = await query(`
       SELECT p.*, c.nome as clienteNome
       FROM pagamentos_fiado p
-      JOIN clientes_fiado c ON c.id = p.clienteId
+      JOIN clientes_app c ON c.id = p.clienteId
       ORDER BY p.id DESC LIMIT 50
     `);
     historicoPagamentos.forEach(h => { h.valor = parseFloat(h.valor); });
@@ -35,7 +35,7 @@ router.get('/clientes', async (req, res) => {
   }
 });
 
-// POST criar ou vincular conta de crédito a prazo para um usuário autenticado existente (Item 19)
+// POST atualizar limite de crédito para um usuário existente
 router.post('/clientes', async (req, res) => {
   const { clienteAppId, limite } = req.body;
   if (!clienteAppId) {
@@ -48,32 +48,21 @@ router.post('/clientes', async (req, res) => {
       return res.status(404).json({ erro: 'Usuário cadastrado não encontrado no sistema.' });
     }
 
-    // Verificar se já existe vínculo
-    const existente = await queryOne('SELECT id FROM clientes_fiado WHERE clienteAppId = ?', [clienteAppId]);
-    if (existente) {
-      return res.status(400).json({ erro: 'Este cliente já possui uma conta de crédito ativa.' });
-    }
+    const limiteVal = parseFloat(limite !== undefined ? limite : 50.00);
+    await execute('UPDATE clientes_app SET limiteCredito = ? WHERE id = ?', [limiteVal, clienteAppId]);
 
-    const dataCadastro = new Date().toISOString().slice(0, 19).replace('T', ' ');
-    const limiteVal = parseFloat(limite || usuarioApp.limiteCredito || 50.00);
-
-    const result = await execute(
-      'INSERT INTO clientes_fiado (clienteAppId, nome, turma, telefone, limite, saldoDevedor, dataCadastro) VALUES (?, ?, ?, ?, ?, 0.00, ?)',
-      [clienteAppId, usuarioApp.nome, usuarioApp.turma || '', usuarioApp.telefone || '', limiteVal, dataCadastro]
-    );
-
-    res.status(201).json({
-      id: result.insertId,
-      clienteAppId,
+    res.status(200).json({
+      id: usuarioApp.id,
+      clienteAppId: usuarioApp.id,
       nome: usuarioApp.nome,
       turma: usuarioApp.turma,
       telefone: usuarioApp.telefone,
       limite: limiteVal,
-      saldoDevedor: 0.00
+      saldoDevedor: parseFloat(usuarioApp.saldoDevedor || 0)
     });
   } catch (error) {
-    console.error('Erro ao criar conta de crédito:', error);
-    res.status(500).json({ erro: 'Erro ao criar conta de crédito' });
+    console.error('Erro ao atualizar limite de crédito:', error);
+    res.status(500).json({ erro: 'Erro ao atualizar limite de crédito' });
   }
 });
 
@@ -88,14 +77,14 @@ router.post('/compras', async (req, res) => {
   const conn = await db.getConnection();
 
   try {
-    const [clientes] = await conn.execute('SELECT * FROM clientes_fiado WHERE id = ?', [clienteId]);
+    const [clientes] = await conn.execute('SELECT * FROM clientes_app WHERE id = ?', [clienteId]);
     if (clientes.length === 0) {
       conn.release();
-      return res.status(404).json({ erro: 'Cliente de crédito não encontrado' });
+      return res.status(404).json({ erro: 'Cliente não encontrado' });
     }
 
     const cliente = clientes[0];
-    const limite = parseFloat(cliente.limite || 50);
+    const limite = parseFloat(cliente.limiteCredito || 50);
     const saldoAtual = parseFloat(cliente.saldoDevedor || 0);
     const totalCompra = parseFloat(total);
     const novoSaldo = saldoAtual + totalCompra;
@@ -126,7 +115,7 @@ router.post('/compras', async (req, res) => {
     }
 
     // 2. Atualizar saldo devedor do cliente
-    await conn.execute('UPDATE clientes_fiado SET saldoDevedor = saldoDevedor + ? WHERE id = ?', [totalCompra, clienteId]);
+    await conn.execute('UPDATE clientes_app SET saldoDevedor = saldoDevedor + ? WHERE id = ?', [totalCompra, clienteId]);
 
     // 3. Registrar também na tabela de Vendas unificada para o Analytics
     const [resultVenda] = await conn.execute(
@@ -173,7 +162,7 @@ router.post('/pagamentos', async (req, res) => {
 
     await conn.beginTransaction();
     await conn.execute('UPDATE dividas SET valorPago = ?, pago = ? WHERE id = ?', [novoValorPago, pago, dividaId]);
-    await conn.execute('UPDATE clientes_fiado SET saldoDevedor = GREATEST(0, saldoDevedor - ?) WHERE id = ?', [valorPagoFloat, clienteId]);
+    await conn.execute('UPDATE clientes_app SET saldoDevedor = GREATEST(0, saldoDevedor - ?) WHERE id = ?', [valorPagoFloat, clienteId]);
     const dataPagamento = new Date().toISOString().slice(0, 19).replace('T', ' ');
     await conn.execute(
       'INSERT INTO pagamentos_fiado (clienteId, dividaId, valor, data) VALUES (?, ?, ?, ?)',
@@ -190,14 +179,15 @@ router.post('/pagamentos', async (req, res) => {
   }
 });
 
-// DELETE remover cliente de crédito
+// DELETE zerar limite de crédito do cliente
 router.delete('/clientes/:id', async (req, res) => {
   try {
-    await execute('DELETE FROM clientes_fiado WHERE id = ?', [req.params.id]);
+    await execute('UPDATE clientes_app SET limiteCredito = 0.00 WHERE id = ?', [req.params.id]);
     res.status(204).send();
   } catch (error) {
-    res.status(500).json({ erro: 'Erro ao remover cliente' });
+    res.status(500).json({ erro: 'Erro ao redefinir crédito do cliente' });
   }
 });
 
 module.exports = router;
+

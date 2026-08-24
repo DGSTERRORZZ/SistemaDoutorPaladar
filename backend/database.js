@@ -92,6 +92,7 @@ async function criarTabelas() {
       totalPedidos INT DEFAULT 0,
       pontosFidelidade INT DEFAULT 0,
       limiteCredito DECIMAL(10,2) DEFAULT 50.00,
+      saldoDevedor DECIMAL(10,2) DEFAULT 0.00,
       dataCadastro DATETIME NOT NULL
     )`);
 
@@ -157,16 +158,6 @@ async function criarTabelas() {
       FOREIGN KEY (pedidoId) REFERENCES pedidos(id) ON DELETE CASCADE
     )`);
 
-    await conn.execute(`CREATE TABLE IF NOT EXISTS clientes_fiado (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      nome VARCHAR(100) NOT NULL,
-      turma VARCHAR(50) DEFAULT '',
-      telefone VARCHAR(20) DEFAULT '',
-      limite DECIMAL(10,2) DEFAULT 50.00,
-      saldoDevedor DECIMAL(10,2) DEFAULT 0.00,
-      dataCadastro DATETIME NOT NULL
-    )`);
-
     await conn.execute(`CREATE TABLE IF NOT EXISTS dividas (
       id INT PRIMARY KEY AUTO_INCREMENT,
       clienteId INT NOT NULL,
@@ -174,7 +165,7 @@ async function criarTabelas() {
       total DECIMAL(10,2) NOT NULL,
       valorPago DECIMAL(10,2) DEFAULT 0.00,
       pago TINYINT(1) DEFAULT 0,
-      FOREIGN KEY (clienteId) REFERENCES clientes_fiado(id) ON DELETE CASCADE
+      FOREIGN KEY (clienteId) REFERENCES clientes_app(id) ON DELETE CASCADE
     )`);
 
     await conn.execute(`CREATE TABLE IF NOT EXISTS itens_divida (
@@ -192,8 +183,8 @@ async function criarTabelas() {
       dividaId INT NOT NULL,
       valor DECIMAL(10,2) NOT NULL,
       data DATETIME NOT NULL,
-      FOREIGN KEY (clienteId) REFERENCES clientes_fiado(id),
-      FOREIGN KEY (dividaId) REFERENCES dividas(id)
+      FOREIGN KEY (clienteId) REFERENCES clientes_app(id) ON DELETE CASCADE,
+      FOREIGN KEY (dividaId) REFERENCES dividas(id) ON DELETE CASCADE
     )`);
 
     await conn.execute(`CREATE TABLE IF NOT EXISTS despesas (
@@ -287,6 +278,7 @@ async function criarTabelas() {
     // Migrações dinâmicas seguras (via INFORMATION_SCHEMA)
     await addColumnIfNotExists(conn, 'clientes_app', 'pontosFidelidade', 'INT DEFAULT 0');
     await addColumnIfNotExists(conn, 'clientes_app', 'limiteCredito', 'DECIMAL(10,2) DEFAULT 50.00');
+    await addColumnIfNotExists(conn, 'clientes_app', 'saldoDevedor', 'DECIMAL(10,2) DEFAULT 0.00');
     await addColumnIfNotExists(conn, 'pedidos', 'mesa', 'VARCHAR(50) DEFAULT NULL');
     await addColumnIfNotExists(conn, 'pedidos', 'formaPagamento', "VARCHAR(50) DEFAULT 'dinheiro'");
     await addColumnIfNotExists(conn, 'pedidos', 'canal', "VARCHAR(30) DEFAULT 'app'");
@@ -297,7 +289,6 @@ async function criarTabelas() {
     await addColumnIfNotExists(conn, 'agendamentos', 'vagasOcupadas', 'INT DEFAULT 0');
     await addColumnIfNotExists(conn, 'agendamentos', 'preco', 'DECIMAL(10,2) DEFAULT 0.00');
     await addColumnIfNotExists(conn, 'agendamentos', 'dataCriacao', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
-    await addColumnIfNotExists(conn, 'clientes_fiado', 'clienteAppId', 'INT DEFAULT NULL');
     await addColumnIfNotExists(conn, 'chat_mensagens', 'conversaId', 'INT DEFAULT 0');
     await addColumnIfNotExists(conn, 'chat_mensagens', 'lida', 'TINYINT(1) DEFAULT 0');
     await addColumnIfNotExists(conn, 'vendas', 'pedidoId', 'INT DEFAULT NULL');
