@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -12,14 +12,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="css/theme.css">
     <style>
-        body {
-            background-color: #f8fafc;
-            color: #1e293b;
-            font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
-            margin: 0;
-            padding: 0;
-        }
-
+        /* ── ESTILOS ESPECÍFICOS DA PÁGINA DO CARDÁPIO ── */
         .cardapio-page-container {
             max-width: 1320px;
             margin: 0 auto;
@@ -51,7 +44,7 @@
             margin-bottom: 0;
         }
 
-        /* ── BARRA DE CATEGORIAS ESTILO MC ── */
+        /* Barra de Categorias */
         .categories-mc-bar {
             display: flex;
             gap: 10px;
@@ -101,7 +94,7 @@
             box-shadow: 0 4px 14px rgba(45, 125, 82, 0.28);
         }
 
-        /* ── GRID DE CARDS DE PRODUTOS ── */
+        /* Grid e Cards de Produtos */
         .products-mc-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -211,7 +204,7 @@
             box-shadow: 0 6px 16px rgba(27, 67, 50, 0.35);
         }
 
-        /* ── CARRINHO LATERAL DRAWER ── */
+        /* Drawer Lateral do Carrinho */
         .cart-sidebar {
             position: fixed;
             top: 0;
@@ -294,11 +287,11 @@
             box-shadow: none;
         }
 
-        /* ── BOTÃO FLUTUANTE DE PEDIDO (SELO LATERAL) ── */
+        /* Botão Flutuante de Sacola */
         .cart-mc-fab {
             position: fixed;
             bottom: 24px;
-            right: 96px;
+            right: 24px;
             background: var(--mcd-dark);
             color: #ffffff;
             border-radius: var(--radius-full);
@@ -336,7 +329,7 @@
 
         @media (max-width: 600px) {
             .cart-mc-fab {
-                right: 90px;
+                right: 18px;
                 padding: 12px 18px;
                 font-size: 0.85rem;
             }

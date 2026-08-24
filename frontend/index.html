@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 
 <head>
@@ -13,202 +13,6 @@
         crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="css/theme.css">
     <style>
-        :root {
-            --mcd-gold: #ffbc0d;
-            --mcd-gold-hover: #e5a700;
-            --mcd-dark: #121619;
-            --mcd-red: #da291c;
-            --dp-green: #1b4332;
-            --dp-emerald: #2d7d52;
-            --dp-light-green: #e8f5e9;
-        }
-
-        body {
-            background-color: #f8fafc;
-            color: #1e293b;
-            font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
-
-        /* ── NAVBAR PRINCIPAL TRANSPARENTE / HERO INTEGRADO ── */
-        .mcd-navbar {
-            background: rgba(18, 22, 25, 0.95);
-            backdrop-filter: blur(12px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.3s ease;
-        }
-
-        .mcd-navbar-inner {
-            max-width: 1320px;
-            margin: 0 auto;
-            padding: 0 1.5rem;
-            height: 76px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 1.5rem;
-        }
-
-        .mcd-nav-left {
-            display: flex;
-            align-items: center;
-            gap: 2.2rem;
-        }
-
-        .mcd-hamburger {
-            background: none;
-            border: none;
-            color: #ffffff;
-            font-size: 1.4rem;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 42px;
-            height: 42px;
-            border-radius: 10px;
-            transition: background 0.2s;
-        }
-
-        .mcd-hamburger:hover {
-            background: rgba(255, 255, 255, 0.1);
-        }
-
-        .mcd-logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #ffffff;
-            font-family: var(--font-heading, 'Outfit', sans-serif);
-            font-weight: 800;
-            font-size: 1.35rem;
-            letter-spacing: -0.02em;
-        }
-
-        .mcd-logo-icon {
-            width: 44px;
-            height: 44px;
-            background: linear-gradient(135deg, #2d7d52, #1b4332);
-            border-radius: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--mcd-gold);
-            font-size: 1.3rem;
-            box-shadow: 0 4px 12px rgba(45, 125, 82, 0.35);
-        }
-
-        .mcd-logo-text {
-            display: flex;
-            flex-direction: column;
-            line-height: 1.1;
-        }
-
-        .mcd-logo-title {
-            font-size: 1.15rem;
-            font-weight: 800;
-            letter-spacing: -0.02em;
-            color: #ffffff;
-        }
-
-        .mcd-logo-sub {
-            font-size: 0.68rem;
-            color: var(--mcd-gold);
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-        }
-
-        .mcd-nav-links {
-            display: flex;
-            align-items: center;
-            gap: 1.8rem;
-            list-style: none;
-            margin: 0;
-            padding: 0;
-        }
-
-        .mcd-nav-links a {
-            color: rgba(255, 255, 255, 0.82);
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.95rem;
-            transition: color 0.2s;
-            position: relative;
-            padding: 6px 0;
-        }
-
-        .mcd-nav-links a:hover,
-        .mcd-nav-links a.active {
-            color: #ffffff;
-        }
-
-        .mcd-nav-links a.active::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 3px;
-            background: var(--mcd-gold);
-            border-radius: 2px;
-        }
-
-        .mcd-nav-right {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .btn-mcd-gold {
-            background: var(--mcd-gold);
-            color: #121619;
-            font-weight: 800;
-            font-size: 0.92rem;
-            padding: 10px 24px;
-            border-radius: 999px;
-            border: none;
-            cursor: pointer;
-            text-decoration: none;
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 14px rgba(255, 188, 13, 0.3);
-        }
-
-        .btn-mcd-gold:hover {
-            background: var(--mcd-gold-hover);
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(255, 188, 13, 0.45);
-        }
-
-        .btn-mcd-icon {
-            background: rgba(255, 255, 255, 0.08);
-            border: 1px solid rgba(255, 255, 255, 0.12);
-            color: #ffffff;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-decoration: none;
-        }
-
-        .btn-mcd-icon:hover {
-            background: rgba(255, 255, 255, 0.2);
-            color: var(--mcd-gold);
-        }
-
         /* ── HERO BANNER MC STYLE ── */
         .mcd-hero {
             position: relative;
@@ -595,155 +399,6 @@
             box-shadow: 0 16px 36px rgba(0, 0, 0, 0.35);
         }
 
-        /* ── SIDEBAR DRAWER MENU ── */
-        .mcd-drawer-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            backdrop-filter: blur(4px);
-            z-index: 2000;
-            opacity: 0;
-            visibility: hidden;
-            transition: all 0.3s ease;
-        }
-
-        .mcd-drawer-overlay.active {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .mcd-drawer {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 320px;
-            height: 100%;
-            background: #ffffff;
-            z-index: 2001;
-            transform: translateX(-100%);
-            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            display: flex;
-            flex-direction: column;
-            box-shadow: 10px 0 30px rgba(0, 0, 0, 0.2);
-        }
-
-        .mcd-drawer-overlay.active .mcd-drawer {
-            transform: translateX(0);
-        }
-
-        .mcd-drawer-header {
-            padding: 1.5rem;
-            background: #121619;
-            color: #ffffff;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .mcd-drawer-close {
-            background: none;
-            border: none;
-            color: #ffffff;
-            font-size: 1.3rem;
-            cursor: pointer;
-        }
-
-        .mcd-drawer-nav {
-            padding: 1.5rem 1rem;
-            flex: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 6px;
-        }
-
-        .mcd-drawer-link {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            padding: 12px 16px;
-            border-radius: 12px;
-            color: #1e293b;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 0.95rem;
-            transition: background 0.2s;
-        }
-
-        .mcd-drawer-link:hover {
-            background: #f1f5f9;
-            color: var(--dp-emerald);
-        }
-
-        .mcd-drawer-link i {
-            width: 22px;
-            color: var(--dp-emerald);
-            font-size: 1.1rem;
-        }
-
-        /* ── FOOTER ESTILO INSTITUCIONAL ── */
-        .mcd-footer {
-            background: #121619;
-            color: #ffffff;
-            padding: 4.5rem 1.5rem 2.5rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            margin-top: 5rem;
-        }
-
-        .mcd-footer-grid {
-            max-width: 1320px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1.5fr 1fr 1fr 1fr;
-            gap: 3rem;
-        }
-
-        .mcd-footer h4 {
-            color: #ffffff;
-            font-size: 1.05rem;
-            font-weight: 800;
-            margin-bottom: 1.2rem;
-            letter-spacing: -0.01em;
-        }
-
-        .mcd-footer p {
-            color: #94a3b8;
-            font-size: 0.9rem;
-            line-height: 1.6;
-        }
-
-        .mcd-footer a {
-            color: #cbd5e1;
-            text-decoration: none;
-            display: block;
-            margin-bottom: 0.65rem;
-            font-size: 0.9rem;
-            font-weight: 500;
-            transition: all 0.2s;
-        }
-
-        .mcd-footer a:hover {
-            color: var(--mcd-gold);
-            transform: translateX(4px);
-        }
-
-        .mcd-footer-bottom {
-            max-width: 1320px;
-            margin: 3.5rem auto 0;
-            padding-top: 1.8rem;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 1.2rem;
-            color: #64748b;
-            font-size: 0.85rem;
-        }
-
         @media (max-width: 960px) {
             .mcd-hero-bg {
                 width: 100%;
@@ -754,28 +409,15 @@
                 font-size: 2.6rem;
             }
 
-            .mcd-nav-links {
-                display: none;
-            }
-
             .mcd-banner-promo {
                 grid-template-columns: 1fr;
                 padding: 2rem;
-            }
-
-            .mcd-footer-grid {
-                grid-template-columns: 1fr 1fr;
             }
         }
 
         @media (max-width: 600px) {
             .mcd-hero h1 {
                 font-size: 2.1rem;
-            }
-
-            .mcd-footer-grid {
-                grid-template-columns: 1fr;
-                gap: 2rem;
             }
 
             .mcd-hero-actions {
@@ -916,81 +558,20 @@
         </div>
     </nav>
 
-    <!-- SEÇÃO 1: OS MAIS PEDIDOS DA CANTINA -->
+    <!-- SEÇÃO 1: OS MAIS PEDIDOS DA CANTINA (DINÂMICO) -->
     <section class="mcd-section">
         <div class="mcd-section-header">
             <div>
                 <h2 class="mcd-section-title">Lançamentos & Mais Pedidos</h2>
-                <div class="mcd-section-subtitle">Preparados na hora com os melhores ingredientes</div>
+                <div class="mcd-section-subtitle">Preparados na hora com os melhores ingredientes da cantina</div>
             </div>
             <a href="cardapio.html" class="btn-card-action" style="font-weight: 800; background: #e2e8f0;">
-                Ver Todos <i class="fas fa-arrow-right"></i>
+                Ver Cardápio Completo <i class="fas fa-arrow-right"></i>
             </a>
         </div>
 
-        <div class="mcd-cards-grid">
-            <!-- Card 1 -->
-            <div class="mcd-card">
-                <div class="mcd-card-tag">Mais Vendido</div>
-                <div class="mcd-card-img-container">
-                    <img src="https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80"
-                        alt="Hambúrgão com Bacon" class="mcd-card-img" loading="lazy" decoding="async"
-                        onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\' viewBox=\'0 0 600 400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'24\' font-weight=\'bold\' fill=\'%2364748b\' text-anchor=\'middle\' dominant-baseline=\'middle\'>🍔 Hambúrgão c/ Bacon</text></svg>'">
-                </div>
-                <div class="mcd-card-body">
-                    <div>
-                        <h3 class="mcd-card-heading">Hambúrgão c/ Bacon</h3>
-                        <p class="mcd-card-desc">Salgado assado recheado com hambúrguer artesanal suculento, queijo
-                            derretido e fatias crocantes de bacon.</p>
-                    </div>
-                    <div class="mcd-card-footer">
-                        <div class="mcd-card-price">R$ 9,00</div>
-                        <a href="cardapio.html" class="btn-card-action"><i class="fas fa-plus"></i> Pedir</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 2 -->
-            <div class="mcd-card">
-                <div class="mcd-card-tag" style="background: #2d7d52; color: #ffffff;">Clássico</div>
-                <div class="mcd-card-img-container">
-                    <img src="https://images.unsplash.com/photo-1601924638867-3a6de6b7a500?w=600&q=80"
-                        alt="Coxinha de Frango" class="mcd-card-img" loading="lazy" decoding="async"
-                        onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\' viewBox=\'0 0 600 400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'24\' font-weight=\'bold\' fill=\'%2364748b\' text-anchor=\'middle\' dominant-baseline=\'middle\'>🍗 Coxinha Crocante</text></svg>'">
-                </div>
-                <div class="mcd-card-body">
-                    <div>
-                        <h3 class="mcd-card-heading">Coxinha de Frango</h3>
-                        <p class="mcd-card-desc">Massa crocante tradicional com recheio cremoso e farto de peito de
-                            frango desfiado artesanalmente.</p>
-                    </div>
-                    <div class="mcd-card-footer">
-                        <div class="mcd-card-price">R$ 5,50</div>
-                        <a href="cardapio.html" class="btn-card-action"><i class="fas fa-plus"></i> Pedir</a>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Card 3 -->
-            <div class="mcd-card">
-                <div class="mcd-card-tag" style="background: #da291c; color: #ffffff;">Geladinha</div>
-                <div class="mcd-card-img-container">
-                    <img src="https://images.unsplash.com/photo-1554866585-cd94860890b7?w=600&q=80"
-                        alt="Coca-Cola 350ml" class="mcd-card-img" loading="lazy" decoding="async"
-                        onerror="this.onerror=null; this.src='data:image/svg+xml;utf8,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'600\' height=\'400\' viewBox=\'0 0 600 400\'><rect width=\'600\' height=\'400\' fill=\'%23e2e8f0\'/><text x=\'50%25\' y=\'50%25\' font-family=\'sans-serif\' font-size=\'24\' font-weight=\'bold\' fill=\'%2364748b\' text-anchor=\'middle\' dominant-baseline=\'middle\'>🥤 Coca-Cola Gelada</text></svg>'">
-                </div>
-                <div class="mcd-card-body">
-                    <div>
-                        <h3 class="mcd-card-heading">Coca-Cola Lata 350ml</h3>
-                        <p class="mcd-card-desc">Refrigerante tradicional servido na temperatura ideal para acompanhar
-                            seu lanche.</p>
-                    </div>
-                    <div class="mcd-card-footer">
-                        <div class="mcd-card-price">R$ 7,00</div>
-                        <a href="cardapio.html" class="btn-card-action"><i class="fas fa-plus"></i> Pedir</a>
-                    </div>
-                </div>
-            </div>
+        <div class="mcd-cards-grid" id="destaquesGrid">
+            <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">Carregando delícias...</p>
         </div>
 
         <!-- BANNER PROMOCIONAL LARGO ESTILO MC -->
@@ -1317,6 +898,59 @@
                 grid.innerHTML = `<p style="text-align: center; color: var(--danger); grid-column: 1/-1;">Erro ao carregar horários.</p>`;
             }
         }
+
+        async function carregarDestaques() {
+            const grid = document.getElementById('destaquesGrid');
+            if (!grid) return;
+            try {
+                const res = await fetch(API_URL + '/produtos');
+                if (!res.ok) throw new Error('Erro ao buscar produtos');
+                const produtos = await res.json();
+                const itensParaMostrar = (Array.isArray(produtos) ? produtos : []).slice(0, 6);
+
+                if (itensParaMostrar.length === 0) {
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">Nenhum produto cadastrado no momento.</p>';
+                    return;
+                }
+
+                grid.innerHTML = itensParaMostrar.map((p, idx) => {
+                    const tag = idx === 0 ? '<div class="mcd-card-tag">Mais Vendido</div>' : (idx === 1 ? '<div class="mcd-card-tag" style="background:#2d7d52; color:#fff;">Favorito</div>' : '');
+                    const imgUrl = p.imagem && p.imagem.startsWith('http') ? p.imagem : 'https://images.unsplash.com/photo-1553279768-865429fa0078?w=600&q=80';
+                    return `
+                        <div class="mcd-card">
+                            ${tag}
+                            <div class="mcd-card-img-container">
+                                <img src="${imgUrl}" alt="${p.nome}" class="mcd-card-img" loading="lazy" decoding="async"
+                                    onerror="this.onerror=null; this.src='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&q=80'">
+                            </div>
+                            <div class="mcd-card-body">
+                                <div>
+                                    <h3 class="mcd-card-heading">${p.nome}</h3>
+                                    <p class="mcd-card-desc">${p.categoria || 'Gourmet'} · Fresco e preparado no capricho.</p>
+                                </div>
+                                <div class="mcd-card-footer">
+                                    <div class="mcd-card-price">R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</div>
+                                    <a href="cardapio.html" class="btn-card-action"><i class="fas fa-plus"></i> Pedir</a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (e) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--danger);">Não foi possível carregar os destaques.</p>';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarDestaques();
+            if (sessionStorage.getItem('cliente_token')) {
+                const loginBtn = document.getElementById('loginBtn');
+                if (loginBtn) {
+                    loginBtn.innerHTML = '<i class="fas fa-user-check"></i> ' + (sessionStorage.getItem('cliente_nome') || 'Minha Conta');
+                    loginBtn.onclick = () => window.location.href = 'cardapio.html';
+                }
+            }
+        });
     </script>
 </body>
 </html>
