@@ -8,7 +8,7 @@ async function loginAdmin(req, res) {
     return res.status(400).json({ erro: 'Usuário e senha são obrigatórios' });
   }
   try {
-    const admins = await query('SELECT * FROM admin_users WHERE username = ?', [username]);
+    const admins = await query("SELECT * FROM usuarios WHERE username = ? AND tipo = 'administrador'", [username]);
     if (admins.length === 0) {
       return res.status(401).json({ erro: 'Credenciais inválidas' });
     }

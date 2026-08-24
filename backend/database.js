@@ -74,20 +74,14 @@ async function getDatabase() {
 async function criarTabelas() {
   const conn = await pool.getConnection();
   try {
-    await conn.execute(`CREATE TABLE IF NOT EXISTS admin_users (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      username VARCHAR(50) UNIQUE NOT NULL,
-      senha_hash VARCHAR(255) NOT NULL,
-      nome VARCHAR(100) NOT NULL
-    )`);
-
-    await conn.execute(`CREATE TABLE IF NOT EXISTS clientes_app (
+    await conn.execute(`CREATE TABLE IF NOT EXISTS usuarios (
       id INT PRIMARY KEY AUTO_INCREMENT,
       nome VARCHAR(100) NOT NULL,
-      usuario VARCHAR(50) UNIQUE NOT NULL,
-      telefone VARCHAR(20) UNIQUE NOT NULL,
+      username VARCHAR(50) UNIQUE NOT NULL,
+      telefone VARCHAR(20) UNIQUE DEFAULT NULL,
       turma VARCHAR(50) DEFAULT '',
       senha_hash VARCHAR(255) NOT NULL,
+      tipo ENUM('cliente', 'visitante', 'administrador') NOT NULL DEFAULT 'cliente',
       foto VARCHAR(500) DEFAULT '',
       totalPedidos INT DEFAULT 0,
       pontosFidelidade INT DEFAULT 0,
@@ -165,7 +159,7 @@ async function criarTabelas() {
       total DECIMAL(10,2) NOT NULL,
       valorPago DECIMAL(10,2) DEFAULT 0.00,
       pago TINYINT(1) DEFAULT 0,
-      FOREIGN KEY (clienteId) REFERENCES clientes_app(id) ON DELETE CASCADE
+      FOREIGN KEY (clienteId) REFERENCES usuarios(id) ON DELETE CASCADE
     )`);
 
     await conn.execute(`CREATE TABLE IF NOT EXISTS itens_divida (
@@ -183,7 +177,7 @@ async function criarTabelas() {
       dividaId INT NOT NULL,
       valor DECIMAL(10,2) NOT NULL,
       data DATETIME NOT NULL,
-      FOREIGN KEY (clienteId) REFERENCES clientes_app(id) ON DELETE CASCADE,
+      FOREIGN KEY (clienteId) REFERENCES usuarios(id) ON DELETE CASCADE,
       FOREIGN KEY (dividaId) REFERENCES dividas(id) ON DELETE CASCADE
     )`);
 
@@ -235,17 +229,6 @@ async function criarTabelas() {
       valor TEXT NOT NULL
     )`);
 
-    await conn.execute(`CREATE TABLE IF NOT EXISTS chat_mensagens (
-      id INT PRIMARY KEY AUTO_INCREMENT,
-      conversaId INT NOT NULL,
-      autor_id INT NOT NULL,
-      autor_nome VARCHAR(100) NOT NULL,
-      autor_tipo ENUM('cliente','admin') NOT NULL,
-      mensagem TEXT NOT NULL,
-      lida TINYINT(1) DEFAULT 0,
-      data DATETIME NOT NULL
-    )`);
-
     await conn.execute(`CREATE TABLE IF NOT EXISTS compras_fornecedor (
       id INT PRIMARY KEY AUTO_INCREMENT,
       fornecedorId INT NOT NULL,
@@ -272,13 +255,14 @@ async function criarTabelas() {
       tipo VARCHAR(20) NOT NULL,
       descricao VARCHAR(255) NOT NULL,
       data DATETIME NOT NULL,
-      FOREIGN KEY (clienteId) REFERENCES clientes_app(id) ON DELETE CASCADE
+      FOREIGN KEY (clienteId) REFERENCES usuarios(id) ON DELETE CASCADE
     )`);
 
     // Migrações dinâmicas seguras (via INFORMATION_SCHEMA)
-    await addColumnIfNotExists(conn, 'clientes_app', 'pontosFidelidade', 'INT DEFAULT 0');
-    await addColumnIfNotExists(conn, 'clientes_app', 'limiteCredito', 'DECIMAL(10,2) DEFAULT 50.00');
-    await addColumnIfNotExists(conn, 'clientes_app', 'saldoDevedor', 'DECIMAL(10,2) DEFAULT 0.00');
+    await addColumnIfNotExists(conn, 'usuarios', 'pontosFidelidade', 'INT DEFAULT 0');
+    await addColumnIfNotExists(conn, 'usuarios', 'limiteCredito', 'DECIMAL(10,2) DEFAULT 50.00');
+    await addColumnIfNotExists(conn, 'usuarios', 'saldoDevedor', 'DECIMAL(10,2) DEFAULT 0.00');
+    await addColumnIfNotExists(conn, 'usuarios', 'tipo', "ENUM('cliente', 'visitante', 'administrador') NOT NULL DEFAULT 'cliente'");
     await addColumnIfNotExists(conn, 'pedidos', 'mesa', 'VARCHAR(50) DEFAULT NULL');
     await addColumnIfNotExists(conn, 'pedidos', 'formaPagamento', "VARCHAR(50) DEFAULT 'dinheiro'");
     await addColumnIfNotExists(conn, 'pedidos', 'canal', "VARCHAR(30) DEFAULT 'app'");
@@ -289,8 +273,6 @@ async function criarTabelas() {
     await addColumnIfNotExists(conn, 'agendamentos', 'vagasOcupadas', 'INT DEFAULT 0');
     await addColumnIfNotExists(conn, 'agendamentos', 'preco', 'DECIMAL(10,2) DEFAULT 0.00');
     await addColumnIfNotExists(conn, 'agendamentos', 'dataCriacao', 'DATETIME DEFAULT CURRENT_TIMESTAMP');
-    await addColumnIfNotExists(conn, 'chat_mensagens', 'conversaId', 'INT DEFAULT 0');
-    await addColumnIfNotExists(conn, 'chat_mensagens', 'lida', 'TINYINT(1) DEFAULT 0');
     await addColumnIfNotExists(conn, 'vendas', 'pedidoId', 'INT DEFAULT NULL');
 
     logger.success('Tabelas e migrações criadas/verificadas!');
@@ -314,7 +296,6 @@ async function criarIndices() {
     await createIndexIfNotExists(conn, 'idx_vendas_data', 'vendas', 'data');
     await createIndexIfNotExists(conn, 'idx_itens_venda_vendaId', 'itens_venda', 'vendaId');
     await createIndexIfNotExists(conn, 'idx_itens_pedido_pedidoId', 'itens_pedido', 'pedidoId');
-    await createIndexIfNotExists(conn, 'idx_chat_conversaId', 'chat_mensagens', 'conversaId');
     await createIndexIfNotExists(conn, 'idx_produtos_categoria', 'produtos', 'categoria');
     await createIndexIfNotExists(conn, 'idx_produtos_ativo', 'produtos', 'ativo');
     logger.success('Índices de performance verificados!');
@@ -329,14 +310,15 @@ async function inserirDadosPadrao() {
   const conn = await pool.getConnection();
   try {
     // ─── ADMIN PADRÃO ───────────────────────────────────────────────────────────
-    const [admin] = await conn.execute('SELECT id FROM admin_users WHERE username = ?', ['admin']);
+    const [admin] = await conn.execute("SELECT id FROM usuarios WHERE username = 'admin' OR tipo = 'administrador'");
     if (admin.length === 0) {
       const hash = bcrypt.hashSync('admin123', 10);
+      const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
       await conn.execute(
-        'INSERT INTO admin_users (username, senha_hash, nome) VALUES (?, ?, ?)',
-        ['admin', hash, 'Deyse Nayana']
+        "INSERT INTO usuarios (username, senha_hash, nome, tipo, dataCadastro) VALUES ('admin', ?, 'Deyse Nayana', 'administrador', ?)",
+        [hash, now]
       );
-      logger.success('Admin criado: admin / admin123');
+      logger.success('Admin criado na tabela usuarios: admin / admin123');
     }
 
     // ─── HORÁRIOS DE FUNCIONAMENTO ───────────────────────────────────────────────

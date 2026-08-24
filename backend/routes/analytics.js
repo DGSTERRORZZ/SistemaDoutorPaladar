@@ -172,10 +172,10 @@ router.get('/', verifyAdmin, async (req, res) => {
     const categoriasVendidas = Object.values(catMap).sort((a, b) => b.faturamento - a.faturamento);
 
     // 4. Clientes & Fidelidade
-    const resClientesTotal = await queryOne('SELECT COUNT(*) as total FROM clientes_app');
-    const resClientesNovos = await queryOne('SELECT COUNT(*) as total FROM clientes_app WHERE dataCadastro >= ? AND dataCadastro <= ?', [inicioDate, fimDate]);
-    const resClientesRecorrentes = await queryOne('SELECT COUNT(*) as total FROM clientes_app WHERE totalPedidos > 1');
-    const resPontosFidelidade = await queryOne('SELECT SUM(pontosFidelidade) as total FROM clientes_app');
+    const resClientesTotal = await queryOne("SELECT COUNT(*) as total FROM usuarios WHERE tipo != 'administrador'");
+    const resClientesNovos = await queryOne("SELECT COUNT(*) as total FROM usuarios WHERE tipo != 'administrador' AND dataCadastro >= ? AND dataCadastro <= ?", [inicioDate, fimDate]);
+    const resClientesRecorrentes = await queryOne("SELECT COUNT(*) as total FROM usuarios WHERE tipo != 'administrador' AND totalPedidos > 1");
+    const resPontosFidelidade = await queryOne("SELECT SUM(pontosFidelidade) as total FROM usuarios WHERE tipo != 'administrador'");
 
     // 5. Agendamentos
     const resAgendamentosCount = await queryOne('SELECT COUNT(*) as total FROM cliente_agendamentos WHERE dataCriacao >= ? AND dataCriacao <= ?', [inicioDate, fimDate]);

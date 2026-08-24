@@ -5,7 +5,7 @@ const { getDatabase, query, queryOne, execute } = require('../database');
 // GET todos os clientes com limite / fiado
 router.get('/clientes', async (req, res) => {
   try {
-    const clientes = await query('SELECT id, nome, usuario, telefone, turma, limiteCredito as limite, saldoDevedor, pontosFidelidade, totalPedidos, dataCadastro FROM clientes_app ORDER BY nome');
+    const clientes = await query('SELECT id, nome, username as usuario, username, telefone, turma, limiteCredito as limite, saldoDevedor, pontosFidelidade, totalPedidos, dataCadastro FROM usuarios ORDER BY nome');
     for (const cliente of clientes) {
       cliente.limite = parseFloat(cliente.limite || 50.00);
       cliente.saldoDevedor = parseFloat(cliente.saldoDevedor || 0.00);
@@ -21,9 +21,9 @@ router.get('/clientes', async (req, res) => {
     }
 
     const historicoPagamentos = await query(`
-      SELECT p.*, c.nome as clienteNome
+      SELECT p.*, u.nome as clienteNome
       FROM pagamentos_fiado p
-      JOIN clientes_app c ON c.id = p.clienteId
+      JOIN usuarios u ON u.id = p.clienteId
       ORDER BY p.id DESC LIMIT 50
     `);
     historicoPagamentos.forEach(h => { h.valor = parseFloat(h.valor); });
@@ -43,13 +43,13 @@ router.post('/clientes', async (req, res) => {
   }
 
   try {
-    const usuarioApp = await queryOne('SELECT * FROM clientes_app WHERE id = ?', [clienteAppId]);
+    const usuarioApp = await queryOne('SELECT * FROM usuarios WHERE id = ?', [clienteAppId]);
     if (!usuarioApp) {
       return res.status(404).json({ erro: 'Usuário cadastrado não encontrado no sistema.' });
     }
 
     const limiteVal = parseFloat(limite !== undefined ? limite : 50.00);
-    await execute('UPDATE clientes_app SET limiteCredito = ? WHERE id = ?', [limiteVal, clienteAppId]);
+    await execute('UPDATE usuarios SET limiteCredito = ? WHERE id = ?', [limiteVal, clienteAppId]);
 
     res.status(200).json({
       id: usuarioApp.id,
@@ -77,7 +77,7 @@ router.post('/compras', async (req, res) => {
   const conn = await db.getConnection();
 
   try {
-    const [clientes] = await conn.execute('SELECT * FROM clientes_app WHERE id = ?', [clienteId]);
+    const [clientes] = await conn.execute('SELECT * FROM usuarios WHERE id = ?', [clienteId]);
     if (clientes.length === 0) {
       conn.release();
       return res.status(404).json({ erro: 'Cliente não encontrado' });
@@ -115,7 +115,7 @@ router.post('/compras', async (req, res) => {
     }
 
     // 2. Atualizar saldo devedor do cliente
-    await conn.execute('UPDATE clientes_app SET saldoDevedor = saldoDevedor + ? WHERE id = ?', [totalCompra, clienteId]);
+    await conn.execute('UPDATE usuarios SET saldoDevedor = saldoDevedor + ? WHERE id = ?', [totalCompra, clienteId]);
 
     // 3. Registrar também na tabela de Vendas unificada para o Analytics
     const [resultVenda] = await conn.execute(
@@ -162,7 +162,7 @@ router.post('/pagamentos', async (req, res) => {
 
     await conn.beginTransaction();
     await conn.execute('UPDATE dividas SET valorPago = ?, pago = ? WHERE id = ?', [novoValorPago, pago, dividaId]);
-    await conn.execute('UPDATE clientes_app SET saldoDevedor = GREATEST(0, saldoDevedor - ?) WHERE id = ?', [valorPagoFloat, clienteId]);
+    await conn.execute('UPDATE usuarios SET saldoDevedor = GREATEST(0, saldoDevedor - ?) WHERE id = ?', [valorPagoFloat, clienteId]);
     const dataPagamento = new Date().toISOString().slice(0, 19).replace('T', ' ');
     await conn.execute(
       'INSERT INTO pagamentos_fiado (clienteId, dividaId, valor, data) VALUES (?, ?, ?, ?)',
@@ -182,7 +182,7 @@ router.post('/pagamentos', async (req, res) => {
 // DELETE zerar limite de crédito do cliente
 router.delete('/clientes/:id', async (req, res) => {
   try {
-    await execute('UPDATE clientes_app SET limiteCredito = 0.00 WHERE id = ?', [req.params.id]);
+    await execute('UPDATE usuarios SET limiteCredito = 0.00 WHERE id = ?', [req.params.id]);
     res.status(204).send();
   } catch (error) {
     res.status(500).json({ erro: 'Erro ao redefinir crédito do cliente' });

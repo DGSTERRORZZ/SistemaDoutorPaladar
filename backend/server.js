@@ -102,7 +102,6 @@ const despesasRoutes = require('./routes/despesas');
 const agendamentosRoutes = require('./routes/agendamentos');
 const fornecedoresRoutes = require('./routes/fornecedores');
 const configuracoesRoutes = require('./routes/configuracoes');
-const chatRoutes = require('./routes/chat');
 const pixRoutes = require('./routes/pix');
 const analyticsRoutes = require('./routes/analytics');
 
@@ -132,7 +131,6 @@ app.use('/api/despesas', despesasRoutes);
 app.use('/api/agendamentos', agendamentosRoutes);
 app.use('/api/fornecedores', fornecedoresRoutes);
 app.use('/api/configuracoes', configuracoesRoutes);
-app.use('/api/chat', chatRoutes);
 app.use('/api/pix', pixRoutes);
 app.use('/api/analytics', analyticsRoutes);
 

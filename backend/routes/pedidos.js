@@ -304,7 +304,7 @@ router.put('/:id/status', async (req, res) => {
         const valorTotal = parseFloat(pedido.total || 0);
         const pontosGanhos = 10 + Math.floor(valorTotal); // 10 pontos de recompensa base + 1 ponto por R$ gasto
         await conn.execute(
-          'UPDATE clientes_app SET pontosFidelidade = pontosFidelidade + ?, totalPedidos = totalPedidos + 1 WHERE id = ?',
+          'UPDATE usuarios SET pontosFidelidade = pontosFidelidade + ?, totalPedidos = totalPedidos + 1 WHERE id = ?',
           [pontosGanhos, pedido.clienteAppId]
         );
         const dataAgora = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -313,7 +313,7 @@ router.put('/:id/status', async (req, res) => {
           [pedido.clienteAppId, pedido.id, pontosGanhos, `Pontos do Pedido #${pedido.id}`, dataAgora]
         );
 
-        const [usrRow] = await conn.execute('SELECT pontosFidelidade FROM clientes_app WHERE id = ?', [pedido.clienteAppId]);
+        const [usrRow] = await conn.execute('SELECT pontosFidelidade FROM usuarios WHERE id = ?', [pedido.clienteAppId]);
         if (usrRow.length > 0) {
           const io = req.app.get('io');
           if (io) io.emit('fidelidade_atualizada', { clienteId: pedido.clienteAppId, pontos: usrRow[0].pontosFidelidade });
@@ -327,7 +327,7 @@ router.put('/:id/status', async (req, res) => {
       if (historicoGanho.length > 0) {
         const pontosParaEstornar = historicoGanho[0].pontos;
         await conn.execute(
-          'UPDATE clientes_app SET pontosFidelidade = GREATEST(0, pontosFidelidade - ?) WHERE id = ?',
+          'UPDATE usuarios SET pontosFidelidade = GREATEST(0, pontosFidelidade - ?) WHERE id = ?',
           [pontosParaEstornar, pedido.clienteAppId]
         );
         const dataAgora = new Date().toISOString().slice(0, 19).replace('T', ' ');
@@ -336,7 +336,7 @@ router.put('/:id/status', async (req, res) => {
           [pedido.clienteAppId, pedido.id, -pontosParaEstornar, `Estorno por cancelamento do Pedido #${pedido.id}`, dataAgora]
         );
 
-        const [usrRow] = await conn.execute('SELECT pontosFidelidade FROM clientes_app WHERE id = ?', [pedido.clienteAppId]);
+        const [usrRow] = await conn.execute('SELECT pontosFidelidade FROM usuarios WHERE id = ?', [pedido.clienteAppId]);
         if (usrRow.length > 0) {
           const io = req.app.get('io');
           if (io) io.emit('fidelidade_atualizada', { clienteId: pedido.clienteAppId, pontos: usrRow[0].pontosFidelidade });

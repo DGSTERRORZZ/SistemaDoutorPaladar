@@ -101,9 +101,9 @@ router.get('/meus-agendamentos', verifyClienteToken, async (req, res) => {
 router.get('/:id/participantes', verifyAdmin, async (req, res) => {
   try {
     const participantes = await query(
-      `SELECT ca.*, c.usuario, c.telefone 
+      `SELECT ca.*, u.username as usuario, u.telefone 
        FROM cliente_agendamentos ca
-       LEFT JOIN clientes_app c ON ca.clienteAppId = c.id
+       LEFT JOIN usuarios u ON ca.clienteAppId = u.id
        WHERE ca.agendamentoId = ? AND ca.status != 'cancelado'
        ORDER BY ca.dataCriacao ASC`,
       [req.params.id]
