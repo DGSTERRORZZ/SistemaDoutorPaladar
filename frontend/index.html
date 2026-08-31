@@ -369,12 +369,9 @@
                             <div class="user-menu-header-name" id="userMenuNome">Cliente</div>
                             <div class="user-menu-header-role">Cliente Registrado</div>
                         </div>
-                        <a href="cardapio.html" class="user-menu-item">
-                            <i class="fas fa-utensils" style="color: var(--dp-emerald);"></i> Ver Cardápio
-                        </a>
-                        <a href="admin.html" class="user-menu-item" id="userMenuAdminLink" style="display: none;">
-                            <i class="fas fa-shield-alt" style="color: #6366f1;"></i> Painel Gestor
-                        </a>
+                        <button class="user-menu-item" onclick="abrirModalMeusPedidos()">
+                            <i class="fas fa-receipt" style="color: var(--dp-emerald);"></i> Ver Meus Pedidos
+                        </button>
                         <button class="user-menu-item logout" onclick="deslogarCliente()">
                             <i class="fas fa-sign-out-alt"></i> Sair da Conta
                         </button>
@@ -482,6 +479,32 @@
         </div>
     </div>
 
+    <!-- MODAL MEUS PEDIDOS / HISTÓRICO DO CLIENTE -->
+    <div class="modal" id="modalMeusPedidos">
+        <div class="modal-content" style="max-width: 650px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalMeusPedidos')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; padding-right: 25px;">
+                <h2 style="color: #0f172a; font-size: 1.35rem; display: flex; align-items: center; gap: 10px; font-weight: 800; margin: 0;">
+                    <div style="width: 36px; height: 36px; background: #f0faf4; color: var(--dp-emerald); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    Meus Pedidos
+                </h2>
+                <button onclick="carregarMeusPedidos()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; border-radius: var(--radius-full);">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Acompanhe o status do seu pedido atual em tempo real e consulte seus pedidos anteriores.</p>
+            
+            <div id="listaMeusPedidosContainer">
+                <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--dp-emerald); margin-bottom: 1rem; display:block;"></i>
+                    <p style="font-weight: 700;">Buscando seus pedidos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- SCRIPTS -->
     <script src="js/auth.js"></script>
     <script>
@@ -492,6 +515,112 @@
         function abrirDrawer() { document.getElementById('drawerOverlay')?.classList.add('active'); }
         function fecharDrawer() { document.getElementById('drawerOverlay')?.classList.remove('active'); }
         function fecharModal(id) { document.getElementById(id)?.classList.remove('active'); }
+
+        async function abrirModalMeusPedidos() {
+            const popover = document.getElementById('userMenuPopover');
+            if (popover) popover.classList.remove('active');
+            
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) {
+                irParaLogin();
+                return;
+            }
+            document.getElementById('modalMeusPedidos')?.classList.add('active');
+            await carregarMeusPedidos();
+        }
+
+        function getStatusBadge(status) {
+            const s = (status || 'pendente').toLowerCase();
+            const config = {
+                'pendente': { label: 'Pendente', icon: 'clock', class: 'pendente' },
+                'confirmado': { label: 'Confirmado', icon: 'check', class: 'confirmado' },
+                'preparando': { label: 'Preparando', icon: 'fire', class: 'preparando' },
+                'pronto': { label: 'Pronto p/ Retirada', icon: 'bell', class: 'pronto' },
+                'entregue': { label: 'Entregue', icon: 'check-double', class: 'entregue' },
+                'cancelado': { label: 'Cancelado', icon: 'times', class: 'cancelado' },
+                'recusado': { label: 'Recusado', icon: 'ban', class: 'recusado' }
+            };
+            const c = config[s] || { label: status, icon: 'info-circle', class: 'pendente' };
+            return `<span class="order-status-pill ${c.class}"><i class="fas fa-${c.icon}"></i> ${c.label}</span>`;
+        }
+
+        async function carregarMeusPedidos() {
+            const container = document.getElementById('listaMeusPedidosContainer');
+            if (!container) return;
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) return;
+
+            container.innerHTML = `
+                <div style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--dp-emerald); margin-bottom: 0.8rem; display:block;"></i>
+                    <p style="font-weight: 700;">Atualizando status dos seus pedidos...</p>
+                </div>
+            `;
+
+            try {
+                const res = await fetch(`${API_URL}/clientes/historico-pedidos`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Erro ao carregar histórico');
+                const pedidos = await res.json();
+
+                if (!pedidos || pedidos.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3.5rem 1rem; color: #64748b;">
+                            <div style="width: 60px; height: 60px; background: #f8fafc; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; margin-bottom: 1rem;">
+                                <i class="fas fa-shopping-basket"></i>
+                            </div>
+                            <h3 style="font-weight: 800; color: #1e293b; margin-bottom: 6px;">Nenhum pedido encontrado</h3>
+                            <p style="font-size: 0.92rem; margin-bottom: 1.2rem;">Você ainda não fez nenhum pedido conosco.</p>
+                            <a href="cardapio.html" class="btn btn-primary" style="padding: 10px 22px; font-weight: 700; border-radius: var(--radius-full);">
+                                <i class="fas fa-utensils"></i> Explorar Cardápio
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = pedidos.map(p => {
+                    const dataFormatada = p.data ? new Date(p.data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : 'Data não informada';
+                    const itensFormatados = (p.itens && p.itens.length > 0)
+                        ? p.itens.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span><strong>${i.quantidade}x</strong> ${i.nome}</span> <span>R$ ${(i.quantidade * (parseFloat(i.precoUnitario) || 0)).toFixed(2).replace('.', ',')}</span></div>`).join('')
+                        : '<div style="color:#94a3b8; font-style:italic;">Itens do pedido não detalhados</div>';
+
+                    return `
+                        <div class="client-order-card">
+                            <div class="client-order-header">
+                                <div>
+                                    <span style="font-weight: 800; font-size: 1.05rem; color: #0f172a;">Pedido #${p.id}</span>
+                                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                                        <i class="far fa-calendar-alt"></i> ${dataFormatada}
+                                    </div>
+                                </div>
+                                <div>
+                                    ${getStatusBadge(p.status)}
+                                </div>
+                            </div>
+                            <div class="client-order-items">
+                                ${itensFormatados}
+                            </div>
+                            <div class="client-order-footer">
+                                <span><i class="fas fa-wallet"></i> ${p.formaPagamento ? p.formaPagamento.replace('_', ' ').toUpperCase() : 'BALCÃO'}</span>
+                                <span style="font-size: 1.05rem; font-weight: 900; color: var(--dp-emerald);">Total: R$ ${(parseFloat(p.total) || 0).toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 0.5rem; display:block;"></i>
+                        <p style="font-weight: 700;">Não foi possível carregar seus pedidos no momento.</p>
+                        <button onclick="carregarMeusPedidos()" class="btn btn-secondary" style="margin-top: 10px; font-weight: 700;">Tentar Novamente</button>
+                    </div>
+                `;
+            }
+        }
 
         async function abrirModalAgendamentoCliente() {
             document.getElementById('modalAgendamentoCliente').classList.add('active');

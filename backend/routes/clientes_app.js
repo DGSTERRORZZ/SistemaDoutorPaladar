@@ -126,10 +126,21 @@ async function getHistoricoPedidos(req, res) {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ erro: 'Token não fornecido' });
     const decoded = jwt.verify(token, SECRET);
-    const pedidos = await query(
-      'SELECT * FROM pedidos WHERE clienteAppId = ? ORDER BY id DESC LIMIT 20',
-      [decoded.id]
-    );
+    
+    // Obter dados do usuário para garantir correspondência ampla de pedidos anteriores
+    const userRows = await query('SELECT nome, telefone FROM usuarios WHERE id = ?', [decoded.id]);
+    const usuario = userRows[0] || {};
+    const nomeUsuario = usuario.nome || decoded.nome || '';
+    const telUsuario = usuario.telefone || '';
+
+    const pedidos = await query(`
+      SELECT * FROM pedidos 
+      WHERE clienteAppId = ? 
+         OR (nomeCliente = ? AND ? != '')
+         OR (observacao LIKE ? AND ? != '')
+      ORDER BY id DESC LIMIT 50
+    `, [decoded.id, nomeUsuario, nomeUsuario, `%${telUsuario}%`, telUsuario]);
+
     for (const pedido of pedidos) {
       pedido.itens = await query('SELECT * FROM itens_pedido WHERE pedidoId = ?', [pedido.id]);
       pedido.total = parseFloat(pedido.total);
@@ -137,6 +148,7 @@ async function getHistoricoPedidos(req, res) {
     }
     res.json(pedidos);
   } catch (error) {
+    console.error('Erro ao buscar histórico de pedidos:', error);
     res.status(401).json({ erro: 'Erro ao buscar pedidos' });
   }
 }
