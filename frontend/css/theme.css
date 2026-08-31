@@ -98,6 +98,10 @@
     --font-sans:    'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
     --font-heading: 'Outfit', 'Plus Jakarta Sans', sans-serif;
     --font-display: 'Playfair Display', Georgia, serif;
+
+    /* Sidebar Layout Dimensions */
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 78px;
 }
 
 /* Reset & Global */
@@ -138,8 +142,8 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .sidebar {
-    width: 260px;
-    min-width: 260px;
+    width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
     background: linear-gradient(180deg, #1b4332 0%, #0f291e 100%);
     position: fixed;
     top: 0;
@@ -152,6 +156,7 @@ h1, h2, h3, h4, h5, h6 {
     flex-direction: column;
     box-shadow: 4px 0 24px rgba(0,0,0,0.12);
     border-right: 1px solid rgba(255,255,255,0.06);
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .sidebar::-webkit-scrollbar { width: 4px; }
@@ -2109,6 +2114,66 @@ body.dark-mode .trend-indicator.down {
         margin-left: 0 !important;
         width: 100% !important;
     }
+}
+
+/* ── CARREGAMENTO INSTANTÂNEO DA SIDEBAR RECOLHIDA (SEM LAYOUT SHIFT / SEM FLASH) ── */
+html.sidebar-is-collapsed .sidebar {
+    width: var(--sidebar-collapsed-width) !important;
+    min-width: var(--sidebar-collapsed-width) !important;
+}
+
+html.sidebar-is-collapsed .main-content {
+    margin-left: var(--sidebar-collapsed-width) !important;
+}
+
+html.sidebar-is-collapsed .brand-text,
+html.sidebar-is-collapsed .nav-section-title,
+html.sidebar-is-collapsed .user-name,
+html.sidebar-is-collapsed .user-role,
+html.sidebar-is-collapsed .nav-item span {
+    display: none !important;
+}
+
+html.sidebar-is-collapsed .nav-item {
+    justify-content: center !important;
+    padding: 12px 0 !important;
+    font-size: 0 !important;
+    gap: 0 !important;
+}
+
+html.sidebar-is-collapsed .nav-item i {
+    font-size: 1.2rem !important;
+    margin: 0 !important;
+    width: auto !important;
+    display: inline-block !important;
+}
+
+html.sidebar-is-collapsed .sidebar-brand {
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+html.sidebar-is-collapsed .sidebar-header {
+    padding: 16px 8px !important;
+    display: flex;
+    justify-content: center;
+}
+
+html.sidebar-is-collapsed .sidebar-footer {
+    padding: 12px 6px !important;
+}
+
+html.sidebar-is-collapsed .sidebar-user {
+    padding: 6px 4px !important;
+    justify-content: center !important;
+}
+
+html.sidebar-is-collapsed .sidebar-user div[style*="flex:1"] {
+    display: none !important;
+}
+
+html.sidebar-is-collapsed .btn-logout {
+    display: none !important;
 }
 
 

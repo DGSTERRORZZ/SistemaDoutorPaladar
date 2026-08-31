@@ -196,9 +196,22 @@ function logoutGeral() {
   window.location.href = 'index.html';
 }
 
+// Sincronização Imediata (executa antes de carregar o DOM completo para evitar "pulo" de tela)
+(function aplicarPreferenciaImediata() {
+  try {
+    if (localStorage.getItem('dp_theme') === 'dark') {
+      document.documentElement.classList.add('dark-mode');
+    }
+    if (window.innerWidth > 900 && localStorage.getItem('dp_sidebar_collapsed') === 'true') {
+      document.documentElement.classList.add('sidebar-is-collapsed');
+    }
+  } catch(e) {}
+})();
+
 // ===== SUPORTE GLOBAL A TEMA E SIDEBAR (INSPIRADO NO PULSE) =====
 function toggleTema() {
   const isDark = document.body.classList.toggle('dark-mode');
+  document.documentElement.classList.toggle('dark-mode', isDark);
   localStorage.setItem('dp_theme', isDark ? 'dark' : 'light');
   atualizarIconeTema();
 }
@@ -207,6 +220,7 @@ function inicializarTema() {
   const salvo = localStorage.getItem('dp_theme');
   if (salvo === 'dark') {
     document.body.classList.add('dark-mode');
+    document.documentElement.classList.add('dark-mode');
   }
   atualizarIconeTema();
 }
@@ -228,6 +242,7 @@ function toggleSidebar() {
   } else {
     layout.classList.toggle('sidebar-collapsed');
     const isCollapsed = layout.classList.contains('sidebar-collapsed');
+    document.documentElement.classList.toggle('sidebar-is-collapsed', isCollapsed);
     localStorage.setItem('dp_sidebar_collapsed', isCollapsed ? 'true' : 'false');
   }
 }
@@ -237,6 +252,9 @@ function inicializarSidebar() {
   if (!layout) return;
   if (window.innerWidth > 900 && localStorage.getItem('dp_sidebar_collapsed') === 'true') {
     layout.classList.add('sidebar-collapsed');
+    document.documentElement.classList.add('sidebar-is-collapsed');
+  } else {
+    document.documentElement.classList.remove('sidebar-is-collapsed');
   }
 }
 
