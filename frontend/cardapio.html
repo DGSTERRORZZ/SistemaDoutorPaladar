@@ -628,6 +628,23 @@
         </div>
     </div>
 
+    <!-- MODAL DE PRATO DO DIA / AGENDAMENTO -->
+    <div class="modal" id="modalAgendamentoCliente">
+        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem; border-radius: var(--radius-xl);">
+            <button class="close-modal" onclick="fecharModal('modalAgendamentoCliente')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h2 style="color: var(--dp-emerald); font-size: 1.35rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                <i class="fas fa-calendar-check"></i> Prato do Dia & Agendamento
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Reserve o prato do dia com antecedência e garanta sua refeição.</p>
+            <div id="listaAgendamentosClienteGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin"></i> Carregando pratos do dia...
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- MODAL MEUS PEDIDOS / HISTÓRICO DO CLIENTE -->
     <div class="modal" id="modalMeusPedidos">
         <div class="modal-content" style="max-width: 650px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem;">
