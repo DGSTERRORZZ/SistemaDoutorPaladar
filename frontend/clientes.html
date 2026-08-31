@@ -107,30 +107,54 @@
 
         <div class="main-content">
             <div class="topbar">
-                <div>
-                    <h2 class="page-title"><i class="fas fa-users" style="color:var(--primary);"></i> Gestão de Clientes Registrados</h2>
-                    <p style="color:var(--text-muted);font-size:0.85rem;">Central de usuários autenticados, fidelidade, histórico e conta de crédito.</p>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h2 class="page-title"><i class="fas fa-users" style="color:var(--primary);"></i> Gestão de Clientes Registrados</h2>
+                        <p style="color:var(--text-muted);font-size:0.76rem;margin:0;">Central de fidelidade, histórico de pedidos e limites</p>
+                    </div>
                 </div>
-                <div>
-                    <a href="desempenhos.html?tab=clientes" class="btn-analytics"><i class="fas fa-chart-line"></i> Ver Desempenho</a>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button class="btn btn-secondary btn-sm btn-theme-toggle" onclick="toggleTema()" style="padding: 8px 12px; border-radius: 50%; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="desempenhos.html?tab=clientes" class="btn btn-secondary btn-sm"><i class="fas fa-chart-line"></i> Ver Desempenho</a>
                 </div>
             </div>
 
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-value" id="totalClientes">0</div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div class="stat-icon" style="background:#e6f9f0; color:var(--primary);"><i class="fas fa-users"></i></div>
+                        <span class="trend-indicator up"><i class="fas fa-user-check"></i> Cadastrados</span>
+                    </div>
+                    <div class="stat-value" id="totalClientes" style="margin-top:12px;">0</div>
                     <div class="stat-label">Clientes Cadastrados</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="totalPontos" style="color:#f59e0b;">0 pts</div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div class="stat-icon" style="background:#fef3c7; color:#f59e0b;"><i class="fas fa-award"></i></div>
+                        <span class="trend-indicator up"><i class="fas fa-star"></i> Ativo</span>
+                    </div>
+                    <div class="stat-value" id="totalPontos" style="color:#f59e0b; margin-top:12px;">0 pts</div>
                     <div class="stat-label">Pontos de Fidelidade Totais</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="totalPedidosGeral">0</div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-bag-shopping"></i></div>
+                        <span class="trend-indicator up"><i class="fas fa-mobile-screen"></i> Digital</span>
+                    </div>
+                    <div class="stat-value" id="totalPedidosGeral" style="margin-top:12px;">0</div>
                     <div class="stat-label">Pedidos Concluídos via App</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-value" id="totalGastoGeral">R$ 0,00</div>
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                        <div class="stat-icon" style="background:#fdf8f3; color:var(--accent);"><i class="fas fa-sack-dollar"></i></div>
+                        <span class="trend-indicator neutral"><i class="fas fa-coins"></i> Receita</span>
+                    </div>
+                    <div class="stat-value" id="totalGastoGeral" style="margin-top:12px;">R$ 0,00</div>
                     <div class="stat-label">Faturamento de Clientes Logados</div>
                 </div>
             </div>
@@ -237,5 +261,6 @@
             });
         }
     </script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

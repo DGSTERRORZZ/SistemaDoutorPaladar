@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -305,10 +305,19 @@
         <!-- MAIN CONTENT OPERACIONAL -->
         <main class="main-content">
             <header class="topbar">
-                <div class="flex items-center gap-2">
-                    <div class="page-title"><i class="fas fa-clipboard-list" style="color:var(--primary)"></i> Fila de Pedidos</div>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title"><i class="fas fa-clipboard-list" style="color:var(--primary)"></i> Fila de Pedidos</div>
+                        <div style="font-size: 0.76rem; color: var(--text-muted);">Painel KDS de produção e entrega em tempo real</div>
+                    </div>
                 </div>
                 <div class="topbar-right" style="display:flex;gap:10px;align-items:center;">
+                    <button class="btn btn-secondary btn-sm btn-theme-toggle" onclick="toggleTema()" style="padding: 8px 12px; border-radius: 50%; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-moon"></i>
+                    </button>
                     <button class="btn btn-outline btn-sm" onclick="carregarPedidos()"><i class="fas fa-sync" id="btnSync"></i> Atualizar Fila</button>
                     <a href="desempenhos.html?tab=pedidos" class="btn btn-secondary btn-sm" title="Ir para Relatórios e Analytics"><i class="fas fa-chart-line"></i> Ver Desempenho</a>
                 </div>
@@ -794,5 +803,6 @@
             }
         }
     </script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

@@ -354,7 +354,7 @@
             <div class="mcd-drawer-nav">
                 <a href="index.html" class="mcd-drawer-link"><i class="fas fa-home"></i> Início</a>
                 <a href="cardapio.html" class="mcd-drawer-link" style="color: var(--dp-emerald); background: #f1f5f9;"><i class="fas fa-burger"></i> Cardápio Completo</a>
-                <a href="index.html" class="mcd-drawer-link"><i class="fas fa-calendar-alt"></i> Agendar Refeição</a>
+                <a href="#" onclick="fecharDrawer(); abrirModalAgendamentoCliente()" class="mcd-drawer-link"><i class="fas fa-calendar-alt"></i> Prato do Dia</a>
                 <a href="faq.html" class="mcd-drawer-link"><i class="fas fa-question-circle"></i> Perguntas Frequentes (FAQ)</a>
                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 10px 0;">
                 <a href="index.html" class="mcd-drawer-link"><i class="fas fa-user"></i> Minha Conta / Login</a>
@@ -381,7 +381,7 @@
                 <ul class="mcd-nav-links">
                     <li><a href="index.html">Início</a></li>
                     <li><a href="cardapio.html" class="active">Cardápio</a></li>
-                    <li><a href="index.html#agendamento" onclick="sessionStorage.setItem('abrir_agendamento', 'true')">Prato do Dia</a></li>
+                    <li><a href="#" onclick="abrirModalAgendamentoCliente()">Prato do Dia</a></li>
                     <li><a href="faq.html">FAQ & Ajuda</a></li>
                 </ul>
             </div>
@@ -510,6 +510,23 @@
                 <button class="btn btn-primary" onclick="confirmarPedidoConvidado()" style="margin-top: 8px; padding: 13px; font-weight: 800; border-radius: var(--radius-full);">
                     <i class="fas fa-paper-plane"></i> Enviar Pedido
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PRATO DO DIA / AGENDAMENTO -->
+    <div class="modal" id="modalAgendamentoCliente">
+        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem; border-radius: var(--radius-xl);">
+            <button class="close-modal" onclick="fecharModal('modalAgendamentoCliente')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h2 style="color: var(--dp-emerald); font-size: 1.35rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                <i class="fas fa-calendar-check"></i> Prato do Dia & Agendamento
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Reserve o prato do dia com antecedência e garanta sua refeição.</p>
+            <div id="listaAgendamentosClienteGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin"></i> Carregando pratos do dia...
+                </div>
             </div>
         </div>
     </div>
@@ -802,6 +819,57 @@
             } catch (e) {
                 alert('Erro de conexão ao enviar pedido');
             }
+        }
+
+        async function abrirModalAgendamentoCliente() {
+            fecharDrawer();
+            document.getElementById('modalAgendamentoCliente').classList.add('active');
+            const grid = document.getElementById('listaAgendamentosClienteGrid');
+            grid.innerHTML = `<div style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Carregando pratos do dia...</div>`;
+            try {
+                const res = await fetch(API_URL + '/agendamentos');
+                if (!res.ok) throw new Error('Erro ao buscar pratos do dia');
+                const agendamentos = await res.json();
+                const disponiveis = agendamentos.filter(a => a.status === 'disponivel' || (!a.bloqueado && (a.vagasDisponiveis > 0 || (a.vagasTotais - (a.vagasOcupadas || 0)) > 0)));
+
+                if (disponiveis.length === 0) {
+                    grid.innerHTML = `<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Nenhum prato do dia disponível para agendamento no momento.</p>`;
+                    return;
+                }
+
+                grid.innerHTML = disponiveis.map(a => `
+                    <div style="background: var(--bg-card, #ffffff); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                        <div>
+                            <span class="badge badge-green" style="background: var(--green-50); color: var(--dp-emerald); font-weight:700;">📅 ${a.data} · ${a.horario}</span>
+                            <h4 style="font-size: 1.05rem; margin: 0.8rem 0 0.2rem; font-weight: 800; color: #0f172a;">${a.pratoDoDia || a.pratoNome || 'Prato do Dia'}</h4>
+                            <p style="font-size: 1.15rem; font-weight: 800; color: var(--dp-emerald); margin-bottom: 0.6rem;">R$ ${parseFloat(a.preco || 0).toFixed(2).replace('.', ',')}</p>
+                        </div>
+                        <button onclick="adicionarPratoAoCarrinho('${(a.pratoDoDia || a.pratoNome || 'Prato do Dia').replace(/'/g, "\\'")}', ${parseFloat(a.preco || 0)})" class="btn btn-primary" style="margin-top: 1rem; width: 100%; text-align:center; font-weight: 700; border-radius: var(--radius-full);">
+                            <i class="fas fa-plus"></i> Adicionar à Sacola
+                        </button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--danger); grid-column: 1/-1; padding: 2rem;">Não foi possível carregar os pratos do dia no momento.</p>`;
+            }
+        }
+
+        function adicionarPratoAoCarrinho(nome, preco) {
+            const itemExistente = carrinho.find(i => i.nome === nome);
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                carrinho.push({
+                    id: 'prato_' + Date.now(),
+                    nome: nome,
+                    precoUnitario: preco,
+                    quantidade: 1,
+                    categoria: 'Prato do Dia'
+                });
+            }
+            atualizarCarrinhoUI();
+            fecharModal('modalAgendamentoCliente');
+            toggleCart();
         }
 
         // Suporte a parâmetro de categoria na URL (ex: cardapio.html?cat=Bebidas)

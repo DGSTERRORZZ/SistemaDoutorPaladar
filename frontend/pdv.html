@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -328,10 +328,20 @@
 
         <!-- TOPBAR — igual ao admin -->
         <div class="topbar">
-            <div class="page-title"><i class="fas fa-cash-register"></i> Ponto de Venda</div>
-            <div style="display:flex; align-items:center; gap:12px;">
-                <span id="relogio" style="font-size:0.8rem; color:var(--text-muted);"></span>
-                <button class="btn-sm btn-danger" onclick="logoutAdmin()">Sair</button>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <div class="page-title"><i class="fas fa-cash-register" style="color:var(--primary);"></i> Ponto de Venda (PDV)</div>
+                    <div style="font-size: 0.76rem; color: var(--text-muted);">Frente de caixa para balcão, fiado e emissão rápida</div>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:10px;">
+                <button class="btn btn-secondary btn-sm btn-theme-toggle" onclick="toggleTema()" style="padding: 8px 12px; border-radius: 50%; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <span id="relogio" style="font-size:0.8rem; color:var(--text-muted); font-weight:600;"></span>
             </div>
         </div>
 
@@ -795,5 +805,6 @@
         m.addEventListener('click', e => { if(e.target===m) m.classList.remove('open'); })
     );
 </script>
+<script src="js/auth.js"></script>
 </body>
 </html>

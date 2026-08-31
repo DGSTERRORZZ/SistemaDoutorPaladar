@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -164,8 +164,19 @@
         <!-- MAIN CONTENT -->
         <div class="main-content">
             <header class="topbar">
-                <div class="page-title"><i class="fas fa-box" style="color:var(--primary)"></i> Gestão de Produtos & Estoque</div>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title"><i class="fas fa-box" style="color:var(--primary)"></i> Gestão de Produtos & Estoque</div>
+                        <div style="font-size: 0.76rem; color: var(--text-muted);">Controle de inventário, reposição e precificação</div>
+                    </div>
+                </div>
                 <div class="topbar-right">
+                    <button class="btn btn-secondary btn-sm btn-theme-toggle" onclick="toggleTema()" style="padding: 8px 12px; border-radius: 50%; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-moon"></i>
+                    </button>
                     <button class="btn btn-secondary btn-sm" onclick="exportarEstoqueCSV()"><i class="fas fa-file-csv"></i> Exportar CSV</button>
                     <button class="btn btn-primary btn-sm" onclick="abrirModalNovoProduto()"><i class="fas fa-plus"></i> Novo Produto</button>
                     <a href="cardapio.html" class="btn btn-secondary btn-sm"><i class="fas fa-store"></i> Ver Cardápio</a>
@@ -176,32 +187,36 @@
                 <!-- STATS CARDS -->
                 <div class="stats-grid">
                     <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-cube"></i></div>
-                        <div>
-                            <div class="stat-value" id="totalProdutos">0</div>
-                            <div class="stat-label">Total de Itens</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div class="stat-icon"><i class="fas fa-cube"></i></div>
+                            <span class="trend-indicator up"><i class="fas fa-check"></i> Ativos</span>
                         </div>
+                        <div class="stat-value" id="totalProdutos" style="margin-top:12px;">0</div>
+                        <div class="stat-label">Total de Itens</div>
                     </div>
                     <div class="stat-card danger">
-                        <div class="stat-icon danger"><i class="fas fa-exclamation-triangle"></i></div>
-                        <div>
-                            <div class="stat-value" id="alertasEstoque">0</div>
-                            <div class="stat-label">Estoque Crítico / Baixo</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div class="stat-icon danger"><i class="fas fa-exclamation-triangle"></i></div>
+                            <span class="trend-indicator down"><i class="fas fa-triangle-exclamation"></i> Crítico</span>
                         </div>
+                        <div class="stat-value" id="alertasEstoque" style="margin-top:12px;">0</div>
+                        <div class="stat-label">Estoque Crítico / Baixo</div>
                     </div>
                     <div class="stat-card brown">
-                        <div class="stat-icon brown"><i class="fas fa-dollar-sign"></i></div>
-                        <div>
-                            <div class="stat-value" id="valorEstoque">R$ 0,00</div>
-                            <div class="stat-label">Patrimônio em Estoque</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div class="stat-icon brown"><i class="fas fa-dollar-sign"></i></div>
+                            <span class="trend-indicator neutral"><i class="fas fa-boxes-stacked"></i> Ativo Total</span>
                         </div>
+                        <div class="stat-value" id="valorEstoque" style="margin-top:12px;">R$ 0,00</div>
+                        <div class="stat-label">Patrimônio em Estoque</div>
                     </div>
                     <div class="stat-card">
-                        <div class="stat-icon"><i class="fas fa-tags"></i></div>
-                        <div>
-                            <div class="stat-value" id="categoriasCount">0</div>
-                            <div class="stat-label">Categorias Ativas</div>
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div class="stat-icon"><i class="fas fa-tags"></i></div>
+                            <span class="trend-indicator up"><i class="fas fa-layer-group"></i> Categorias</span>
                         </div>
+                        <div class="stat-value" id="categoriasCount" style="margin-top:12px;">0</div>
+                        <div class="stat-label">Categorias Ativas</div>
                     </div>
                 </div>
 
@@ -596,5 +611,6 @@
 
         carregarProdutos();
     </script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

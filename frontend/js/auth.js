@@ -195,3 +195,52 @@ function logoutGeral() {
   sessionStorage.clear();
   window.location.href = 'index.html';
 }
+
+// ===== SUPORTE GLOBAL A TEMA E SIDEBAR (INSPIRADO NO PULSE) =====
+function toggleTema() {
+  const isDark = document.body.classList.toggle('dark-mode');
+  localStorage.setItem('dp_theme', isDark ? 'dark' : 'light');
+  atualizarIconeTema();
+}
+
+function inicializarTema() {
+  const salvo = localStorage.getItem('dp_theme');
+  if (salvo === 'dark') {
+    document.body.classList.add('dark-mode');
+  }
+  atualizarIconeTema();
+}
+
+function atualizarIconeTema() {
+  const btns = document.querySelectorAll('.btn-theme-toggle');
+  const isDark = document.body.classList.contains('dark-mode');
+  btns.forEach(btn => {
+    btn.innerHTML = isDark ? '<i class="fas fa-sun" style="color:#f59e0b"></i>' : '<i class="fas fa-moon" style="color:#64748b"></i>';
+    btn.title = isDark ? 'Mudar para Modo Claro' : 'Mudar para Modo Escuro';
+  });
+}
+
+function toggleSidebar() {
+  const layout = document.querySelector('.admin-layout');
+  if (!layout) return;
+  if (window.innerWidth <= 900) {
+    layout.classList.toggle('mobile-open');
+  } else {
+    layout.classList.toggle('sidebar-collapsed');
+    const isCollapsed = layout.classList.contains('sidebar-collapsed');
+    localStorage.setItem('dp_sidebar_collapsed', isCollapsed ? 'true' : 'false');
+  }
+}
+
+function inicializarSidebar() {
+  const layout = document.querySelector('.admin-layout');
+  if (!layout) return;
+  if (window.innerWidth > 900 && localStorage.getItem('dp_sidebar_collapsed') === 'true') {
+    layout.classList.add('sidebar-collapsed');
+  }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  inicializarTema();
+  inicializarSidebar();
+});

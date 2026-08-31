@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -140,12 +140,20 @@
 
         <div class="main-content">
             <div class="topbar">
-                <div>
-                    <h2 class="page-title"><i class="fas fa-calendar-alt" style="color:var(--primary);"></i> Gestão de Agendamentos</h2>
-                    <p style="color:var(--text-muted);font-size:0.85rem;">Defina disponibilidades de datas, prato do dia e quantidade de vagas.</p>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h2 class="page-title"><i class="fas fa-calendar-alt" style="color:var(--primary);"></i> Gestão de Agendamentos</h2>
+                        <p style="color:var(--text-muted);font-size:0.76rem;margin:0;">Disponibilidade de prato do dia, vagas e reservas antecipadas</p>
+                    </div>
                 </div>
-                <div style="display:flex;gap:12px;align-items:center;">
-                    <a href="desempenhos.html?tab=agendamentos" class="btn-analytics"><i class="fas fa-chart-bar"></i> Ver Desempenho</a>
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button class="btn btn-secondary btn-sm btn-theme-toggle" onclick="toggleTema()" style="padding: 8px 12px; border-radius: 50%; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="desempenhos.html?tab=agendamentos" class="btn btn-secondary btn-sm"><i class="fas fa-chart-bar"></i> Ver Desempenho</a>
                     <button class="btn-primary" onclick="abrirModalNovo()"><i class="fas fa-plus-circle"></i> Criar Agendamento</button>
                 </div>
             </div>
@@ -403,5 +411,6 @@
 
         carregarAgendamentos();
     </script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

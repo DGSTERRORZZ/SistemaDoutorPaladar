@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -68,25 +68,42 @@
     <!-- MAIN CONTENT -->
     <main class="main-content">
         <header class="topbar">
-            <div class="page-title" id="pageTitle"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Dashboard Geral</div>
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <div class="page-title" id="pageTitle"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Dashboard Geral</div>
+                    <div style="font-size: 0.76rem; color: var(--text-muted);" id="liveDate">Visão operacional e métricas em tempo real</div>
+                </div>
+            </div>
             <div class="topbar-right">
+                <button class="btn btn-secondary btn-sm btn-theme-toggle" onclick="toggleTema()" style="padding: 8px 12px; border-radius: 50%; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-moon"></i>
+                </button>
                 <button class="btn btn-primary btn-sm" onclick="abrirModalQRMesa()"><i class="fas fa-qrcode"></i> QR Code Mesa</button>
                 <span class="badge-pill badge-green"><i class="fas fa-circle" style="font-size:0.45rem"></i> Servidor Ativo</span>
-                <a href="index.html" class="btn btn-secondary btn-sm"><i class="fas fa-store"></i> Ver Cardápio</a>
+                <a href="cardapio.html" class="btn btn-secondary btn-sm"><i class="fas fa-store"></i> Ver Cardápio</a>
             </div>
         </header>
 
         <div class="page-content">
-            <!-- DASHBOARD PRINCIPAL -->
+            <!-- DASHBOARD PRINCIPAL (KPIS PULSE-STYLE) -->
             <div class="stats-grid" id="dashboardStats"></div>
             
             <div class="charts-grid">
                 <div class="chart-card">
-                    <h3><i class="fas fa-chart-line"></i> Vendas — Últimos 7 Dias</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 style="margin:0;"><i class="fas fa-chart-line"></i> Vendas — Últimos 7 Dias</h3>
+                        <span class="trend-indicator up"><i class="fas fa-arrow-trend-up"></i> Tempo Real</span>
+                    </div>
                     <canvas id="vendasChart"></canvas>
                 </div>
                 <div class="chart-card">
-                    <h3><i class="fas fa-chart-pie"></i> Vendas por Categoria</h3>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 style="margin:0;"><i class="fas fa-chart-pie"></i> Vendas por Categoria</h3>
+                        <span class="trend-indicator neutral"><i class="fas fa-chart-simple"></i> Distribuição</span>
+                    </div>
                     <canvas id="categoriaChart"></canvas>
                 </div>
             </div>
@@ -122,6 +139,7 @@
     </main>
 </div>
 
+<script src="js/auth.js"></script>
 <script>
     const API_URL = 'http://localhost:3000/api';
     let produtos = [], vendas = [], pedidos = [];
@@ -129,6 +147,11 @@
 
     if(!sessionStorage.getItem('admin_logado')) { window.location.href = 'index.html'; }
     document.getElementById('adminBadge').textContent = sessionStorage.getItem('admin_nome') || 'Gestor';
+    
+    const liveDateEl = document.getElementById('liveDate');
+    if (liveDateEl) {
+        liveDateEl.textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+    }
 
     async function carregarDados() {
         try {
@@ -149,14 +172,54 @@
         await carregarDados();
         const totalVendas = vendas.reduce((s,v)=>s+(v.total||0),0);
         const hojeStr = new Date().toISOString().split('T')[0];
-        const vendasHoje = vendas.filter(v=>String(v.data).startsWith(hojeStr)).reduce((s,v)=>s+(v.total||0),0);
-        const estoqueBaixo = produtos.filter(p=>p.estoque<=(p.estoqueMinimo||10)).length;
+        const ontem = new Date(); ontem.setDate(ontem.getDate()-1);
+        const ontemStr = ontem.toISOString().split('T')[0];
+        const vendasOntem = vendas.filter(v=>String(v.data).startsWith(ontemStr)).reduce((s,v)=>s+(v.total||0),0);
+        let variacaoHtml = '<span class="trend-indicator neutral"><i class="fas fa-minus"></i> 0%</span>';
+        if (vendasOntem > 0) {
+            const diff = ((vendasHoje - vendasOntem) / vendasOntem) * 100;
+            variacaoHtml = `<span class="trend-indicator ${diff >= 0 ? 'up' : 'down'}"><i class="fas fa-arrow-${diff >= 0 ? 'up' : 'down'}"></i> ${Math.abs(diff).toFixed(1)}% vs ontem</span>`;
+        } else if (vendasHoje > 0) {
+            variacaoHtml = `<span class="trend-indicator up"><i class="fas fa-arrow-up"></i> Novo pico</span>`;
+        }
+
+        const metaDiaria = 500;
+        const progressoMeta = Math.min((vendasHoje / metaDiaria) * 100, 100);
 
         document.getElementById('dashboardStats').innerHTML = `
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-dollar-sign"></i></div><div><div class="stat-value">R$ ${vendasHoje.toFixed(2).replace('.', ',')}</div><div class="stat-label">Vendas Hoje</div></div></div>
-            <div class="stat-card brown"><div class="stat-icon brown"><i class="fas fa-chart-line"></i></div><div><div class="stat-value">R$ ${totalVendas.toFixed(2).replace('.', ',')}</div><div class="stat-label">Total em Vendas</div></div></div>
-            <div class="stat-card"><div class="stat-icon"><i class="fas fa-shopping-bag"></i></div><div><div class="stat-value">${pedidos.length}</div><div class="stat-label">Total de Pedidos</div></div></div>
-            <div class="stat-card ${estoqueBaixo>0?'danger':''}"><div class="stat-icon ${estoqueBaixo>0?'danger':''}"><i class="fas fa-boxes"></i></div><div><div class="stat-value">${estoqueBaixo}</div><div class="stat-label">Estoque Crítico</div></div></div>
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon" style="background:#e6f9f0; color:var(--primary);"><i class="fas fa-cash-register"></i></div>
+                    ${variacaoHtml}
+                </div>
+                <div class="stat-value" style="margin-top:12px;">R$ ${vendasHoje.toFixed(2).replace('.', ',')}</div>
+                <div class="stat-label">Faturamento Hoje</div>
+                <div class="progress-container"><div class="progress-bar-fill" style="width:${progressoMeta}%"></div></div>
+            </div>
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon" style="background:#fdf8f3; color:var(--accent);"><i class="fas fa-chart-line"></i></div>
+                    <span class="trend-indicator neutral"><i class="fas fa-receipt"></i> Histórico</span>
+                </div>
+                <div class="stat-value" style="margin-top:12px;">R$ ${totalVendas.toFixed(2).replace('.', ',')}</div>
+                <div class="stat-label">Faturamento Geral</div>
+            </div>
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-bag-shopping"></i></div>
+                    <span class="trend-indicator up"><i class="fas fa-check"></i> ${pedidos.filter(p=>p.status==='entregue'||p.status==='concluido').length} entregues</span>
+                </div>
+                <div class="stat-value" style="margin-top:12px;">${pedidos.length}</div>
+                <div class="stat-label">Total de Pedidos</div>
+            </div>
+            <div class="stat-card ${estoqueBaixo>0?'danger':''}">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon ${estoqueBaixo>0?'danger':''}"><i class="fas fa-box-open"></i></div>
+                    <span class="trend-indicator ${estoqueBaixo>0?'down':'up'}">${estoqueBaixo>0 ? 'Atenção necessária' : 'Em conformidade'}</span>
+                </div>
+                <div class="stat-value" style="margin-top:12px;">${estoqueBaixo}</div>
+                <div class="stat-label">Itens em Estoque Crítico</div>
+            </div>
         `;
 
         const ult7=[], val7=[];

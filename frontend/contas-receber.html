@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -153,13 +153,21 @@
 
         <div class="main-content">
             <div class="topbar">
-                <div>
-                    <h2 class="page-title"><i class="fas fa-hand-holding-usd" style="color:var(--primary);"></i> Vendas a Prazo & Crédito</h2>
-                    <p style="color:var(--text-muted);font-size:0.85rem;">Gestão formal de contas de crédito vinculadas a clientes autenticados.</p>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h2 class="page-title"><i class="fas fa-hand-holding-usd" style="color:var(--primary);"></i> Vendas a Prazo & Crédito</h2>
+                        <p style="color:var(--text-muted);font-size:0.76rem;margin:0;">Gestão de contas vinculadas e saldo devedor</p>
+                    </div>
                 </div>
                 <div style="display:flex;gap:10px;align-items:center;">
-                    <a href="desempenhos.html?tab=vendas" class="btn-analytics"><i class="fas fa-chart-line"></i> Ver Desempenho</a>
-                    <button class="btn-primary" onclick="abrirModalNovaContaCredito()"><i class="fas fa-user-plus"></i> Vincular Cliente ao Crédito</button>
+                    <button class="btn btn-secondary btn-sm btn-theme-toggle" onclick="toggleTema()" style="padding: 8px 12px; border-radius: 50%; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="desempenhos.html?tab=vendas" class="btn btn-secondary btn-sm"><i class="fas fa-chart-line"></i> Ver Desempenho</a>
+                    <button class="btn btn-primary btn-sm" onclick="abrirModalNovaContaCredito()"><i class="fas fa-user-plus"></i> Vincular Cliente ao Crédito</button>
                 </div>
             </div>
 
@@ -605,5 +613,6 @@
 
         function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
     </script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

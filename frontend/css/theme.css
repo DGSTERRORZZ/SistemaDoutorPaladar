@@ -1808,3 +1808,256 @@ tr:hover td {
     .mcd-footer-grid { grid-template-columns: 1fr; gap: 2rem; }
 }
 
+/* =====================================================
+   HARMONIZAÇÃO VISUAL & DESIGN SYSTEM PULSE-STYLE
+   ===================================================== */
+:root {
+    --sidebar-width: 260px;
+    --sidebar-collapsed-width: 78px;
+}
+
+/* ── MODO ESCURO (DARK MODE) GLOBAL & PERSISTENTE ── */
+body.dark-mode {
+    --bg: #090d10;
+    --bg-card: #12181d;
+    --bg-card-hover: #182026;
+    --text: #f1f5f9;
+    --text-muted: #94a3b8;
+    --text-subtle: #64748b;
+    --border: #1e293b;
+    --border-light: #16202c;
+    --gray-50: #0f172a;
+    --gray-100: #1e293b;
+    --gray-200: #334155;
+    background-color: var(--bg) !important;
+    color: var(--text) !important;
+}
+
+body.dark-mode .topbar {
+    background: rgba(18, 24, 29, 0.94) !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+body.dark-mode .card,
+body.dark-mode .form-card,
+body.dark-mode .chart-card,
+body.dark-mode .stat-card,
+body.dark-mode .modal-content,
+body.dark-mode .modal-box {
+    background: var(--bg-card) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+body.dark-mode .form-control,
+body.dark-mode select,
+body.dark-mode input[type="text"],
+body.dark-mode input[type="number"],
+body.dark-mode input[type="password"],
+body.dark-mode input[type="date"],
+body.dark-mode input[type="tel"],
+body.dark-mode input[type="email"] {
+    background: #0f172a !important;
+    border-color: var(--border) !important;
+    color: #ffffff !important;
+}
+
+body.dark-mode table thead {
+    background: #0f172a !important;
+}
+
+body.dark-mode table tr:hover td {
+    background: rgba(255, 255, 255, 0.03) !important;
+}
+
+body.dark-mode .mcd-drawer {
+    background: #12181d !important;
+    color: #f1f5f9 !important;
+}
+
+body.dark-mode .mcd-drawer-link {
+    color: #cbd5e1 !important;
+}
+
+body.dark-mode .mcd-drawer-link:hover {
+    background: #1e293b !important;
+}
+
+/* ── SIDEBAR MODERNA COM SUPORTE A RECOLHIMENTO (COLLAPSE) ── */
+.sidebar {
+    width: var(--sidebar-width);
+    background: linear-gradient(180deg, #121619 0%, #1b4332 60%, #0d2818 100%) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
+    box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15) !important;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.admin-layout.sidebar-collapsed .sidebar {
+    width: var(--sidebar-collapsed-width) !important;
+}
+
+.admin-layout.sidebar-collapsed .main-content {
+    margin-left: var(--sidebar-collapsed-width) !important;
+}
+
+.admin-layout.sidebar-collapsed .brand-text,
+.admin-layout.sidebar-collapsed .nav-section-title,
+.admin-layout.sidebar-collapsed .nav-item span,
+.admin-layout.sidebar-collapsed .user-name,
+.admin-layout.sidebar-collapsed .user-role {
+    display: none !important;
+}
+
+.admin-layout.sidebar-collapsed .nav-item {
+    justify-content: center !important;
+    padding: 12px !important;
+}
+
+.admin-layout.sidebar-collapsed .nav-item i {
+    font-size: 1.25rem !important;
+    margin: 0 !important;
+}
+
+.sidebar .brand-icon {
+    background: linear-gradient(135deg, #2d7d52, #1b4332) !important;
+    color: var(--mcd-gold, #ffbc0d) !important;
+    border: 1px solid rgba(255, 188, 13, 0.3) !important;
+    box-shadow: 0 4px 12px rgba(45, 125, 82, 0.35) !important;
+}
+
+.sidebar .brand-name {
+    font-family: var(--font-heading, 'Outfit', sans-serif) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+}
+
+.sidebar .brand-sub {
+    color: var(--mcd-gold, #ffbc0d) !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.08em !important;
+}
+
+.nav-item {
+    font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif) !important;
+    font-weight: 600 !important;
+    border-radius: 12px !important;
+    margin: 2px 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.nav-item:hover {
+    background: rgba(255, 255, 255, 0.08) !important;
+    color: #ffffff !important;
+    transform: translateX(3px);
+}
+
+.nav-item:hover i {
+    color: var(--mcd-gold, #ffbc0d) !important;
+}
+
+.nav-item.active {
+    background: linear-gradient(135deg, rgba(45, 125, 82, 0.4), rgba(27, 67, 50, 0.6)) !important;
+    border-left: 3px solid var(--mcd-gold, #ffbc0d) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2) !important;
+}
+
+.nav-item.active i {
+    color: var(--mcd-gold, #ffbc0d) !important;
+}
+
+.topbar {
+    background: rgba(255, 255, 255, 0.92) !important;
+    backdrop-filter: blur(10px) !important;
+    border-bottom: 1px solid var(--border) !important;
+    border-radius: 0 0 16px 16px !important;
+    transition: all 0.3s ease;
+}
+
+.page-title {
+    font-family: var(--font-heading, 'Outfit', sans-serif) !important;
+    font-weight: 800 !important;
+    letter-spacing: -0.02em !important;
+}
+
+.card, .form-card, .chart-card, .stat-card {
+    border-radius: 20px !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.06), 0 2px 6px -2px rgba(15, 23, 42, 0.04) !important;
+    transition: all 0.25s ease !important;
+}
+
+.card:hover, .stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px -4px rgba(15, 23, 42, 0.1) !important;
+}
+
+/* ── PROGRESS BAR MODERNIZADA ── */
+.progress-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(0, 0, 0, 0.06);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 8px;
+}
+body.dark-mode .progress-container {
+    background: rgba(255, 255, 255, 0.1);
+}
+.progress-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--dp-emerald), #52b788);
+    transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ── BADGES REFINADAS COM VARIAÇÃO POSITIVA/NEGATIVA ── */
+.trend-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.76rem;
+    font-weight: 700;
+    padding: 3px 8px;
+    border-radius: 999px;
+}
+.trend-indicator.up {
+    background: #ecfdf5;
+    color: #059669;
+}
+.trend-indicator.down {
+    background: #fef2f2;
+    color: #dc2626;
+}
+.trend-indicator.neutral {
+    background: #f1f5f9;
+    color: #64748b;
+}
+body.dark-mode .trend-indicator.up {
+    background: rgba(5, 150, 105, 0.2);
+    color: #34d399;
+}
+body.dark-mode .trend-indicator.down {
+    background: rgba(220, 38, 38, 0.2);
+    color: #f87171;
+}
+
+/* ── OVERLAY E MOBILE RESPONSIVO ── */
+@media (max-width: 900px) {
+    .sidebar {
+        transform: translateX(-100%) !important;
+    }
+    .admin-layout.mobile-open .sidebar {
+        transform: translateX(0) !important;
+    }
+    .main-content {
+        margin-left: 0 !important;
+    }
+    .admin-layout.sidebar-collapsed .main-content {
+        margin-left: 0 !important;
+    }
+}
+
+
+

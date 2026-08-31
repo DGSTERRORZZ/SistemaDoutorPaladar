@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -307,9 +307,20 @@
 
         <div class="main-content">
             <div class="topbar">
-                <div class="page-title" style="font-size: 1.3rem; font-weight: 700;"><i class="fas fa-truck" style="color: var(--primary);"></i> Gestão de Fornecedores</div>
-                <div style="display: flex; gap: 12px; align-items: center;">
-                    <a href="desempenhos.html" class="btn-sm" style="padding:8px 16px;text-decoration:none;display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-chart-line"></i> 📊 Ver Desempenho</a>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title" style="font-size: 1.25rem; font-weight: 800;"><i class="fas fa-truck" style="color: var(--primary);"></i> Gestão de Fornecedores</div>
+                        <div style="font-size: 0.76rem; color: var(--text-muted);">Contatos de distribuidores, marcas e histórico de compras</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 10px; align-items: center;">
+                    <button class="btn btn-secondary btn-sm btn-theme-toggle" onclick="toggleTema()" style="padding: 8px 12px; border-radius: 50%; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-moon"></i>
+                    </button>
+                    <a href="desempenhos.html" class="btn btn-secondary btn-sm" style="text-decoration:none;display:inline-flex;align-items:center;gap:6px;"><i class="fas fa-chart-line"></i> Ver Desempenho</a>
                     <button class="btn-primary" onclick="abrirModalFornecedor()"><i class="fas fa-plus"></i> Novo Fornecedor</button>
                 </div>
             </div>
@@ -317,9 +328,30 @@
             <div class="container">
         <!-- Stats -->
         <div class="stats-grid" id="statsGrid">
-            <div class="stat-card"><div class="stat-value" id="totalFornecedores">0</div><div class="stat-label">Fornecedores</div></div>
-            <div class="stat-card"><div class="stat-value" id="totalCompras">R$ 0</div><div class="stat-label">Total em Compras</div></div>
-            <div class="stat-card"><div class="stat-value" id="ultimaCompra">--</div><div class="stat-label">Última Compra</div></div>
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon" style="background:#e6f9f0; color:var(--primary);"><i class="fas fa-truck-fast"></i></div>
+                    <span class="trend-indicator up"><i class="fas fa-check"></i> Parceiros</span>
+                </div>
+                <div class="stat-value" id="totalFornecedores" style="margin-top:12px;">0</div>
+                <div class="stat-label">Fornecedores Ativos</div>
+            </div>
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon" style="background:#fdf8f3; color:var(--accent);"><i class="fas fa-handshake"></i></div>
+                    <span class="trend-indicator neutral"><i class="fas fa-receipt"></i> Compras</span>
+                </div>
+                <div class="stat-value" id="totalCompras" style="margin-top:12px;">R$ 0,00</div>
+                <div class="stat-label">Total em Compras</div>
+            </div>
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-clock-rotate-left"></i></div>
+                    <span class="trend-indicator up">Recente</span>
+                </div>
+                <div class="stat-value" id="ultimaCompra" style="margin-top:12px; font-size:1.3rem;">--</div>
+                <div class="stat-label">Último Fornecimento</div>
+            </div>
         </div>
         
         <!-- Lista de Fornecedores -->
@@ -515,5 +547,6 @@
         
         carregarFornecedores();
     </script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

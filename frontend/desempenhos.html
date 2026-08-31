@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
@@ -154,11 +154,19 @@
 
         <div class="main-content">
             <div class="topbar">
-                <div>
-                    <h2 class="page-title"><i class="fas fa-chart-line" style="color:var(--primary);"></i> Dashboard Analítico & Relatórios</h2>
-                    <p style="color:var(--text-muted);font-size:0.85rem;">Indicadores reais de vendas, pedidos, agendamentos, clientes e financeiro.</p>
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <h2 class="page-title"><i class="fas fa-chart-line" style="color:var(--primary);"></i> Dashboard Analítico & Relatórios</h2>
+                        <p style="color:var(--text-muted);font-size:0.76rem;margin:0;">Indicadores avançados, curvas de faturamento e relatórios executivos</p>
+                    </div>
                 </div>
-                <div style="display:flex;gap:10px;">
+                <div style="display:flex;gap:10px;align-items:center;">
+                    <button class="btn btn-secondary btn-sm btn-theme-toggle" onclick="toggleTema()" style="padding: 8px 12px; border-radius: 50%; width: 38px; height: 38px; display: inline-flex; align-items: center; justify-content: center;">
+                        <i class="fas fa-moon"></i>
+                    </button>
                     <button onclick="exportarCSVAnalitico()" class="btn-export btn-csv"><i class="fas fa-file-csv"></i> Exportar CSV</button>
                     <button onclick="imprimirAnalitico()" class="btn-export btn-pdf"><i class="fas fa-print"></i> Imprimir PDF</button>
                 </div>
@@ -570,5 +578,6 @@
             imprimirRelatorio(`Relatório Analítico (${abaAtiva.toUpperCase()})`, 'areaRelatorioImpressao');
         }
     </script>
+    <script src="js/auth.js"></script>
 </body>
 </html>
