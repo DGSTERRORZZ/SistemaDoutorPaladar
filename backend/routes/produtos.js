@@ -68,8 +68,8 @@ async function criarProduto(req, res) {
   if (isNaN(precoNum) || precoNum <= 0) {
     return res.status(400).json({ erro: 'Preço deve ser um número positivo' });
   }
-  const categoriasValidas = ['Salgados', 'Bebidas', 'Doces', 'Caldos', 'Snacks', 'Cremosinho', 'Combos', 'Outros'];
-  if (!categoriasValidas.includes(categoria)) {
+  const categoriasValidas = ['Salgados', 'Bebidas', 'Doces', 'Lanches', 'Caldos', 'Snacks', 'Cremosinho', 'Sorvetes', 'Refeições', 'Combos', 'Sobremesas', 'Cafés', 'Outros'];
+  if (!categoriasValidas.map(c => c.toLowerCase()).includes(categoria.toLowerCase())) {
     return res.status(400).json({ erro: `Categoria inválida. Válidas: ${categoriasValidas.join(', ')}` });
   }
 

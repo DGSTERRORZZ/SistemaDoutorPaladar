@@ -104,6 +104,7 @@ const fornecedoresRoutes = require('./routes/fornecedores');
 const configuracoesRoutes = require('./routes/configuracoes');
 const pixRoutes = require('./routes/pix');
 const analyticsRoutes = require('./routes/analytics');
+const uploadRoutes = require('./routes/upload');
 
 // --- Autenticação (com rate limiting) ---
 app.post('/api/auth/login', loginLimiter, authRoutes.loginAdmin);
@@ -123,6 +124,9 @@ app.get('/api/produtos', produtosRoutes.listarProdutos);
 app.post('/api/produtos', verifyAdmin, produtosRoutes.criarProduto);
 app.put('/api/produtos/:id', verifyAdmin, produtosRoutes.atualizarProduto);
 app.delete('/api/produtos/:id', verifyAdmin, produtosRoutes.deletarProduto);
+
+// --- Upload de Imagens ---
+app.use('/api/upload', uploadRoutes);
 
 // --- Rotas modulares (Express Router) ---
 app.use('/api/vendas', vendasRoutes);

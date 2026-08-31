@@ -140,6 +140,7 @@
 
                 <div class="nav-section-title">Gestão</div>
                 <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="produtos.html" class="nav-item"><i class="fas fa-camera"></i> Catálogo & Fotos</a>
                 <a href="estoque.html" class="nav-item active"><i class="fas fa-box"></i> Produtos & Estoque</a>
                 <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
                 <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
@@ -315,10 +316,19 @@
                         <label class="form-label">Estoque Mínimo (Alerta)</label>
                         <input type="number" id="produtoEstoqueMinimo" class="form-control" min="1" value="10" placeholder="10">
                     </div>
-                    <div class="form-group">
-                        <label class="form-label">URL da Imagem (Opcional)</label>
-                        <input type="url" id="produtoImagem" class="form-control" placeholder="https://...">
+                <div class="form-group">
+                    <label class="form-label">Foto do Produto (URL ou Arquivo)</label>
+                    <div style="display: flex; gap: 8px;">
+                        <input type="text" id="produtoImagem" class="form-control" placeholder="https://... ou uploads/..." oninput="atualizarEstoqueImgPreview(this.value)">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('estoqueFileUpload').click()" title="Subir foto local" style="white-space: nowrap;">
+                            <i class="fas fa-upload"></i> Subir Foto
+                        </button>
+                        <input type="file" id="estoqueFileUpload" accept="image/jpeg,image/png,image/webp" style="display: none;" onchange="uploadImagemEstoque(event)">
                     </div>
+                    <div id="estoqueImgPreviewBox" style="margin-top: 8px; width: 60px; height: 60px; border-radius: 10px; background: #f1f5f9; border: 1px solid var(--border); overflow: hidden; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">
+                        <span>🥟</span>
+                    </div>
+                </div>
                 </div>
                 <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1.2rem;">
                     <button type="button" class="btn btn-secondary" onclick="fecharModal()">Cancelar</button>
@@ -481,11 +491,63 @@
             }).join('');
         }
 
+        function atualizarEstoqueImgPreview(url) {
+            const box = document.getElementById('estoqueImgPreviewBox');
+            if(url && url.trim()) {
+                box.innerHTML = `<img src="${url}" style="width:100%;height:100%;object-fit:cover;" onerror="this.outerHTML='<span>🥟</span>'">`;
+            } else {
+                box.innerHTML = `<span>🥟</span>`;
+            }
+        }
+
+        async function uploadImagemEstoque(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            if (file.size > 5 * 1024 * 1024) {
+                alert('A imagem deve ter no máximo 5MB.');
+                return;
+            }
+            const box = document.getElementById('estoqueImgPreviewBox');
+            box.innerHTML = '<i class="fas fa-spinner fa-spin" style="font-size:1rem;color:var(--primary);"></i>';
+
+            const reader = new FileReader();
+            reader.onload = async function(e) {
+                const base64Data = e.target.result;
+                try {
+                    const token = sessionStorage.getItem('token');
+                    const res = await fetch(`${API_URL}/upload`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': token ? `Bearer ${token}` : ''
+                        },
+                        body: JSON.stringify({
+                            imagemBase64: base64Data,
+                            nomeArquivo: document.getElementById('produtoNome').value || 'item_estoque'
+                        })
+                    });
+                    const data = await res.json();
+                    if(res.ok && data.url) {
+                        document.getElementById('produtoImagem').value = data.url;
+                        atualizarEstoqueImgPreview(data.url);
+                    } else {
+                        alert('Erro ao enviar imagem: ' + (data.erro || 'Falha'));
+                        atualizarEstoqueImgPreview('');
+                    }
+                } catch(err) {
+                    alert('Erro de conexão ao enviar imagem.');
+                    atualizarEstoqueImgPreview('');
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+
         // MODAL NOVO / EDITAR
         function abrirModalNovoProduto() {
             document.getElementById('modalTitle').innerHTML = '<i class="fas fa-plus-circle"></i> Cadastrar Novo Produto';
             document.getElementById('produtoForm').reset();
             document.getElementById('produtoId').value = '';
+            atualizarEstoqueImgPreview('');
             document.getElementById('produtoModal').classList.add('active');
         }
 
@@ -500,6 +562,7 @@
             document.getElementById('produtoEstoque').value = p.estoque;
             document.getElementById('produtoEstoqueMinimo').value = p.estoqueMinimo || 10;
             document.getElementById('produtoImagem').value = p.imagem || '';
+            atualizarEstoqueImgPreview(p.imagem || '');
             document.getElementById('produtoModal').classList.add('active');
         }
 
