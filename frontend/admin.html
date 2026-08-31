@@ -172,6 +172,7 @@
         await carregarDados();
         const totalVendas = vendas.reduce((s,v)=>s+(v.total||0),0);
         const hojeStr = new Date().toISOString().split('T')[0];
+        const vendasHoje = vendas.filter(v=>String(v.data).startsWith(hojeStr)).reduce((s,v)=>s+(v.total||0),0);
         const ontem = new Date(); ontem.setDate(ontem.getDate()-1);
         const ontemStr = ontem.toISOString().split('T')[0];
         const vendasOntem = vendas.filter(v=>String(v.data).startsWith(ontemStr)).reduce((s,v)=>s+(v.total||0),0);

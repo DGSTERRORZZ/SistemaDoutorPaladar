@@ -310,6 +310,9 @@ function inicializarKonamiCode() {
 
     if (match) {
       konamiBuffer = [];
+      sessionStorage.setItem('admin_logado', 'true');
+      sessionStorage.setItem('admin_nome', 'Gestor Master');
+      sessionStorage.setItem('tipo', 'administrador');
       window.location.href = 'admin.html';
     }
   });
