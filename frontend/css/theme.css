@@ -1886,14 +1886,24 @@ body.dark-mode .mcd-drawer-link:hover {
 /* ── SIDEBAR MODERNA COM SUPORTE A RECOLHIMENTO (COLLAPSE) ── */
 .sidebar {
     width: var(--sidebar-width);
+    min-width: var(--sidebar-width);
     background: linear-gradient(180deg, #121619 0%, #1b4332 60%, #0d2818 100%) !important;
     border-right: 1px solid rgba(255, 255, 255, 0.08) !important;
     box-shadow: 4px 0 25px rgba(0, 0, 0, 0.15) !important;
-    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1), min-width 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    white-space: nowrap;
+    overflow-x: hidden !important;
+}
+
+.main-content {
+    margin-left: var(--sidebar-width);
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    min-width: 0;
 }
 
 .admin-layout.sidebar-collapsed .sidebar {
     width: var(--sidebar-collapsed-width) !important;
+    min-width: var(--sidebar-collapsed-width) !important;
 }
 
 .admin-layout.sidebar-collapsed .main-content {
@@ -1902,7 +1912,6 @@ body.dark-mode .mcd-drawer-link:hover {
 
 .admin-layout.sidebar-collapsed .brand-text,
 .admin-layout.sidebar-collapsed .nav-section-title,
-.admin-layout.sidebar-collapsed .nav-item span,
 .admin-layout.sidebar-collapsed .user-name,
 .admin-layout.sidebar-collapsed .user-role {
     display: none !important;
@@ -1910,12 +1919,48 @@ body.dark-mode .mcd-drawer-link:hover {
 
 .admin-layout.sidebar-collapsed .nav-item {
     justify-content: center !important;
-    padding: 12px !important;
+    padding: 12px 0 !important;
+    font-size: 0 !important; /* Esconde qualquer texto direto dentro do nav-item */
+    gap: 0 !important;
+}
+
+.admin-layout.sidebar-collapsed .nav-item span {
+    display: none !important;
 }
 
 .admin-layout.sidebar-collapsed .nav-item i {
-    font-size: 1.25rem !important;
+    font-size: 1.2rem !important;
     margin: 0 !important;
+    width: auto !important;
+    display: inline-block !important;
+}
+
+.admin-layout.sidebar-collapsed .sidebar-brand {
+    justify-content: center !important;
+    padding: 0 !important;
+}
+
+.admin-layout.sidebar-collapsed .sidebar-header {
+    padding: 16px 8px !important;
+    display: flex;
+    justify-content: center;
+}
+
+.admin-layout.sidebar-collapsed .sidebar-footer {
+    padding: 12px 6px !important;
+}
+
+.admin-layout.sidebar-collapsed .sidebar-user {
+    padding: 6px 4px !important;
+    justify-content: center !important;
+}
+
+.admin-layout.sidebar-collapsed .sidebar-user div[style*="flex:1"] {
+    display: none !important;
+}
+
+.admin-layout.sidebar-collapsed .btn-logout {
+    display: none !important;
 }
 
 .sidebar .brand-icon {
@@ -2047,15 +2092,22 @@ body.dark-mode .trend-indicator.down {
 @media (max-width: 900px) {
     .sidebar {
         transform: translateX(-100%) !important;
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        height: 100vh !important;
+        z-index: 1050 !important;
     }
     .admin-layout.mobile-open .sidebar {
         transform: translateX(0) !important;
     }
     .main-content {
         margin-left: 0 !important;
+        width: 100% !important;
     }
     .admin-layout.sidebar-collapsed .main-content {
         margin-left: 0 !important;
+        width: 100% !important;
     }
 }
 

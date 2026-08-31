@@ -257,22 +257,6 @@
         ::-webkit-scrollbar-thumb:hover { background:var(--primary-dark); }
 
         @media (max-width:900px) {
-            /* No mobile a sidebar fica como barra horizontal no topo — nunca some */
-            .admin-layout { flex-direction:column; }
-            .sidebar {
-                width: 100%;
-                height: auto;
-                position: sticky;   /* fica fixada no topo ao rolar */
-                top: 0;
-                z-index: 100;
-                overflow-x: auto;
-                overflow-y: hidden;
-                white-space: nowrap;
-                padding: 0.75rem 1rem;
-            }
-            .logo { display: inline-block; margin-bottom: 0; margin-right: 1rem; vertical-align: middle; }
-            .main-content { margin-left: 0; }
-            .nav-item { display: inline-flex; margin-right: 0.4rem; }
             .pdv-grid { grid-template-columns: 1fr; }
             .carrinho-card { position: static; }
         }
