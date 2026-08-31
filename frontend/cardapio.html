@@ -173,6 +173,8 @@
             margin-top: 1rem;
             padding-top: 1rem;
             border-top: 1px solid #f1f5f9;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .product-mc-price {
@@ -180,6 +182,56 @@
             font-weight: 900;
             color: var(--dp-emerald);
             font-family: var(--font-heading, 'Outfit', sans-serif);
+        }
+
+        .product-mc-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Seletor de Quantidade no Card */
+        .product-qty-selector {
+            display: inline-flex;
+            align-items: center;
+            background: #f1f5f9;
+            border: 1.5px solid #cbd5e1;
+            border-radius: var(--radius-full);
+            padding: 2px 4px;
+            gap: 4px;
+        }
+
+        .btn-card-qty {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: none;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 0.9rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.15s ease;
+        }
+
+        .btn-card-qty:hover {
+            background: var(--dp-emerald);
+            color: #ffffff;
+        }
+
+        .card-qty-input {
+            width: 28px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #0f172a;
+            border: none;
+            background: transparent;
+            outline: none;
         }
 
         .btn-mc-add {
@@ -214,6 +266,26 @@
             0% { transform: scale(0.92); background: #1b4332; }
             50% { transform: scale(1.15); background: var(--mcd-gold); color: #121619; box-shadow: 0 0 20px rgba(255, 188, 13, 0.7); }
             100% { transform: scale(1); background: var(--dp-emerald); color: #ffffff; }
+        }
+
+        .btn-clear-cart {
+            background: #fee2e2;
+            color: #dc2626;
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 6px 12px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-clear-cart:hover {
+            background: #fca5a5;
+            color: #991b1b;
         }
 
         .cart-mc-fab.cart-bump {
@@ -474,13 +546,18 @@
     <!-- Carrinho Lateral Drawer -->
     <div class="cart-sidebar" id="cartSidebar">
         <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.2rem; border-bottom: 1px solid var(--border);">
-            <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; display: flex; align-items: center; gap: 10px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
                 <div style="width: 32px; height: 32px; background: #f0faf4; color: var(--dp-emerald); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
                     <i class="fas fa-shopping-bag"></i>
                 </div>
-                Sua Sacola
-            </h3>
-            <button onclick="toggleCart()" style="font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #64748b;">&times;</button>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">Sua Sacola</h3>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="btn-clear-cart" id="btnClearCart" onclick="limparTodoCarrinho()" title="Excluir todos os itens da sacola">
+                    <i class="fas fa-trash-alt"></i> Limpar
+                </button>
+                <button onclick="toggleCart()" style="font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #64748b; padding: 0 4px;">&times;</button>
+            </div>
         </div>
         <div id="cartItems" style="flex: 1; overflow-y: auto; padding: 1rem 0;"></div>
         <div style="border-top: 1px solid var(--border); padding-top: 1.2rem;">
@@ -642,6 +719,15 @@
             return map[cat] || '🍽️';
         }
 
+        function alterarQtdCard(id, delta, event) {
+            if (event) event.stopPropagation();
+            const input = document.getElementById(`cardQty_${id}`);
+            if (!input) return;
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, Math.min(99, val + delta));
+            input.value = val;
+        }
+
         function renderCardProduto(p) {
             const preco = parseFloat(p.preco) || 0;
             const imagemUrl = getImagemUrl(p);
@@ -662,9 +748,16 @@
                         </div>
                         <div class="product-mc-footer">
                             <div class="product-mc-price">R$ ${preco.toFixed(2).replace('.', ',')}</div>
-                            <button class="btn-mc-add" data-id="${p.id}" onclick="adicionarAoCarrinho(${p.id}, event)">
-                                <i class="fas fa-plus"></i> Adicionar
-                            </button>
+                            <div class="product-mc-actions">
+                                <div class="product-qty-selector" onclick="event.stopPropagation()">
+                                    <button class="btn-card-qty" onclick="alterarQtdCard(${p.id}, -1, event)">−</button>
+                                    <input type="text" id="cardQty_${p.id}" class="card-qty-input" value="1" readonly>
+                                    <button class="btn-card-qty" onclick="alterarQtdCard(${p.id}, 1, event)">+</button>
+                                </div>
+                                <button class="btn-mc-add" data-id="${p.id}" onclick="adicionarAoCarrinho(${p.id}, event)">
+                                    <i class="fas fa-plus"></i> Adicionar
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -804,12 +897,25 @@
             filtrarProdutos();
         }
 
-        function adicionarAoCarrinho(id, event) {
+        function adicionarAoCarrinho(id, event, qtdCustom = null) {
             const prod = produtos.find(p => p.id === id);
             if (!prod) return;
 
+            // Determina a quantidade a adicionar (pela seleção do card ou parâmetro)
+            let qtdParaAdicionar = 1;
+            if (qtdCustom !== null && !isNaN(qtdCustom) && qtdCustom > 0) {
+                qtdParaAdicionar = parseInt(qtdCustom);
+            } else {
+                const cardQtyInput = document.getElementById(`cardQty_${id}`);
+                if (cardQtyInput) {
+                    qtdParaAdicionar = Math.max(1, parseInt(cardQtyInput.value) || 1);
+                }
+            }
+
             // Animação de feedback no botão clicado
-            const targetBtn = (event && event.currentTarget) ? event.currentTarget : document.querySelector(`.btn-mc-add[data-id="${id}"]`);
+            const targetBtn = (event && event.currentTarget && event.currentTarget.classList.contains('btn-mc-add')) 
+                ? event.currentTarget 
+                : document.querySelector(`.btn-mc-add[data-id="${id}"]`);
             if (targetBtn) {
                 targetBtn.classList.remove('btn-pulsing');
                 void targetBtn.offsetWidth; // trigger reflow
@@ -826,16 +932,29 @@
 
             const itemExistente = carrinho.find(i => i.produtoId === id);
             if (itemExistente) {
-                itemExistente.quantidade++;
+                itemExistente.quantidade += qtdParaAdicionar;
             } else {
                 carrinho.push({
                     produtoId: prod.id,
                     nome: prod.nome,
                     precoUnitario: prod.preco,
-                    quantidade: 1
+                    quantidade: qtdParaAdicionar
                 });
             }
+
+            // Reseta o input do card de volta para 1 após adicionar
+            const cardQtyInput = document.getElementById(`cardQty_${id}`);
+            if (cardQtyInput) cardQtyInput.value = 1;
+
             atualizarCarrinhoUI();
+        }
+
+        function limparTodoCarrinho() {
+            if (carrinho.length === 0) return;
+            if (confirm('Deseja realmente remover todos os itens da sua sacola?')) {
+                carrinho = [];
+                atualizarCarrinhoUI();
+            }
         }
 
         function removerDoCarrinho(id) {
@@ -878,7 +997,7 @@
                         <div style="display: flex; align-items: center; gap: 8px;">
                             <button onclick="removerDoCarrinho(${i.produtoId})" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #cbd5e1; cursor: pointer; background: #ffffff; font-weight: 800; display: flex; align-items: center; justify-content: center;">−</button>
                             <span style="font-weight: 800; font-size: 0.95rem; min-width: 18px; text-align: center;">${i.quantidade}</span>
-                            <button onclick="adicionarAoCarrinho(${i.produtoId})" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #cbd5e1; cursor: pointer; background: #ffffff; font-weight: 800; display: flex; align-items: center; justify-content: center;">+</button>
+                            <button onclick="adicionarAoCarrinho(${i.produtoId}, event, 1)" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #cbd5e1; cursor: pointer; background: #ffffff; font-weight: 800; display: flex; align-items: center; justify-content: center;">+</button>
                         </div>
                     </div>
                 `).join('');
