@@ -226,15 +226,21 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.2s;
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, box-shadow 0.2s;
             border: none;
             cursor: pointer;
+            user-select: none;
         }
 
         .btn-card-action:hover {
             background: var(--dp-emerald);
             color: #ffffff;
-            transform: scale(1.04);
+            transform: scale(1.06);
+            box-shadow: 0 6px 16px rgba(45, 125, 82, 0.3);
+        }
+
+        .btn-card-action:active {
+            transform: scale(0.92);
         }
 
         /* ── BOTÕES DA NAVBAR DIREITA ── */

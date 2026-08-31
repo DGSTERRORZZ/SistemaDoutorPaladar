@@ -194,14 +194,37 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            transition: all 0.2s;
+            transition: transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.2s, box-shadow 0.2s;
             box-shadow: 0 4px 12px rgba(45, 125, 82, 0.25);
+            user-select: none;
         }
 
         .btn-mc-add:hover {
             background: #1b4332;
             transform: scale(1.04);
             box-shadow: 0 6px 16px rgba(27, 67, 50, 0.35);
+        }
+
+        .btn-mc-add:active,
+        .btn-mc-add.btn-pulsing {
+            animation: btnAddPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes btnAddPop {
+            0% { transform: scale(0.92); background: #1b4332; }
+            50% { transform: scale(1.15); background: var(--mcd-gold); color: #121619; box-shadow: 0 0 20px rgba(255, 188, 13, 0.7); }
+            100% { transform: scale(1); background: var(--dp-emerald); color: #ffffff; }
+        }
+
+        .cart-mc-fab.cart-bump {
+            animation: cartBump 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes cartBump {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.22) rotate(-4deg); }
+            60% { transform: scale(0.95) rotate(2deg); }
+            100% { transform: scale(1); }
         }
 
         /* Drawer Lateral do Carrinho */
@@ -619,7 +642,7 @@
 
             return `
                 <div class="product-mc-card">
-                    <div class="product-mc-media" onclick="adicionarAoCarrinho(${p.id})">
+                    <div class="product-mc-media" onclick="adicionarAoCarrinho(${p.id}, event)">
                         ${imagemHtml}
                     </div>
                     <div class="product-mc-content">
@@ -629,7 +652,7 @@
                         </div>
                         <div class="product-mc-footer">
                             <div class="product-mc-price">R$ ${preco.toFixed(2).replace('.', ',')}</div>
-                            <button class="btn-mc-add" onclick="adicionarAoCarrinho(${p.id})">
+                            <button class="btn-mc-add" data-id="${p.id}" onclick="adicionarAoCarrinho(${p.id}, event)">
                                 <i class="fas fa-plus"></i> Adicionar
                             </button>
                         </div>
@@ -638,23 +661,99 @@
             `;
         }
 
+        // Hierarquia lógica de categorias e tipos de produtos
+        const prioridadeCategorias = {
+            'refrigerantes': 1,
+            'água': 2,
+            'agua': 2,
+            'cafés': 3,
+            'cafes': 3,
+            'bebidas': 4,
+            'sucos': 5,
+            'cremosinho': 6,
+            'salgados': 10,
+            'frituras': 11,
+            'lanches': 12,
+            'caldos': 13,
+            'doces': 20,
+            'sorvetes': 21,
+            'snacks': 30,
+            'combos': 40,
+            'outros': 99
+        };
+
+        function obterPrioridadeItem(item) {
+            const cat = (item.categoria || '').toLowerCase().trim();
+            const nome = (item.nome || '').toLowerCase().trim();
+
+            // Refinamento por tipo de produto
+            if (nome.includes('coca') || nome.includes('guaraná') || nome.includes('guarana') || nome.includes('sprite') || nome.includes('fanta') || nome.includes('refrigerante')) {
+                return 1;
+            }
+            if (nome.includes('água') || nome.includes('agua')) {
+                return 2;
+            }
+            if (nome.includes('café') || nome.includes('cafe')) {
+                return 3;
+            }
+            if (cat === 'bebidas') {
+                return 4;
+            }
+            if (cat === 'cremosinho') {
+                return 6;
+            }
+            if (cat === 'salgados') {
+                // Frituras vs Assados
+                if (nome.includes('coxinha') || nome.includes('pastel') || nome.includes('risolis') || nome.includes('kibe') || nome.includes('enroladinho frito')) {
+                    return 11;
+                }
+                return 10;
+            }
+            if (cat === 'caldos') return 13;
+            if (cat === 'doces') return 20;
+            if (cat === 'snacks') return 30;
+
+            return prioridadeCategorias[cat] || 50;
+        }
+
+        function ordenarListaProdutos(lista) {
+            return [...lista].sort((a, b) => {
+                const prioA = obterPrioridadeItem(a);
+                const prioB = obterPrioridadeItem(b);
+                if (prioA !== prioB) return prioA - prioB;
+                return (a.nome || '').localeCompare(b.nome || '');
+            });
+        }
+
         async function carregarProdutos() {
             try {
                 const res = await fetch(API_URL + '/produtos');
-                if (res.ok) produtos = await res.json();
+                if (res.ok) {
+                    const dados = await res.json();
+                    produtos = Array.isArray(dados) ? dados : (dados.dados || []);
+                }
             } catch (e) { }
             produtos.forEach(p => { p.preco = parseFloat(p.preco) || 0; });
+            // Ordena com lógica gastronômica: Bebidas (Refrigerantes, Água, Café, Sucos), Salgados, Frituras, Caldos, Doces, Snacks...
+            produtos = ordenarListaProdutos(produtos);
             renderCategorias();
             renderProdutos();
         }
 
         function renderCategorias() {
-            const cats = ['Todos', ...new Set(produtos.map(p => p.categoria).filter(Boolean))];
+            // Ordem lógica e sem emojis
+            const ordemDesejada = ['Todos', 'Bebidas', 'Cremosinho', 'Salgados', 'Caldos', 'Doces', 'Snacks', 'Combos', 'Outros'];
+            const categoriasPresentes = [...new Set(produtos.map(p => p.categoria).filter(Boolean))];
+            
+            const cats = ['Todos', ...ordemDesejada.filter(c => c !== 'Todos' && categoriasPresentes.includes(c))];
+            categoriasPresentes.forEach(c => {
+                if (!cats.includes(c)) cats.push(c);
+            });
+
             const container = document.getElementById('categories');
             if (!container) return;
             container.innerHTML = cats.map(c => `
                 <button class="cat-mc-btn ${categoriaAtiva === c ? 'active' : ''}" onclick="filtrarCategoria('${c}')">
-                    <span>${getEmoji(c)}</span>
                     <span>${c}</span>
                 </button>
             `).join('');
@@ -695,9 +794,26 @@
             filtrarProdutos();
         }
 
-        function adicionarAoCarrinho(id) {
+        function adicionarAoCarrinho(id, event) {
             const prod = produtos.find(p => p.id === id);
             if (!prod) return;
+
+            // Animação de feedback no botão clicado
+            const targetBtn = (event && event.currentTarget) ? event.currentTarget : document.querySelector(`.btn-mc-add[data-id="${id}"]`);
+            if (targetBtn) {
+                targetBtn.classList.remove('btn-pulsing');
+                void targetBtn.offsetWidth; // trigger reflow
+                targetBtn.classList.add('btn-pulsing');
+            }
+
+            // Animação na sacola / botão flutuante
+            const cartFab = document.getElementById('cartFab');
+            if (cartFab) {
+                cartFab.classList.remove('cart-bump');
+                void cartFab.offsetWidth;
+                cartFab.classList.add('cart-bump');
+            }
+
             const itemExistente = carrinho.find(i => i.produtoId === id);
             if (itemExistente) {
                 itemExistente.quantidade++;
@@ -710,9 +826,6 @@
                 });
             }
             atualizarCarrinhoUI();
-            if (typeof window.showToast === 'function') {
-                window.showToast(`Adicionado: ${prod.nome}`, 'success', 2000);
-            }
         }
 
         function removerDoCarrinho(id) {

@@ -219,9 +219,8 @@
                 <a href="#" onclick="fecharDrawer(); abrirModalAgendamentoCliente()" class="mcd-drawer-link"><i class="fas fa-calendar-alt"></i> Prato do Dia</a>
                 <a href="faq.html" class="mcd-drawer-link" style="color: var(--dp-emerald); background: #f1f5f9;"><i class="fas fa-question-circle"></i> Perguntas Frequentes (FAQ)</a>
                 <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 10px 0;">
-                <a href="index.html" class="mcd-drawer-link"><i class="fas fa-user"></i> Minha Conta / Login</a>
-                <a href="index.html" class="mcd-drawer-link"><i class="fas fa-award"></i> Programa de Fidelidade</a>
-                <a href="admin.html" class="mcd-drawer-link"><i class="fas fa-lock"></i> Painel do Gestor</a>
+                <a href="javascript:void(0)" onclick="fecharDrawer(); irParaLogin()" class="mcd-drawer-link"><i class="fas fa-user"></i> Entrar / Minha Conta</a>
+                <a href="javascript:void(0)" onclick="fecharDrawer(); irParaCadastro()" class="mcd-drawer-link"><i class="fas fa-user-plus"></i> Criar Conta Gratuita</a>
             </div>
         </div>
     </div>
@@ -277,20 +276,6 @@
             </span>
             <h1>Como podemos ajudar você hoje?</h1>
             <p>Encontre respostas rápidas para as principais dúvidas sobre pedidos, pagamentos, agendamentos e fidelidade.</p>
-
-            <div class="faq-search-wrapper">
-                <i class="fas fa-search"></i>
-                <input type="text" id="faqSearchInput" onkeyup="filtrarFaq()" placeholder="Digite sua dúvida (ex: PIX, horários, cancelamento, fidelidade)..." class="faq-search-input">
-            </div>
-        </div>
-
-        <!-- Filtros Rápidos de Categoria de FAQ -->
-        <div class="faq-category-pills">
-            <button class="faq-pill-btn active" onclick="filtrarCategoriaFaq('todos', this)">🌟 Todas as Dúvidas</button>
-            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('pedidos', this)">🍔 Pedidos & Retirada</button>
-            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('pagamento', this)">💳 Pagamento & PIX</button>
-            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('fidelidade', this)">⭐ Clube de Pontos</button>
-            <button class="faq-pill-btn" onclick="filtrarCategoriaFaq('almoco', this)">🍽️ Prato do Dia</button>
         </div>
 
         <!-- Lista de Accordions -->
@@ -357,18 +342,23 @@
                     <i class="fas fa-chevron-down"></i>
                 </div>
                 <div class="faq-answer">
-                    Como o preparo e a separação dos salgados começam imediatamente, dirija-se imediatamente ao balcão da cantina ou envie uma mensagem no <strong>Chat ao Vivo</strong> informando seu nome ou número de pedido.
+                    Como o preparo e a separação dos salgados começam imediatamente, dirija-se imediatamente ao balcão da cantina ou envie uma mensagem diretamente para nosso atendimento no WhatsApp informado abaixo.
                 </div>
             </div>
         </div>
 
-        <!-- CTA para o Cardápio -->
+        <!-- CTA com Contato Direto para Dúvidas -->
         <div class="faq-cta-card">
-            <h3>Ficou com alguma dúvida ou pronto para pedir?</h3>
-            <p>Confira todas as delícias e novidades disponíveis agora mesmo no nosso cardápio digital.</p>
-            <a href="cardapio.html" class="btn-mcd-gold" style="padding: 15px 36px; font-size: 1.05rem;">
-                <i class="fas fa-shopping-bag"></i> Ir para o Cardápio Oficial
-            </a>
+            <h3>Ficou com alguma dúvida?</h3>
+            <p>Nossa equipe está pronta para te atender e tirar qualquer dúvida sobre pedidos, cardápio ou pagamentos.</p>
+            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
+                <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20tenho%20uma%20d%C3%BAvida%20sobre%20o%20Doutor%20Paladar" target="_blank" class="btn-mcd-gold" style="padding: 14px 28px; font-size: 1rem; text-decoration: none;">
+                    <i class="fab fa-whatsapp" style="font-size: 1.2rem; color: #16a34a;"></i> Falar no WhatsApp
+                </a>
+                <a href="mailto:contato@doutorpaladar.com" class="btn-account-pill" style="padding: 14px 24px; font-size: 0.95rem; text-decoration: none;">
+                    <i class="fas fa-envelope" style="color: var(--dp-emerald);"></i> Enviar E-mail
+                </a>
+            </div>
         </div>
     </main>
 
@@ -440,38 +430,6 @@
         function toggleFaq(el) {
             const item = el.parentElement;
             item.classList.toggle('active');
-        }
-
-        let categoriaAtivaFaq = 'todos';
-
-        function filtrarCategoriaFaq(cat, btn) {
-            categoriaAtivaFaq = cat;
-            document.querySelectorAll('.faq-pill-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            filtrarFaq();
-        }
-
-        function removerAcentos(str) {
-            return (str || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
-        }
-
-        function filtrarFaq() {
-            const termo = removerAcentos(document.getElementById('faqSearchInput').value.trim());
-            const items = document.querySelectorAll('.faq-item');
-
-            items.forEach(item => {
-                const cat = item.getAttribute('data-cat');
-                const texto = removerAcentos(item.textContent);
-
-                const matchCat = (categoriaAtivaFaq === 'todos' || cat === categoriaAtivaFaq);
-                const matchTermo = !termo || texto.includes(termo);
-
-                if (matchCat && matchTermo) {
-                    item.style.display = 'block';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
         }
         // Sincronizar estado do usuário (pontos reais e nome)
         async function sincronizarEstadoUsuario() {
