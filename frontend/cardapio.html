@@ -422,12 +422,48 @@
             font-weight: 900;
         }
 
+        /* Paginação do Cardápio */
+        .btn-cardapio-page {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background: #f8fafc;
+            color: #1e293b;
+            font-size: 0.9rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .btn-cardapio-page:hover:not(:disabled) {
+            border-color: var(--dp-emerald);
+            color: var(--dp-emerald);
+            background: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        .btn-cardapio-page.active {
+            background: var(--dp-emerald);
+            color: #ffffff;
+            border-color: var(--dp-emerald);
+            box-shadow: 0 4px 10px rgba(45, 125, 82, 0.25);
+        }
+
         @media (max-width: 600px) {
             .cart-mc-fab {
                 right: 18px;
                 padding: 12px 18px;
                 font-size: 0.85rem;
             }
+            .cardapio-pagination-wrap {
+                justify-content: center;
+                text-align: center;
+            }
+        }
         }
     </style>
 </head>
@@ -516,7 +552,7 @@
                 <p>Escolha seus itens favoritos preparados na hora e retire no balcão sem filas</p>
             </div>
             <div style="width: 100%; max-width: 380px;">
-                <input type="text" id="buscaProduto" oninput="filtrarProdutos()" placeholder="🔍 Buscar salgados, bebidas, cafés..."
+                <input type="text" id="buscaProduto" oninput="onBuscaInput()" placeholder="🔍 Buscar salgados, bebidas, cafés..."
                     class="form-control"
                     style="border-radius: var(--radius-full); padding: 12px 22px; font-size: 0.95rem; background: #ffffff; border: 1.5px solid #cbd5e1;">
             </div>
@@ -527,6 +563,14 @@
 
         <!-- Grid de Produtos -->
         <div class="products-mc-grid" id="productsGrid"></div>
+
+        <!-- Paginação do Cardápio -->
+        <div class="cardapio-pagination-wrap" id="cardapioPagination" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; background: #ffffff; padding: 1rem 1.5rem; border-radius: 18px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <div style="font-size: 0.9rem; font-weight: 700; color: #64748b;" id="cardapioPaginationInfo">
+                Mostrando produtos
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;" id="cardapioPaginationBtns"></div>
+        </div>
     </main>
 
     <!-- BOTÃO FLUTUANTE DE PEDIDO / SACOLA -->
@@ -676,6 +720,8 @@
         let produtos = [];
         let carrinho = [];
         let categoriaAtiva = 'Todos';
+        let paginaAtualCardapio = 1;
+        const ITENS_POR_PAGINA_CARDAPIO = 8;
 
         function abrirDrawer() {
             document.getElementById('drawerOverlay')?.classList.add('active');
@@ -886,13 +932,20 @@
 
         function filtrarCategoria(cat) {
             categoriaAtiva = cat;
+            paginaAtualCardapio = 1;
             renderCategorias();
             renderProdutos();
+        }
+
+        function onBuscaInput() {
+            paginaAtualCardapio = 1;
+            filtrarProdutos();
         }
 
         function filtrarProdutos() {
             const termo = (document.getElementById('buscaProduto').value || '').toLowerCase().trim();
             const grid = document.getElementById('productsGrid');
+            const paginationWrap = document.getElementById('cardapioPagination');
             if (!grid) return;
 
             let filtrados = produtos;
@@ -900,19 +953,79 @@
                 filtrados = filtrados.filter(p => p.categoria === categoriaAtiva);
             }
             if (termo) {
-                filtrados = filtrados.filter(p => p.nome.toLowerCase().includes(termo));
+                filtrados = filtrados.filter(p => (p.nome || '').toLowerCase().includes(termo) || (p.categoria || '').toLowerCase().includes(termo));
             }
 
-            if (filtrados.length === 0) {
+            const total = filtrados.length;
+            if (total === 0) {
                 grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: #64748b;">
                     <i class="fas fa-search" style="font-size: 2.5rem; opacity: 0.3; margin-bottom: 1rem; display:block;"></i>
                     <h3 style="font-weight: 800; color: #1e293b;">Nenhum produto encontrado</h3>
                     <p style="font-size: 0.95rem;">Tente buscar com outras palavras ou selecione outra categoria.</p>
                 </div>`;
+                if (paginationWrap) paginationWrap.style.display = 'none';
                 return;
             }
 
-            grid.innerHTML = filtrados.map(p => renderCardProduto(p)).join('');
+            const totalPaginas = Math.ceil(total / ITENS_POR_PAGINA_CARDAPIO) || 1;
+            if (paginaAtualCardapio > totalPaginas) paginaAtualCardapio = totalPaginas;
+            if (paginaAtualCardapio < 1) paginaAtualCardapio = 1;
+
+            const inicio = (paginaAtualCardapio - 1) * ITENS_POR_PAGINA_CARDAPIO;
+            const fim = inicio + ITENS_POR_PAGINA_CARDAPIO;
+            const paginaItens = filtrados.slice(inicio, fim);
+
+            grid.innerHTML = paginaItens.map(p => renderCardProduto(p)).join('');
+
+            renderCardapioPaginacao(total, totalPaginas, inicio, Math.min(fim, total));
+        }
+
+        function renderCardapioPaginacao(total, totalPaginas, inicio, fim) {
+            const paginationWrap = document.getElementById('cardapioPagination');
+            if (!paginationWrap) return;
+
+            if (total <= ITENS_POR_PAGINA_CARDAPIO) {
+                paginationWrap.style.display = 'none';
+                return;
+            }
+
+            paginationWrap.style.display = 'flex';
+            const infoEl = document.getElementById('cardapioPaginationInfo');
+            if (infoEl) {
+                infoEl.textContent = `Mostrando ${inicio + 1} - ${fim} de ${total} produtos`;
+            }
+
+            const btnsContainer = document.getElementById('cardapioPaginationBtns');
+            if (!btnsContainer) return;
+
+            let html = `
+                <button class="btn-cardapio-page" ${paginaAtualCardapio === 1 ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''} onclick="mudarPaginaCardapio(${paginaAtualCardapio - 1})" title="Página Anterior">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                html += `
+                    <button class="btn-cardapio-page ${i === paginaAtualCardapio ? 'active' : ''}" onclick="mudarPaginaCardapio(${i})">${i}</button>
+                `;
+            }
+
+            html += `
+                <button class="btn-cardapio-page" ${paginaAtualCardapio === totalPaginas ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''} onclick="mudarPaginaCardapio(${paginaAtualCardapio + 1})" title="Próxima Página">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+
+            btnsContainer.innerHTML = html;
+        }
+
+        function mudarPaginaCardapio(num) {
+            paginaAtualCardapio = num;
+            filtrarProdutos();
+            const categoriesBar = document.getElementById('categories');
+            if (categoriesBar) {
+                categoriesBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
         }
 
         function renderProdutos() {
