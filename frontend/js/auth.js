@@ -258,7 +258,30 @@ function inicializarSidebar() {
   }
 }
 
+// ===== RASTREAMENTO INTELIGENTE DE PÁGINA ANTERIOR DO CLIENTE =====
+function registrarPaginaAtual() {
+  const current = window.location.pathname.split('/').pop() || 'index.html';
+  const queryStr = window.location.search || '';
+  const full = current + queryStr;
+  if (!full.includes('login.html') && !full.includes('cadastro.html')) {
+    sessionStorage.setItem('dp_last_page', full);
+  }
+}
+
+function irParaLogin() {
+  registrarPaginaAtual();
+  const returnUrl = sessionStorage.getItem('dp_last_page') || 'index.html';
+  window.location.href = `login.html?returnUrl=${encodeURIComponent(returnUrl)}`;
+}
+
+function irParaCadastro() {
+  registrarPaginaAtual();
+  const returnUrl = sessionStorage.getItem('dp_last_page') || 'index.html';
+  window.location.href = `cadastro.html?returnUrl=${encodeURIComponent(returnUrl)}`;
+}
+
 document.addEventListener('DOMContentLoaded', () => {
+  registrarPaginaAtual();
   inicializarTema();
   inicializarSidebar();
 });

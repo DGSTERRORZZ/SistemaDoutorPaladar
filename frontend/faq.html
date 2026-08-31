@@ -249,15 +249,22 @@
             </div>
 
             <div class="mcd-nav-right">
-                <button class="btn-mcd-gold" id="loginBtn" onclick="window.location.href='index.html'">
-                    <i class="fas fa-user"></i> Entrar
+                <!-- Indicador de Pontos / Fidelidade Real -->
+                <div id="navPontosContainer">
+                    <a href="javascript:void(0)" onclick="irParaCadastro()" class="points-nav-pill" title="Cadastre-se e acumule pontos em cada pedido!">
+                        <i class="fas fa-award"></i> <span>Clube de Pontos</span>
+                    </a>
+                </div>
+
+                <!-- Botão de Cadastro Rápido Superior -->
+                <a href="javascript:void(0)" onclick="irParaCadastro()" class="btn-register-top" id="btnTopCadastro" title="Cadastre-se e ganhe pontos">
+                    <i class="fas fa-user-plus"></i> <span>Criar Conta</span>
+                </a>
+
+                <!-- Botão Entrar / Conta -->
+                <button class="btn-account-pill" id="loginBtn" onclick="irParaLogin()">
+                    <i class="fas fa-user"></i> <span>Entrar</span>
                 </button>
-                <a href="index.html" class="btn-mcd-icon" title="Página Inicial">
-                    <i class="fas fa-home"></i>
-                </a>
-                <a href="admin.html" class="btn-mcd-icon" title="Acesso do Gestor">
-                    <i class="fas fa-shield-alt"></i>
-                </a>
             </div>
         </div>
     </header>
@@ -466,6 +473,62 @@
                 }
             });
         }
+        // Sincronizar estado do usuário (pontos reais e nome)
+        async function sincronizarEstadoUsuario() {
+            const token = sessionStorage.getItem('cliente_token');
+            const loginBtn = document.getElementById('loginBtn');
+            const navPontos = document.getElementById('navPontosContainer');
+            const btnTopCad = document.getElementById('btnTopCadastro');
+
+            if (token) {
+                try {
+                    const res = await fetch(`http://localhost:3000/api/clientes/perfil`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const perfil = await res.json();
+                        const pontos = perfil.pontosFidelidade || 0;
+                        sessionStorage.setItem('cliente_pontos', pontos);
+                        sessionStorage.setItem('cliente_nome', perfil.nome);
+
+                        if (navPontos) {
+                            navPontos.innerHTML = `
+                                <a href="cardapio.html" class="points-nav-pill" title="Seus pontos acumulados">
+                                    <i class="fas fa-award" style="color:var(--mcd-gold)"></i> <span>${pontos} pts</span>
+                                </a>
+                            `;
+                        }
+
+                        if (btnTopCad) btnTopCad.style.display = 'none';
+
+                        if (loginBtn) {
+                            loginBtn.innerHTML = `<i class="fas fa-user-check" style="color:var(--dp-emerald)"></i> <span>${perfil.nome.split(' ')[0]}</span>`;
+                            loginBtn.onclick = () => window.location.href = 'cardapio.html';
+                            loginBtn.title = 'Acessar Área do Cliente';
+                        }
+                        return;
+                    }
+                } catch(e) {}
+            }
+
+            if (navPontos) {
+                navPontos.innerHTML = `
+                    <a href="javascript:void(0)" onclick="irParaCadastro()" class="points-nav-pill" title="Cadastre-se e acumule pontos!">
+                        <i class="fas fa-award"></i> <span>Clube de Pontos</span>
+                    </a>
+                `;
+            }
+            if (btnTopCad) btnTopCad.style.display = 'inline-flex';
+            if (loginBtn) {
+                loginBtn.innerHTML = '<i class="fas fa-user"></i> <span>Entrar</span>';
+                loginBtn.onclick = () => irParaLogin();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            sincronizarEstadoUsuario();
+        });
     </script>
+    <script src="js/auth.js"></script>
 </body>
 </html>

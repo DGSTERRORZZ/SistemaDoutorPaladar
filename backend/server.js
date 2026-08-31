@@ -118,6 +118,7 @@ app.get('/api/clientes/historico-pedidos', clientesAppRoutes.getHistoricoPedidos
 app.get('/api/clientes/admin/listar', verifyAdmin, clientesAppRoutes.listarClientesAdmin);
 
 // --- Produtos ---
+app.get('/api/produtos/mais-pedidos', produtosRoutes.obterMaisPedidos);
 app.get('/api/produtos', produtosRoutes.listarProdutos);
 app.post('/api/produtos', verifyAdmin, produtosRoutes.criarProduto);
 app.put('/api/produtos/:id', verifyAdmin, produtosRoutes.atualizarProduto);

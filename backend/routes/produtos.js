@@ -142,4 +142,61 @@ async function deletarProduto(req, res) {
   }
 }
 
-module.exports = { listarProdutos, criarProduto, atualizarProduto, deletarProduto };
+async function obterMaisPedidos(req, res) {
+  try {
+    // 1. Busca ranking agregado real em itens_venda (vendas do PDV) e itens_pedido (pedidos online)
+    const rankingReal = await query(`
+      SELECT 
+        p.id,
+        p.nome,
+        p.categoria,
+        p.preco,
+        p.imagem,
+        COALESCE(SUM(unificado.qtd), 0) as total_vendido,
+        COALESCE(COUNT(DISTINCT unificado.ref_id), 0) as total_pedidos
+      FROM produtos p
+      LEFT JOIN (
+        SELECT produtoId, quantidade as qtd, vendaId as ref_id FROM itens_venda
+        UNION ALL
+        SELECT produtoId, quantidade as qtd, pedidoId as ref_id FROM itens_pedido
+      ) as unificado ON unificado.produtoId = p.id
+      WHERE p.ativo = 1
+      GROUP BY p.id, p.nome, p.categoria, p.preco, p.imagem
+      ORDER BY total_vendido DESC, p.nome ASC
+    `);
+
+    // Categorias de Bebidas
+    const categoriasBebidas = ['Bebidas', 'Cremosinho', 'Sucos', 'Refrigerantes', 'Cafés', 'Cha', 'Água'];
+
+    const comidas = [];
+    const bebidas = [];
+
+    for (const item of rankingReal) {
+      item.preco = parseFloat(item.preco);
+      item.total_vendido = parseInt(item.total_vendido) || 0;
+      item.total_pedidos = parseInt(item.total_pedidos) || 0;
+
+      const ehBebida = categoriasBebidas.some(cat => 
+        (item.categoria || '').toLowerCase().includes(cat.toLowerCase())
+      );
+
+      if (ehBebida) {
+        if (bebidas.length < 6) bebidas.push(item);
+      } else {
+        if (comidas.length < 6) comidas.push(item);
+      }
+    }
+
+    res.json({
+      comidas,
+      bebidas,
+      totalComidas: comidas.length,
+      totalBebidas: bebidas.length
+    });
+  } catch (error) {
+    console.error('Erro ao obter mais pedidos:', error);
+    res.status(500).json({ erro: 'Erro ao obter produtos mais pedidos' });
+  }
+}
+
+module.exports = { listarProdutos, criarProduto, atualizarProduto, deletarProduto, obterMaisPedidos };

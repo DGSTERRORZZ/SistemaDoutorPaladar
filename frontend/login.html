@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entrar na Conta · Doutor Paladar</title>
+    <meta name="description" content="Acesse sua conta para pedir com agilidade, acompanhar pedidos e consultar seus pontos de fidelidade.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        body {
+            min-height: 100vh;
+            background: #0f172a;
+            background-image: 
+                radial-gradient(at 0% 0%, rgba(45, 125, 82, 0.25) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(27, 67, 50, 0.3) 0px, transparent 50%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+            font-family: var(--font-sans, 'Plus Jakarta Sans', sans-serif);
+            color: #f8fafc;
+        }
+
+        .auth-container {
+            width: 100%;
+            max-width: 440px;
+            background: #ffffff;
+            color: #0f172a;
+            border-radius: 28px;
+            padding: 2.5rem 2rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+            position: relative;
+            animation: authFadeIn 0.35s ease;
+        }
+
+        @keyframes authFadeIn {
+            from { opacity: 0; transform: translateY(16px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .auth-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .auth-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #0f172a;
+            margin-bottom: 1.2rem;
+        }
+
+        .auth-logo-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #2d7d52, #1b4332);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffbc0d;
+            font-size: 1.4rem;
+            box-shadow: 0 6px 16px rgba(45, 125, 82, 0.3);
+        }
+
+        .auth-title {
+            font-family: var(--font-heading, 'Outfit', sans-serif);
+            font-size: 1.7rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            color: #0f172a;
+            margin-bottom: 0.4rem;
+        }
+
+        .auth-subtitle {
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .auth-form-group {
+            margin-bottom: 1.25rem;
+        }
+
+        .auth-label {
+            display: block;
+            font-size: 0.84rem;
+            font-weight: 700;
+            color: #334155;
+            margin-bottom: 0.4rem;
+        }
+
+        .auth-input-wrap {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .auth-input-wrap i.input-icon {
+            position: absolute;
+            left: 14px;
+            color: #94a3b8;
+            font-size: 1rem;
+            pointer-events: none;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 12px 14px 12px 42px;
+            border-radius: 14px;
+            border: 1.5px solid #cbd5e1;
+            font-size: 0.95rem;
+            font-family: inherit;
+            background: #f8fafc;
+            color: #0f172a;
+            transition: all 0.2s ease;
+            outline: none;
+        }
+
+        .auth-input:focus {
+            border-color: #2d7d52;
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(45, 125, 82, 0.12);
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 14px;
+            background: none;
+            border: none;
+            color: #94a3b8;
+            cursor: pointer;
+            font-size: 0.95rem;
+            padding: 4px;
+        }
+
+        .toggle-password:hover {
+            color: #334155;
+        }
+
+        .auth-btn-primary {
+            width: 100%;
+            background: linear-gradient(135deg, #2d7d52, #1b4332);
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 14px;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.25s ease;
+            box-shadow: 0 8px 20px rgba(45, 125, 82, 0.3);
+            margin-top: 0.5rem;
+        }
+
+        .auth-btn-primary:hover {
+            background: linear-gradient(135deg, #1b4332, #0f291e);
+            transform: translateY(-2px);
+            box-shadow: 0 12px 24px rgba(45, 125, 82, 0.4);
+        }
+
+        .auth-btn-primary:active {
+            transform: translateY(0);
+        }
+
+        .auth-error-msg {
+            background: #fef2f2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 1.2rem;
+            display: none;
+        }
+
+        .auth-footer {
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #f1f5f9;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .auth-link {
+            color: #2d7d52;
+            font-weight: 700;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .auth-link:hover {
+            color: #1b4332;
+            text-decoration: underline;
+        }
+
+        .btn-auth-back {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+
+        .btn-auth-back:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            transform: translateX(-2px);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <a href="javascript:void(0)" onclick="voltarParaOrigem()" class="btn-auth-back" title="Voltar à página anterior">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+
+        <div class="auth-header">
+            <a href="index.html" class="auth-logo">
+                <div class="auth-logo-icon"><i class="fas fa-utensils"></i></div>
+                <div style="text-align: left;">
+                    <div style="font-size: 1.15rem; font-weight: 800; line-height: 1.1;">DOUTOR PALADAR</div>
+                    <div style="font-size: 0.7rem; color: #d97706; font-weight: 800; text-transform: uppercase;">Cantina & Gourmet</div>
+                </div>
+            </a>
+            <h1 class="auth-title">Acessar Conta</h1>
+            <p class="auth-subtitle">Entre com seu usuário ou telefone para continuar</p>
+        </div>
+
+        <div id="loginError" class="auth-error-msg"></div>
+
+        <form id="loginForm" onsubmit="realizarLogin(event)">
+            <div class="auth-form-group">
+                <label class="auth-label" for="loginUsuario">Usuário ou Telefone</label>
+                <div class="auth-input-wrap">
+                    <i class="fas fa-user input-icon"></i>
+                    <input type="text" id="loginUsuario" class="auth-input" placeholder="Seu usuário ou DDD + Número" required autofocus>
+                </div>
+            </div>
+
+            <div class="auth-form-group">
+                <label class="auth-label" for="loginSenha">Senha de Acesso</label>
+                <div class="auth-input-wrap">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="loginSenha" class="auth-input" placeholder="Digite sua senha" required>
+                    <button type="button" class="toggle-password" onclick="alternarVisibilidadeSenha('loginSenha', this)">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </div>
+            </div>
+
+            <button type="submit" class="auth-btn-primary" id="btnEntrar">
+                <span>Entrar no Sistema</span>
+                <i class="fas fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            Não possui conta ainda? <br>
+            <a href="javascript:void(0)" onclick="navegarParaCadastro()" class="auth-link" style="display: inline-block; margin-top: 6px;">
+                <i class="fas fa-user-plus"></i> Cadastre-se e ganhe pontos
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        // Obtém a página de retorno da URL ou do sessionStorage
+        function getReturnUrl() {
+            const params = new URLSearchParams(window.location.search);
+            const fromQuery = params.get('returnUrl');
+            if (fromQuery) return fromQuery;
+            const fromStorage = sessionStorage.getItem('dp_last_page');
+            if (fromStorage && !fromStorage.includes('login.html') && !fromStorage.includes('cadastro.html')) {
+                return fromStorage;
+            }
+            return 'index.html';
+        }
+
+        function voltarParaOrigem() {
+            window.location.href = getReturnUrl();
+        }
+
+        function navegarParaCadastro() {
+            window.location.href = `cadastro.html?returnUrl=${encodeURIComponent(getReturnUrl())}`;
+        }
+
+        function alternarVisibilidadeSenha(inputId, btn) {
+            const input = document.getElementById(inputId);
+            const isPassword = input.type === 'password';
+            input.type = isPassword ? 'text' : 'password';
+            btn.innerHTML = isPassword ? '<i class="fas fa-eye-slash"></i>' : '<i class="fas fa-eye"></i>';
+        }
+
+        async function realizarLogin(e) {
+            e.preventDefault();
+            const login = document.getElementById('loginUsuario').value.trim();
+            const senha = document.getElementById('loginSenha').value;
+            const err = document.getElementById('loginError');
+            const btn = document.getElementById('btnEntrar');
+
+            err.style.display = 'none';
+            if (!login || !senha) {
+                err.textContent = 'Por favor, preencha todos os campos.';
+                err.style.display = 'block';
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Autenticando...';
+
+            try {
+                // 1. Tenta login de cliente
+                let res = await fetch(`${API_URL}/clientes/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ login, senha })
+                });
+
+                let data = await res.json();
+
+                if (res.ok) {
+                    sessionStorage.setItem('cliente_token', data.token);
+                    sessionStorage.setItem('cliente_nome', data.nome);
+                    sessionStorage.setItem('cliente_id', data.id);
+                    sessionStorage.setItem('cliente_usuario', data.usuario || data.username);
+                    sessionStorage.setItem('cliente_pontos', data.pontosFidelidade || 0);
+
+                    // Redireciona com sucesso
+                    window.location.href = getReturnUrl();
+                    return;
+                }
+
+                // 2. Se falhar, tenta verificar se é gestor/admin
+                const adminRes = await fetch(`${API_URL}/auth/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: login, senha })
+                });
+
+                if (adminRes.ok) {
+                    const adminData = await adminRes.json();
+                    sessionStorage.setItem('token', adminData.token);
+                    sessionStorage.setItem('usuario', adminData.usuario?.username || login);
+                    sessionStorage.setItem('tipo', 'administrador');
+                    window.location.href = 'admin.html';
+                    return;
+                }
+
+                err.textContent = data.erro || 'Credenciais inválidas. Verifique usuário e senha.';
+                err.style.display = 'block';
+            } catch (error) {
+                err.textContent = 'Erro ao conectar ao servidor. Verifique sua conexão.';
+                err.style.display = 'block';
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = '<span>Entrar no Sistema</span> <i class="fas fa-arrow-right"></i>';
+            }
+        }
+    </script>
+</body>
+</html>
