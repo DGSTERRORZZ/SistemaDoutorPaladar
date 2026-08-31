@@ -13,7 +13,7 @@
         crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="css/theme.css">
     <style>
-        /* ── HERO BANNER WIDESCREEN 16:9 ── */
+        /* ── HERO BANNER WIDESCREEN TOTAL (100% VIEWPORT) ── */
         .mcd-hero {
             position: relative;
             background: #121619;
@@ -40,26 +40,10 @@
         .mcd-hero-content {
             position: relative;
             z-index: 2;
-            max-width: 1600px;
             width: 100%;
+            max-width: 100%;
             margin: 0 auto;
-            padding: 3.5rem 2rem;
-        }
-
-        .mcd-hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255, 188, 13, 0.15);
-            color: var(--mcd-gold);
-            border: 1px solid rgba(255, 188, 13, 0.3);
-            padding: 6px 16px;
-            border-radius: 999px;
-            font-size: 0.84rem;
-            font-weight: 800;
-            text-transform: uppercase;
-            letter-spacing: 0.04em;
-            margin-bottom: 1.2rem;
+            padding: 4rem clamp(1.2rem, 4vw, 5rem);
         }
 
         .mcd-hero h1 {
@@ -67,8 +51,8 @@
             font-weight: 900;
             line-height: 1.1;
             letter-spacing: -0.03em;
-            margin: 0 0 1.5rem 0;
-            max-width: 680px;
+            margin: 0 0 1.8rem 0;
+            max-width: 720px;
             color: #ffffff;
         }
 
@@ -111,12 +95,12 @@
             color: #121619;
         }
 
-        /* ── SEÇÃO WIDESCREEN 16:9 ── */
+        /* ── SEÇÃO TOTALMENTE EXPANDIDA (100% DA LARGURA) ── */
         .mcd-section {
-            max-width: 1600px;
-            margin: 3.5rem auto;
-            padding: 0 2rem;
             width: 100%;
+            max-width: 100%;
+            margin: 3.5rem auto;
+            padding: 0 clamp(1.2rem, 4vw, 5rem);
         }
 
         .mcd-section-header {
@@ -384,13 +368,10 @@
         </div>
     </header>
 
-    <!-- HERO PRINCIPAL (WIDESCREEN 16:9) -->
+    <!-- HERO PRINCIPAL (WIDESCREEN TOTAL) -->
     <section class="mcd-hero">
         <div class="mcd-hero-bg"></div>
         <div class="mcd-hero-content">
-            <div class="mcd-hero-badge">
-                <i class="fas fa-fire"></i> Sabor & Agilidade Sem Filas
-            </div>
             <h1>Como você quer seu pedido hoje?</h1>
 
             <div class="mcd-hero-actions">

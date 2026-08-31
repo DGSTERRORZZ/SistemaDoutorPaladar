@@ -1490,9 +1490,10 @@ tr:hover td {
 }
 
 .mcd-navbar-inner {
-    max-width: 1600px;
+    width: 100%;
+    max-width: 100%;
     margin: 0 auto;
-    padding: 0 2rem;
+    padding: 0 clamp(1.2rem, 3.5vw, 4rem);
     height: 76px;
     display: flex;
     align-items: center;
@@ -1754,8 +1755,10 @@ tr:hover td {
 }
 
 .mcd-footer-grid {
-    max-width: 1600px;
+    width: 100%;
+    max-width: 100%;
     margin: 0 auto;
+    padding: 0 clamp(1.2rem, 3.5vw, 4rem);
     display: grid;
     grid-template-columns: 1.5fr 1fr 1fr 1fr;
     gap: 3rem;

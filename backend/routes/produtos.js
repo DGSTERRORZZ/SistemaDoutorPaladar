@@ -145,6 +145,7 @@ async function deletarProduto(req, res) {
 async function obterMaisPedidos(req, res) {
   try {
     // 1. Busca ranking agregado real em itens_venda (vendas do PDV) e itens_pedido (pedidos online)
+    // Se não houver vendas (total_vendido = 0), utiliza RAND() para que os produtos da cantina apareçam de forma randômica/dinâmica
     const rankingReal = await query(`
       SELECT 
         p.id,
@@ -162,14 +163,30 @@ async function obterMaisPedidos(req, res) {
       ) as unificado ON unificado.produtoId = p.id
       WHERE p.ativo = 1
       GROUP BY p.id, p.nome, p.categoria, p.preco, p.imagem
-      ORDER BY total_vendido DESC, p.nome ASC
+      ORDER BY total_vendido DESC, RAND()
     `);
 
     // Categorias de Bebidas
     const categoriasBebidas = ['Bebidas', 'Cremosinho', 'Sucos', 'Refrigerantes', 'Cafés', 'Cha', 'Água'];
 
-    const comidas = [];
-    const bebidas = [];
+    // Embaralhar aleatoriamente itens com a mesma quantidade de vendas para dinâmica rica no catálogo
+    const shuffle = (array) => {
+      for (let i = array.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    };
+
+    // Separar grupos por vendas para manter os líderes no topo e rotacionar os demais
+    const agruparPorVendas = (arr) => {
+      const comVendas = arr.filter(i => i.total_vendido > 0).sort((a, b) => b.total_vendido - a.total_vendido);
+      const semVendas = shuffle(arr.filter(i => i.total_vendido === 0));
+      return [...comVendas, ...semVendas].slice(0, 8);
+    };
+
+    const todasComidas = [];
+    const todasBebidas = [];
 
     for (const item of rankingReal) {
       item.preco = parseFloat(item.preco);
@@ -181,11 +198,14 @@ async function obterMaisPedidos(req, res) {
       );
 
       if (ehBebida) {
-        if (bebidas.length < 6) bebidas.push(item);
+        todasBebidas.push(item);
       } else {
-        if (comidas.length < 6) comidas.push(item);
+        todasComidas.push(item);
       }
     }
+
+    const comidas = agruparPorVendas(todasComidas);
+    const bebidas = agruparPorVendas(todasBebidas);
 
     res.json({
       comidas,
