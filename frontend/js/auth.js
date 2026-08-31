@@ -280,8 +280,44 @@ function irParaCadastro() {
   window.location.href = `cadastro.html?returnUrl=${encodeURIComponent(returnUrl)}`;
 }
 
+// ===== ACESSO SECRETO DO GESTOR (KONAMI CODE: CIMA CIMA BAIXO BAIXO 6 7) =====
+const KONAMI_SECRET_SEQUENCE = ['ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown', '6', '7'];
+let konamiBuffer = [];
+
+function inicializarKonamiCode() {
+  window.addEventListener('keydown', (e) => {
+    // Ignorar se o usuário estiver digitando dentro de um input/textarea/select
+    const tag = (e.target && e.target.tagName) ? e.target.tagName.toLowerCase() : '';
+    if (tag === 'input' || tag === 'textarea' || tag === 'select') {
+      return;
+    }
+
+    const key = e.key;
+    konamiBuffer.push(key);
+
+    // Manter buffer do tamanho exato da sequência
+    if (konamiBuffer.length > KONAMI_SECRET_SEQUENCE.length) {
+      konamiBuffer.shift();
+    }
+
+    // Verificar se corresponde à sequência secreta
+    const match = KONAMI_SECRET_SEQUENCE.every((k, idx) => {
+      if (k === '6' || k === '7') {
+        return konamiBuffer[idx] === k || konamiBuffer[idx] === `Numpad${k}`;
+      }
+      return konamiBuffer[idx] === k;
+    });
+
+    if (match) {
+      konamiBuffer = [];
+      window.location.href = 'admin.html';
+    }
+  });
+}
+
 document.addEventListener('DOMContentLoaded', () => {
   registrarPaginaAtual();
   inicializarTema();
   inicializarSidebar();
+  inicializarKonamiCode();
 });
