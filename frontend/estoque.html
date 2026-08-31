@@ -457,7 +457,7 @@
                 if(p.estoque === 0) { statusClass = 'esgotado'; statusText = 'Esgotado'; }
                 else if(p.estoque <= p.estoqueMinimo) { statusClass = 'baixo'; statusText = 'Baixo'; }
 
-                const fotoHtml = p.imagem && p.imagem.startsWith('http')
+                const fotoHtml = p.imagem && p.imagem.trim() !== ''
                     ? `<img src="${p.imagem}" class="product-img-thumb" onerror="this.outerHTML='<div class=\\'product-img-thumb\\'>${getEmoji(p.categoria)}</div>'">`
                     : `<div class="product-img-thumb">${getEmoji(p.categoria)}</div>`;
 

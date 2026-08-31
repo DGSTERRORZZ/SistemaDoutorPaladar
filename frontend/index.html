@@ -700,7 +700,7 @@
                     ? `<div class="sales-count-tag"><i class="fas fa-fire"></i> ${p.total_vendido} vendidos</div>` 
                     : `<div class="sales-count-tag" style="background:#f1f5f9; color:#64748b;"><i class="fas fa-star"></i> Destaque da cantina</div>`;
 
-                const imgUrl = p.imagem && p.imagem.startsWith('http') 
+                const imgUrl = (p.imagem && p.imagem.trim() !== '')
                     ? p.imagem 
                     : (abaAtiva === 'bebidas' 
                         ? 'https://images.unsplash.com/photo-1554866585-cd94860890b7?w=600&q=80' 

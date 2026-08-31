@@ -590,7 +590,7 @@
 
             const img = (p.imagem || '').trim();
             const ehEmoji = img && /\p{Emoji_Presentation}|\p{Extended_Pictographic}/u.test(img);
-            const ehUrl   = img && !ehEmoji && (img.startsWith('http') || img.startsWith('/') || img.startsWith('uploads'));
+            const ehUrl   = img && !ehEmoji && (img.startsWith('http') || img.startsWith('/') || img.startsWith('uploads') || img.startsWith('imagens'));
 
             let imgHtml;
             if (ehUrl) {

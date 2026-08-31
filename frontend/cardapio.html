@@ -723,7 +723,7 @@
         };
 
         function getImagemUrl(p) {
-            if (p.imagem && p.imagem.startsWith('http')) return p.imagem;
+            if (p.imagem && p.imagem.trim() !== '') return p.imagem;
             const nomeLower = (p.nome || '').toLowerCase();
             const chavesSorted = Object.keys(fallbackImagens).sort((a, b) => b.length - a.length);
             for (const key of chavesSorted) {
