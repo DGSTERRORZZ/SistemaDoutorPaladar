@@ -248,22 +248,35 @@
             </div>
 
             <div class="mcd-nav-right">
-                <!-- Indicador de Pontos / Fidelidade Real -->
-                <div id="navPontosContainer">
-                    <a href="javascript:void(0)" onclick="irParaCadastro()" class="points-nav-pill" title="Cadastre-se e acumule pontos em cada pedido!">
-                        <i class="fas fa-award"></i> <span>Clube de Pontos</span>
-                    </a>
-                </div>
-
                 <!-- Botão de Cadastro Rápido Superior -->
-                <a href="javascript:void(0)" onclick="irParaCadastro()" class="btn-register-top" id="btnTopCadastro" title="Cadastre-se e ganhe pontos">
+                <a href="javascript:void(0)" onclick="irParaCadastro()" class="btn-register-top" id="btnTopCadastro" title="Criar Conta">
                     <i class="fas fa-user-plus"></i> <span>Criar Conta</span>
                 </a>
 
-                <!-- Botão Entrar / Conta -->
-                <button class="btn-account-pill" id="loginBtn" onclick="irParaLogin()">
-                    <i class="fas fa-user"></i> <span>Entrar</span>
-                </button>
+                <!-- Área do Usuário / Entrar -->
+                <div class="user-menu-wrap" id="userMenuWrapper">
+                    <button class="btn-account-pill" id="loginBtn" onclick="irParaLogin()">
+                        <i class="fas fa-user"></i> <span>Entrar</span>
+                    </button>
+                    <div class="user-menu-popover" id="userMenuPopover">
+                        <div class="user-menu-header">
+                            <div class="user-menu-header-name" id="userMenuNome">Cliente</div>
+                            <div class="user-menu-header-role">Cliente Registrado</div>
+                        </div>
+                        <a href="index.html" class="user-menu-item">
+                            <i class="fas fa-home" style="color: var(--dp-emerald);"></i> Página Inicial
+                        </a>
+                        <a href="cardapio.html" class="user-menu-item">
+                            <i class="fas fa-utensils" style="color: var(--dp-emerald);"></i> Ver Cardápio
+                        </a>
+                        <a href="admin.html" class="user-menu-item" id="userMenuAdminLink" style="display: none;">
+                            <i class="fas fa-shield-alt" style="color: #6366f1;"></i> Painel Gestor
+                        </a>
+                        <button class="user-menu-item logout" onclick="deslogarCliente()">
+                            <i class="fas fa-sign-out-alt"></i> Sair da Conta
+                        </button>
+                    </div>
+                </div>
             </div>
         </div>
     </header>
@@ -314,17 +327,6 @@
             </div>
 
             <!-- Item 4 -->
-            <div class="faq-item" data-cat="fidelidade">
-                <div class="faq-question" onclick="toggleFaq(this)">
-                    <span>⭐ Como funciona o Programa de Fidelidade e Recompensas?</span>
-                    <i class="fas fa-chevron-down"></i>
-                </div>
-                <div class="faq-answer">
-                    O cadastro é <strong>100% gratuito</strong>! Ao criar sua conta e fazer login antes de enviar seus pedidos, cada compra acumula pontos automaticamente. Você pode acumular seus pontos para resgatar salgados especiais, sobremesas e bebidas geladas diretamente na cantina.
-                </div>
-            </div>
-
-            <!-- Item 5 -->
             <div class="faq-item" data-cat="almoco">
                 <div class="faq-question" onclick="toggleFaq(this)">
                     <span>🍽️ Como funciona o agendamento de almoço e prato do dia?</span>
@@ -431,12 +433,41 @@
             const item = el.parentElement;
             item.classList.toggle('active');
         }
-        // Sincronizar estado do usuário (pontos reais e nome)
+        function toggleMenuUsuario(e) {
+            if (e) e.stopPropagation();
+            const popover = document.getElementById('userMenuPopover');
+            if (popover) popover.classList.toggle('active');
+        }
+
+        function deslogarCliente() {
+            sessionStorage.removeItem('cliente_token');
+            sessionStorage.removeItem('cliente_nome');
+            sessionStorage.removeItem('cliente_id');
+            sessionStorage.removeItem('cliente_telefone');
+            window.location.reload();
+        }
+
+        // Fechar menu se clicar fora
+        document.addEventListener('click', (e) => {
+            const wrap = document.getElementById('userMenuWrapper');
+            const popover = document.getElementById('userMenuPopover');
+            if (wrap && popover && !wrap.contains(e.target)) {
+                popover.classList.remove('active');
+            }
+        });
+
+        // Sincronizar estado do usuário (nome e menu de logout)
         async function sincronizarEstadoUsuario() {
             const token = sessionStorage.getItem('cliente_token');
             const loginBtn = document.getElementById('loginBtn');
-            const navPontos = document.getElementById('navPontosContainer');
             const btnTopCad = document.getElementById('btnTopCadastro');
+            const nomeMenu = document.getElementById('userMenuNome');
+            const gestorToken = sessionStorage.getItem('token');
+            const adminLink = document.getElementById('userMenuAdminLink');
+
+            if (adminLink && gestorToken) {
+                adminLink.style.display = 'flex';
+            }
 
             if (token) {
                 try {
@@ -445,37 +476,21 @@
                     });
                     if (res.ok) {
                         const perfil = await res.json();
-                        const pontos = perfil.pontosFidelidade || 0;
-                        sessionStorage.setItem('cliente_pontos', pontos);
                         sessionStorage.setItem('cliente_nome', perfil.nome);
 
-                        if (navPontos) {
-                            navPontos.innerHTML = `
-                                <a href="cardapio.html" class="points-nav-pill" title="Seus pontos acumulados">
-                                    <i class="fas fa-award" style="color:var(--mcd-gold)"></i> <span>${pontos} pts</span>
-                                </a>
-                            `;
-                        }
-
                         if (btnTopCad) btnTopCad.style.display = 'none';
+                        if (nomeMenu) nomeMenu.textContent = perfil.nome;
 
                         if (loginBtn) {
-                            loginBtn.innerHTML = `<i class="fas fa-user-check" style="color:var(--dp-emerald)"></i> <span>${perfil.nome.split(' ')[0]}</span>`;
-                            loginBtn.onclick = () => window.location.href = 'cardapio.html';
-                            loginBtn.title = 'Acessar Área do Cliente';
+                            loginBtn.innerHTML = `<i class="fas fa-user-circle" style="color:var(--dp-emerald)"></i> <span>${perfil.nome.split(' ')[0]}</span> <i class="fas fa-chevron-down" style="font-size:0.7rem; opacity:0.7;"></i>`;
+                            loginBtn.onclick = (e) => toggleMenuUsuario(e);
+                            loginBtn.title = 'Minha Conta';
                         }
                         return;
                     }
                 } catch(e) {}
             }
 
-            if (navPontos) {
-                navPontos.innerHTML = `
-                    <a href="javascript:void(0)" onclick="irParaCadastro()" class="points-nav-pill" title="Cadastre-se e acumule pontos!">
-                        <i class="fas fa-award"></i> <span>Clube de Pontos</span>
-                    </a>
-                `;
-            }
             if (btnTopCad) btnTopCad.style.display = 'inline-flex';
             if (loginBtn) {
                 loginBtn.innerHTML = '<i class="fas fa-user"></i> <span>Entrar</span>';

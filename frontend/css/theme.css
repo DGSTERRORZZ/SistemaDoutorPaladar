@@ -1847,24 +1847,87 @@ tr:hover td {
     margin-top: 4px;
 }
 
-.points-nav-pill {
-    background: rgba(255, 188, 13, 0.15);
-    border: 1px solid rgba(255, 188, 13, 0.4);
-    color: #ffbc0d;
-    padding: 8px 14px;
-    border-radius: 999px;
-    font-size: 0.84rem;
-    font-weight: 800;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    text-decoration: none;
-    transition: all 0.2s;
+/* ── MENU / POPOVER DO USUÁRIO LOGADO NA NAVBAR ── */
+.user-menu-wrap {
+    position: relative;
+    display: inline-block;
 }
 
-.points-nav-pill:hover {
-    background: rgba(255, 188, 13, 0.25);
-    transform: translateY(-1px);
+.user-menu-popover {
+    position: absolute;
+    top: calc(100% + 10px);
+    right: 0;
+    background: #ffffff;
+    border: 1.5px solid #e2e8f0;
+    border-radius: 16px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+    padding: 12px;
+    min-width: 220px;
+    z-index: 1050;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    animation: userMenuFadeIn 0.2s ease;
+}
+
+.user-menu-popover.active {
+    display: flex;
+}
+
+@keyframes userMenuFadeIn {
+    from { opacity: 0; transform: translateY(-8px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.user-menu-header {
+    padding: 6px 10px 10px;
+    border-bottom: 1px solid #f1f5f9;
+    margin-bottom: 4px;
+}
+
+.user-menu-header-name {
+    font-weight: 800;
+    font-size: 0.95rem;
+    color: #0f172a;
+}
+
+.user-menu-header-role {
+    font-size: 0.76rem;
+    color: var(--dp-emerald);
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.user-menu-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 12px;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: #334155;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    border: none;
+    background: transparent;
+    width: 100%;
+    text-align: left;
+}
+
+.user-menu-item:hover {
+    background: #f1f5f9;
+    color: #0f172a;
+}
+
+.user-menu-item.logout {
+    color: #ef4444;
+}
+
+.user-menu-item.logout:hover {
+    background: #fef2f2;
+    color: #dc2626;
 }
 
 .mcd-footer h4 {
