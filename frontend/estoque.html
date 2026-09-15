@@ -1,0 +1,675 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Produtos & Estoque · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #2d7d52;
+            --primary-dark: #1b4332;
+            --primary-light: #52b788;
+            --accent: #ffbc0d;
+            --brown: #4a2810;
+            --bg: #f4f7fa;
+            --card: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --danger: #e53e3e;
+            --warning: #dd6b20;
+            --success: #2d7d52;
+            --shadow-card: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        body { font-family: var(--font-sans, 'Inter', sans-serif); background: var(--bg); color: var(--text); overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6, .logo, .page-title { font-family: var(--font-display, 'Playfair Display', serif); letter-spacing: -0.02em; }
+
+        .filtros-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+            align-items: center;
+            background: #fff;
+            padding: 1.1rem;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-card);
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 260px;
+            position: relative;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 40px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            font-size: 0.88rem;
+            background: #fff;
+            color: var(--text);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .search-box input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(45, 125, 82, 0.12);
+        }
+
+        .product-img-thumb {
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            object-fit: cover;
+            background: #f8fafc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            border: 1px solid var(--border);
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 6px;
+            justify-content: flex-end;
+        }
+
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+
+        .btn-action:hover {
+            color: var(--primary);
+            border-color: var(--primary);
+            background: #f0fdf4;
+        }
+
+        .btn-action.delete:hover {
+            color: var(--danger);
+            border-color: var(--danger);
+            background: #fef2f2;
+        }
+
+        .estoque-pill {
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .estoque-pill.normal { background: #dcfce7; color: #166534; }
+        .estoque-pill.baixo { background: #fef9c3; color: #854d0e; }
+        .estoque-pill.esgotado { background: #fee2e2; color: #991b1b; }
+
+        .quick-stock-btn {
+            background: #f1f5f9;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            width: 24px;
+            height: 24px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-weight: 800;
+            font-size: 0.85rem;
+            color: var(--text);
+            transition: all 0.15s;
+        }
+        .quick-stock-btn:hover {
+            background: var(--primary);
+            color: #fff;
+            border-color: var(--primary);
+        }
+
+        /* MODAIS */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal.active { display: flex; }
+        .modal-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 2rem;
+            max-width: 520px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="admin.html" class="sidebar-brand">
+                    <div class="brand-icon"><img src="imagens/logo_icone.jpg" alt="Doutor Paladar"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">Doutor Paladar</div>
+                        <div class="brand-sub">Painel Admin</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
+                <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="produtos.html" class="nav-item"><i class="fas fa-camera"></i> Catálogo & Fotos</a>
+                <a href="estoque.html" class="nav-item active"><i class="fas fa-box"></i> Produtos & Estoque</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Configurações & Refeições</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div style="flex:1;overflow:hidden"><div class="user-name" id="adminBadge">Gestor</div><div class="user-role">Administrador</div></div>
+                    <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <header class="topbar">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title"><i class="fas fa-box" style="color:var(--primary)"></i> Produtos & Controle de Estoque</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Controle de inventário, reposição rápida e precificação</div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <button class="btn btn-secondary btn-sm" onclick="exportarEstoqueCSV()" style="padding:8px 14px; border-radius:8px; cursor:pointer;"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+                    <button class="btn btn-primary btn-sm" onclick="abrirModalNovoProduto()" style="background:var(--primary); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-plus"></i> Novo Item</button>
+                </div>
+            </header>
+
+            <main class="page-content" style="padding: 1.5rem;">
+                <!-- STATS CARDS -->
+                <div class="stats-grid" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(210px, 1fr)); gap:1.25rem; margin-bottom:1.5rem;">
+                    <div class="stat-card" style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.2rem; display:flex; align-items:center; gap:14px;">
+                        <div class="stat-icon" style="background:#f0fdf4; color:var(--primary); width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem;"><i class="fas fa-cube"></i></div>
+                        <div>
+                            <div class="stat-value" id="totalProdutos" style="font-size:1.4rem; font-weight:800; color:var(--text);">0</div>
+                            <div class="stat-label" style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Total de Itens</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.2rem; display:flex; align-items:center; gap:14px;">
+                        <div class="stat-icon" style="background:#fee2e2; color:#991b1b; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem;"><i class="fas fa-exclamation-triangle"></i></div>
+                        <div>
+                            <div class="stat-value" id="alertasEstoque" style="font-size:1.4rem; font-weight:800; color:#991b1b;">0</div>
+                            <div class="stat-label" style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Estoque Crítico / Baixo</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.2rem; display:flex; align-items:center; gap:14px;">
+                        <div class="stat-icon" style="background:#fdf2f8; color:var(--brown); width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem;"><i class="fas fa-dollar-sign"></i></div>
+                        <div>
+                            <div class="stat-value" id="valorEstoque" style="font-size:1.4rem; font-weight:800; color:var(--primary);">R$ 0,00</div>
+                            <div class="stat-label" style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Patrimônio em Estoque</div>
+                        </div>
+                    </div>
+                    <div class="stat-card" style="background:#fff; border:1px solid var(--border); border-radius:14px; padding:1.2rem; display:flex; align-items:center; gap:14px;">
+                        <div class="stat-icon" style="background:#fef3c7; color:#d97706; width:48px; height:48px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.3rem;"><i class="fas fa-tags"></i></div>
+                        <div>
+                            <div class="stat-value" id="categoriasCount" style="font-size:1.4rem; font-weight:800; color:var(--text);">0</div>
+                            <div class="stat-label" style="font-size:0.75rem; color:var(--text-muted); font-weight:600;">Categorias Ativas</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FILTROS -->
+                <div class="filtros-bar">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" id="searchInput" placeholder="Pesquisar por nome ou categoria..." oninput="filtrarProdutos()">
+                    </div>
+                    <div style="min-width: 180px;">
+                        <select id="categoriaFilter" onchange="filtrarProdutos()" style="width:100%; padding:10px; border-radius:10px; border:1.5px solid var(--border); font-size:0.88rem; outline:none; background:#fff;">
+                            <option value="">Todas as Categorias</option>
+                        </select>
+                    </div>
+                    <div style="min-width: 180px;">
+                        <select id="statusFilter" onchange="filtrarProdutos()" style="width:100%; padding:10px; border-radius:10px; border:1.5px solid var(--border); font-size:0.88rem; outline:none; background:#fff;">
+                            <option value="">Todos os Status</option>
+                            <option value="normal">Estoque Normal</option>
+                            <option value="baixo">Estoque Baixo</option>
+                            <option value="esgotado">Esgotado (0 un)</option>
+                        </select>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="carregarProdutos()" style="padding:10px 14px; border-radius:10px; cursor:pointer;"><i class="fas fa-sync-alt"></i> Atualizar</button>
+                </div>
+
+                <!-- TABELA DE ESTOQUE -->
+                <div class="card" style="background:#fff; border-radius:14px; border:1px solid var(--border); box-shadow:var(--shadow-card); overflow-x: auto;">
+                    <table style="width:100%; border-collapse:collapse; text-align:left; font-size:0.88rem;">
+                        <thead style="background:#f8fafc; border-bottom:1px solid var(--border);">
+                            <tr>
+                                <th style="padding:12px 16px; width:60px; font-weight:700;">Foto</th>
+                                <th style="padding:12px 16px; font-weight:700;">Produto</th>
+                                <th style="padding:12px 16px; font-weight:700;">Categoria</th>
+                                <th style="padding:12px 16px; font-weight:700;">Preço Venda</th>
+                                <th style="padding:12px 16px; font-weight:700;">Qtd. Estoque</th>
+                                <th style="padding:12px 16px; font-weight:700;">Estoque Mín.</th>
+                                <th style="padding:12px 16px; font-weight:700;">Status</th>
+                                <th style="padding:12px 16px; text-align:right; font-weight:700;">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="produtosTableBody">
+                            <tr><td colspan="8" style="text-align:center; padding: 2.5rem; color:var(--text-muted);">Carregando inventário...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO / EDITAR PRODUTO -->
+    <div id="produtoModal" class="modal">
+        <div class="modal-card">
+            <div style="margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem;">
+                <h3 id="modalTitle" style="font-size: 1.25rem; color: var(--text); font-weight: 800;">Cadastrar Produto</h3>
+                <button onclick="fecharModal()" style="font-size: 1.3rem; background:none; border:none; cursor:pointer; color:#94a3b8;">&times;</button>
+            </div>
+            <form id="produtoForm">
+                <input type="hidden" id="produtoId">
+                <input type="hidden" id="produtoImagem">
+
+                <div style="margin-bottom: 1rem;">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Nome do Produto *</label>
+                    <input type="text" id="produtoNome" required placeholder="Ex: Hambúrguer Artesanal Especial" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Categoria *</label>
+                    <select id="produtoCategoria" required style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none; background:#fff;">
+                        <option value="Salgados">Salgados</option>
+                        <option value="Bebidas">Bebidas</option>
+                        <option value="Doces">Doces</option>
+                        <option value="Lanches">Lanches</option>
+                        <option value="Caldos">Caldos</option>
+                        <option value="Sorvetes">Sorvetes</option>
+                        <option value="Snacks">Snacks</option>
+                        <option value="Refeições">Refeições</option>
+                    </select>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-bottom: 1.5rem;">
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Preço (R$) *</label>
+                        <input type="number" id="produtoPreco" step="0.01" min="0" required placeholder="0.00" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Estoque Atual</label>
+                        <input type="number" id="produtoEstoque" min="0" value="10" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                    </div>
+                    <div>
+                        <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Estoque Mínimo</label>
+                        <input type="number" id="produtoEstoqueMinimo" min="0" value="5" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                    </div>
+                </div>
+
+                <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal()" style="padding:9px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background:var(--primary); color:#fff; border:none; padding:9px 20px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-save"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL AJUSTE RÁPIDO DE ESTOQUE -->
+    <div id="ajusteModal" class="modal">
+        <div class="modal-card" style="max-width: 420px;">
+            <div style="margin-bottom: 1.2rem; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem;">
+                <h3 style="font-size: 1.15rem; color: var(--text); font-weight: 800;"><i class="fas fa-sliders-h" style="color:var(--primary);"></i> Ajuste de Estoque</h3>
+                <button onclick="fecharModalAjuste()" style="font-size: 1.3rem; background:none; border:none; cursor:pointer; color:#94a3b8;">&times;</button>
+            </div>
+            <form id="ajusteForm">
+                <input type="hidden" id="ajusteProdutoId">
+                <div style="margin-bottom: 1rem; background: #f8fafc; padding: 12px; border-radius: 10px; border: 1px solid var(--border);">
+                    <div style="font-size: 0.95rem; font-weight: 700; color: var(--text);" id="ajusteProdutoNome">-</div>
+                    <div style="font-size: 0.82rem; color: var(--text-muted); margin-top: 2px;">Atual: <strong id="ajusteEstoqueAtual" style="color: var(--primary);">0 un</strong></div>
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Tipo de Ajuste</label>
+                    <select id="ajusteOperacao" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none; background:#fff;">
+                        <option value="add">➕ Entrada / Adicionar Estoque</option>
+                        <option value="subtract">➖ Saída / Descarte</option>
+                        <option value="set">🔄 Definir Estoque Exato</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Quantidade *</label>
+                    <input type="number" id="ajusteQuantidade" min="1" required placeholder="Qtd de unidades" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalAjuste()" style="padding:9px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background:var(--primary); color:#fff; border:none; padding:9px 20px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-check"></i> Aplicar Ajuste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let todosProdutos = [];
+        let produtosFiltrados = [];
+
+        if(!sessionStorage.getItem('admin_logado')) {
+            window.location.href = 'index.html';
+        }
+        document.getElementById('adminBadge').textContent = sessionStorage.getItem('admin_nome') || 'Gestor';
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        const emojiMap = {
+            'Salgados':'🥟', 'Bebidas':'🥤', 'Doces':'🍰',
+            'Lanches':'🍔', 'Sorvetes':'🍦', 'Caldos':'🍲',
+            'Snacks':'🍬', 'Refeições':'🍽️'
+        };
+        function getEmoji(cat) { return emojiMap[cat] || '🍽️'; }
+
+        async function carregarProdutos() {
+            try {
+                const res = await fetch(`${API_URL}/produtos`);
+                if(!res.ok) throw new Error('Erro ao buscar produtos');
+                todosProdutos = await res.json();
+                todosProdutos.forEach(p => {
+                    p.preco = parseFloat(p.preco) || 0;
+                    p.estoque = parseInt(p.estoque) || 0;
+                    p.estoqueMinimo = parseInt(p.estoqueMinimo) || 5;
+                });
+
+                atualizarStats();
+                atualizarCategoriasFiltro();
+                filtrarProdutos();
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function atualizarStats() {
+            document.getElementById('totalProdutos').textContent = todosProdutos.length;
+            const criticos = todosProdutos.filter(p => p.estoque <= p.estoqueMinimo);
+            document.getElementById('alertasEstoque').textContent = criticos.length;
+
+            const valorTotal = todosProdutos.reduce((acc, p) => acc + (p.preco * p.estoque), 0);
+            document.getElementById('valorEstoque').textContent = `R$ ${valorTotal.toFixed(2).replace('.', ',')}`;
+
+            const categorias = [...new Set(todosProdutos.map(p => p.categoria).filter(Boolean))];
+            document.getElementById('categoriasCount').textContent = categorias.length;
+        }
+
+        function atualizarCategoriasFiltro() {
+            const select = document.getElementById('categoriaFilter');
+            const categorias = [...new Set(todosProdutos.map(p => p.categoria).filter(Boolean))].sort();
+            const valorAtual = select.value;
+            select.innerHTML = '<option value="">Todas as Categorias</option>' +
+                categorias.map(c => `<option value="${c}">${c}</option>`).join('');
+            if(categorias.includes(valorAtual)) select.value = valorAtual;
+        }
+
+        function filtrarProdutos() {
+            const termo = (document.getElementById('searchInput').value || '').toLowerCase().trim();
+            const cat = document.getElementById('categoriaFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            produtosFiltrados = todosProdutos.filter(p => {
+                const matchNome = (p.nome || '').toLowerCase().includes(termo) || (p.categoria || '').toLowerCase().includes(termo);
+                const matchCat = !cat || p.categoria === cat;
+                let matchStatus = true;
+                if(status === 'normal') matchStatus = p.estoque > p.estoqueMinimo;
+                if(status === 'baixo') matchStatus = p.estoque > 0 && p.estoque <= p.estoqueMinimo;
+                if(status === 'esgotado') matchStatus = p.estoque === 0;
+                return matchNome && matchCat && matchStatus;
+            });
+
+            renderTabela();
+        }
+
+        function renderTabela() {
+            const tbody = document.getElementById('produtosTableBody');
+            if(produtosFiltrados.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:2.5rem; color:var(--text-muted);">Nenhum item encontrado com os filtros atuais.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = produtosFiltrados.map(p => {
+                const temImg = p.imagem && p.imagem.trim() !== '';
+                const fotoHtml = temImg
+                    ? `<img src="${p.imagem}" style="width:40px;height:40px;border-radius:8px;object-fit:cover;" onerror="this.outerHTML='<span style=\\'font-size:1.4rem\\'>${getEmoji(p.categoria)}</span>'">`
+                    : `<span style="font-size:1.4rem;">${getEmoji(p.categoria)}</span>`;
+
+                let statusBadge = `<span class="estoque-pill normal"><i class="fas fa-check-circle"></i> Normal</span>`;
+                if(p.estoque === 0) statusBadge = `<span class="estoque-pill esgotado"><i class="fas fa-times-circle"></i> Esgotado</span>`;
+                else if(p.estoque <= p.estoqueMinimo) statusBadge = `<span class="estoque-pill baixo"><i class="fas fa-exclamation-circle"></i> Baixo</span>`;
+
+                return `
+                    <tr style="border-bottom: 1px solid var(--border);">
+                        <td style="padding:10px 16px; vertical-align:middle;">${fotoHtml}</td>
+                        <td style="padding:10px 16px; vertical-align:middle;">
+                            <strong style="color:var(--text); font-size:0.9rem;">${p.nome}</strong>
+                            <div style="font-size:0.72rem; color:var(--text-muted);">#${p.id}</div>
+                        </td>
+                        <td style="padding:10px 16px; vertical-align:middle;"><span style="background:#f1f5f9; color:#334155; font-weight:700; font-size:0.75rem; padding:3px 8px; border-radius:6px;">${p.categoria}</span></td>
+                        <td style="padding:10px 16px; vertical-align:middle; font-weight:800; color:var(--primary);">R$ ${p.preco.toFixed(2).replace('.', ',')}</td>
+                        <td style="padding:10px 16px; vertical-align:middle;">
+                            <div style="display:inline-flex; align-items:center; gap:8px;">
+                                <button class="quick-stock-btn" onclick="alterarEstoqueRapido(${p.id}, -1)" title="Diminuir 1 un">−</button>
+                                <strong style="min-width:26px; text-align:center;">${p.estoque}</strong>
+                                <button class="quick-stock-btn" onclick="alterarEstoqueRapido(${p.id}, 1)" title="Adicionar 1 un">+</button>
+                            </div>
+                        </td>
+                        <td style="padding:10px 16px; vertical-align:middle; color:var(--text-muted);">${p.estoqueMinimo} un</td>
+                        <td style="padding:10px 16px; vertical-align:middle;">${statusBadge}</td>
+                        <td style="padding:10px 16px; vertical-align:middle; text-align:right;">
+                            <button class="btn-action" onclick="abrirModalAjuste(${p.id})" title="Ajuste Rápido"><i class="fas fa-sliders-h"></i></button>
+                            <button class="btn-action" onclick="abrirModalEditar(${p.id})" title="Editar"><i class="fas fa-edit"></i></button>
+                            <button class="btn-action delete" onclick="deletarProduto(${p.id})" title="Excluir"><i class="fas fa-trash"></i></button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function alterarEstoqueRapido(id, delta) {
+            const p = todosProdutos.find(x => x.id === id);
+            if(!p) return;
+            const novoEstoque = Math.max(0, p.estoque + delta);
+            p.estoque = novoEstoque;
+            renderTabela();
+
+            try {
+                await fetch(`${API_URL}/produtos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estoque: novoEstoque })
+                });
+                atualizarStats();
+            } catch(e) {
+                console.error(e);
+            }
+        }
+
+        function abrirModalNovoProduto() {
+            document.getElementById('modalTitle').innerHTML = 'Cadastrar Novo Produto';
+            document.getElementById('produtoForm').reset();
+            document.getElementById('produtoId').value = '';
+            document.getElementById('produtoModal').classList.add('active');
+        }
+
+        function abrirModalEditar(id) {
+            const p = todosProdutos.find(x => x.id === id);
+            if(!p) return;
+            document.getElementById('modalTitle').innerHTML = 'Editar Produto';
+            document.getElementById('produtoId').value = p.id;
+            document.getElementById('produtoNome').value = p.nome;
+            document.getElementById('produtoCategoria').value = p.categoria;
+            document.getElementById('produtoPreco').value = p.preco;
+            document.getElementById('produtoEstoque').value = p.estoque;
+            document.getElementById('produtoEstoqueMinimo').value = p.estoqueMinimo || 5;
+            document.getElementById('produtoImagem').value = p.imagem || '';
+            document.getElementById('produtoModal').classList.add('active');
+        }
+
+        function fecharModal() { document.getElementById('produtoModal').classList.remove('active'); }
+
+        document.getElementById('produtoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = document.getElementById('produtoId').value;
+            const nome = document.getElementById('produtoNome').value.trim();
+            const categoria = document.getElementById('produtoCategoria').value;
+            const preco = parseFloat(document.getElementById('produtoPreco').value);
+            const estoque = parseInt(document.getElementById('produtoEstoque').value);
+            const estoqueMinimo = parseInt(document.getElementById('produtoEstoqueMinimo').value) || 5;
+            const imagem = document.getElementById('produtoImagem').value.trim();
+
+            const payload = { nome, categoria, preco, estoque, estoqueMinimo, imagem };
+
+            try {
+                const url = id ? `${API_URL}/produtos/${id}` : `${API_URL}/produtos`;
+                const method = id ? 'PUT' : 'POST';
+                const res = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if(res.ok) {
+                    fecharModal();
+                    await carregarProdutos();
+                } else {
+                    const err = await res.json();
+                    alert('Erro ao salvar produto: ' + (err.erro || 'Falha'));
+                }
+            } catch(e) {
+                alert('Erro de conexão');
+            }
+        });
+
+        function abrirModalAjuste(id) {
+            const p = todosProdutos.find(x => x.id === id);
+            if(!p) return;
+            document.getElementById('ajusteProdutoId').value = p.id;
+            document.getElementById('ajusteProdutoNome').textContent = p.nome;
+            document.getElementById('ajusteEstoqueAtual').textContent = `${p.estoque} un`;
+            document.getElementById('ajusteQuantidade').value = '';
+            document.getElementById('ajusteModal').classList.add('active');
+        }
+
+        function fecharModalAjuste() { document.getElementById('ajusteModal').classList.remove('active'); }
+
+        document.getElementById('ajusteForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('ajusteProdutoId').value);
+            const op = document.getElementById('ajusteOperacao').value;
+            const qtd = parseInt(document.getElementById('ajusteQuantidade').value);
+            const p = todosProdutos.find(x => x.id === id);
+            if(!p || isNaN(qtd) || qtd < 0) return;
+
+            let novoEstoque = p.estoque;
+            if(op === 'add') novoEstoque += qtd;
+            else if(op === 'subtract') novoEstoque = Math.max(0, novoEstoque - qtd);
+            else if(op === 'set') novoEstoque = qtd;
+
+            try {
+                const res = await fetch(`${API_URL}/produtos/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ estoque: novoEstoque })
+                });
+                if(res.ok) {
+                    fecharModalAjuste();
+                    await carregarProdutos();
+                } else {
+                    alert('Erro ao ajustar estoque');
+                }
+            } catch(e) {
+                alert('Erro de conexão');
+            }
+        });
+
+        async function deletarProduto(id) {
+            if(!confirm('Tem certeza que deseja excluir este produto do inventário?')) return;
+            try {
+                const res = await fetch(`${API_URL}/produtos/${id}`, { method: 'DELETE' });
+                if(res.ok) {
+                    await carregarProdutos();
+                } else {
+                    alert('Erro ao excluir');
+                }
+            } catch(e) {
+                alert('Erro de conexão');
+            }
+        }
+
+        function exportarEstoqueCSV() {
+            if(!todosProdutos.length) { alert('Sem produtos para exportar'); return; }
+            let csv = 'ID,Nome,Categoria,Preco,Estoque,EstoqueMinimo,Status\n';
+            todosProdutos.forEach(p => {
+                const status = p.estoque === 0 ? 'Esgotado' : (p.estoque <= p.estoqueMinimo ? 'Baixo' : 'Normal');
+                csv += `"${p.id}","${p.nome.replace(/"/g, '""')}","${p.categoria}","${p.preco.toFixed(2)}","${p.estoque}","${p.estoqueMinimo}","${status}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `estoque_produtos_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+        }
+
+        carregarProdutos();
+    </script>
+</body>
+</html>

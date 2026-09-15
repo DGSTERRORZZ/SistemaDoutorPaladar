@@ -1,0 +1,74 @@
+/* =====================================================
+   DOUTOR PALADAR — style.css (compatibility aliases)
+   Imports the design system from theme.css
+   ===================================================== */
+@import url('theme.css');
+
+/* Aliases for legacy code */
+:root {
+    --card:        var(--bg-card);
+    --bg-body:     var(--bg);
+    --bg-hover:    var(--green-50);
+    --border-light: var(--border);
+    --border-input: var(--border);
+    --shadow-glow:  0 0 15px rgba(45,125,82,0.15);
+    --shadow-card:  var(--shadow-sm);
+    --radius:       var(--radius-lg);
+    --radius-lg:    16px;
+    --radius-xl:    22px;
+    --radius-2xl:   28px;
+    --radius-full:  9999px;
+    --accent-glow:  rgba(45,125,82,0.2);
+    --text-primary: var(--text);
+    --text-secondary: var(--text-muted);
+    --bg-card:      #ffffff;
+    --bg-card-solid: #ffffff;
+    --bg-header:    rgba(255,255,255,0.97);
+    --bg-input:     var(--gray-50);
+    --bg-glass:     var(--glass-bg);
+    --brown-sidebar: linear-gradient(180deg, #1b4332, #0d2818);
+    --shadow-3d:    var(--shadow-md);
+    --shadow-3d-sm: var(--shadow-sm);
+    --shadow-button: var(--shadow-green);
+    --primary-glow:  rgba(45,125,82,0.2);
+    --text-muted: #64748b;
+    --text-inverse: #ffffff;
+}
+
+/* Button aliases */
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); color: white; border: none; }
+.btn-secondary { background: var(--gray-50); color: var(--text); border: 1.5px solid var(--border); }
+
+/* Form aliases */
+.form-control { border: 1.5px solid var(--border); background: var(--bg-card); color: var(--text); }
+.form-control:focus { border-color: var(--border-focus); box-shadow: 0 0 0 4px rgba(45,125,82,0.1); }
+
+/* Table aliases */
+.table-container { overflow-x: auto; }
+th { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-muted); }
+td { font-size: 0.85rem; color: var(--text); vertical-align: middle; }
+
+/* Card aliases */
+.card { background: var(--bg-card); border: 1px solid var(--border); border-radius: 20px; box-shadow: var(--shadow-sm); }
+.card-header { padding: 20px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+.card-title { font-family: var(--font-heading); font-size: 0.95rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.card-title i { color: var(--primary); }
+.card-body { padding: 24px; }
+
+/* Badge aliases */
+.badge-success { background: var(--green-50); color: #1e5c3a; }
+.badge-warning { background: #fffbeb; color: var(--warning); }
+.badge-danger  { background: #fef2f2; color: var(--danger); }
+
+/* Misc */
+.particles { display: none; }
+.topbar { background: rgba(255,255,255,0.88); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 0 32px; height: 70px; display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 0; z-index: 50; box-shadow: 0 1px 3px rgba(0,0,0,0.03); }
+.page-title { font-family: var(--font-heading); font-size: 1.1rem; font-weight: 800; color: var(--text); display: flex; align-items: center; gap: 10px; letter-spacing: -0.02em; }
+.topbar-right { display: flex; align-items: center; gap: 10px; }
+.main-content { flex: 1; margin-left: 270px; min-height: 100vh; display: flex; flex-direction: column; }
+.page-content { flex: 1; padding: 28px; }
+
+/* Toast */
+.toast { position: fixed; bottom: 22px; right: 22px; padding: 12px 20px; border-radius: 16px; color: white; font-weight: 700; font-size: 0.84rem; z-index: 2000; box-shadow: var(--shadow-lg); display: flex; align-items: center; gap: 8px; max-width: 360px; }
+.toast.success { background: linear-gradient(135deg, var(--primary), var(--primary-hover)); }
+.toast.error   { background: linear-gradient(135deg, var(--danger), #dc2626); }

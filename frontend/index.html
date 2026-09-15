@@ -1,0 +1,798 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Doutor Paladar · Lanchonete</title>
+    <meta name="description"
+        content="Peça online seus salgados frescos, hambúrgueres artesanais, cafés e sobremesas no Doutor Paladar. Peça e retire ou saboreie na mesa.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        /* ── HERO BANNER — Cinematic Widescreen ── */
+        .mcd-hero {
+            position: relative;
+            background: #0a0e12;
+            min-height: 520px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            color: #ffffff;
+            width: 100%;
+        }
+
+        .mcd-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 120px;
+            background: linear-gradient(to top, var(--bg, #f4f7fa), transparent);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .mcd-hero-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            background-image: linear-gradient(to right, #0a0e12 0%, rgba(10, 14, 18, 0.85) 30%, rgba(10, 14, 18, 0.45) 55%, rgba(10, 14, 18, 0.1) 85%), url('imagens/fundo_doutor_paladar.jpg');
+            background-size: cover;
+            background-position: center right;
+            opacity: 0.98;
+            animation: heroZoom 25s ease-in-out infinite alternate;
+        }
+
+        @keyframes heroZoom {
+            from { transform: scale(1); }
+            to   { transform: scale(1.05); }
+        }
+
+        .mcd-hero-content {
+            position: relative;
+            z-index: 4;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 4.5rem clamp(1.2rem, 4vw, 5rem);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .mcd-hero h1 {
+            font-size: 3.6rem;
+            font-weight: 900;
+            line-height: 1.08;
+            letter-spacing: -0.04em;
+            margin: 0 0 1.8rem 0;
+            max-width: 720px;
+            color: #ffffff;
+            text-shadow: 0 2px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .mcd-hero-actions {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .btn-order-pill {
+            background: #ffffff;
+            color: #121619;
+            font-weight: 800;
+            font-size: 1rem;
+            padding: 15px 32px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 28px rgba(0, 0, 0, 0.25);
+            border: 2px solid transparent;
+        }
+
+        .btn-order-pill:hover {
+            background: var(--mcd-gold);
+            color: #121619;
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 14px 36px rgba(255, 188, 13, 0.4);
+        }
+
+        .btn-order-pill i {
+            color: var(--dp-emerald);
+            font-size: 1.1rem;
+            transition: color 0.2s;
+        }
+
+        .btn-order-pill:hover i {
+            color: #121619;
+        }
+
+        /* ── SECTIONS — Full Width ── */
+        .mcd-section {
+            width: 100%;
+            max-width: 100%;
+            margin: 4rem auto;
+            padding: 0 clamp(1.2rem, 4vw, 5rem);
+        }
+
+        .mcd-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2.2rem;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .mcd-section-title {
+            font-size: 2.3rem;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            margin: 0;
+            line-height: 1.12;
+            font-family: var(--font-heading, 'Outfit', sans-serif);
+        }
+
+        .mcd-section-subtitle {
+            color: #64748b;
+            font-size: 1.05rem;
+            margin-top: 8px;
+        }
+
+        /* ── PRODUCT CARDS — Premium ── */
+        .mcd-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.8rem;
+            width: 100%;
+        }
+
+        .mcd-card {
+            background: #ffffff;
+            border-radius: 24px;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .mcd-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.16);
+            border-color: rgba(45, 125, 82, 0.2);
+        }
+
+        .mcd-card-img-container {
+            height: 210px;
+            width: 100%;
+            position: relative;
+            background: linear-gradient(135deg, #f1f5f9, #e8ecf1);
+            overflow: hidden;
+        }
+
+        .mcd-card-img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .mcd-card:hover .mcd-card-img {
+            transform: scale(1.08);
+        }
+
+        .mcd-card-body {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .mcd-card-heading {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f172a;
+            margin: 0 0 0.3rem 0;
+            line-height: 1.25;
+            font-family: var(--font-heading, 'Outfit', sans-serif);
+        }
+
+        .mcd-card-cat-badge {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--dp-emerald);
+            margin-bottom: 8px;
+            display: inline-block;
+            background: rgba(45, 125, 82, 0.08);
+            padding: 3px 10px;
+            border-radius: 6px;
+        }
+
+        .mcd-card-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-top: 1.1rem;
+            border-top: 1px solid rgba(241, 245, 249, 0.8);
+            margin-top: 0.8rem;
+        }
+
+        .mcd-card-price {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--dp-emerald);
+            font-family: var(--font-heading, 'Outfit', sans-serif);
+            letter-spacing: -0.02em;
+        }
+
+        .btn-card-action {
+            background: linear-gradient(135deg, #121619, #1e293b);
+            color: #ffffff;
+            font-size: 0.86rem;
+            font-weight: 800;
+            padding: 10px 20px;
+            border-radius: 999px;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+            border: none;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .btn-card-action:hover {
+            background: linear-gradient(135deg, var(--dp-emerald), #1b4332);
+            color: #ffffff;
+            transform: scale(1.06);
+            box-shadow: 0 8px 20px rgba(45, 125, 82, 0.35);
+        }
+
+        .btn-card-action:active {
+            transform: scale(0.94);
+        }
+
+        @media (max-width: 900px) {
+            .mcd-hero h1 { font-size: 2.5rem; }
+            .mcd-hero-bg { width: 100%; opacity: 0.3; }
+            .mcd-hero::after { height: 80px; }
+            .mcd-cards-grid { grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); }
+            .mcd-section { padding: 0 1.2rem; }
+            .mcd-navbar-inner { padding: 0 1.2rem; }
+        }
+
+        @media (max-width: 600px) {
+            .mcd-hero { min-height: 420px; }
+            .mcd-hero h1 { font-size: 2.1rem; }
+            .mcd-hero-actions { flex-direction: column; align-items: stretch; }
+            .btn-order-pill { justify-content: center; }
+            .ranking-tabs { overflow-x: auto; white-space: nowrap; padding-bottom: 0.5rem; }
+            .mcd-section-title { font-size: 1.8rem; }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR DRAWER MOBILE -->
+    <div class="mcd-drawer-overlay" id="drawerOverlay" onclick="fecharDrawer()">
+        <div class="mcd-drawer" onclick="event.stopPropagation()">
+            <div class="mcd-drawer-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; background: #ffffff; border: 2px solid var(--mcd-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="imagens/logo_icone.jpg" alt="Doutor Paladar" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <span style="font-weight: 800; font-size: 1.1rem;">DOUTOR PALADAR</span>
+                </div>
+                <button class="mcd-drawer-close" onclick="fecharDrawer()">&times;</button>
+            </div>
+            <div class="mcd-drawer-nav">
+                <a href="index.html" class="mcd-drawer-link" style="color: var(--dp-emerald); background: #f1f5f9;"><i class="fas fa-home"></i> Início</a>
+                <a href="cardapio.html" class="mcd-drawer-link"><i class="fas fa-burger"></i> Cardápio Completo</a>
+                <a href="#" onclick="fecharDrawer(); abrirModalAgendamentoCliente()" class="mcd-drawer-link"><i class="fas fa-calendar-alt"></i> Prato do Dia</a>
+                <a href="faq.html" class="mcd-drawer-link"><i class="fas fa-question-circle"></i> Perguntas Frequentes</a>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 10px 0;">
+                <a href="javascript:void(0)" onclick="fecharDrawer(); irParaLogin()" class="mcd-drawer-link"><i class="fas fa-user"></i> Entrar / Minha Conta</a>
+                <a href="javascript:void(0)" onclick="fecharDrawer(); irParaCadastro()" class="mcd-drawer-link"><i class="fas fa-user-plus"></i> Criar Conta Gratuita</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR INSTITUCIONAL MODERNA & WIDESCREEN -->
+    <header class="mcd-navbar">
+        <div class="mcd-navbar-inner">
+            <div class="mcd-nav-left">
+                <button class="mcd-hamburger" onclick="abrirDrawer()" title="Abrir Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a class="mcd-logo" href="index.html">
+                    <div class="mcd-logo-icon">
+                        <img src="imagens/logo_icone.jpg" alt="Doutor Paladar">
+                    </div>
+                    <div class="mcd-logo-text">
+                        <span class="mcd-logo-title">DOUTOR PALADAR</span>
+                        <span class="mcd-logo-sub">LANCHONETE</span>
+                    </div>
+                </a>
+
+            <div class="mcd-nav-right">
+                <!-- Botão de Cadastro Rápido Superior -->
+                <a href="javascript:void(0)" onclick="irParaCadastro()" class="btn-register-top" id="btnTopCadastro" title="Criar Conta">
+                    <i class="fas fa-user-plus"></i> <span>Criar Conta</span>
+                </a>
+
+                <!-- Área do Usuário / Entrar -->
+                <div class="user-menu-wrap" id="userMenuWrapper">
+                    <button class="btn-account-pill" id="loginBtn" onclick="irParaLogin()">
+                        <i class="fas fa-user"></i> <span>Entrar</span>
+                    </button>
+                    <div class="user-menu-popover" id="userMenuPopover">
+                        <div class="user-menu-header">
+                            <div class="user-menu-header-name" id="userMenuNome">Cliente</div>
+                            <div class="user-menu-header-role">Cliente Registrado</div>
+                        </div>
+                        <button class="user-menu-item" onclick="abrirModalMeusPedidos()">
+                            <i class="fas fa-receipt" style="color: var(--dp-emerald);"></i> Ver Meus Pedidos
+                        </button>
+                        <button class="user-menu-item logout" onclick="deslogarCliente()">
+                            <i class="fas fa-sign-out-alt"></i> Sair da Conta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO PRINCIPAL (WIDESCREEN TOTAL) -->
+    <section class="mcd-hero">
+        <div class="mcd-hero-bg"></div>
+        <div class="mcd-hero-content">
+            <h1>Como você quer seu pedido hoje?</h1>
+
+            <div class="mcd-hero-actions">
+                <a href="cardapio.html" class="btn-order-pill">
+                    <i class="fas fa-utensils"></i> Ver Cardápio & Fazer Pedido
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SEÇÃO: MAIS PEDIDOS COM RANKING REAL DE VENDAS -->
+    <section class="mcd-section">
+        <div class="mcd-section-header">
+            <div>
+                <h2 class="mcd-section-title">Mais Pedidos da Cantina</h2>
+                <div class="mcd-section-subtitle">Ranking real atualizado com base nas vendas confirmadas</div>
+            </div>
+
+            <!-- Abas de Navegação do Ranking Real (Comidas vs Bebidas) -->
+            <div class="ranking-tabs">
+                <button class="ranking-tab-btn active" id="tabComidas" onclick="alternarAbaRanking('comidas')">
+                    <i class="fas fa-burger"></i> Comidas Mais Vendidas
+                </button>
+                <button class="ranking-tab-btn" id="tabBebidas" onclick="alternarAbaRanking('bebidas')">
+                    <i class="fas fa-glass-water"></i> Bebidas Mais Vendidas
+                </button>
+            </div>
+        </div>
+
+        <!-- Grid de Cards do Ranking -->
+        <div class="mcd-cards-grid" id="rankingGrid">
+            <p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2.5rem;">
+                <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 0.5rem; display: block;"></i>
+                Carregando ranking oficial de vendas...
+            </p>
+        </div>
+    </section>
+
+    <!-- FOOTER INSTITUCIONAL -->
+    <footer class="mcd-footer">
+        <div class="mcd-footer-grid">
+            <div>
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 1.2rem;">
+                    <div style="width: 40px; height: 40px; background: #ffffff; border: 2px solid var(--mcd-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="imagens/logo_icone.jpg" alt="Doutor Paladar" style="width:100%; height:100%; object-fit:cover;">
+                    </div>
+                    <span style="font-weight: 800; font-size: 1.2rem; letter-spacing: -0.02em;">DOUTOR PALADAR</span>
+                </div>
+                <p>A melhor experiência gastronômica da cantina com atendimento ágil, pedidos online e máxima qualidade.</p>
+            </div>
+
+            <div>
+                <h4>Nossos Serviços</h4>
+                <a href="cardapio.html"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Cardápio Digital</a>
+                <a href="#" onclick="abrirModalAgendamentoCliente()"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Almoço & Prato do Dia</a>
+                <a href="cardapio.html"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Pedidos Online</a>
+                <a href="cardapio.html?mesa=1"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Pedido na Mesa (QR Code)</a>
+            </div>
+
+            <div>
+                <h4>Ajuda & Acesso</h4>
+                <a href="faq.html"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Dúvidas Frequentes (FAQ)</a>
+                <a href="javascript:void(0)" onclick="irParaLogin()"><i class="fas fa-chevron-right" style="font-size:0.7rem;"></i> Entrar na Minha Conta</a>
+            </div>
+
+            <div>
+                <h4>Horários de Atendimento</h4>
+                <p><i class="fas fa-clock" style="color: var(--mcd-gold);"></i> Seg a Sex: 07h00 às 17h30</p>
+                <p><i class="fas fa-clock" style="color: var(--mcd-gold);"></i> Sábados: 08h00 às 12h00</p>
+                <p><i class="fas fa-envelope" style="color: var(--mcd-gold);"></i> contato@doutorpaladar.com</p>
+            </div>
+        </div>
+
+        <div class="mcd-footer-bottom">
+            <div>&copy; 2026 Doutor Paladar · Todos os direitos reservados.</div>
+            <div>Inovação e agilidade em alimentação escolar & corporativa.</div>
+        </div>
+    </footer>
+
+    <!-- MODAL PRATO DO DIA / AGENDAMENTO -->
+    <div class="modal" id="modalAgendamentoCliente">
+        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalAgendamentoCliente')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h2 style="color: var(--primary); font-size: 1.35rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 8px;">
+                <i class="fas fa-calendar-check"></i> Agendar Refeição & Prato do Dia
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Reserve o prato do dia com antecedência e garanta sua vaga.</p>
+            <div id="listaAgendamentosClienteGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                <p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Carregando opções de refeições...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MEUS PEDIDOS / HISTÓRICO DO CLIENTE -->
+    <div class="modal" id="modalMeusPedidos">
+        <div class="modal-content" style="max-width: 650px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalMeusPedidos')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; padding-right: 25px;">
+                <h2 style="color: #0f172a; font-size: 1.35rem; display: flex; align-items: center; gap: 10px; font-weight: 800; margin: 0;">
+                    <div style="width: 36px; height: 36px; background: #f0faf4; color: var(--dp-emerald); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    Meus Pedidos
+                </h2>
+                <button onclick="carregarMeusPedidos()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; border-radius: var(--radius-full);">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Acompanhe o status do seu pedido atual em tempo real e consulte seus pedidos anteriores.</p>
+            
+            <div id="listaMeusPedidosContainer">
+                <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--dp-emerald); margin-bottom: 1rem; display:block;"></i>
+                    <p style="font-weight: 700;">Buscando seus pedidos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="js/auth.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let dadosRanking = { comidas: [], bebidas: [] };
+        let abaAtiva = 'comidas';
+
+        function abrirDrawer() { document.getElementById('drawerOverlay')?.classList.add('active'); }
+        function fecharDrawer() { document.getElementById('drawerOverlay')?.classList.remove('active'); }
+        function fecharModal(id) { document.getElementById(id)?.classList.remove('active'); }
+
+        async function abrirModalMeusPedidos() {
+            const popover = document.getElementById('userMenuPopover');
+            if (popover) popover.classList.remove('active');
+            
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) {
+                irParaLogin();
+                return;
+            }
+            document.getElementById('modalMeusPedidos')?.classList.add('active');
+            await carregarMeusPedidos();
+        }
+
+        function getStatusBadge(status) {
+            const s = (status || 'pendente').toLowerCase();
+            const config = {
+                'pendente': { label: 'Pendente', icon: 'clock', class: 'pendente' },
+                'confirmado': { label: 'Confirmado', icon: 'check', class: 'confirmado' },
+                'preparando': { label: 'Preparando', icon: 'fire', class: 'preparando' },
+                'pronto': { label: 'Pronto p/ Retirada', icon: 'bell', class: 'pronto' },
+                'entregue': { label: 'Entregue', icon: 'check-double', class: 'entregue' },
+                'cancelado': { label: 'Cancelado', icon: 'times', class: 'cancelado' },
+                'recusado': { label: 'Recusado', icon: 'ban', class: 'recusado' }
+            };
+            const c = config[s] || { label: status, icon: 'info-circle', class: 'pendente' };
+            return `<span class="order-status-pill ${c.class}"><i class="fas fa-${c.icon}"></i> ${c.label}</span>`;
+        }
+
+        async function carregarMeusPedidos() {
+            const container = document.getElementById('listaMeusPedidosContainer');
+            if (!container) return;
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) return;
+
+            container.innerHTML = `
+                <div style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--dp-emerald); margin-bottom: 0.8rem; display:block;"></i>
+                    <p style="font-weight: 700;">Atualizando status dos seus pedidos...</p>
+                </div>
+            `;
+
+            try {
+                const res = await fetch(`${API_URL}/clientes/historico-pedidos`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Erro ao carregar histórico');
+                const pedidos = await res.json();
+
+                if (!pedidos || pedidos.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3.5rem 1rem; color: #64748b;">
+                            <div style="width: 60px; height: 60px; background: #f8fafc; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; margin-bottom: 1rem;">
+                                <i class="fas fa-shopping-basket"></i>
+                            </div>
+                            <h3 style="font-weight: 800; color: #1e293b; margin-bottom: 6px;">Nenhum pedido encontrado</h3>
+                            <p style="font-size: 0.92rem; margin-bottom: 1.2rem;">Você ainda não fez nenhum pedido conosco.</p>
+                            <a href="cardapio.html" class="btn btn-primary" style="padding: 10px 22px; font-weight: 700; border-radius: var(--radius-full);">
+                                <i class="fas fa-utensils"></i> Explorar Cardápio
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = pedidos.map(p => {
+                    const dataFormatada = p.data ? new Date(p.data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : 'Data não informada';
+                    const itensFormatados = (p.itens && p.itens.length > 0)
+                        ? p.itens.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span><strong>${i.quantidade}x</strong> ${i.nome}</span> <span>R$ ${(i.quantidade * (parseFloat(i.precoUnitario) || 0)).toFixed(2).replace('.', ',')}</span></div>`).join('')
+                        : '<div style="color:#94a3b8; font-style:italic;">Itens do pedido não detalhados</div>';
+
+                    return `
+                        <div class="client-order-card">
+                            <div class="client-order-header">
+                                <div>
+                                    <span style="font-weight: 800; font-size: 1.05rem; color: #0f172a;">Pedido #${p.id}</span>
+                                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                                        <i class="far fa-calendar-alt"></i> ${dataFormatada}
+                                    </div>
+                                </div>
+                                <div>
+                                    ${getStatusBadge(p.status)}
+                                </div>
+                            </div>
+                            <div class="client-order-items">
+                                ${itensFormatados}
+                            </div>
+                            <div class="client-order-footer">
+                                <span><i class="fas fa-wallet"></i> ${p.formaPagamento ? p.formaPagamento.replace('_', ' ').toUpperCase() : 'BALCÃO'}</span>
+                                <span style="font-size: 1.05rem; font-weight: 900; color: var(--dp-emerald);">Total: R$ ${(parseFloat(p.total) || 0).toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 0.5rem; display:block;"></i>
+                        <p style="font-weight: 700;">Não foi possível carregar seus pedidos no momento.</p>
+                        <button onclick="carregarMeusPedidos()" class="btn btn-secondary" style="margin-top: 10px; font-weight: 700;">Tentar Novamente</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function abrirModalAgendamentoCliente() {
+            document.getElementById('modalAgendamentoCliente').classList.add('active');
+            const grid = document.getElementById('listaAgendamentosClienteGrid');
+            try {
+                const res = await fetch(API_URL + '/agendamentos');
+                if (!res.ok) throw new Error('Erro');
+                const agendamentos = await res.json();
+                const disponiveis = agendamentos.filter(a => a.status === 'disponivel' || (!a.bloqueado && (a.vagasDisponiveis > 0 || (a.vagasTotais - (a.vagasOcupadas || 0)) > 0)));
+
+                if (disponiveis.length === 0) {
+                    grid.innerHTML = `<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Nenhum prato do dia agendado no momento.</p>`;
+                    return;
+                }
+
+                grid.innerHTML = disponiveis.map(a => `
+                    <div style="background: var(--bg-card); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between;">
+                        <div>
+                            <span class="badge badge-green">📅 ${a.data} · ${a.horario}</span>
+                            <h4 style="font-size: 1.05rem; margin: 0.8rem 0 0.2rem; font-weight: 800;">${a.pratoDoDia || a.pratoNome || 'Prato do Dia'}</h4>
+                            <p style="font-size: 1.15rem; font-weight: 800; color: var(--primary); margin-bottom: 0.6rem;">R$ ${parseFloat(a.preco || 0).toFixed(2).replace('.', ',')}</p>
+                        </div>
+                        <a href="cardapio.html" class="btn btn-primary" style="margin-top: 1rem; width: 100%; text-align:center; text-decoration:none;">
+                            Ver no Cardápio
+                        </a>
+                    </div>
+                `).join('');
+            } catch (e) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--danger); grid-column: 1/-1;">Erro ao carregar horários.</p>`;
+            }
+        }
+
+        async function carregarRankingReal() {
+            const grid = document.getElementById('rankingGrid');
+            if (!grid) return;
+            try {
+                const res = await fetch(`${API_URL}/produtos/mais-pedidos`);
+                if (!res.ok) throw new Error('Erro ao buscar ranking');
+                dadosRanking = await res.json();
+                renderizarCardsRanking();
+            } catch (e) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--danger); padding: 2rem;">Não foi possível carregar o ranking de vendas.</p>';
+            }
+        }
+
+        function alternarAbaRanking(aba) {
+            abaAtiva = aba;
+            document.getElementById('tabComidas')?.classList.toggle('active', aba === 'comidas');
+            document.getElementById('tabBebidas')?.classList.toggle('active', aba === 'bebidas');
+            renderizarCardsRanking();
+        }
+
+        function renderizarCardsRanking() {
+            const grid = document.getElementById('rankingGrid');
+            if (!grid) return;
+            const lista = abaAtiva === 'comidas' ? (dadosRanking.comidas || []) : (dadosRanking.bebidas || []);
+
+            if (lista.length === 0) {
+                grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted); padding: 2rem;">Nenhum produto cadastrado nesta categoria.</p>';
+                return;
+            }
+
+            grid.innerHTML = lista.map((p, idx) => {
+                // Medalhas para o ranking oficial
+                let medalBadge = '';
+                if (idx === 0) {
+                    medalBadge = '<div class="badge-rank-medal gold"><i class="fas fa-medal"></i> 1º Mais Pedido</div>';
+                } else if (idx === 1) {
+                    medalBadge = '<div class="badge-rank-medal silver"><i class="fas fa-medal"></i> 2º Lugar</div>';
+                } else if (idx === 2) {
+                    medalBadge = '<div class="badge-rank-medal bronze"><i class="fas fa-medal"></i> 3º Lugar</div>';
+                } else {
+                    medalBadge = `<div class="badge-rank-medal top">${idx + 1}º Lugar</div>`;
+                }
+
+                // Indicador de vendas reais (se houver vendas registradas)
+                const vendasTexto = p.total_vendido > 0 
+                    ? `<div class="sales-count-tag"><i class="fas fa-fire"></i> ${p.total_vendido} vendidos</div>` 
+                    : `<div class="sales-count-tag" style="background:#f1f5f9; color:#64748b;"><i class="fas fa-star"></i> Destaque da cantina</div>`;
+
+                const imgUrl = (p.imagem && p.imagem.trim() !== '')
+                    ? p.imagem 
+                    : (abaAtiva === 'bebidas' 
+                        ? 'imagens/fundo_bebidas_3.jpg' 
+                        : 'imagens/fundo_estufa_2.jpg');
+
+                return `
+                    <div class="mcd-card">
+                        ${medalBadge}
+                        <div class="mcd-card-img-container">
+                            <img src="${imgUrl}" alt="${p.nome}" class="mcd-card-img" loading="lazy" decoding="async"
+                                onerror="this.onerror=null; this.src='imagens/fundo_estufa_2.jpg'">
+                        </div>
+                        <div class="mcd-card-body">
+                            <div>
+                                <span class="mcd-card-cat-badge">${p.categoria || 'Gourmet'}</span>
+                                <h3 class="mcd-card-heading">${p.nome}</h3>
+                                ${vendasTexto}
+                            </div>
+                            <div class="mcd-card-footer">
+                                <div class="mcd-card-price">R$ ${parseFloat(p.preco || 0).toFixed(2).replace('.', ',')}</div>
+                                <a href="cardapio.html" class="btn-card-action"><i class="fas fa-plus"></i> Pedir</a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function toggleMenuUsuario(e) {
+            if (e) e.stopPropagation();
+            const popover = document.getElementById('userMenuPopover');
+            if (popover) popover.classList.toggle('active');
+        }
+
+        function deslogarCliente() {
+            sessionStorage.removeItem('cliente_token');
+            sessionStorage.removeItem('cliente_nome');
+            sessionStorage.removeItem('cliente_id');
+            sessionStorage.removeItem('cliente_telefone');
+            window.location.reload();
+        }
+
+        // Fechar menu se clicar fora
+        document.addEventListener('click', (e) => {
+            const wrap = document.getElementById('userMenuWrapper');
+            const popover = document.getElementById('userMenuPopover');
+            if (wrap && popover && !wrap.contains(e.target)) {
+                popover.classList.remove('active');
+            }
+        });
+
+        async function sincronizarEstadoUsuario() {
+            const token = sessionStorage.getItem('cliente_token');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnTopCad = document.getElementById('btnTopCadastro');
+            const nomeMenu = document.getElementById('userMenuNome');
+            const gestorToken = sessionStorage.getItem('token');
+            const adminLink = document.getElementById('userMenuAdminLink');
+
+            if (adminLink && gestorToken) {
+                adminLink.style.display = 'flex';
+            }
+
+            if (token) {
+                // Usuário logado: busca dados reais da conta
+                try {
+                    const res = await fetch(`${API_URL}/clientes/perfil`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const perfil = await res.json();
+                        sessionStorage.setItem('cliente_nome', perfil.nome);
+                        if (perfil.id) sessionStorage.setItem('cliente_id', perfil.id);
+                        if (perfil.telefone) sessionStorage.setItem('cliente_telefone', perfil.telefone);
+
+                        const pts = parseInt(perfil.pontosFidelidade || 0);
+
+                        // Esconde botão de cadastro no topo quando logado
+                        if (btnTopCad) btnTopCad.style.display = 'none';
+
+                        // Atualiza nome no menu popover
+                        if (nomeMenu) {
+                            nomeMenu.innerHTML = `${perfil.nome} <span style="display:inline-block; margin-left:6px; background:#fef3c7; color:#b45309; padding:2px 8px; border-radius:999px; font-size:0.75rem; font-weight:800;"><i class="fas fa-award"></i> ${pts} pts</span>`;
+                        }
+
+                        // Botão de conta abre menu suspenso de ações
+                        if (loginBtn) {
+                            loginBtn.innerHTML = `<i class="fas fa-user-circle" style="color:var(--dp-emerald)"></i> <span>${perfil.nome.split(' ')[0]}</span> <span style="background:#fffbeb; color:#d97706; padding:2px 6px; border-radius:999px; font-size:0.72rem; font-weight:800; border:1px solid #fde68a;">${pts} pts</span> <i class="fas fa-chevron-down" style="font-size:0.7rem; opacity:0.7;"></i>`;
+                            loginBtn.onclick = (e) => toggleMenuUsuario(e);
+                            loginBtn.title = 'Minha Conta';
+                        }
+                        return;
+                    }
+                } catch(e) {}
+            }
+
+            // Não logado
+            if (btnTopCad) btnTopCad.style.display = 'inline-flex';
+            if (loginBtn) {
+                loginBtn.innerHTML = '<i class="fas fa-user"></i> <span>Entrar</span>';
+                loginBtn.onclick = () => irParaLogin();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            carregarRankingReal();
+            sincronizarEstadoUsuario();
+
+            if (sessionStorage.getItem('abrir_agendamento') === 'true') {
+                sessionStorage.removeItem('abrir_agendamento');
+                setTimeout(() => abrirModalAgendamentoCliente(), 300);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,621 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vendas a Prazo · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #2d7d52;
+            --primary-dark: #1b4332;
+            --primary-light: #52b788;
+            --accent: #ffbc0d;
+            --brown: #4a2810;
+            --bg: #f4f7fa;
+            --card: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --danger: #e53e3e;
+            --warning: #dd6b20;
+            --success: #2d7d52;
+            --shadow-card: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        body { font-family: var(--font-sans, 'Inter', sans-serif); background: var(--bg); color: var(--text); overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6, .logo, .page-title { font-family: var(--font-display, 'Playfair Display', serif); letter-spacing: -0.02em; }
+
+        .contas-layout {
+            display: grid;
+            grid-template-columns: 360px 1fr;
+            gap: 1.25rem;
+            align-items: start;
+        }
+        @media (max-width: 960px) { .contas-layout { grid-template-columns: 1fr; } }
+
+        .clientes-panel {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
+        }
+
+        .cliente-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 12px;
+            padding: 0.9rem 1rem;
+            margin-bottom: 0.65rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .cliente-card:hover { border-color: var(--primary); transform: translateX(3px); }
+        .cliente-card.active { border-color: var(--primary); background: #f0fdf4; box-shadow: 0 2px 8px rgba(45,125,82,0.12); }
+
+        .cliente-nome { font-weight: 700; font-size: 0.92rem; color: var(--text); }
+        .cliente-divida { font-weight: 800; color: var(--danger); font-size: 0.95rem; margin-top: 3px; }
+
+        .detalhes-panel {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.5rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
+        }
+
+        /* MODAIS */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-box {
+            background: #fff;
+            border-radius: 18px;
+            padding: 1.8rem;
+            max-width: 620px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+            position: relative;
+        }
+
+        .form-group { margin-bottom: 1rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 700; font-size: 0.8rem; color: var(--text); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
+            border-radius: 10px; font-size: 0.88rem; outline: none; background: #fff;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+
+        .prod-pos-card {
+            background: #fff;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="admin.html" class="sidebar-brand">
+                    <div class="brand-icon"><img src="imagens/logo_icone.jpg" alt="Doutor Paladar"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">Doutor Paladar</div>
+                        <div class="brand-sub">Painel Admin</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
+                <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="produtos.html" class="nav-item"><i class="fas fa-camera"></i> Catálogo & Fotos</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos & Estoque</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item active"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Configurações & Refeições</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div style="flex:1;overflow:hidden"><div class="user-name" id="adminBadge">Gestor</div><div class="user-role">Administrador</div></div>
+                    <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="topbar">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title"><i class="fas fa-hand-holding-usd" style="color:var(--primary);"></i> Vendas a Prazo & Contas de Alunos</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Extratos de consumo fiado, limites autorizados e recebimentos</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button class="btn btn-primary btn-sm" onclick="abrirModalNovaContaCredito()" style="background:var(--primary); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-user-plus"></i> Nova Conta a Prazo</button>
+                </div>
+            </div>
+
+            <main class="page-content" style="padding: 1.5rem;">
+                <div class="contas-layout">
+                    <!-- PAINEL DA ESQUERDA: LISTA DE CLIENTES -->
+                    <div class="clientes-panel">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem;">
+                            <div style="font-size:1rem; font-weight:700; color:var(--text);"><i class="fas fa-users" style="color:var(--primary);"></i> Contas Ativas</div>
+                            <span id="badgeQtdClientes" style="background:#f1f5f9; color:var(--text-muted); font-size:0.75rem; font-weight:700; padding:2px 8px; border-radius:12px;">0</span>
+                        </div>
+                        
+                        <div style="position:relative; margin-bottom:1rem;">
+                            <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted); font-size:0.85rem;"></i>
+                            <input type="text" id="buscaClienteCredito" placeholder="Buscar cliente..." onkeyup="filtrarClientesLocal()" style="width:100%; padding:8px 12px 8px 34px; border-radius:10px; border:1.5px solid var(--border); font-size:0.85rem; outline:none;">
+                        </div>
+
+                        <div id="listaClientesCredito" style="display:flex; flex-direction:column; gap:0.4rem; max-height:560px; overflow-y:auto; padding-right:4px;"></div>
+                    </div>
+
+                    <!-- PAINEL DA DIREITA: EXTRATO / DETALHES -->
+                    <div class="detalhes-panel" id="painelDetalhes" style="display:none;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; flex-wrap:wrap; gap:1rem;">
+                            <div>
+                                <h2 id="clienteNomeDetalhe" style="font-size:1.3rem; font-weight:800; color:var(--text);"></h2>
+                                <p id="clienteTurmaDetalhe" style="color:var(--text-muted); font-size:0.85rem; margin-top:2px;"></p>
+                            </div>
+                            <div style="display:flex; gap:8px;">
+                                <button class="btn btn-primary btn-sm" onclick="abrirModalNovaCompraPOS()" style="background:var(--primary); color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-cart-plus"></i> Nova Venda a Prazo</button>
+                                <button class="btn btn-sm" onclick="abrirModalPagamento()" style="background:#10b981; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-hand-holding-usd"></i> Registrar Pagamento</button>
+                            </div>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:1rem; margin-bottom:1.5rem;">
+                            <div style="background:#fef2f2; padding:1.1rem; border-radius:14px; text-align:center; border:1px solid #fee2e2;">
+                                <span style="font-size:0.75rem; color:#991b1b; font-weight:700; text-transform:uppercase;">Saldo Devedor</span>
+                                <div id="totalDevidoCliente" style="font-size:1.6rem; font-weight:800; color:var(--danger); margin-top:4px;">R$ 0,00</div>
+                            </div>
+                            <div style="background:#f0fdf4; padding:1.1rem; border-radius:14px; text-align:center; border:1px solid #dcfce7;">
+                                <span style="font-size:0.75rem; color:#166534; font-weight:700; text-transform:uppercase;">Total Pago</span>
+                                <div id="totalPagoCliente" style="font-size:1.6rem; font-weight:800; color:var(--primary); margin-top:4px;">R$ 0,00</div>
+                            </div>
+                            <div style="background:#f8fafc; padding:1.1rem; border-radius:14px; text-align:center; border:1px solid var(--border);">
+                                <span style="font-size:0.75rem; color:var(--text-muted); font-weight:700; text-transform:uppercase;">Total de Compras</span>
+                                <div id="qtdComprasCliente" style="font-size:1.6rem; font-weight:800; color:var(--text); margin-top:4px;">0</div>
+                            </div>
+                        </div>
+
+                        <h4 style="color:var(--text); margin-bottom:0.8rem; font-size:1rem;"><i class="fas fa-history" style="color:var(--primary);"></i> Extrato de Compras do Aluno</h4>
+                        <div id="historicoCompras" style="display:flex; flex-direction:column; gap:0.8rem;"></div>
+                    </div>
+
+                    <!-- PAINEL VAZIO QUANDO NENHUM CLIENTE FOI SELECIONADO -->
+                    <div id="painelVazio" class="detalhes-panel" style="text-align:center; padding:5rem 2rem;">
+                        <i class="fas fa-hand-holding-usd" style="font-size:3.5rem; color:#cbd5e1; margin-bottom:1rem; display:block;"></i>
+                        <h3 style="color:var(--text); font-size:1.1rem; margin-bottom:6px;">Nenhum cliente selecionado</h3>
+                        <p style="color:var(--text-muted); font-size:0.88rem;">Clique em um aluno na lista ao lado para ver o extrato e lançar débitos ou pagamentos.</p>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL VINCULAR NOVO CLIENTE AO CRÉDITO -->
+    <div class="modal-overlay" id="modalNovoClienteCredito">
+        <div class="modal-box">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem;">
+                <h3 style="color:var(--text); font-weight:800; font-size:1.15rem;"><i class="fas fa-user-plus" style="color:var(--primary);"></i> Nova Conta a Prazo</h3>
+                <button onclick="fecharModal('modalNovoClienteCredito')" style="background:none; border:none; font-size:1.3rem; color:#94a3b8; cursor:pointer;">&times;</button>
+            </div>
+            <form id="formNovoCredito" onsubmit="salvarNovoClienteCredito(event)">
+                <div class="form-group">
+                    <label>Nome Completo do Aluno / Cliente *</label>
+                    <input type="text" id="inputNomeNovoCliente" required placeholder="Ex: Lucas Gabriel">
+                </div>
+                <div class="form-group">
+                    <label>Turma / Identificação</label>
+                    <input type="text" id="inputTurmaNovoCliente" placeholder="Ex: 2º Ano B, Professor...">
+                </div>
+                <div class="form-group">
+                    <label>Limite de Crédito Autorizado (R$)</label>
+                    <input type="number" id="limiteCreditoNovo" value="50.00" step="5.00" min="10">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modalNovoClienteCredito')" style="padding:8px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background:var(--primary); color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-save"></i> Ativar Conta</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL NOVA VENDA A PRAZO (ESTILO PDV) -->
+    <div class="modal-overlay" id="modalVendaPOS">
+        <div class="modal-box" style="max-width:760px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem;">
+                <div>
+                    <h3 style="color:var(--text); font-weight:800; font-size:1.15rem;"><i class="fas fa-cart-plus" style="color:var(--primary);"></i> Lançar Venda a Prazo</h3>
+                    <div id="infoClientePOS" style="color:var(--text-muted); font-size:0.8rem; margin-top:2px;"></div>
+                </div>
+                <button onclick="fecharModal('modalVendaPOS')" style="background:none; border:none; font-size:1.3rem; color:#94a3b8; cursor:pointer;">&times;</button>
+            </div>
+
+            <div style="display:grid; grid-template-columns: 1fr 260px; gap:1rem;">
+                <div>
+                    <input type="text" id="buscaProdutoPOS" placeholder="🔍 Buscar produto por nome..." onkeyup="filtrarProdutosPOS()" style="width:100%; padding:9px 12px; border-radius:10px; border:1.5px solid var(--border); font-size:0.88rem; outline:none; margin-bottom:0.8rem;">
+                    <div style="max-height:300px; overflow-y:auto; padding-right:4px;" id="gridProdutosPOS"></div>
+                </div>
+
+                <div style="background:#f8fafc; padding:1.1rem; border-radius:14px; border:1px solid var(--border); display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <div style="font-weight:700; font-size:0.9rem; color:var(--text); margin-bottom:0.8rem;">Itens da Venda</div>
+                        <div id="itensCarrinhoPOS" style="max-height:180px; overflow-y:auto; font-size:0.85rem; display:flex; flex-direction:column; gap:6px;"></div>
+                    </div>
+                    <div style="margin-top:1rem; border-top:1.5px dashed var(--border); padding-top:0.8rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:baseline; margin-bottom:0.9rem;">
+                            <span style="font-size:0.82rem; font-weight:700; color:var(--text-muted);">TOTAL:</span>
+                            <span id="totalPOS" style="font-size:1.4rem; font-weight:800; color:var(--primary);">R$ 0,00</span>
+                        </div>
+                        <button onclick="finalizarVendaPOS()" class="btn btn-primary" style="width:100%; background:var(--primary); color:#fff; border:none; padding:10px; border-radius:10px; font-weight:700; cursor:pointer;"><i class="fas fa-check"></i> Lançar na Conta</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL REGISTRAR PAGAMENTO -->
+    <div class="modal-overlay" id="modalPagamento">
+        <div class="modal-box" style="max-width:440px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem;">
+                <h3 style="color:var(--text); font-weight:800; font-size:1.15rem;"><i class="fas fa-hand-holding-usd" style="color:#10b981;"></i> Registrar Pagamento</h3>
+                <button onclick="fecharModal('modalPagamento')" style="background:none; border:none; font-size:1.3rem; color:#94a3b8; cursor:pointer;">&times;</button>
+            </div>
+            <form id="formPagamento" onsubmit="confirmarPagamento(event)">
+                <div class="form-group">
+                    <label>Compra Pendente *</label>
+                    <select id="selectDividaPagamento" required onchange="atualizarInfoPagamento()"></select>
+                </div>
+                <div class="form-group">
+                    <label>Valor Pago (R$) *</label>
+                    <input type="number" id="valorAbater" step="0.10" min="0.10" required>
+                    <small id="infoValorMax" style="color:var(--text-muted); font-size:0.75rem; margin-top:3px; display:block;"></small>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; margin-top: 1.5rem; border-top: 1px solid var(--border); padding-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modalPagamento')" style="padding:8px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background:#10b981; color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-check"></i> Baixar Débito</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let clientesCredito = [];
+        let produtosCache = [];
+        let clienteSelecionado = null;
+        let carrinhoPOS = [];
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await carregarDadosCredito();
+            await carregarProdutosCache();
+        });
+
+        async function carregarDadosCredito() {
+            try {
+                const res = await fetch(`${API_URL}/fiado/clientes`);
+                if(res.ok) {
+                    const data = await res.json();
+                    clientesCredito = data.clientes || data || [];
+                    document.getElementById('badgeQtdClientes').textContent = clientesCredito.length;
+                    renderListaClientes();
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        async function carregarProdutosCache() {
+            try {
+                const res = await fetch(`${API_URL}/produtos`);
+                if(res.ok) produtosCache = await res.json();
+            } catch(e) {}
+        }
+
+        function renderListaClientes() {
+            const container = document.getElementById('listaClientesCredito');
+            if(!clientesCredito.length) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1.5rem;font-size:0.85rem;">Nenhum cliente com conta cadastrada.</p>';
+                return;
+            }
+
+            container.innerHTML = clientesCredito.map(c => {
+                const saldo = parseFloat(c.saldo_devedor || 0);
+                const isActive = clienteSelecionado && clienteSelecionado.id === c.id;
+                return `
+                    <div class="cliente-card ${isActive ? 'active' : ''}" onclick="selecionarCliente(${c.id})">
+                        <div class="cliente-nome">${c.nome}</div>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">${c.turma ? `Turma: ${c.turma}` : 'Sem turma informada'}</div>
+                        <div class="cliente-divida">Débito: R$ ${saldo.toFixed(2).replace('.', ',')}</div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filtrarClientesLocal() {
+            const termo = document.getElementById('buscaClienteCredito').value.toLowerCase();
+            const cards = document.querySelectorAll('.cliente-card');
+            cards.forEach(card => {
+                card.style.display = card.textContent.toLowerCase().includes(termo) ? '' : 'none';
+            });
+        }
+
+        async function selecionarCliente(id) {
+            try {
+                const res = await fetch(`${API_URL}/fiado/clientes/${id}`);
+                if(res.ok) {
+                    clienteSelecionado = await res.json();
+                    renderListaClientes();
+
+                    document.getElementById('painelVazio').style.display = 'none';
+                    document.getElementById('painelDetalhes').style.display = 'block';
+
+                    document.getElementById('clienteNomeDetalhe').textContent = clienteSelecionado.nome;
+                    document.getElementById('clienteTurmaDetalhe').textContent = clienteSelecionado.turma ? `Identificação / Turma: ${clienteSelecionado.turma}` : 'Aluno Regular';
+
+                    const dividas = clienteSelecionado.dividas || [];
+                    const totalDevido = dividas.reduce((s, d) => s + (parseFloat(d.total) - parseFloat(d.valorPago || 0)), 0);
+                    const totalPago = dividas.reduce((s, d) => s + parseFloat(d.valorPago || 0), 0);
+
+                    document.getElementById('totalDevidoCliente').textContent = `R$ ${totalDevido.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('totalPagoCliente').textContent = `R$ ${totalPago.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('qtdComprasCliente').textContent = dividas.length;
+
+                    renderHistoricoCompras(dividas);
+                }
+            } catch(e) { console.error(e); }
+        }
+
+        function renderHistoricoCompras(dividas) {
+            const container = document.getElementById('historicoCompras');
+            if(!dividas.length) {
+                container.innerHTML = '<p style="color:var(--text-muted);padding:1.5rem;text-align:center;font-size:0.85rem;">Nenhuma compra registrada para este aluno.</p>';
+                return;
+            }
+
+            container.innerHTML = dividas.map(d => {
+                const total = parseFloat(d.total);
+                const pago = parseFloat(d.valorPago || 0);
+                const restante = total - pago;
+                const statusBadge = d.pago
+                    ? '<span style="background:#dcfce7;color:#166534;font-size:0.75rem;font-weight:700;padding:2px 8px;border-radius:6px;">Liquidado</span>'
+                    : `<span style="background:#fee2e2;color:#991b1b;font-size:0.75rem;font-weight:700;padding:2px 8px;border-radius:6px;">Pendente: R$ ${restante.toFixed(2).replace('.', ',')}</span>`;
+
+                return `
+                    <div style="background:#f8fafc; border:1px solid var(--border); border-radius:12px; padding:1rem;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+                            <div>
+                                <strong style="font-size:0.9rem;">Compra #${d.id}</strong>
+                                <span style="font-size:0.75rem; color:var(--text-muted); margin-left:8px;">${new Date(d.data || d.criado_em).toLocaleDateString('pt-BR')}</span>
+                            </div>
+                            <div>${statusBadge}</div>
+                        </div>
+                        <div style="font-size:0.82rem; color:var(--text-muted);">
+                            Valor Total: <strong>R$ ${total.toFixed(2).replace('.', ',')}</strong> | Amortizado: R$ ${pago.toFixed(2).replace('.', ',')}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function abrirModalNovaContaCredito() {
+            document.getElementById('modalNovoClienteCredito').classList.add('active');
+        }
+
+        async function salvarNovoClienteCredito(e) {
+            e.preventDefault();
+            const nome = document.getElementById('inputNomeNovoCliente').value.trim();
+            const turma = document.getElementById('inputTurmaNovoCliente').value.trim();
+            if(!nome) return;
+
+            try {
+                const res = await fetch(`${API_URL}/fiado/clientes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, turma })
+                });
+                if(res.ok) {
+                    fecharModal('modalNovoClienteCredito');
+                    document.getElementById('formNovoCredito').reset();
+                    await carregarDadosCredito();
+                } else {
+                    alert('Erro ao cadastrar conta de crédito');
+                }
+            } catch(e) { alert('Erro de conexão'); }
+        }
+
+        function abrirModalNovaCompraPOS() {
+            if(!clienteSelecionado) return;
+            document.getElementById('infoClientePOS').textContent = `Lançando para: ${clienteSelecionado.nome}`;
+            carrinhoPOS = [];
+            renderCarrinhoPOS();
+            renderGridPOS();
+            document.getElementById('modalVendaPOS').classList.add('active');
+        }
+
+        function renderGridPOS() {
+            const q = (document.getElementById('buscaProdutoPOS')?.value || '').toLowerCase();
+            const grid = document.getElementById('gridProdutosPOS');
+            const filtrados = produtosCache.filter(p => p.nome.toLowerCase().includes(q) && p.estoque > 0);
+
+            if(!filtrados.length) {
+                grid.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1.5rem;font-size:0.85rem;">Nenhum produto disponível.</p>';
+                return;
+            }
+
+            grid.innerHTML = filtrados.map(p => `
+                <div class="prod-pos-card">
+                    <div>
+                        <strong>${p.nome}</strong><br>
+                        <small style="color:var(--primary);font-weight:700;">R$ ${parseFloat(p.preco).toFixed(2).replace('.', ',')}</small>
+                        <small style="color:var(--text-muted);"> | Restam ${p.estoque} un</small>
+                    </div>
+                    <button onclick="addProdutoPOS(${p.id})" style="padding:5px 12px; border-radius:8px; border:none; background:var(--primary); color:#fff; cursor:pointer; font-weight:700; font-size:0.8rem;">+ Incluir</button>
+                </div>`).join('');
+        }
+
+        function filtrarProdutosPOS() { renderGridPOS(); }
+
+        function addProdutoPOS(id) {
+            const p = produtosCache.find(x => x.id === id);
+            if(!p) return;
+            const item = carrinhoPOS.find(x => x.produtoId === id);
+            if(item) {
+                if(item.quantidade >= p.estoque) { alert('Estoque esgotado'); return; }
+                item.quantidade++;
+            } else {
+                carrinhoPOS.push({ produtoId: id, nome: p.nome, precoUnitario: parseFloat(p.preco), quantidade: 1 });
+            }
+            renderCarrinhoPOS();
+        }
+
+        function renderCarrinhoPOS() {
+            const container = document.getElementById('itensCarrinhoPOS');
+            const totalEl = document.getElementById('totalPOS');
+            if(!carrinhoPOS.length) {
+                container.innerHTML = '<p style="color:var(--text-muted);text-align:center;padding:1rem;font-size:0.8rem;">Nenhum item adicionado</p>';
+                totalEl.textContent = 'R$ 0,00';
+                return;
+            }
+
+            let total = 0;
+            container.innerHTML = carrinhoPOS.map(i => {
+                const sub = i.quantidade * i.precoUnitario;
+                total += sub;
+                return `
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span>${i.quantidade}x ${i.nome}</span>
+                        <strong>R$ ${sub.toFixed(2).replace('.', ',')}</strong>
+                    </div>`;
+            }).join('');
+
+            totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+        }
+
+        async function finalizarVendaPOS() {
+            if(!carrinhoPOS.length) { alert('Adicione produtos!'); return; }
+            const total = carrinhoPOS.reduce((s, i) => s + i.quantidade * i.precoUnitario, 0);
+
+            try {
+                const res = await fetch(`${API_URL}/fiado/compras`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        clienteId: clienteSelecionado.id,
+                        itens: carrinhoPOS,
+                        total
+                    })
+                });
+
+                if(res.ok) {
+                    fecharModal('modalVendaPOS');
+                    await carregarDadosCredito();
+                    selecionarCliente(clienteSelecionado.id);
+                } else {
+                    const data = await res.json();
+                    alert(data.erro || 'Erro ao lançar compra');
+                }
+            } catch(e) { alert('Erro de conexão'); }
+        }
+
+        function abrirModalPagamento() {
+            if(!clienteSelecionado) return;
+            const dividas = (clienteSelecionado.dividas || []).filter(d => !d.pago);
+            if(!dividas.length) { alert('Este aluno não possui débitos pendentes.'); return; }
+
+            const select = document.getElementById('selectDividaPagamento');
+            select.innerHTML = '<option value="">Selecione a compra a abater...</option>' +
+                dividas.map(d => {
+                    const restante = parseFloat(d.total) - parseFloat(d.valorPago || 0);
+                    return `<option value="${d.id}" data-restante="${restante}">Compra #${d.id} — Saldo: R$ ${restante.toFixed(2).replace('.', ',')}</option>`;
+                }).join('');
+
+            document.getElementById('modalPagamento').classList.add('active');
+        }
+
+        function atualizarInfoPagamento() {
+            const select = document.getElementById('selectDividaPagamento');
+            const opt = select.options[select.selectedIndex];
+            if(opt && opt.dataset.restante) {
+                const max = parseFloat(opt.dataset.restante);
+                document.getElementById('valorAbater').value = max.toFixed(2);
+                document.getElementById('infoValorMax').textContent = `Saldo devedor desta compra: R$ ${max.toFixed(2).replace('.', ',')}`;
+            }
+        }
+
+        async function confirmarPagamento(e) {
+            e.preventDefault();
+            const dividaId = document.getElementById('selectDividaPagamento').value;
+            const valor = parseFloat(document.getElementById('valorAbater').value);
+            if(!dividaId || !valor) return;
+
+            try {
+                const res = await fetch(`${API_URL}/fiado/pagamentos`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        clienteId: clienteSelecionado.id,
+                        dividaId: parseInt(dividaId),
+                        valor
+                    })
+                });
+
+                if(res.ok) {
+                    fecharModal('modalPagamento');
+                    await carregarDadosCredito();
+                    selecionarCliente(clienteSelecionado.id);
+                } else {
+                    const data = await res.json();
+                    alert(data.erro || 'Falha ao registrar pagamento');
+                }
+            } catch(e) { alert('Erro ao registrar pagamento'); }
+        }
+
+        function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+    </script>
+</body>
+</html>

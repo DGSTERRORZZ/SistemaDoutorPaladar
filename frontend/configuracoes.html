@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: var(--font-sans, 'Inter', sans-serif); background: var(--bg, #f4f7fa); color: var(--text, #2d3748); overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6, .logo, .page-title { font-family: var(--font-display, 'Playfair Display', serif); letter-spacing: -0.02em; }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .config-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--border, #e2e8f0);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        }
+        
+        .config-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+        }
+
+        .config-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border, #e2e8f0);
+        }
+
+        .config-header i {
+            font-size: 1.3rem;
+            color: #fff;
+            background: linear-gradient(135deg, var(--mcd-gold, #FFC72C), #d4a017);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(255, 199, 44, 0.3);
+        }
+
+        .config-header h2 { font-size: 1.25rem; font-weight: 800; color: var(--text, #2d3748); }
+
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text, #2d3748);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border, #e2e8f0);
+            border-radius: 10px;
+            background: #fafafa;
+            color: var(--text, #2d3748);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { 
+            border-color: var(--mcd-gold, #FFC72C); 
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(255, 199, 44, 0.1);
+        }
+
+        .btn-salvar-cfg {
+            width: 100%;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+        }
+        .btn-salvar-cfg:hover { 
+            background: linear-gradient(135deg, #0f172a, #000000); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(15, 23, 42, 0.3);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            font-size: 0.88rem;
+            animation: slideInUp 0.3s ease forwards;
+        }
+        
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="admin.html" class="sidebar-brand">
+                    <div class="brand-icon"><img src="imagens/logo_icone.jpg" alt="Doutor Paladar"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">Doutor Paladar</div>
+                        <div class="brand-sub">Painel Admin</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
+                <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="produtos.html" class="nav-item"><i class="fas fa-camera"></i> Catálogo & Fotos</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos & Estoque</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Configurações & Refeições</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="configuracoes.html" class="nav-item active"><i class="fas fa-cog"></i> Configurações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div style="flex:1;overflow:hidden"><div class="user-name" id="adminBadge">Gestor</div><div class="user-role">Administrador</div></div>
+                    <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <header class="topbar">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title"><i class="fas fa-cog" style="color:var(--primary);"></i> Configurações do Sistema</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Parâmetros da cantina, formas de pagamento, regras e segurança</div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-content" style="padding: 1.5rem;">
+                <div class="config-grid">
+                    <!-- 1. DADOS DA CANTINA -->
+                    <div class="config-card">
+                        <div>
+                            <div class="config-header">
+                                <i class="fas fa-store"></i>
+                                <h2>Estabelecimento & Atendimento</h2>
+                            </div>
+                            <div class="form-group">
+                                <label>Nome Fantasia do Estabelecimento</label>
+                                <input type="text" id="nomeCantina" value="Doutor Paladar">
+                            </div>
+                            <div class="form-group">
+                                <label>Horário de Funcionamento</label>
+                                <input type="text" id="horarioCantina" value="Segunda a Sexta · 07:00 às 18:30">
+                            </div>
+                            <div class="form-group">
+                                <label>Telefone / WhatsApp de Suporte</label>
+                                <input type="text" id="telefoneCantina" value="(11) 98765-4321">
+                            </div>
+                        </div>
+                        <button class="btn-salvar-cfg" onclick="salvarDadosCantina()"><i class="fas fa-save"></i> Salvar Estabelecimento</button>
+                    </div>
+
+                    <!-- 2. FORMAS DE PAGAMENTO & PIX -->
+                    <div class="config-card">
+                        <div>
+                            <div class="config-header">
+                                <i class="fab fa-pix"></i>
+                                <h2>Pagamentos & PIX</h2>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo de Chave PIX</label>
+                                <select id="tipoChavePix">
+                                    <option value="cpf" selected>CPF</option>
+                                    <option value="telefone">Celular</option>
+                                    <option value="email">E-mail</option>
+                                    <option value="aleatoria">Chave Aleatória</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Chave PIX para Recebimentos</label>
+                                <input type="text" id="chavePix" value="342.581.908-11">
+                            </div>
+                            <div class="form-group">
+                                <label>Titular da Conta / Responsável</label>
+                                <input type="text" id="titularPix" value="Valmir Pereira dos Santos - Cantina">
+                            </div>
+                        </div>
+                        <button class="btn-salvar-cfg" onclick="salvarPix()"><i class="fas fa-save"></i> Atualizar Dados PIX</button>
+                    </div>
+
+                    <!-- 3. CRÉDITO A PRAZO & FIDELIDADE -->
+                    <div class="config-card">
+                        <div>
+                            <div class="config-header">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                <h2>Regras de Crédito & Fidelidade</h2>
+                            </div>
+                            <div class="form-group">
+                                <label>Limite Padrão de Venda a Prazo (R$)</label>
+                                <input type="number" id="limitePadrao" value="50.00" step="5.00" min="10">
+                            </div>
+                            <div class="form-group">
+                                <label>Pontos de Fidelidade (% do Valor Gasto)</label>
+                                <input type="number" id="taxaFidelidade" value="10" min="1" max="100" placeholder="10%">
+                            </div>
+                            <div class="form-group">
+                                <label>Pontos Necessários para Resgate de Salgado</label>
+                                <input type="number" id="pontosResgate" value="10" min="5">
+                            </div>
+                        </div>
+                        <button class="btn-salvar-cfg" onclick="salvarRegras()"><i class="fas fa-save"></i> Salvar Parâmetros</button>
+                    </div>
+
+                    <!-- 4. SEGURANÇA DO GESTOR -->
+                    <div class="config-card">
+                        <div>
+                            <div class="config-header">
+                                <i class="fas fa-key"></i>
+                                <h2>Acesso & Segurança</h2>
+                            </div>
+                            <div class="form-group">
+                                <label>Senha Atual</label>
+                                <input type="password" id="senhaAtual" placeholder="Digite a senha atual">
+                            </div>
+                            <div class="form-group">
+                                <label>Nova Senha</label>
+                                <input type="password" id="novaSenha" placeholder="Mínimo de 6 caracteres">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirmar Nova Senha</label>
+                                <input type="password" id="confirmarSenha" placeholder="Repita a nova senha">
+                            </div>
+                        </div>
+                        <button class="btn-salvar-cfg" onclick="alterarSenhaGestor()"><i class="fas fa-shield-alt"></i> Atualizar Senha</button>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const salvo = localStorage.getItem('cfg_cantina');
+            if (salvo) {
+                try {
+                    const c = JSON.parse(salvo);
+                    if(c.nome) document.getElementById('nomeCantina').value = c.nome;
+                    if(c.horario) document.getElementById('horarioCantina').value = c.horario;
+                    if(c.telefone) document.getElementById('telefoneCantina').value = c.telefone;
+                    if(c.tipoChavePix) document.getElementById('tipoChavePix').value = c.tipoChavePix;
+                    if(c.chavePix) document.getElementById('chavePix').value = c.chavePix;
+                    if(c.titularPix) document.getElementById('titularPix').value = c.titularPix;
+                    if(c.limitePadrao) document.getElementById('limitePadrao').value = c.limitePadrao;
+                    if(c.taxaFidelidade) document.getElementById('taxaFidelidade').value = c.taxaFidelidade;
+                    if(c.pontosResgate) document.getElementById('pontosResgate').value = c.pontosResgate;
+                } catch(e) {}
+            }
+        });
+
+        function salvarDadosCantina() {
+            guardarConfigs();
+            mostrarToast('Dados do estabelecimento salvos com sucesso!');
+        }
+
+        function salvarPix() {
+            guardarConfigs();
+            mostrarToast('Configurações do PIX atualizadas!');
+        }
+
+        function salvarRegras() {
+            guardarConfigs();
+            mostrarToast('Regras de crédito e fidelidade atualizadas!');
+        }
+
+        function guardarConfigs() {
+            const configs = {
+                nome: document.getElementById('nomeCantina').value,
+                horario: document.getElementById('horarioCantina').value,
+                telefone: document.getElementById('telefoneCantina').value,
+                tipoChavePix: document.getElementById('tipoChavePix').value,
+                chavePix: document.getElementById('chavePix').value,
+                titularPix: document.getElementById('titularPix').value,
+                limitePadrao: document.getElementById('limitePadrao').value,
+                taxaFidelidade: document.getElementById('taxaFidelidade').value,
+                pontosResgate: document.getElementById('pontosResgate').value
+            };
+            localStorage.setItem('cfg_cantina', JSON.stringify(configs));
+        }
+
+        function alterarSenhaGestor() {
+            const atual = document.getElementById('senhaAtual').value;
+            const nova = document.getElementById('novaSenha').value;
+            const conf = document.getElementById('confirmarSenha').value;
+
+            if(!atual || !nova) {
+                mostrarToast('Preencha os campos de senha', 'error');
+                return;
+            }
+            if(nova.length < 6) {
+                mostrarToast('A nova senha deve ter no mínimo 6 caracteres', 'error');
+                return;
+            }
+            if(nova !== conf) {
+                mostrarToast('A confirmação não confere com a nova senha', 'error');
+                return;
+            }
+
+            document.getElementById('senhaAtual').value = '';
+            document.getElementById('novaSenha').value = '';
+            document.getElementById('confirmarSenha').value = '';
+            mostrarToast('Senha atualizada com sucesso!');
+        }
+
+        function mostrarToast(msg, tipo='success') {
+            const el = document.createElement('div');
+            el.className = `toast ${tipo}`;
+            el.innerHTML = `<i class="fas fa-${tipo==='success'?'check-circle':'exclamation-circle'}"></i> ${msg}`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel Admin · Doutor Paladar</title>
+    <meta name="description" content="Painel de controle e inteligência gerencial do Doutor Paladar">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .pedido-item { padding: 14px 0; border-bottom: 1px solid var(--border); transition: background 0.15s; }
+        .pedido-item:last-child { border-bottom: none; }
+        .pedido-item:hover { background: var(--gray-50); border-radius: 12px; margin: 0 -8px; padding: 14px 8px; }
+        .ranking-item { display: flex; align-items: center; gap: 12px; padding: 10px 8px; border-radius: 10px; transition: background 0.15s; }
+        .ranking-item:hover { background: var(--gray-50); }
+        .ranking-pos { font-size: 0.8rem; font-weight: 800; color: var(--text-muted); width: 26px; text-align: center; }
+        .ranking-bar-wrap { flex: 1; }
+        .ranking-name { font-size: 0.88rem; font-weight: 700; color: var(--text); }
+        .ranking-qty { font-size: 0.8rem; color: var(--text-muted); font-weight: 700; }
+    </style>
+</head>
+<body>
+
+<div class="admin-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="admin.html" class="sidebar-brand">
+                <div class="brand-icon">
+                    <img src="imagens/logo_icone.jpg" alt="Doutor Paladar">
+                </div>
+                <div class="brand-text">
+                    <div class="brand-name">Doutor Paladar</div>
+                    <div class="brand-sub">Painel Admin</div>
+                </div>
+            </a>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Principal</div>
+            <a href="admin.html" class="nav-item active"><i class="fas fa-chart-pie"></i> Dashboard</a>
+            <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+            <div class="nav-section-title">Gestão</div>
+            <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+            <a href="produtos.html" class="nav-item"><i class="fas fa-camera"></i> Catálogo & Fotos</a>
+            <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos & Estoque</a>
+            <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+            <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+            <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+            <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+            <div class="nav-section-title">Configurações & Refeições</div>
+            <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+            <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                <div style="flex:1;overflow:hidden;">
+                    <div class="user-name" id="adminBadge">Gestor</div>
+                    <div class="user-role">Administrador</div>
+                </div>
+                <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="topbar">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Recolher / Expandir Menu" style="padding: 8px 12px; border-radius: 10px;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <div class="page-title" id="pageTitle"><i class="fas fa-chart-pie" style="color:var(--primary)"></i> Dashboard Geral</div>
+                    <div style="font-size: 0.76rem; color: var(--text-muted);" id="liveDate">Visão operacional e métricas em tempo real</div>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <a href="cardapio.html" target="_blank" class="btn btn-secondary btn-sm"><i class="fas fa-external-link-alt"></i> Ver Cardápio</a>
+                <button class="btn btn-primary btn-sm" onclick="carregarDashboard()"><i class="fas fa-sync" id="btnSyncDash"></i> Atualizar Dados</button>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <!-- KPIS PRINCIPAIS -->
+            <div class="stats-grid" id="dashboardStats">
+                <div class="stat-card" style="grid-column: 1/-1; text-align: center; padding: 2rem; color: var(--text-muted);">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 1.5rem; margin-bottom: 0.5rem; display:block;"></i>
+                    Carregando indicadores em tempo real...
+                </div>
+            </div>
+            
+            <!-- GRÁFICOS: VENDAS 7 DIAS & CATEGORIAS -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 style="margin:0;"><i class="fas fa-chart-line"></i> Vendas — Últimos 7 Dias</h3>
+                        <span class="trend-indicator up"><i class="fas fa-arrow-trend-up"></i> Atualizado</span>
+                    </div>
+                    <canvas id="vendasChart"></canvas>
+                </div>
+                <div class="chart-card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                        <h3 style="margin:0;"><i class="fas fa-chart-pie"></i> Vendas por Categoria</h3>
+                        <span class="trend-indicator neutral"><i class="fas fa-chart-simple"></i> Proporção</span>
+                    </div>
+                    <canvas id="categoriaChart"></canvas>
+                </div>
+            </div>
+
+            <!-- RANKING DE PRODUTOS & FORMAS DE PAGAMENTO -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <h3><i class="fas fa-trophy"></i> Produtos Mais Vendidos</h3>
+                    <div id="rankingProdutos" style="min-height: 180px;"></div>
+                </div>
+                <div class="chart-card">
+                    <h3><i class="fas fa-cash-register"></i> Formas de Pagamento</h3>
+                    <canvas id="pagamentoChart"></canvas>
+                </div>
+            </div>
+
+            <!-- ÚLTIMOS PEDIDOS E ESTOQUE CRÍTICO -->
+            <div style="display:grid;grid-template-columns:repeat(auto-fit, minmax(320px, 1fr));gap:16px;">
+                <div class="card">
+                    <div class="card-header-block">
+                        <div class="card-title"><i class="fas fa-clock"></i> Últimos Pedidos Recebidos</div>
+                        <a href="pedidos-admin.html" class="btn btn-sm btn-outline">Ver Fila Completa</a>
+                    </div>
+                    <div class="card-body" id="ultimosPedidos" style="min-height: 160px;"></div>
+                </div>
+                <div class="card">
+                    <div class="card-header-block">
+                        <div class="card-title"><i class="fas fa-exclamation-triangle"></i> Alertas de Estoque</div>
+                        <a href="estoque.html" class="btn btn-sm btn-outline">Gerenciar Estoque</a>
+                    </div>
+                    <div class="card-body" id="estoqueCritico" style="min-height: 160px;"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<script src="js/auth.js"></script>
+<script>
+    const API_URL = 'http://localhost:3000/api';
+    let produtos = [], vendas = [], pedidos = [];
+    let chartVendas, chartCategoria, chartPagamento;
+
+    if(!sessionStorage.getItem('admin_logado')) { 
+        window.location.href = 'index.html'; 
+    }
+    document.getElementById('adminBadge').textContent = sessionStorage.getItem('admin_nome') || 'Gestor';
+    
+    const liveDateEl = document.getElementById('liveDate');
+    if (liveDateEl) {
+        liveDateEl.textContent = new Date().toLocaleDateString('pt-BR', { weekday: 'long', day: '2-digit', month: 'long', year: 'numeric' });
+    }
+
+    async function carregarDados() {
+        try {
+            const token = sessionStorage.getItem('token');
+            const headers = token ? { Authorization: `Bearer ${token}` } : {};
+            const [rProd, rVendas, rPedidos] = await Promise.all([
+                fetch(API_URL + '/produtos', { headers }),
+                fetch(API_URL + '/vendas', { headers }),
+                fetch(API_URL + '/pedidos', { headers })
+            ]);
+            
+            produtos = rProd.ok ? await rProd.json() : [];
+            vendas = rVendas.ok ? await rVendas.json() : [];
+            pedidos = rPedidos.ok ? await rPedidos.json() : [];
+        } catch(e) { 
+            console.error('Erro ao carregar dados:', e); 
+        }
+    }
+
+    async function carregarDashboard() {
+        const btnSync = document.getElementById('btnSyncDash');
+        if (btnSync) btnSync.classList.add('fa-spin');
+
+        await carregarDados();
+
+        if (btnSync) btnSync.classList.remove('fa-spin');
+
+        const totalVendas = vendas.reduce((s, v) => s + (parseFloat(v.total) || 0), 0);
+        const hojeStr = new Date().toISOString().split('T')[0];
+        const vendasHoje = vendas.filter(v => String(v.data || '').startsWith(hojeStr)).reduce((s, v) => s + (parseFloat(v.total) || 0), 0);
+        
+        const ontem = new Date(); 
+        ontem.setDate(ontem.getDate() - 1);
+        const ontemStr = ontem.toISOString().split('T')[0];
+        const vendasOntem = vendas.filter(v => String(v.data || '').startsWith(ontemStr)).reduce((s, v) => s + (parseFloat(v.total) || 0), 0);
+        
+        let variacaoHtml = '<span class="trend-indicator neutral"><i class="fas fa-minus"></i> 0%</span>';
+        if (vendasOntem > 0) {
+            const diff = ((vendasHoje - vendasOntem) / vendasOntem) * 100;
+            variacaoHtml = `<span class="trend-indicator ${diff >= 0 ? 'up' : 'down'}"><i class="fas fa-arrow-${diff >= 0 ? 'up' : 'down'}"></i> ${Math.abs(diff).toFixed(1)}% vs ontem</span>`;
+        } else if (vendasHoje > 0) {
+            variacaoHtml = `<span class="trend-indicator up"><i class="fas fa-arrow-up"></i> Novo pico</span>`;
+        }
+
+        const estoqueCriticoItens = produtos.filter(p => (parseInt(p.estoque) || 0) <= (parseInt(p.estoqueMinimo) || 10));
+        const estoqueBaixo = estoqueCriticoItens.length;
+        const metaDiaria = 500;
+        const progressoMeta = Math.min((vendasHoje / metaDiaria) * 100, 100);
+
+        document.getElementById('dashboardStats').innerHTML = `
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon" style="background:#eefbf4; color:var(--primary);"><i class="fas fa-cash-register"></i></div>
+                    ${variacaoHtml}
+                </div>
+                <div class="stat-value" style="margin-top:12px;">R$ ${vendasHoje.toFixed(2).replace('.', ',')}</div>
+                <div class="stat-label">Faturamento Hoje</div>
+                <div class="progress-container"><div class="progress-bar-fill" style="width:${progressoMeta}%"></div></div>
+            </div>
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon" style="background:#fdf8f3; color:var(--accent);"><i class="fas fa-chart-line"></i></div>
+                    <span class="trend-indicator neutral"><i class="fas fa-receipt"></i> Histórico</span>
+                </div>
+                <div class="stat-value" style="margin-top:12px;">R$ ${totalVendas.toFixed(2).replace('.', ',')}</div>
+                <div class="stat-label">Faturamento Geral</div>
+            </div>
+            <div class="stat-card">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon" style="background:#eff6ff; color:#2563eb;"><i class="fas fa-bag-shopping"></i></div>
+                    <span class="trend-indicator up"><i class="fas fa-check"></i> ${pedidos.filter(p=>p.status==='entregue'||p.status==='concluido').length} entregues</span>
+                </div>
+                <div class="stat-value" style="margin-top:12px;">${pedidos.length}</div>
+                <div class="stat-label">Total de Pedidos</div>
+            </div>
+            <div class="stat-card ${estoqueBaixo > 0 ? 'danger' : ''}">
+                <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                    <div class="stat-icon ${estoqueBaixo > 0 ? 'danger' : ''}"><i class="fas fa-box-open"></i></div>
+                    <span class="trend-indicator ${estoqueBaixo > 0 ? 'down' : 'up'}">${estoqueBaixo > 0 ? 'Atenção necessária' : 'Em conformidade'}</span>
+                </div>
+                <div class="stat-value" style="margin-top:12px;">${estoqueBaixo}</div>
+                <div class="stat-label">Itens em Estoque Baixo</div>
+            </div>
+        `;
+
+        // Gráfico de Vendas 7 Dias
+        const ult7 = [], val7 = [];
+        for (let i = 6; i >= 0; i--) { 
+            const d = new Date(); 
+            d.setDate(d.getDate() - i); 
+            const ds = d.toISOString().split('T')[0]; 
+            ult7.push(d.toLocaleDateString('pt-BR', { weekday: 'short' }).replace('.', '')); 
+            val7.push(vendas.filter(v => String(v.data || '').startsWith(ds)).reduce((s, v) => s + (parseFloat(v.total) || 0), 0)); 
+        }
+
+        if (chartVendas) chartVendas.destroy();
+        const ctxVendas = document.getElementById('vendasChart');
+        if (ctxVendas) {
+            chartVendas = new Chart(ctxVendas, {
+                type: 'line',
+                data: {
+                    labels: ult7,
+                    datasets: [{
+                        label: 'Vendas (R$)',
+                        data: val7,
+                        borderColor: '#2d7d52',
+                        backgroundColor: 'rgba(45,125,82,0.08)',
+                        fill: true,
+                        tension: 0.35,
+                        pointBackgroundColor: '#2d7d52',
+                        pointRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#64748b', font: { size: 11 } } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // Gráfico de Categorias
+        const vendasCat = {};
+        vendas.forEach(v => {
+            if (v.itens && Array.isArray(v.itens)) {
+                v.itens.forEach(i => {
+                    const prod = produtos.find(p => p.id === i.produtoId);
+                    const cat = prod?.categoria || 'Outros';
+                    vendasCat[cat] = (vendasCat[cat] || 0) + ((parseFloat(i.precoUnitario) || 0) * (parseInt(i.quantidade) || 1));
+                });
+            }
+        });
+
+        const catKeys = Object.keys(vendasCat);
+        const catVals = Object.values(vendasCat);
+
+        if (chartCategoria) chartCategoria.destroy();
+        const ctxCat = document.getElementById('categoriaChart');
+        if (ctxCat) {
+            chartCategoria = new Chart(ctxCat, {
+                type: 'doughnut',
+                data: {
+                    labels: catKeys.length ? catKeys : ['Sem vendas'],
+                    datasets: [{
+                        data: catVals.length ? catVals : [1],
+                        backgroundColor: ['#2d7d52', '#ffbc0d', '#7b4f2e', '#a0714f', '#d97706', '#2563eb', '#10b981'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { position: 'bottom', labels: { color: '#334155', font: { size: 11 }, padding: 12 } } },
+                    cutout: '68%'
+                }
+            });
+        }
+
+        // Ranking de Produtos
+        const vendasProd = {};
+        vendas.forEach(v => {
+            if (v.itens && Array.isArray(v.itens)) {
+                v.itens.forEach(i => {
+                    const pid = i.produtoId;
+                    if (!vendasProd[pid]) vendasProd[pid] = 0;
+                    vendasProd[pid] += (parseInt(i.quantidade) || 1);
+                });
+            }
+        });
+
+        const ranking = Object.entries(vendasProd).map(([id, q]) => ({
+            nome: produtos.find(p => p.id == parseInt(id))?.nome || 'Item #' + id,
+            quantidade: q
+        })).sort((a, b) => b.quantidade - a.quantidade).slice(0, 5);
+
+        const maxQ = ranking[0]?.quantidade || 1;
+        const rankingEl = document.getElementById('rankingProdutos');
+        if (rankingEl) {
+            rankingEl.innerHTML = ranking.length ? ranking.map((r, i) => `
+                <div class="ranking-item">
+                    <div class="ranking-pos">${i + 1}°</div>
+                    <div class="ranking-bar-wrap">
+                        <div class="ranking-name">${r.nome}</div>
+                        <div class="progress-bar"><div class="progress-fill" style="width:${(r.quantidade / maxQ) * 100}%"></div></div>
+                    </div>
+                    <div class="ranking-qty">${r.quantidade} un.</div>
+                </div>
+            `).join('') : '<p class="text-muted text-sm" style="padding:1.5rem 0; text-align:center;">Nenhuma venda contabilizada ainda.</p>';
+        }
+
+        // Formas de Pagamento
+        const pag = { pix: 0, dinheiro: 0, cartao: 0, fiado: 0 };
+        vendas.forEach(v => {
+            const f = String(v.formaPagamento || 'dinheiro').toLowerCase();
+            const val = parseFloat(v.total) || 0;
+            if (f.includes('pix')) pag.pix += val;
+            else if (f.includes('cartao') || f.includes('cartão')) pag.cartao += val;
+            else if (f.includes('fiado') || f.includes('conta') || f.includes('prazo')) pag.fiado += val;
+            else pag.dinheiro += val;
+        });
+
+        if (chartPagamento) chartPagamento.destroy();
+        const ctxPag = document.getElementById('pagamentoChart');
+        if (ctxPag) {
+            chartPagamento = new Chart(ctxPag, {
+                type: 'bar',
+                data: {
+                    labels: ['PIX', 'Dinheiro', 'Cartão', 'A Prazo'],
+                    datasets: [{
+                        label: 'Total (R$)',
+                        data: [pag.pix, pag.dinheiro, pag.cartao, pag.fiado],
+                        backgroundColor: ['#10b981', '#2d7d52', '#3b82f6', '#d97706'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#64748b', font: { size: 11 } } },
+                        x: { grid: { display: false }, ticks: { color: '#64748b', font: { size: 11 } } }
+                    }
+                }
+            });
+        }
+
+        // Últimos Pedidos
+        const ultimosPedidosEl = document.getElementById('ultimosPedidos');
+        if (ultimosPedidosEl) {
+            ultimosPedidosEl.innerHTML = (pedidos || []).slice(0, 5).map(p => `
+                <div class="pedido-item">
+                    <div style="display:flex;justify-content:space-between;align-items:start">
+                        <div>
+                            <div style="font-weight:700;font-size:0.9rem">#${p.id} — ${p.nomeCliente || 'Cliente Balcão'}</div>
+                            <div class="text-muted text-xs" style="margin-top:2px">
+                                ${new Date(p.data || Date.now()).toLocaleString('pt-BR')} · <strong style="color:var(--primary)">R$ ${(parseFloat(p.total) || 0).toFixed(2).replace('.', ',')}</strong>
+                            </div>
+                        </div>
+                        <span class="badge ${p.status === 'entregue' ? 'badge-green' : (p.status === 'cancelado' ? 'badge-danger' : 'badge-gold')}">
+                            ${(p.status || 'pendente').toUpperCase()}
+                        </span>
+                    </div>
+                </div>
+            `).join('') || '<p class="text-muted text-sm" style="padding:1rem 0; text-align:center;">Nenhum pedido recente</p>';
+        }
+
+        // Estoque Crítico
+        const estoqueCriticoEl = document.getElementById('estoqueCritico');
+        if (estoqueCriticoEl) {
+            estoqueCriticoEl.innerHTML = estoqueCriticoItens.length ? estoqueCriticoItens.slice(0, 5).map(p => `
+                <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--border)">
+                    <div>
+                        <span style="font-size:0.88rem; font-weight:700;">${p.nome}</span>
+                        <div style="font-size:0.75rem; color:var(--text-muted);">Mínimo sugerido: ${p.estoqueMinimo || 10} un.</div>
+                    </div>
+                    <span class="badge badge-danger">${p.estoque || 0} unidades</span>
+                </div>
+            `).join('') : '<p class="text-muted text-sm" style="padding:1.5rem 0; text-align:center; color:var(--primary); font-weight:600;"><i class="fas fa-check-circle"></i> Todos os produtos estão com níveis normais de estoque.</p>';
+        }
+    }
+
+    // Socket.IO para Atualização Instantânea
+    function iniciarSocket() {
+        try {
+            if (typeof io !== 'undefined') {
+                const socket = io('http://localhost:3000');
+                socket.on('novo_pedido', () => carregarDashboard());
+                socket.on('status_pedido_atualizado', () => carregarDashboard());
+                socket.on('nova_venda', () => carregarDashboard());
+            }
+        } catch(e) {
+            console.error('Erro no Socket.IO:', e);
+        }
+    }
+
+    iniciarSocket();
+    carregarDashboard();
+</script>
+</body>
+</html>

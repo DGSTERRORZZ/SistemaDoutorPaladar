@@ -1,0 +1,769 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Doutor Paladar · Perguntas Frequentes (FAQ)</title>
+    <meta name="description" content="Tire suas dúvidas sobre horários, pagamentos via PIX, cartões, retirada de pedidos e fidelidade no Doutor Paladar.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        body {
+            background-color: #f8fafc;
+            color: #1e293b;
+            font-family: var(--font-sans, 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif);
+            margin: 0;
+            padding: 0;
+        }
+
+        /* ── HERO BANNER CINEMÁTICO DA FAQ ── */
+        .mcd-hero {
+            position: relative;
+            background: #0a0e12;
+            color: #ffffff;
+            overflow: hidden;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 12px 36px rgba(0, 0, 0, 0.25);
+            min-height: 440px;
+            display: flex;
+            align-items: center;
+        }
+
+        .mcd-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 80px;
+            background: linear-gradient(to top, #f8fafc, transparent);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .mcd-hero-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            background-image: linear-gradient(to right, #0a0e12 0%, rgba(10, 14, 18, 0.85) 30%, rgba(10, 14, 18, 0.45) 55%, rgba(10, 14, 18, 0.1) 85%), url('imagens/fundo_doutor_paladar.jpg');
+            background-size: cover;
+            background-position: center right;
+            opacity: 0.98;
+            animation: heroZoom 25s ease-in-out infinite alternate;
+        }
+
+        @keyframes heroZoom {
+            from { transform: scale(1); }
+            to   { transform: scale(1.04); }
+        }
+
+        .mcd-hero-content {
+            position: relative;
+            z-index: 4;
+            width: 100%;
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 3.5rem 1.5rem;
+        }
+
+        .mcd-hero h1 {
+            font-size: 2.8rem;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.03em;
+            margin: 0.5rem 0 0.8rem 0;
+            color: #ffffff;
+            text-shadow: 0 2px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .mcd-hero p {
+            font-size: 1.05rem;
+            color: rgba(255, 255, 255, 0.85);
+            margin: 0;
+            max-width: 620px;
+            line-height: 1.5;
+        }
+
+        /* ── CONTAINER DA FAQ ── */
+        .faq-page-container {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem 6rem;
+        }
+
+        /* Barra de Busca de Dúvidas na FAQ */
+        .faq-search-wrapper {
+            max-width: 580px;
+            margin: 1.8rem auto 0;
+            position: relative;
+        }
+
+        .faq-search-wrapper i {
+            position: absolute;
+            left: 18px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 1rem;
+        }
+
+        .faq-search-input {
+            width: 100%;
+            padding: 14px 20px 14px 48px;
+            border-radius: var(--radius-full);
+            border: 1.5px solid #cbd5e1;
+            font-size: 0.95rem;
+            background: #ffffff;
+            outline: none;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.04);
+            transition: var(--transition);
+        }
+
+        .faq-search-input:focus {
+            border-color: var(--dp-emerald);
+            box-shadow: 0 0 0 4px rgba(45, 125, 82, 0.15);
+        }
+
+        /* Filtros de Categorias de Dúvidas */
+        .faq-category-pills {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 2.5rem;
+        }
+
+        .faq-pill-btn {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius-full);
+            padding: 9px 20px;
+            font-weight: 700;
+            font-size: 0.88rem;
+            color: #475569;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .faq-pill-btn:hover {
+            border-color: var(--dp-emerald);
+            color: var(--dp-emerald);
+            background: #f0faf4;
+            transform: translateY(-1px);
+        }
+
+        .faq-pill-btn.active {
+            background: var(--dp-emerald);
+            color: #ffffff;
+            border-color: var(--dp-emerald);
+            box-shadow: 0 4px 12px rgba(45, 125, 82, 0.25);
+        }
+
+        /* Lista de Perguntas (Accordion) */
+        .faq-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .faq-item {
+            background: #ffffff;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            padding: 1.3rem 1.8rem;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.03);
+            transition: all 0.25s ease;
+        }
+
+        .faq-item:hover {
+            border-color: #cbd5e1;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+        }
+
+        .faq-question {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #0f172a;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .faq-question i {
+            color: #94a3b8;
+            font-size: 0.95rem;
+            transition: transform 0.25s ease;
+        }
+
+        .faq-answer {
+            font-size: 0.95rem;
+            color: #475569;
+            line-height: 1.65;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #f1f5f9;
+            display: none;
+        }
+
+        .faq-item.active {
+            border-color: var(--dp-emerald);
+            box-shadow: 0 10px 28px -4px rgba(45, 125, 82, 0.15);
+        }
+
+        .faq-item.active .faq-question { color: var(--dp-emerald); }
+        .faq-item.active .faq-question i { transform: rotate(180deg); color: var(--dp-emerald); }
+        .faq-item.active .faq-answer { display: block; }
+
+        /* Card de Dúvida Não Encontrada */
+        .faq-cta-card {
+            background: linear-gradient(135deg, #1b4332 0%, #0d2818 100%);
+            border-radius: 28px;
+            padding: 3.5rem 2rem;
+            text-align: center;
+            color: #ffffff;
+            margin-top: 4rem;
+            box-shadow: 0 20px 40px rgba(27, 67, 50, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .faq-cta-card h3 {
+            font-size: 2rem;
+            font-weight: 900;
+            margin: 0 0 0.8rem;
+            color: #ffffff;
+        }
+
+        .faq-cta-card p {
+            color: #d7f0e3;
+            font-size: 1.05rem;
+            margin: 0 auto 2rem;
+            max-width: 520px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR DRAWER (ABERTO PELO HAMBÚRGUER) -->
+    <div class="mcd-drawer-overlay" id="drawerOverlay" onclick="fecharDrawer()">
+        <div class="mcd-drawer" onclick="event.stopPropagation()">
+            <div class="mcd-drawer-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; background: #ffffff; border: 2px solid var(--mcd-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="imagens/logo_icone.jpg" alt="Doutor Paladar" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <span style="font-weight: 800; font-size: 1.1rem;">DOUTOR PALADAR</span>
+                </div>
+                <button class="mcd-drawer-close" onclick="fecharDrawer()">&times;</button>
+            </div>
+            <div class="mcd-drawer-nav">
+                <a href="index.html" class="mcd-drawer-link"><i class="fas fa-home"></i> Início</a>
+                <a href="cardapio.html" class="mcd-drawer-link"><i class="fas fa-burger"></i> Cardápio Completo</a>
+                <a href="#" onclick="fecharDrawer(); abrirModalAgendamentoCliente()" class="mcd-drawer-link"><i class="fas fa-calendar-alt"></i> Prato do Dia</a>
+                <a href="faq.html" class="mcd-drawer-link" style="color: var(--dp-emerald); background: #f1f5f9;"><i class="fas fa-question-circle"></i> Perguntas Frequentes (FAQ)</a>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 10px 0;">
+                <a href="javascript:void(0)" onclick="fecharDrawer(); irParaLogin()" class="mcd-drawer-link"><i class="fas fa-user"></i> Entrar / Minha Conta</a>
+                <a href="javascript:void(0)" onclick="fecharDrawer(); irParaCadastro()" class="mcd-drawer-link"><i class="fas fa-user-plus"></i> Criar Conta Gratuita</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR INSTITUCIONAL MC STYLE -->
+    <header class="mcd-navbar">
+        <div class="mcd-navbar-inner">
+            <div class="mcd-nav-left">
+                <button class="mcd-hamburger" onclick="abrirDrawer()" title="Abrir Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a class="mcd-logo" href="index.html">
+                    <div class="mcd-logo-icon">
+                        <img src="imagens/logo_icone.jpg" alt="Doutor Paladar">
+                    </div>
+                    <div class="mcd-logo-text">
+                        <span class="mcd-logo-title">DOUTOR PALADAR</span>
+                        <span class="mcd-logo-sub">LANCHONETE</span>
+                    </div>
+                </a>
+
+            <div class="mcd-nav-right">
+                <!-- Botão de Cadastro Rápido Superior -->
+                <a href="javascript:void(0)" onclick="irParaCadastro()" class="btn-register-top" id="btnTopCadastro" title="Criar Conta">
+                    <i class="fas fa-user-plus"></i> <span>Criar Conta</span>
+                </a>
+
+                <!-- Área do Usuário / Entrar -->
+                <div class="user-menu-wrap" id="userMenuWrapper">
+                    <button class="btn-account-pill" id="loginBtn" onclick="irParaLogin()">
+                        <i class="fas fa-user"></i> <span>Entrar</span>
+                    </button>
+                    <div class="user-menu-popover" id="userMenuPopover">
+                        <div class="user-menu-header">
+                            <div class="user-menu-header-name" id="userMenuNome">Cliente</div>
+                            <div class="user-menu-header-role">Cliente Registrado</div>
+                        </div>
+                        <button class="user-menu-item" onclick="abrirModalMeusPedidos()">
+                            <i class="fas fa-receipt" style="color: var(--dp-emerald);"></i> Ver Meus Pedidos
+                        </button>
+                        <button class="user-menu-item logout" onclick="deslogarCliente()">
+                            <i class="fas fa-sign-out-alt"></i> Sair da Conta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO PRINCIPAL FAQ (CINEMATIC WIDESCREEN) -->
+    <section class="mcd-hero">
+        <div class="mcd-hero-bg"></div>
+        <div class="mcd-hero-content">
+            <span class="badge" style="background: rgba(255, 188, 13, 0.2); color: #ffbc0d; padding: 6px 16px; border-radius: var(--radius-full); font-weight: 800; font-size: 0.82rem; text-transform: uppercase; border: 1px solid rgba(255, 188, 13, 0.3);">
+                <i class="fas fa-info-circle"></i> Central de Ajuda & Dúvidas
+            </span>
+            <h1>Como podemos ajudar você hoje?</h1>
+            <p>Encontre respostas rápidas para as principais dúvidas sobre pedidos, pagamentos, agendamentos e atendimento no balcão.</p>
+        </div>
+    </section>
+
+    <!-- CONTEÚDO PRINCIPAL DA FAQ -->
+    <main class="faq-page-container">
+
+        <!-- Lista de Accordions -->
+        <div class="faq-list" id="faqList">
+            <!-- Item 1 -->
+            <div class="faq-item" data-cat="pagamento">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>💳 Quais são as formas de pagamento aceitas?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Aceitamos <strong>PIX instantâneo com QR Code dinâmico</strong>, cartões de crédito e débito de todas as principais bandeiras, dinheiro em espécie no balcão e saldo de crédito pré-pago para clientes cadastrados.
+                </div>
+            </div>
+
+            <!-- Item 2 -->
+            <div class="faq-item" data-cat="pedidos">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>⏰ Qual o horário de atendimento e funcionamento da cantina?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Nosso atendimento presencial e os pedidos online funcionam de <strong>segunda a sexta-feira, das 07h00 às 17h30</strong>, e aos <strong>sábados das 08h00 às 12h00</strong>.
+                </div>
+            </div>
+
+            <!-- Item 3 -->
+            <div class="faq-item" data-cat="pedidos">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>📱 Como faço para pedir e retirar sem pegar fila?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Você pode acessar o <strong>Cardápio Completo</strong> pelo celular ou computador, escolher seus salgados e bebidas, adicionar ao carrinho e confirmar seu pedido. Ao chegar na cantina, basta se dirigir ao balcão de retirada rápida e informar seu nome para pegar seus itens já separados.
+                </div>
+            </div>
+
+            <!-- Item 4 -->
+            <div class="faq-item" data-cat="almoco">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>🍽️ Como funciona o agendamento de almoço e prato do dia?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Para garantir que sua refeição esteja reservada e você não fique sem sua opção preferida nos horários de pico, disponibilizamos o menu <strong>Agendar Refeição</strong>. Você escolhe o dia, o horário do seu intervalo e a opção do prato.
+                </div>
+            </div>
+
+            <!-- Item 6 -->
+            <div class="faq-item" data-cat="pedidos">
+                <div class="faq-question" onclick="toggleFaq(this)">
+                    <span>🔄 Cometi um erro no pedido ou preciso cancelar, o que fazer?</span>
+                    <i class="fas fa-chevron-down"></i>
+                </div>
+                <div class="faq-answer">
+                    Como o preparo e a separação dos salgados começam imediatamente, dirija-se imediatamente ao balcão da cantina ou envie uma mensagem diretamente para nosso atendimento no WhatsApp informado abaixo.
+                </div>
+            </div>
+        </div>
+
+        <!-- CTA com Contato Direto para Dúvidas -->
+        <div class="faq-cta-card">
+            <h3>Ficou com alguma dúvida?</h3>
+            <p>Nossa equipe está pronta para te atender e tirar qualquer dúvida sobre pedidos, cardápio ou pagamentos.</p>
+            <div style="display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; margin-top: 1.5rem;">
+                <a href="https://wa.me/5511999999999?text=Ol%C3%A1%2C%20tenho%20uma%20d%C3%BAvida%20sobre%20o%20Doutor%20Paladar" target="_blank" class="btn-mcd-gold" style="padding: 14px 28px; font-size: 1rem; text-decoration: none;">
+                    <i class="fab fa-whatsapp" style="font-size: 1.2rem; color: #16a34a;"></i> Falar no WhatsApp
+                </a>
+                <button type="button" onclick="abrirModalEmailFaq()" class="btn-account-pill" style="padding: 14px 24px; font-size: 0.95rem; cursor: pointer; border: none;">
+                    <i class="fas fa-envelope" style="color: var(--dp-emerald);"></i> Enviar Mensagem / E-mail
+                </button>
+            </div>
+        </div>
+    </main>
+
+    <!-- MODAL DE ENVIAR E-MAIL / MENSAGEM -->
+    <div class="modal" id="modalEmailFaq">
+        <div class="modal-content" style="max-width: 520px; position: relative; padding: 2.2rem; border-radius: var(--radius-xl);">
+            <button class="close-modal" onclick="fecharModal('modalEmailFaq')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.3rem; color:#94a3b8; cursor:pointer;">&times;</button>
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 0.5rem;">
+                <div style="width: 42px; height: 42px; background: #f0faf4; color: var(--dp-emerald); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                    <i class="fas fa-paper-plane"></i>
+                </div>
+                <div>
+                    <h2 style="color: #0f172a; font-size: 1.3rem; font-weight: 800; margin: 0;">Fale Conosco</h2>
+                    <p style="color: var(--text-muted); font-size: 0.82rem; margin: 0;">Envie sua dúvida ou sugestão para nossa equipe</p>
+                </div>
+            </div>
+            
+            <form id="formFaqEmail" onsubmit="enviarMensagemFaq(event)" style="margin-top: 1.4rem;">
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 5px;">Seu Nome *</label>
+                    <input type="text" id="faqNome" required placeholder="Como podemos te chamar?" style="width: 100%; box-sizing: border-box; padding: 11px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.92rem; outline: none;">
+                </div>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 5px;">Seu E-mail ou WhatsApp *</label>
+                    <input type="text" id="faqContato" required placeholder="exemplo@email.com ou (11) 99999-9999" style="width: 100%; box-sizing: border-box; padding: 11px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.92rem; outline: none;">
+                </div>
+                <div style="margin-bottom: 1.2rem;">
+                    <label style="display: block; font-size: 0.82rem; font-weight: 700; color: #334155; margin-bottom: 5px;">Sua Mensagem / Dúvida *</label>
+                    <textarea id="faqMensagem" required rows="4" placeholder="Escreva aqui sua dúvida ou sugestão..." style="width: 100%; box-sizing: border-box; padding: 11px 14px; border: 1.5px solid #e2e8f0; border-radius: 10px; font-size: 0.92rem; outline: none; font-family: inherit; resize: vertical;"></textarea>
+                </div>
+                <div id="faqEmailFeedback" style="display: none; padding: 10px 14px; border-radius: 10px; font-size: 0.88rem; font-weight: 600; margin-bottom: 1rem;"></div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modalEmailFaq')" style="padding: 10px 18px; border-radius: var(--radius-full); font-weight: 700; cursor: pointer;">Cancelar</button>
+                    <button type="submit" id="btnEnviarFaq" class="btn btn-primary" style="padding: 10px 24px; border-radius: var(--radius-full); font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 8px;">
+                        <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL DE PRATO DO DIA / AGENDAMENTO -->
+    <div class="modal" id="modalAgendamentoCliente">
+        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem; border-radius: var(--radius-xl);">
+            <button class="close-modal" onclick="fecharModal('modalAgendamentoCliente')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h2 style="color: var(--dp-emerald); font-size: 1.35rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                <i class="fas fa-calendar-check"></i> Prato do Dia & Agendamento
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Reserve o prato do dia com antecedência e garanta sua refeição.</p>
+            <div id="listaAgendamentosClienteGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin"></i> Carregando pratos do dia...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MEUS PEDIDOS / HISTÓRICO DO CLIENTE -->
+    <div class="modal" id="modalMeusPedidos">
+        <div class="modal-content" style="max-width: 650px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalMeusPedidos')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; padding-right: 25px;">
+                <h2 style="color: #0f172a; font-size: 1.35rem; display: flex; align-items: center; gap: 10px; font-weight: 800; margin: 0;">
+                    <div style="width: 36px; height: 36px; background: #f0faf4; color: var(--dp-emerald); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    Meus Pedidos
+                </h2>
+                <button onclick="carregarMeusPedidos()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; border-radius: var(--radius-full);">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Acompanhe o status do seu pedido atual em tempo real e consulte seus pedidos anteriores.</p>
+            
+            <div id="listaMeusPedidosContainer">
+                <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--dp-emerald); margin-bottom: 1rem; display:block;"></i>
+                    <p style="font-weight: 700;">Buscando seus pedidos...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+
+        function fecharModal(id) {
+            document.getElementById(id)?.classList.remove('active');
+        }
+
+        function abrirModalEmailFaq() {
+            const modal = document.getElementById('modalEmailFaq');
+            if (!modal) return;
+            const feedback = document.getElementById('faqEmailFeedback');
+            if (feedback) feedback.style.display = 'none';
+            document.getElementById('formFaqEmail')?.reset();
+            
+            // Auto-preencher se estiver logado
+            const nomeCli = sessionStorage.getItem('cliente_nome');
+            const telCli = sessionStorage.getItem('cliente_telefone');
+            if (nomeCli && document.getElementById('faqNome')) document.getElementById('faqNome').value = nomeCli;
+            if (telCli && document.getElementById('faqContato')) document.getElementById('faqContato').value = telCli;
+
+            modal.classList.add('active');
+        }
+
+        function enviarMensagemFaq(e) {
+            e.preventDefault();
+            const btn = document.getElementById('btnEnviarFaq');
+            const feedback = document.getElementById('faqEmailFeedback');
+            const nome = document.getElementById('faqNome').value.trim();
+            const contato = document.getElementById('faqContato').value.trim();
+            const msg = document.getElementById('faqMensagem').value.trim();
+
+            if (!nome || !contato || !msg) return;
+
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Enviando...';
+
+            setTimeout(() => {
+                feedback.style.display = 'block';
+                feedback.style.background = '#f0fdf4';
+                feedback.style.color = '#15803d';
+                feedback.style.border = '1px solid #bbf7d0';
+                feedback.innerHTML = '<i class="fas fa-check-circle"></i> Mensagem enviada com sucesso! Nossa equipe entrará em contato em breve.';
+
+                document.getElementById('faqMensagem').value = '';
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-paper-plane"></i> Enviar Mensagem';
+
+                setTimeout(() => {
+                    fecharModal('modalEmailFaq');
+                    feedback.style.display = 'none';
+                }, 2200);
+            }, 800);
+        }
+
+        async function abrirModalMeusPedidos() {
+            const popover = document.getElementById('userMenuPopover');
+            if (popover) popover.classList.remove('active');
+            
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) {
+                irParaLogin();
+                return;
+            }
+            document.getElementById('modalMeusPedidos')?.classList.add('active');
+            await carregarMeusPedidos();
+        }
+
+        function getStatusBadge(status) {
+            const s = (status || 'pendente').toLowerCase();
+            const config = {
+                'pendente': { label: 'Pendente', icon: 'clock', class: 'pendente' },
+                'confirmado': { label: 'Confirmado', icon: 'check', class: 'confirmado' },
+                'preparando': { label: 'Preparando', icon: 'fire', class: 'preparando' },
+                'pronto': { label: 'Pronto p/ Retirada', icon: 'bell', class: 'pronto' },
+                'entregue': { label: 'Entregue', icon: 'check-double', class: 'entregue' },
+                'cancelado': { label: 'Cancelado', icon: 'times', class: 'cancelado' },
+                'recusado': { label: 'Recusado', icon: 'ban', class: 'recusado' }
+            };
+            const c = config[s] || { label: status, icon: 'info-circle', class: 'pendente' };
+            return `<span class="order-status-pill ${c.class}"><i class="fas fa-${c.icon}"></i> ${c.label}</span>`;
+        }
+
+        async function carregarMeusPedidos() {
+            const container = document.getElementById('listaMeusPedidosContainer');
+            if (!container) return;
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) return;
+
+            container.innerHTML = `
+                <div style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--dp-emerald); margin-bottom: 0.8rem; display:block;"></i>
+                    <p style="font-weight: 700;">Atualizando status dos seus pedidos...</p>
+                </div>
+            `;
+
+            try {
+                const res = await fetch(`${API_URL}/clientes/historico-pedidos`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Erro ao carregar histórico');
+                const pedidos = await res.json();
+
+                if (!pedidos || pedidos.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3.5rem 1rem; color: #64748b;">
+                            <div style="width: 60px; height: 60px; background: #f8fafc; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; margin-bottom: 1rem;">
+                                <i class="fas fa-shopping-basket"></i>
+                            </div>
+                            <h3 style="font-weight: 800; color: #1e293b; margin-bottom: 6px;">Nenhum pedido encontrado</h3>
+                            <p style="font-size: 0.92rem; margin-bottom: 1.2rem;">Você ainda não fez nenhum pedido conosco.</p>
+                            <a href="cardapio.html" class="btn btn-primary" style="padding: 10px 22px; font-weight: 700; border-radius: var(--radius-full); text-decoration:none;">
+                                <i class="fas fa-utensils"></i> Explorar Cardápio
+                            </a>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = pedidos.map(p => {
+                    const dataFormatada = p.data ? new Date(p.data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : 'Data não informada';
+                    const itensFormatados = (p.itens && p.itens.length > 0)
+                        ? p.itens.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span><strong>${i.quantidade}x</strong> ${i.nome}</span> <span>R$ ${(i.quantidade * (parseFloat(i.precoUnitario) || 0)).toFixed(2).replace('.', ',')}</span></div>`).join('')
+                        : '<div style="color:#94a3b8; font-style:italic;">Itens do pedido não detalhados</div>';
+
+                    return `
+                        <div class="client-order-card">
+                            <div class="client-order-header">
+                                <div>
+                                    <span style="font-weight: 800; font-size: 1.05rem; color: #0f172a;">Pedido #${p.id}</span>
+                                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                                        <i class="far fa-calendar-alt"></i> ${dataFormatada}
+                                    </div>
+                                </div>
+                                <div>
+                                    ${getStatusBadge(p.status)}
+                                </div>
+                            </div>
+                            <div class="client-order-items">
+                                ${itensFormatados}
+                            </div>
+                            <div class="client-order-footer">
+                                <span><i class="fas fa-wallet"></i> ${p.formaPagamento ? p.formaPagamento.replace('_', ' ').toUpperCase() : 'BALCÃO'}</span>
+                                <span style="font-size: 1.05rem; font-weight: 900; color: var(--dp-emerald);">Total: R$ ${(parseFloat(p.total) || 0).toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 0.5rem; display:block;"></i>
+                        <p style="font-weight: 700;">Não foi possível carregar seus pedidos no momento.</p>
+                        <button onclick="carregarMeusPedidos()" class="btn btn-secondary" style="margin-top: 10px; font-weight: 700;">Tentar Novamente</button>
+                    </div>
+                `;
+            }
+        }
+
+        async function abrirModalAgendamentoCliente() {
+            fecharDrawer();
+            document.getElementById('modalAgendamentoCliente').classList.add('active');
+            const grid = document.getElementById('listaAgendamentosClienteGrid');
+            grid.innerHTML = `<div style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Carregando pratos do dia...</div>`;
+            try {
+                const res = await fetch(API_URL + '/agendamentos');
+                if (!res.ok) throw new Error('Erro ao buscar pratos do dia');
+                const agendamentos = await res.json();
+                const disponiveis = agendamentos.filter(a => a.status === 'disponivel' || (!a.bloqueado && (a.vagasDisponiveis > 0 || (a.vagasTotais - (a.vagasOcupadas || 0)) > 0)));
+
+                if (disponiveis.length === 0) {
+                    grid.innerHTML = `<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Nenhum prato do dia disponível para agendamento no momento.</p>`;
+                    return;
+                }
+
+                grid.innerHTML = disponiveis.map(a => `
+                    <div style="background: var(--bg-card, #ffffff); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                        <div>
+                            <span class="badge badge-green" style="background: var(--green-50); color: var(--dp-emerald); font-weight:700;">📅 ${a.data} · ${a.horario}</span>
+                            <h4 style="font-size: 1.05rem; margin: 0.8rem 0 0.2rem; font-weight: 800; color: #0f172a;">${a.pratoDoDia || a.pratoNome || 'Prato do Dia'}</h4>
+                            <p style="font-size: 1.15rem; font-weight: 800; color: var(--dp-emerald); margin-bottom: 0.6rem;">R$ ${parseFloat(a.preco || 0).toFixed(2).replace('.', ',')}</p>
+                        </div>
+                        <a href="cardapio.html" class="btn btn-primary" style="margin-top: 1rem; width: 100%; text-align:center; font-weight: 700; border-radius: var(--radius-full); text-decoration: none;">
+                            Pedir no Cardápio
+                        </a>
+                    </div>
+                `).join('');
+            } catch (e) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--danger); grid-column: 1/-1; padding: 2rem;">Não foi possível carregar os pratos do dia no momento.</p>`;
+            }
+        }
+
+        function abrirDrawer() {
+            document.getElementById('drawerOverlay')?.classList.add('active');
+        }
+
+        function fecharDrawer() {
+            document.getElementById('drawerOverlay')?.classList.remove('active');
+        }
+
+        function toggleFaq(el) {
+            const item = el.parentElement;
+            item.classList.toggle('active');
+        }
+        function toggleMenuUsuario(e) {
+            if (e) e.stopPropagation();
+            const popover = document.getElementById('userMenuPopover');
+            if (popover) popover.classList.toggle('active');
+        }
+
+        function deslogarCliente() {
+            sessionStorage.removeItem('cliente_token');
+            sessionStorage.removeItem('cliente_nome');
+            sessionStorage.removeItem('cliente_id');
+            sessionStorage.removeItem('cliente_telefone');
+            window.location.reload();
+        }
+
+        // Fechar menu se clicar fora
+        document.addEventListener('click', (e) => {
+            const wrap = document.getElementById('userMenuWrapper');
+            const popover = document.getElementById('userMenuPopover');
+            if (wrap && popover && !wrap.contains(e.target)) {
+                popover.classList.remove('active');
+            }
+        });
+
+        // Sincronizar estado do usuário (nome e menu de logout)
+        async function sincronizarEstadoUsuario() {
+            const token = sessionStorage.getItem('cliente_token');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnTopCad = document.getElementById('btnTopCadastro');
+            const nomeMenu = document.getElementById('userMenuNome');
+            const gestorToken = sessionStorage.getItem('token');
+            const adminLink = document.getElementById('userMenuAdminLink');
+
+            if (adminLink && gestorToken) {
+                adminLink.style.display = 'flex';
+            }
+
+            if (token) {
+                try {
+                    const res = await fetch(`http://localhost:3000/api/clientes/perfil`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const perfil = await res.json();
+                        sessionStorage.setItem('cliente_nome', perfil.nome);
+
+                        if (btnTopCad) btnTopCad.style.display = 'none';
+                        if (nomeMenu) nomeMenu.textContent = perfil.nome;
+
+                        if (loginBtn) {
+                            loginBtn.innerHTML = `<i class="fas fa-user-circle" style="color:var(--dp-emerald)"></i> <span>${perfil.nome.split(' ')[0]}</span> <i class="fas fa-chevron-down" style="font-size:0.7rem; opacity:0.7;"></i>`;
+                            loginBtn.onclick = (e) => toggleMenuUsuario(e);
+                            loginBtn.title = 'Minha Conta';
+                        }
+                        return;
+                    }
+                } catch(e) {}
+            }
+
+            if (btnTopCad) btnTopCad.style.display = 'inline-flex';
+            if (loginBtn) {
+                loginBtn.innerHTML = '<i class="fas fa-user"></i> <span>Entrar</span>';
+                loginBtn.onclick = () => irParaLogin();
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            sincronizarEstadoUsuario();
+        });
+    </script>
+    <script src="js/auth.js"></script>
+</body>
+</html>

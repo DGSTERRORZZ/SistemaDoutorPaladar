@@ -1,0 +1,2543 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Doutor Paladar · Cardápio Completo</title>
+    <meta name="description"
+        content="Cardápio digital completo do Doutor Paladar. Salgados frescos, hambúrgueres artesanais, cafés, bebidas e sobremesas. Peça e retire ou consuma na mesa.">
+    <link rel="icon" type="image/svg+xml" href="favicon.svg">
+    <link rel="alternate icon" href="favicon.ico">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" crossorigin="anonymous" referrerpolicy="no-referrer">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        /* ── HERO BANNER — Cinematic Widescreen idêntico ao Index ── */
+        .mcd-hero {
+            position: relative;
+            background: #0a0e12;
+            min-height: 520px;
+            display: flex;
+            align-items: center;
+            overflow: hidden;
+            color: #ffffff;
+            width: 100%;
+        }
+
+        .mcd-hero::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 90px;
+            background: linear-gradient(to top, var(--bg, #f4f7fa), transparent);
+            z-index: 3;
+            pointer-events: none;
+        }
+
+        .mcd-hero-bg {
+            position: absolute;
+            top: 0;
+            right: 0;
+            bottom: 0;
+            width: 100%;
+            background-image: linear-gradient(to right, #0a0e12 0%, rgba(10, 14, 18, 0.85) 30%, rgba(10, 14, 18, 0.45) 55%, rgba(10, 14, 18, 0.1) 85%), url('imagens/fundo_doutor_paladar.jpg');
+            background-size: cover;
+            background-position: center right;
+            opacity: 0.98;
+            animation: heroZoom 25s ease-in-out infinite alternate;
+        }
+
+        @keyframes heroZoom {
+            from { transform: scale(1); }
+            to   { transform: scale(1.04); }
+        }
+
+        .mcd-hero-content {
+            position: relative;
+            z-index: 4;
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 3.5rem clamp(1.2rem, 4vw, 5rem);
+            animation: fadeInUp 0.6s ease;
+        }
+
+        .mcd-hero h1 {
+            font-size: 3.2rem;
+            font-weight: 900;
+            line-height: 1.1;
+            letter-spacing: -0.04em;
+            margin: 0 0 1rem 0;
+            max-width: 680px;
+            color: #ffffff;
+            text-shadow: 0 2px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .mcd-hero p {
+            font-size: 1.1rem;
+            color: rgba(255, 255, 255, 0.85);
+            max-width: 580px;
+            margin: 0 0 1.6rem 0;
+            line-height: 1.5;
+        }
+
+        /* ── CARDÁPIO PAGE — Premium Styles ── */
+        .cardapio-page-container {
+            width: 100%;
+            max-width: 100%;
+            margin: 0 auto;
+            padding: 2.5rem clamp(1.2rem, 4vw, 5rem) 6rem;
+        }
+
+        .cardapio-header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            margin-bottom: 2.2rem;
+            flex-wrap: wrap;
+            gap: 1.5rem;
+        }
+
+        .cardapio-header-bar h2 {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #0f172a;
+            letter-spacing: -0.03em;
+            margin: 0;
+            line-height: 1.15;
+            font-family: var(--font-heading, 'Outfit', sans-serif);
+        }
+
+        .cardapio-header-bar p {
+            color: #64748b;
+            font-size: 1.05rem;
+            margin-top: 8px;
+            margin-bottom: 0;
+        }
+
+        /* Badge de Múltiplos Sabores */
+        .badge-sabores-pill {
+            position: absolute;
+            top: 14px;
+            right: 14px;
+            background: rgba(15, 23, 42, 0.85);
+            backdrop-filter: blur(8px);
+            color: #ffffff;
+            font-size: 0.74rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            z-index: 2;
+        }
+
+        .badge-sabores-pill i {
+            color: var(--mcd-gold, #ffbc0d);
+        }
+
+        /* Seletor de Sabores no Modal */
+        .flavor-option-card {
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            background: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .flavor-option-card:hover {
+            border-color: var(--dp-emerald);
+            background: #f0faf4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(45, 125, 82, 0.08);
+        }
+
+        .flavor-option-card.selected {
+            border-color: var(--dp-emerald);
+            background: #eaf7ef;
+            box-shadow: 0 0 0 2px var(--dp-emerald);
+        }
+
+        .flavor-radio-indicator {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            flex-shrink: 0;
+        }
+
+        .flavor-option-card.selected .flavor-radio-indicator {
+            border-color: var(--dp-emerald);
+            background: var(--dp-emerald);
+        }
+
+        .flavor-radio-indicator::after {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #ffffff;
+            border-radius: 50%;
+            display: none;
+        }
+
+        .flavor-option-card.selected .flavor-radio-indicator::after {
+            display: block;
+        }
+
+        /* Category Pills */
+        .categories-mc-bar {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding: 4px 2px 14px;
+            margin-bottom: 2.5rem;
+            scrollbar-width: thin;
+        }
+
+        .categories-mc-bar::-webkit-scrollbar {
+            height: 4px;
+        }
+
+        .categories-mc-bar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .cat-mc-btn {
+            background: #ffffff;
+            color: #475569;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius-full);
+            padding: 10px 22px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            white-space: nowrap;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+
+        .cat-mc-btn:hover {
+            border-color: var(--dp-emerald);
+            color: var(--dp-emerald);
+            background: #f0faf4;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 125, 82, 0.1);
+        }
+
+        .cat-mc-btn.active {
+            background: linear-gradient(135deg, var(--dp-emerald), #1b4332);
+            color: #ffffff;
+            border-color: var(--dp-emerald);
+            box-shadow: 0 6px 18px rgba(45, 125, 82, 0.3);
+        }
+
+        /* Product Cards Grid */
+        .products-mc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.8rem;
+        }
+
+        .product-mc-card {
+            background: #ffffff;
+            border-radius: 24px;
+            overflow: hidden;
+            border: 1px solid rgba(226, 232, 240, 0.8);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+            display: flex;
+            flex-direction: column;
+            transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .product-mc-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 24px 48px -12px rgba(15, 23, 42, 0.16);
+            border-color: rgba(45, 125, 82, 0.2);
+        }
+
+        .product-mc-media {
+            height: 210px;
+            background: linear-gradient(135deg, #f1f5f9, #e8ecf1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            cursor: pointer;
+            position: relative;
+        }
+
+        .product-mc-media img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .product-mc-card:hover .product-mc-media img {
+            transform: scale(1.08);
+        }
+
+        .product-mc-content {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+            justify-content: space-between;
+        }
+
+        .product-mc-cat {
+            font-size: 0.72rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.07em;
+            color: var(--dp-emerald);
+            margin-bottom: 6px;
+            background: rgba(45, 125, 82, 0.08);
+            padding: 3px 10px;
+            border-radius: 6px;
+            display: inline-block;
+            width: fit-content;
+        }
+
+        .product-mc-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #0f172a;
+            line-height: 1.3;
+            margin-bottom: 0.8rem;
+        }
+
+        .product-mc-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-top: 1rem;
+            padding-top: 1.1rem;
+            border-top: 1px solid rgba(241, 245, 249, 0.8);
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .product-mc-price {
+            font-size: 1.4rem;
+            font-weight: 900;
+            color: var(--dp-emerald);
+            font-family: var(--font-heading, 'Outfit', sans-serif);
+            letter-spacing: -0.02em;
+        }
+
+        .product-mc-actions {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* Quantity Selector */
+        .product-qty-selector {
+            display: inline-flex;
+            align-items: center;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: var(--radius-full);
+            padding: 2px 4px;
+            gap: 4px;
+        }
+
+        .btn-card-qty {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: none;
+            background: #ffffff;
+            color: #0f172a;
+            font-size: 0.9rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+        }
+
+        .btn-card-qty:hover {
+            background: var(--dp-emerald);
+            color: #ffffff;
+            transform: scale(1.1);
+        }
+
+        .card-qty-input {
+            width: 28px;
+            text-align: center;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #0f172a;
+            border: none;
+            background: transparent;
+            outline: none;
+        }
+
+        .btn-mc-add {
+            background: linear-gradient(135deg, var(--dp-emerald), #1b4332);
+            color: #ffffff;
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 10px 20px;
+            font-weight: 700;
+            font-size: 0.86rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            transition: all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 4px 14px rgba(45, 125, 82, 0.25);
+            user-select: none;
+        }
+
+        .btn-mc-add:hover {
+            background: linear-gradient(135deg, #1b4332, #0d2818);
+            transform: scale(1.06);
+            box-shadow: 0 8px 20px rgba(27, 67, 50, 0.35);
+        }
+
+        .btn-mc-add:active,
+        .btn-mc-add.btn-pulsing {
+            animation: btnAddPop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes btnAddPop {
+            0% { transform: scale(0.92); background: #1b4332; }
+            50% { transform: scale(1.15); background: var(--mcd-gold); color: #121619; box-shadow: 0 0 24px rgba(255, 188, 13, 0.7); }
+            100% { transform: scale(1); background: var(--dp-emerald); color: #ffffff; }
+        }
+
+        .btn-clear-cart {
+            background: #fef2f2;
+            color: #dc2626;
+            border: none;
+            border-radius: var(--radius-full);
+            padding: 7px 14px;
+            font-size: 0.78rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+
+        .btn-clear-cart:hover {
+            background: #fca5a5;
+            color: #991b1b;
+        }
+
+        .cart-mc-fab.cart-bump {
+            animation: cartBump 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        @keyframes cartBump {
+            0% { transform: scale(1); }
+            30% { transform: scale(1.22) rotate(-4deg); }
+            60% { transform: scale(0.95) rotate(2deg); }
+            100% { transform: scale(1); }
+        }
+
+        /* Cart Sidebar Drawer */
+        .cart-sidebar {
+            position: fixed;
+            top: 0;
+            right: -440px;
+            width: 420px;
+            max-width: 90vw;
+            height: 100vh;
+            background: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(20px);
+            z-index: 2005;
+            transition: right 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            padding: 2rem;
+            overflow-y: auto;
+            box-shadow: -12px 0 40px rgba(0, 0, 0, 0.15);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .cart-sidebar.open {
+            right: 0;
+        }
+
+        .cart-sidebar-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(6px);
+            z-index: 2004;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.35s;
+        }
+
+        .cart-sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .cart-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.1rem 0;
+            border-bottom: 1px solid #f1f5f9;
+            transition: background 0.15s;
+        }
+
+        .cart-total {
+            font-size: 1.6rem;
+            font-weight: 900;
+            color: var(--dp-emerald);
+            margin: 1.4rem 0 0.8rem;
+            text-align: right;
+            font-family: var(--font-heading, 'Outfit', sans-serif);
+            letter-spacing: -0.02em;
+        }
+
+        .btn-order {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, var(--dp-emerald), #1b4332);
+            border: none;
+            border-radius: var(--radius-full);
+            color: white;
+            font-weight: 800;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 6px 20px rgba(45, 125, 82, 0.3);
+        }
+
+        .btn-order:hover {
+            background: linear-gradient(135deg, #1b4332, #0d2818);
+            transform: translateY(-3px);
+            box-shadow: 0 10px 28px rgba(27, 67, 50, 0.4);
+        }
+
+        .btn-order:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        /* Floating Cart Button */
+        .cart-mc-fab {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            background: linear-gradient(135deg, #121619, #1e293b);
+            color: #ffffff;
+            border-radius: var(--radius-full);
+            padding: 14px 26px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+            z-index: 999;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            font-weight: 800;
+            font-size: 0.95rem;
+            border: 2px solid rgba(255, 255, 255, 0.12);
+        }
+
+        .cart-mc-fab:hover {
+            transform: translateY(-3px) scale(1.02);
+            background: #000000;
+            box-shadow: 0 16px 40px rgba(0, 0, 0, 0.45);
+        }
+
+        .cart-mc-badge {
+            background: var(--mcd-gold);
+            color: #121619;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.78rem;
+            font-weight: 900;
+        }
+
+        /* Pagination */
+        .btn-cardapio-page {
+            min-width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            border: 1.5px solid #e2e8f0;
+            background: #ffffff;
+            color: #1e293b;
+            font-size: 0.9rem;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.25s ease;
+        }
+
+        .btn-cardapio-page:hover:not(:disabled) {
+            border-color: var(--dp-emerald);
+            color: var(--dp-emerald);
+            background: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(45, 125, 82, 0.1);
+        }
+
+        .btn-cardapio-page.active {
+            background: linear-gradient(135deg, var(--dp-emerald), #1b4332);
+            color: #ffffff;
+            border-color: var(--dp-emerald);
+            box-shadow: 0 4px 14px rgba(45, 125, 82, 0.3);
+        }
+
+        @media (max-width: 600px) {
+            .cart-mc-fab {
+                right: 18px;
+                padding: 12px 18px;
+                font-size: 0.85rem;
+            }
+            .cardapio-pagination-wrap {
+                justify-content: center;
+                text-align: center;
+            }
+            .cardapio-header-bar h1 { font-size: 2rem; }
+        }
+
+        /* Badge de opções de sabores no card */
+        .badge-sabores-pill {
+            position: absolute;
+            top: 14px;
+            left: 14px;
+            background: rgba(18, 22, 25, 0.85);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            color: #ffffff;
+            font-size: 0.75rem;
+            font-weight: 800;
+            padding: 5px 12px;
+            border-radius: var(--radius-full);
+            z-index: 5;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            letter-spacing: 0.02em;
+        }
+
+        .badge-sabores-pill i {
+            color: var(--mcd-gold);
+            font-size: 0.72rem;
+        }
+
+        /* Cards interativos de seleção de sabores no modal */
+        .flavor-option-card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 16px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 16px;
+            margin-bottom: 9px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: #ffffff;
+            user-select: none;
+        }
+
+        .flavor-option-card:hover {
+            border-color: var(--dp-emerald);
+            background: #f8fafc;
+            transform: translateY(-1px);
+        }
+
+        .flavor-option-card.selected {
+            border-color: var(--dp-emerald);
+            background: #f0faf4;
+            box-shadow: 0 0 0 3px rgba(45, 125, 82, 0.12);
+        }
+
+        .flavor-radio-indicator {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #cbd5e1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            flex-shrink: 0;
+        }
+
+        .flavor-option-card.selected .flavor-radio-indicator {
+            border-color: var(--dp-emerald);
+            background: var(--dp-emerald);
+            box-shadow: inset 0 0 0 3.5px #ffffff;
+        }
+
+        /* Modais devem sempre sobrepor o carrinho (z-index: 2005) e seu overlay (z-index: 2004) */
+        .modal,
+        #modalEscolhaSabor,
+        #modalEscolhaCheckout,
+        #modalConvidado,
+        #modalAgendamentoCliente,
+        #modalMeusPedidos,
+        #modalSucessoPedido {
+            z-index: 2150 !important;
+        }
+
+        /* Fidelidade & Pontos Styles */
+        .fidelidade-nav-badge {
+            background: linear-gradient(135deg, #fffbeb, #fef3c7);
+            border: 1.5px solid #fde68a;
+            color: #b45309;
+            padding: 7px 14px;
+            border-radius: 999px;
+            font-size: 0.86rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            box-shadow: 0 2px 6px rgba(245, 158, 11, 0.15);
+        }
+        .fidelidade-nav-badge:hover {
+            transform: translateY(-2px);
+            background: #fef3c7;
+            border-color: #f59e0b;
+            box-shadow: 0 4px 12px rgba(245, 158, 11, 0.25);
+        }
+        .fidelidade-cart-box {
+            background: #f0fdf4;
+            border: 1.5px dashed #86efac;
+            border-radius: 14px;
+            padding: 10px 14px;
+            margin-bottom: 12px;
+            font-size: 0.85rem;
+            color: #166534;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .fidelidade-rescue-box {
+            background: #fffbeb;
+            border: 1.5px solid #fde68a;
+            border-radius: 14px;
+            padding: 12px 14px;
+            margin-bottom: 12px;
+            font-size: 0.86rem;
+        }
+        .extrato-item-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 14px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .extrato-item-card:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- SIDEBAR DRAWER (ABERTO PELO HAMBÚRGUER) -->
+    <div class="mcd-drawer-overlay" id="drawerOverlay" onclick="fecharDrawer()">
+        <div class="mcd-drawer" onclick="event.stopPropagation()">
+            <div class="mcd-drawer-header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <div style="width: 36px; height: 36px; background: #ffffff; border: 2px solid var(--mcd-gold); border-radius: 50%; display: flex; align-items: center; justify-content: center; overflow: hidden;">
+                        <img src="imagens/logo_icone.jpg" alt="Doutor Paladar" style="width: 100%; height: 100%; object-fit: cover;">
+                    </div>
+                    <span style="font-weight: 800; font-size: 1.1rem;">DOUTOR PALADAR</span>
+                </div>
+                <button class="mcd-drawer-close" onclick="fecharDrawer()">&times;</button>
+            </div>
+            <div class="mcd-drawer-nav">
+                <a href="index.html" class="mcd-drawer-link"><i class="fas fa-home"></i> Início</a>
+                <a href="cardapio.html" class="mcd-drawer-link" style="color: var(--dp-emerald); background: #f1f5f9;"><i class="fas fa-burger"></i> Cardápio Completo</a>
+                <a href="#" onclick="fecharDrawer(); abrirModalAgendamentoCliente()" class="mcd-drawer-link"><i class="fas fa-calendar-alt"></i> Prato do Dia</a>
+                <a href="faq.html" class="mcd-drawer-link"><i class="fas fa-question-circle"></i> Perguntas Frequentes (FAQ)</a>
+                <a href="javascript:void(0)" onclick="fecharDrawer(); abrirModalFidelidade()" class="mcd-drawer-link" style="color: #b45309;"><i class="fas fa-award"></i> Programa de Fidelidade</a>
+                <hr style="border: none; border-top: 1px solid #e2e8f0; margin: 10px 0;">
+                <a href="javascript:void(0)" onclick="fecharDrawer(); irParaLogin()" class="mcd-drawer-link"><i class="fas fa-user"></i> Entrar / Minha Conta</a>
+                <a href="javascript:void(0)" onclick="fecharDrawer(); irParaCadastro()" class="mcd-drawer-link"><i class="fas fa-user-plus"></i> Criar Conta Gratuita</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- NAVBAR INSTITUCIONAL MC STYLE -->
+    <header class="mcd-navbar">
+        <div class="mcd-navbar-inner">
+            <div class="mcd-nav-left">
+                <button class="mcd-hamburger" onclick="abrirDrawer()" title="Abrir Menu">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <a class="mcd-logo" href="index.html">
+                    <div class="mcd-logo-icon">
+                        <img src="imagens/logo_icone.jpg" alt="Doutor Paladar">
+                    </div>
+                    <div class="mcd-logo-text">
+                        <span class="mcd-logo-title">DOUTOR PALADAR</span>
+                        <span class="mcd-logo-sub">LANCHONETE</span>
+                    </div>
+                </a>
+
+            <div class="mcd-nav-right">
+                <!-- Badge de Fidelidade (visível quando logado) -->
+                <button class="fidelidade-nav-badge" id="btnNavFidelidade" onclick="abrirModalFidelidade()" style="display:none;" title="Ver Meus Pontos e Benefícios">
+                    <i class="fas fa-star" style="color:#f59e0b;"></i> <span id="headerPontosTxt">0</span> pts
+                </button>
+
+                <!-- Botão de Cadastro Rápido Superior -->
+                <a href="javascript:void(0)" onclick="irParaCadastro()" class="btn-register-top" id="btnTopCadastro" title="Criar Conta">
+                    <i class="fas fa-user-plus"></i> <span>Criar Conta</span>
+                </a>
+
+                <!-- Área do Usuário / Entrar -->
+                <div class="user-menu-wrap" id="userMenuWrapper">
+                    <button class="btn-account-pill" id="loginBtn" onclick="irParaLogin()">
+                        <i class="fas fa-user"></i> <span>Entrar</span>
+                    </button>
+                    <div class="user-menu-popover" id="userMenuPopover">
+                        <div class="user-menu-header">
+                            <div class="user-menu-header-name" id="userMenuNome">Cliente</div>
+                            <div class="user-menu-header-role">Cliente Registrado</div>
+                        </div>
+                        <button class="user-menu-item" onclick="abrirModalFidelidade()">
+                            <i class="fas fa-award" style="color: #f59e0b;"></i> Meus Pontos de Fidelidade
+                        </button>
+                        <button class="user-menu-item" onclick="abrirModalMeusPedidos()">
+                            <i class="fas fa-receipt" style="color: var(--dp-emerald);"></i> Ver Meus Pedidos
+                        </button>
+                        <button class="user-menu-item logout" onclick="deslogarCliente()">
+                            <i class="fas fa-sign-out-alt"></i> Sair da Conta
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- HERO PRINCIPAL CARDÁPIO (CINEMATIC WIDESCREEN) -->
+    <section class="mcd-hero">
+        <div class="mcd-hero-bg"></div>
+        <div class="mcd-hero-content">
+            <h1>Cardápio Oficial</h1>
+            <p>Escolha seus itens favoritos preparados na hora com qualidade artesanal e retire no balcão sem filas.</p>
+        </div>
+    </section>
+
+    <!-- CONTEÚDO DO CARDÁPIO COMPLETO -->
+    <main class="cardapio-page-container">
+        <div class="cardapio-header-bar">
+            <div>
+                <h2>Nossos Produtos</h2>
+                <p>Navegue pelas categorias ou busque o que você deseja saborear hoje</p>
+            </div>
+            <div style="width: 100%; max-width: 380px;">
+                <input type="text" id="buscaProduto" oninput="onBuscaInput()" placeholder="🔍 Buscar salgados, bebidas, cafés..."
+                    class="form-control"
+                    style="border-radius: var(--radius-full); padding: 12px 22px; font-size: 0.95rem; background: #ffffff; border: 1.5px solid #cbd5e1; box-shadow: 0 2px 8px rgba(0,0,0,0.03);">
+            </div>
+        </div>
+
+        <!-- Pílulas de Categoria Estilo McDonald's -->
+        <div class="categories-mc-bar" id="categories"></div>
+
+        <!-- Grid de Produtos -->
+        <div class="products-mc-grid" id="productsGrid"></div>
+
+        <!-- Paginação do Cardápio -->
+        <div class="cardapio-pagination-wrap" id="cardapioPagination" style="display: none; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; margin-top: 2rem; background: #ffffff; padding: 1rem 1.5rem; border-radius: 18px; border: 1px solid #e2e8f0; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+            <div style="font-size: 0.9rem; font-weight: 700; color: #64748b;" id="cardapioPaginationInfo">
+                Mostrando produtos
+            </div>
+            <div style="display: flex; gap: 6px; align-items: center;" id="cardapioPaginationBtns"></div>
+        </div>
+    </main>
+
+    <!-- BOTÃO FLUTUANTE DE PEDIDO / SACOLA -->
+    <div class="cart-mc-fab" id="cartFab" onclick="toggleCart()">
+        <i class="fas fa-shopping-bag" style="color: var(--mcd-gold);"></i>
+        <span>Meu Pedido</span>
+        <span class="cart-mc-badge" id="cartCount">0</span>
+    </div>
+
+    <!-- Overlay do Carrinho Lateral -->
+    <div class="cart-sidebar-overlay" id="cartOverlay" onclick="toggleCart()"></div>
+
+    <!-- Carrinho Lateral Drawer -->
+    <div class="cart-sidebar" id="cartSidebar">
+        <div style="display: flex; justify-content: space-between; align-items: center; padding-bottom: 1.2rem; border-bottom: 1px solid var(--border);">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; background: #f0faf4; color: var(--dp-emerald); border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1rem;">
+                    <i class="fas fa-shopping-bag"></i>
+                </div>
+                <h3 style="font-size: 1.25rem; font-weight: 800; color: #0f172a; margin: 0;">Sua Sacola</h3>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px;">
+                <button class="btn-clear-cart" id="btnClearCart" onclick="limparTodoCarrinho()" title="Excluir todos os itens da sacola">
+                    <i class="fas fa-trash-alt"></i> Limpar
+                </button>
+                <button onclick="toggleCart()" style="font-size: 1.5rem; background: none; border: none; cursor: pointer; color: #64748b; padding: 0 4px;">&times;</button>
+            </div>
+        </div>
+        <div id="cartItems" style="flex: 1; overflow-y: auto; padding: 1rem 0;"></div>
+        <div style="border-top: 1px solid var(--border); padding-top: 1.2rem;">
+            <!-- Box de Ganho Estimado de Fidelidade -->
+            <div class="fidelidade-cart-box" id="fidelidadeCartBox">
+                <span><i class="fas fa-gift" style="color: #16a34a;"></i> Você vai acumular:</span>
+                <strong>+<span id="ptsEstimadosCart">10</span> pontos</strong>
+            </div>
+
+            <!-- Box de Resgate de Pontos -->
+            <div id="boxResgateFidelidade" class="fidelidade-rescue-box" style="display:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                    <strong style="color:#b45309;"><i class="fas fa-award"></i> Usar Fidelidade</strong>
+                    <span style="font-weight:800; color:#d97706;"><span id="cartSaldoPontosTxt">0</span> pts disponíveis</span>
+                </div>
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="chkUsarPontos" onchange="alternarUsoPontos()" style="width:18px; height:18px; cursor:pointer;">
+                    <label for="chkUsarPontos" style="font-size:0.84rem; cursor:pointer; font-weight:700; color:#451a03;" id="lblUsarPontos">
+                        Trocar 50 pontos por R$ 5,00 de desconto
+                    </label>
+                </div>
+                <div id="avisoDescontoAplicado" style="font-size:0.78rem; color:#16a34a; font-weight:700; margin-top:4px; display:none;">
+                    ✅ Desconto de R$ 5,00 aplicado com sucesso!
+                </div>
+            </div>
+
+            <div class="cart-total" id="cartTotal">R$ 0,00</div>
+            <button class="btn-order" id="orderBtn" onclick="finalizarPedido()" disabled>
+                <i class="fas fa-check-circle"></i> Confirmar e Pagar
+            </button>
+            <p style="font-size: 0.8rem; color: #64748b; margin-top: 0.8rem; text-align: center;">
+                <i class="fas fa-bolt" style="color: var(--mcd-gold);"></i> Retirada rápida e prioritária no balcão
+            </p>
+        </div>
+    </div>
+
+    <!-- Modal Escolha Checkout -->
+    <div class="modal" id="modalEscolhaCheckout">
+        <div class="modal-content" style="max-width: 440px; position: relative; text-align: center; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalEscolhaCheckout')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <div style="width: 52px; height: 52px; background: var(--green-50); color: var(--primary); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 0.8rem;">
+                <i class="fas fa-shopping-bag"></i>
+            </div>
+            <h2 style="color: var(--text); font-size: 1.25rem; margin-bottom: 0.4rem; font-weight: 800;">Finalização do Pedido</h2>
+            <p style="color: var(--text-muted); font-size: 0.88rem; margin-bottom: 1.5rem;">Identifique-se para pontuar no programa de fidelidade ou continue como visitante.</p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button class="btn btn-primary" onclick="irParaLogin()" style="padding: 13px; font-weight: 800; border-radius: var(--radius-full);">
+                    <i class="fas fa-sign-in-alt"></i> Entrar com Minha Conta
+                </button>
+                <button class="btn btn-secondary" onclick="fecharModal('modalEscolhaCheckout'); abrirCheckoutVisitante();" style="padding: 12px; font-weight: 700; border-radius: var(--radius-full);">
+                    <i class="fas fa-user"></i> Continuar como Visitante
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Convidado -->
+    <div class="modal" id="modalConvidado">
+        <div class="modal-content" style="max-width: 440px; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalConvidado')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h2 style="color: var(--dp-emerald); font-size: 1.3rem; margin-bottom: 0.4rem; font-weight: 800;"><i class="fas fa-check-circle"></i> Confirmar Pedido</h2>
+            <p id="convidadoSubtitulo" style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.2rem;">
+                Informe seus dados para a chamada e entrega no balcão.</p>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; gap: 10px;">
+                    <div style="flex: 1;">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Nome *</label>
+                        <input type="text" id="convidadoNome" class="form-control" placeholder="Seu nome">
+                    </div>
+                    <div style="flex: 1;">
+                        <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Sobrenome *</label>
+                        <input type="text" id="convidadoSobrenome" class="form-control" placeholder="Sobrenome">
+                    </div>
+                </div>
+                <div>
+                    <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Telefone / WhatsApp (Opcional)</label>
+                    <input type="tel" id="convidadoTelefone" class="form-control" placeholder="(11) 99999-9999">
+                </div>
+                <div>
+                    <label class="form-label" style="font-weight: 700; font-size: 0.85rem;">Forma de Pagamento</label>
+                    <select id="convidadoFormaPagamento" class="form-control">
+                        <option value="pix">📱 PIX (Instantâneo)</option>
+                        <option value="dinheiro">💵 Dinheiro no Balcão</option>
+                        <option value="cartao">💳 Cartão Débito / Crédito</option>
+                    </select>
+                </div>
+                <div id="convidadoError" style="color: var(--danger); font-size: 0.82rem; text-align: center; display: none;"></div>
+                <button class="btn btn-primary" onclick="confirmarPedidoConvidado()" style="margin-top: 8px; padding: 13px; font-weight: 800; border-radius: var(--radius-full);">
+                    <i class="fas fa-paper-plane"></i> Enviar Pedido
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL EXTRATO DE FIDELIDADE -->
+    <div class="modal" id="modalFidelidade">
+        <div class="modal-content" style="max-width: 580px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem; border-radius: 28px;">
+            <button class="close-modal" onclick="fecharModal('modalFidelidade')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; padding-right: 25px;">
+                <h2 style="color: #0f172a; font-size: 1.35rem; display: flex; align-items: center; gap: 10px; font-weight: 800; margin: 0;">
+                    <div style="width: 38px; height: 38px; background: #fffbeb; color: #f59e0b; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.2rem; border: 1px solid #fde68a;">
+                        <i class="fas fa-award"></i>
+                    </div>
+                    Programa de Fidelidade
+                </h2>
+                <button onclick="carregarExtratoFidelidade()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; border-radius: var(--radius-full);">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.2rem;">Ganhe pontos a cada pedido e troque por descontos e itens grátis na cantina.</p>
+
+            <!-- Card Saldo -->
+            <div style="background: linear-gradient(135deg, #1b4332, #2d7d52); color: #ffffff; border-radius: 20px; padding: 1.5rem; margin-bottom: 1.5rem; position: relative; overflow: hidden; box-shadow: 0 10px 25px rgba(45, 125, 82, 0.25);">
+                <div style="position: relative; z-index: 2;">
+                    <span style="font-size: 0.82rem; text-transform: uppercase; letter-spacing: 0.05em; font-weight: 700; opacity: 0.9;">Saldo Atual de Pontos</span>
+                    <div style="font-size: 2.4rem; font-weight: 900; margin: 4px 0; color: #ffbc0d; font-family: var(--font-heading, 'Outfit', sans-serif);">
+                        <span id="modalFidelidadePontos">0</span> <small style="font-size: 1.1rem; color: #ffffff; font-weight: 600;">pts</small>
+                    </div>
+                    <div style="font-size: 0.86rem; opacity: 0.95;" id="modalFidelidadeNivel">
+                        ⭐ Cliente Fidelidade Doutor Paladar
+                    </div>
+                </div>
+                <div style="position: absolute; right: -15px; bottom: -20px; font-size: 6.5rem; color: rgba(255, 255, 255, 0.08); pointer-events: none;">
+                    <i class="fas fa-award"></i>
+                </div>
+            </div>
+
+            <!-- Regras de Pontuação -->
+            <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 16px; padding: 14px 18px; margin-bottom: 1.5rem;">
+                <h4 style="font-size: 0.92rem; font-weight: 800; color: #1e293b; margin: 0 0 8px;"><i class="fas fa-info-circle" style="color:var(--dp-emerald);"></i> Como Funciona o Programa:</h4>
+                <ul style="margin: 0; padding-left: 20px; font-size: 0.84rem; color: #475569; line-height: 1.6;">
+                    <li><strong>10 Pontos de Bônus</strong> em cada pedido realizado.</li>
+                    <li><strong>+1 Ponto</strong> para cada R$ 1,00 gasto.</li>
+                    <li><strong>Resgate:</strong> A cada 50 pontos, ganhe R$ 5,00 de desconto direto na sacola!</li>
+                </ul>
+            </div>
+
+            <h4 style="font-size: 1.05rem; font-weight: 800; color: #0f172a; margin-bottom: 0.8rem;">Extrato de Movimentações</h4>
+            <div id="listaExtratoFidelidade" style="max-height: 240px; overflow-y: auto; border: 1px solid #e2e8f0; border-radius: 16px;">
+                <div style="text-align:center; padding: 2rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin"></i> Carregando extrato...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PRATO DO DIA / AGENDAMENTO -->
+    <div class="modal" id="modalAgendamentoCliente">
+        <div class="modal-content" style="max-width: 680px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem; border-radius: var(--radius-xl);">
+            <button class="close-modal" onclick="fecharModal('modalAgendamentoCliente')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <h2 style="color: var(--dp-emerald); font-size: 1.35rem; margin-bottom: 0.4rem; display: flex; align-items: center; gap: 8px; font-weight: 800;">
+                <i class="fas fa-calendar-check"></i> Prato do Dia & Agendamento
+            </h2>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Reserve o prato do dia com antecedência e garanta sua refeição.</p>
+            <div id="listaAgendamentosClienteGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                <div style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">
+                    <i class="fas fa-spinner fa-spin"></i> Carregando pratos do dia...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL MEUS PEDIDOS / HISTÓRICO DO CLIENTE -->
+    <div class="modal" id="modalMeusPedidos">
+        <div class="modal-content" style="max-width: 650px; max-height: 88vh; overflow-y: auto; position: relative; padding: 2.2rem;">
+            <button class="close-modal" onclick="fecharModal('modalMeusPedidos')" style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.2rem; cursor:pointer;">&times;</button>
+            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; padding-right: 25px;">
+                <h2 style="color: #0f172a; font-size: 1.35rem; display: flex; align-items: center; gap: 10px; font-weight: 800; margin: 0;">
+                    <div style="width: 36px; height: 36px; background: #f0faf4; color: var(--dp-emerald); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">
+                        <i class="fas fa-receipt"></i>
+                    </div>
+                    Meus Pedidos
+                </h2>
+                <button onclick="carregarMeusPedidos()" class="btn btn-secondary" style="padding: 6px 14px; font-size: 0.8rem; font-weight: 700; border-radius: var(--radius-full);">
+                    <i class="fas fa-sync-alt"></i> Atualizar
+                </button>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.86rem; margin-bottom: 1.5rem;">Acompanhe o status do seu pedido atual em tempo real e consulte seus pedidos anteriores.</p>
+            
+            <div id="listaMeusPedidosContainer">
+                <div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--dp-emerald); margin-bottom: 1rem; display:block;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE SELEÇÃO DE SABORES / VARIANTES -->
+    <div class="modal" id="modalEscolhaSabor" onclick="if(event.target === this) fecharModal('modalEscolhaSabor')">
+        <div class="modal-content" style="max-width: 480px; position: relative; padding: 2.2rem; border-radius: 28px;" onclick="event.stopPropagation()">
+            <button class="close-modal" onclick="fecharModal('modalEscolhaSabor')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:#64748b;">&times;</button>
+            
+            <div style="text-align: center; margin-bottom: 1.2rem;">
+                <div id="modalSaborImgWrap" style="width: 100%; height: 160px; border-radius: 18px; overflow: hidden; margin-bottom: 1rem; background: #f1f5f9; display: flex; align-items: center; justify-content: center;">
+                    <img id="modalSaborImg" src="" alt="Produto" style="width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                <span class="product-mc-cat" id="modalSaborCat">DOCES</span>
+                <h3 id="modalSaborTitulo" style="font-size: 1.45rem; font-weight: 900; color: #0f172a; margin: 4px 0 6px; font-family: var(--font-heading, 'Outfit', sans-serif);">Nome do Produto</h3>
+                <p style="font-size: 0.88rem; color: #64748b; margin: 0;">Selecione a opção desejada para o seu pedido:</p>
+            </div>
+
+            <!-- Lista Dinâmica de Opções / Sabores -->
+            <div id="modalSaborOpcoes" style="max-height: 240px; overflow-y: auto; padding-right: 4px; margin-bottom: 1.4rem;"></div>
+
+            <!-- Rodapé do Modal: Quantidade e Botão Adicionar -->
+            <div style="display: flex; align-items: center; justify-content: space-between; border-top: 1px solid #e2e8f0; padding-top: 1.2rem; gap: 12px; flex-wrap: wrap;">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 0.82rem; font-weight: 700; color: #64748b;">QTD:</span>
+                    <div class="product-qty-selector">
+                        <button class="btn-card-qty" onclick="alterarQtdModalSabor(-1)">−</button>
+                        <input type="text" id="modalSaborQtd" class="card-qty-input" value="1" readonly>
+                        <button class="btn-card-qty" onclick="alterarQtdModalSabor(1)">+</button>
+                    </div>
+                </div>
+                <button class="btn btn-primary" id="btnConfirmarSabor" onclick="confirmarEscolhaSabor()" style="flex: 1; padding: 12px 20px; font-weight: 800; border-radius: var(--radius-full); font-size: 0.95rem;">
+                    <i class="fas fa-plus"></i> Adicionar à Sacola
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE SUCESSO / CONFIRMAÇÃO DO PEDIDO -->
+    <div class="modal" id="modalSucessoPedido" onclick="if(event.target === this) fecharModal('modalSucessoPedido')">
+        <div class="modal-content" style="max-width: 480px; position: relative; padding: 2.2rem; border-radius: 28px; text-align: center;" onclick="event.stopPropagation()">
+            <button class="close-modal" onclick="fecharModal('modalSucessoPedido')"
+                style="position: absolute; top: 16px; right: 16px; background:none; border:none; font-size:1.3rem; cursor:pointer; color:#64748b;">&times;</button>
+            
+            <div style="width: 70px; height: 70px; background: #f0fdf4; border: 2px solid #bbf7d0; color: var(--dp-emerald); border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; margin-bottom: 1.2rem; box-shadow: 0 8px 24px rgba(45, 125, 82, 0.15);">
+                <i class="fas fa-check"></i>
+            </div>
+
+            <span class="badge badge-green" style="background: #f0fdf4; color: var(--dp-emerald); font-weight: 800; font-size: 0.85rem; padding: 6px 14px; border-radius: 99px; display: inline-block; margin-bottom: 0.6rem;">
+                PEDIDO CONFIRMADO
+            </span>
+            <h2 id="sucessoPedidoTitulo" style="color: #0f172a; font-size: 1.45rem; font-weight: 900; margin: 0 0 0.5rem; font-family: var(--font-heading, 'Outfit', sans-serif);">
+                Pedido #...
+            </h2>
+            <p id="sucessoPedidoCliente" style="color: #64748b; font-size: 0.95rem; margin-bottom: 1.2rem;">
+                Obrigado pelo seu pedido!
+            </p>
+
+            <div style="background: #f8fafc; border: 1.5px solid #e2e8f0; border-radius: 18px; padding: 1.2rem; text-align: left; margin-bottom: 1.5rem;">
+                <div style="font-size: 0.82rem; font-weight: 800; color: #475569; text-transform: uppercase; margin-bottom: 0.6rem; letter-spacing: 0.05em; display:flex; justify-content:space-between;">
+                    <span>Resumo dos Itens</span>
+                    <span id="sucessoPedidoTotal" style="color: var(--dp-emerald); font-size: 0.95rem;">R$ 0,00</span>
+                </div>
+                <div id="sucessoPedidoItens" style="max-height: 140px; overflow-y: auto; font-size: 0.9rem; color: #1e293b; display: flex; flex-direction: column; gap: 6px;"></div>
+                <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 0.82rem; color: #64748b; display: flex; justify-content: space-between;">
+                    <span>Pagamento:</span>
+                    <strong id="sucessoPedidoPagamento" style="color: #0f172a;">Balcão</strong>
+                </div>
+            </div>
+
+            <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 14px; padding: 10px 14px; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 10px; text-align: left;">
+                <i class="fas fa-info-circle" style="color: #d97706; font-size: 1.2rem; flex-shrink: 0;"></i>
+                <p style="font-size: 0.83rem; color: #92400e; margin: 0; line-height: 1.4;">
+                    Seu pedido foi recebido pela cozinha. Acompanhe a chamada no balcão pelo seu nome!
+                </p>
+            </div>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="btn btn-primary" onclick="fecharModal('modalSucessoPedido')" style="flex: 1; padding: 13px; font-weight: 800; border-radius: var(--radius-full);">
+                    <i class="fas fa-utensils"></i> Fazer Mais Pedidos
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let produtos = [];
+        let carrinho = [];
+        let categoriaAtiva = 'Todos';
+        let paginaAtualCardapio = 1;
+        const ITENS_POR_PAGINA_CARDAPIO = 8;
+
+        function abrirDrawer() {
+            document.getElementById('drawerOverlay')?.classList.add('active');
+        }
+
+        function fecharDrawer() {
+            document.getElementById('drawerOverlay')?.classList.remove('active');
+        }
+
+        const fallbackImagens = {
+            'hambúrgão bacon': 'imagens/hamburgao_bacon.jpg',
+            'hamburgao bacon': 'imagens/hamburgao_bacon.jpg',
+            'hambúrgão cheddar': 'imagens/hamburgao_cheddar.jpg',
+            'hamburgao cheddar': 'imagens/hamburgao_cheddar.jpg',
+            'hambúrgão': 'imagens/hamburgao_cheddar.jpg',
+            'hamburgao': 'imagens/hamburgao_cheddar.jpg',
+            'burger': 'imagens/hamburgao_cheddar.jpg',
+            'coxinha': 'imagens/coxinha_frango.jpg',
+            'pastel': 'imagens/fundo_estufa_2.jpg',
+            'risolis': 'imagens/risolis.jpg',
+            'croissant': 'imagens/croissant.jpg',
+            'esfiha': 'imagens/esfiha_carne.jpg',
+            'pão de queijo': 'imagens/pao_de_queijo.jpg',
+            'pao de queijo': 'imagens/pao_de_queijo.jpg',
+            'pão batata calabresa': 'imagens/pao_batata_calabresa.jpg',
+            'pao batata calabresa': 'imagens/pao_batata_calabresa.jpg',
+            'pão batata frango': 'imagens/pao_batata_frango.jpg',
+            'pao batata frango': 'imagens/pao_batata_frango.jpg',
+            'pão batata': 'imagens/pao_batata_frango.jpg',
+            'pao batata': 'imagens/pao_batata_frango.jpg',
+            'enroladinho bauru': 'imagens/enroladinho_bauru.jpg',
+            'enroladinho salsicha': 'imagens/enroladinho_salsicha.jpg',
+            'enroladinho': 'imagens/enroladinho_salsicha.jpg',
+            'pizza': 'imagens/enroladinho_bauru.jpg',
+            'kibe': 'imagens/kibe.jpg',
+            'coca-cola lata 350ml': 'imagens/coca_cola_lata_350ml.jpg',
+            'coca cola lata 350ml': 'imagens/coca_cola_lata_350ml.jpg',
+            'coca-cola pet 600ml': 'imagens/coca_cola_pet_600ml.jpg',
+            'coca cola pet 600ml': 'imagens/coca_cola_pet_600ml.jpg',
+            'coca-cola zero 200ml': 'imagens/coca_cola_zero_200ml.jpg',
+            'coca cola zero 200ml': 'imagens/coca_cola_zero_200ml.jpg',
+            'coca-cola zero 350ml': 'imagens/coca_cola_zero_350ml.jpg',
+            'coca cola zero 350ml': 'imagens/coca_cola_zero_350ml.jpg',
+            'coca-cola': 'imagens/coca_cola_lata_350ml.jpg',
+            'coca cola': 'imagens/coca_cola_lata_350ml.jpg',
+            'sprite': 'imagens/sprite_lata_350ml.jpg',
+            'guaraná': 'imagens/guarana_antarctica_zero_lata.jpg',
+            'guarana': 'imagens/guarana_antarctica_zero_lata.jpg',
+            'água passa quatro c/ gás': 'imagens/agua_passa_quatro_com_gas.jpg',
+            'agua passa quatro c/ gas': 'imagens/agua_passa_quatro_com_gas.jpg',
+            'água passa quatro s/ gás': 'imagens/agua_passa_quatro_sem_gas.jpg',
+            'agua passa quatro s/ gas': 'imagens/agua_passa_quatro_sem_gas.jpg',
+            'água': 'imagens/agua_passa_quatro_sem_gas.jpg',
+            'agua': 'imagens/agua_passa_quatro_sem_gas.jpg',
+            'suco k-mais caju': 'imagens/suco_kmais_caju_300ml.jpg',
+            'suco k-mais': 'imagens/suco_kmais_caju_300ml.jpg',
+            'suco': 'imagens/suco_kmais_caju_300ml.jpg',
+            'café coado': 'imagens/cafe_coado.jpg',
+            'cafe coado': 'imagens/cafe_coado.jpg',
+            'café': 'imagens/cafe_coado.jpg',
+            'cafe': 'imagens/cafe_coado.jpg',
+            'cremosinho': 'imagens/cremosinho.jpg',
+            'sorvete': 'imagens/cremosinho.jpg',
+            'açaí': 'imagens/geladao.jpg',
+            'acai': 'imagens/geladao.jpg',
+            'geladão': 'imagens/geladao.jpg',
+            'geladao': 'imagens/geladao.jpg',
+            'trento chocolate': 'imagens/trento_chocolate.jpg',
+            'trento': 'imagens/trento_chocolate.jpg',
+            'pão de mel': 'imagens/pao_de_mel_50g.jpg',
+            'pao de mel': 'imagens/pao_de_mel_50g.jpg',
+            'caldo': 'imagens/caldo_sopa_legumes.jpg',
+            'halls': 'imagens/halls.jpg',
+            'trident': 'imagens/trident.jpg'
+        };
+
+        function getImagemUrl(p) {
+            if (p.imagem && p.imagem.trim() !== '') return p.imagem;
+            const nomeLower = (p.nome || '').toLowerCase();
+            const chavesSorted = Object.keys(fallbackImagens).sort((a, b) => b.length - a.length);
+            for (const key of chavesSorted) {
+                if (nomeLower.includes(key)) return fallbackImagens[key];
+            }
+            return null;
+        }
+
+        function getEmoji(cat) {
+            const map = {
+                'Salgados': '🥟', 'Bebidas': '🥤', 'Doces': '🍰',
+                'Lanches': '🍔', 'Sorvetes': '🍦', 'Todos': '⭐',
+                'Caldos': '🍲', 'Snacks': '🍬', 'Cremosinho': '🫙'
+            };
+            return map[cat] || '🍽️';
+        }
+
+        function alterarQtdCard(id, delta, event) {
+            if (event) event.stopPropagation();
+            const input = document.getElementById(`cardQty_${id}`);
+            if (!input) return;
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, Math.min(99, val + delta));
+            input.value = val;
+        }
+
+        // ── DEFINIÇÃO DAS FAMÍLIAS DE PRODUTOS (COM SABORES / VARIANTES) ──
+        const familiasProdutos = [
+            {
+                nomeBase: 'Geladão de Açaí',
+                categoria: 'Doces',
+                imagem: 'imagens/geladao.jpg',
+                regex: /^gelad[aã]o\s*(de\s*)?a[çc]a[íi]/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^gelad[aã]o\s*(de\s*)?a[çc]a[íi]\s*[-–—:]?\s*/i, '').trim() || 'Tradicional';
+                }
+            },
+            {
+                nomeBase: 'Cremosinho',
+                categoria: 'Doces',
+                imagem: 'imagens/cremosinho.jpg',
+                regex: /^cremosinho/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^cremosinho\s*[-–—:]?\s*/i, '').trim() || 'Tradicional';
+                }
+            },
+            {
+                nomeBase: 'Halls',
+                categoria: 'Doces',
+                imagem: 'imagens/halls.jpg',
+                regex: /^halls/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^halls\s*[-–—:]?\s*/i, '').trim() || 'Original';
+                }
+            },
+            {
+                nomeBase: 'Trident',
+                categoria: 'Doces',
+                imagem: 'imagens/trident.jpg',
+                regex: /^trident/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^trident\s*[-–—:]?\s*/i, '').trim() || 'Original';
+                }
+            },
+            {
+                nomeBase: 'Trento',
+                categoria: 'Doces',
+                imagem: 'imagens/trento_chocolate.jpg',
+                regex: /^trento/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^trento\s*[-–—:]?\s*/i, '').trim() || 'Chocolate';
+                }
+            },
+            {
+                nomeBase: 'Caldos Artesanais',
+                categoria: 'Caldos',
+                imagem: 'imagens/caldo_sopa_legumes.jpg',
+                regex: /^caldo/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^caldo\s*(de\s*)?[-–—:]?\s*/i, '').trim() || 'Tradicional';
+                }
+            },
+            {
+                nomeBase: 'Suco K-mais 300ml',
+                categoria: 'Bebidas',
+                imagem: 'imagens/suco_kmais_caju_300ml.jpg',
+                regex: /^suco\s*k-?mais/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^suco\s*k-?mais\s*/i, '').replace(/300ml/i, '').replace(/[-–—:]/g, '').trim() || 'Natural';
+                }
+            },
+            {
+                nomeBase: 'Croissants',
+                categoria: 'Salgados',
+                imagem: 'imagens/croissant.jpg',
+                regex: /^croissant/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^croissant\s*(de\s*)?/i, '').trim() || 'Tradicional';
+                }
+            },
+            {
+                nomeBase: 'Pão Batata',
+                categoria: 'Salgados',
+                imagem: 'imagens/pao_batata_frango.jpg',
+                regex: /^p[aã]o\s*batata/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^p[aã]o\s*batata\s*/i, '').trim() || 'Tradicional';
+                }
+            },
+            {
+                nomeBase: 'Risolis',
+                categoria: 'Salgados',
+                imagem: 'imagens/risolis.jpg',
+                regex: /^risolis/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^risolis\s*(de\s*)?/i, '').trim() || 'Tradicional';
+                }
+            },
+            {
+                nomeBase: 'Hambúrgão Artesanal',
+                categoria: 'Salgados',
+                imagem: 'imagens/hamburgao_bacon.jpg',
+                regex: /^hamb[uú]rg[aã]o/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^hamb[uú]rg[aã]o\s*/i, '').trim() || 'Clássico';
+                }
+            },
+            {
+                nomeBase: 'Água Mineral Passa Quatro',
+                categoria: 'Bebidas',
+                imagem: 'imagens/agua_passa_quatro_sem_gas.jpg',
+                regex: /^água\s*passa\s*quatro|^agua\s*passa\s*quatro/i,
+                extrairSabor: (nome) => {
+                    if (/c\/\s*g[aá]s/i.test(nome)) return 'Com Gás';
+                    if (/s\/\s*g[aá]s/i.test(nome)) return 'Sem Gás';
+                    return nome.replace(/^á?gua\s*passa\s*quatro\s*/i, '').trim() || 'Natural';
+                }
+            },
+            {
+                nomeBase: 'Coca-Cola',
+                categoria: 'Bebidas',
+                imagem: 'imagens/coca_cola_lata_350ml.jpg',
+                regex: /^coca-?cola/i,
+                extrairSabor: (nome) => {
+                    return nome.replace(/^coca-?cola\s*/i, '').trim() || 'Original';
+                }
+            }
+        ];
+
+        let produtoFamiliaAtual = null;
+        let varianteSelecionadaId = null;
+        window.gruposProdutosMap = {};
+
+        // Processa produtos brutos da API e agrupa itens com 2 ou mais sabores
+        function agruparProdutosPorFamilia(lista) {
+            const agrupados = [];
+            const idsConsumidos = new Set();
+            window.gruposProdutosMap = {};
+            let grupoContador = 0;
+
+            for (const familia of familiasProdutos) {
+                const membros = lista.filter(p => !idsConsumidos.has(p.id) && familia.regex.test(p.nome || ''));
+                if (membros.length >= 2) {
+                    membros.forEach(m => idsConsumidos.add(m.id));
+                    const precos = membros.map(m => m.preco);
+                    const minPreco = Math.min(...precos);
+                    const maxPreco = Math.max(...precos);
+                    const precoTexto = minPreco === maxPreco
+                        ? `R$ ${minPreco.toFixed(2).replace('.', ',')}`
+                        : `R$ ${minPreco.toFixed(2).replace('.', ',')} - ${maxPreco.toFixed(2).replace('.', ',')}`;
+
+                    const variantes = membros.map(m => ({
+                        id: m.id,
+                        nomeCompleto: m.nome,
+                        sabor: familia.extrairSabor(m.nome),
+                        preco: m.preco,
+                        imagem: getImagemUrl(m) || familia.imagem,
+                        estoque: m.estoque
+                    }));
+
+                    const grupoId = 'grupo_' + (++grupoContador);
+                    const grupoObj = {
+                        isGrupo: true,
+                        grupoId: grupoId,
+                        nome: familia.nomeBase,
+                        categoria: familia.categoria || membros[0].categoria || 'Doces',
+                        preco: minPreco,
+                        precoTexto: precoTexto,
+                        imagem: getImagemUrl(membros[0]) || familia.imagem,
+                        qtdSabores: membros.length,
+                        variantes: variantes
+                    };
+
+                    window.gruposProdutosMap[grupoId] = grupoObj;
+                    agrupados.push(grupoObj);
+                }
+            }
+
+            // Itens individuais que não entraram em grupos
+            for (const p of lista) {
+                if (!idsConsumidos.has(p.id)) {
+                    agrupados.push({
+                        isGrupo: false,
+                        id: p.id,
+                        nome: p.nome,
+                        categoria: (p.categoria === 'Cremosinho' || p.categoria === 'Snacks') ? 'Doces' : p.categoria,
+                        preco: p.preco,
+                        imagem: getImagemUrl(p),
+                        estoque: p.estoque
+                    });
+                }
+            }
+
+            return agrupados;
+        }
+
+        function abrirModalEscolhaSabor(refGrupo) {
+            try {
+                let grupo = null;
+                if (typeof refGrupo === 'string') {
+                    if (window.gruposProdutosMap && window.gruposProdutosMap[refGrupo]) {
+                        grupo = window.gruposProdutosMap[refGrupo];
+                    } else {
+                        try {
+                            grupo = JSON.parse(decodeURIComponent(refGrupo));
+                        } catch (parseErr) {
+                            console.warn('Tentativa de parse de refGrupo falhou:', parseErr);
+                        }
+                    }
+                } else if (typeof refGrupo === 'object' && refGrupo !== null) {
+                    grupo = refGrupo;
+                }
+
+                if (!grupo || !grupo.variantes || !grupo.variantes.length) {
+                    console.error('Grupo ou variantes não localizadas:', refGrupo);
+                    return;
+                }
+
+                produtoFamiliaAtual = grupo;
+                varianteSelecionadaId = grupo.variantes[0]?.id || null;
+
+                const tituloEl = document.getElementById('modalSaborTitulo');
+                if (tituloEl) tituloEl.textContent = grupo.nome;
+
+                const catEl = document.getElementById('modalSaborCat');
+                if (catEl) catEl.textContent = (grupo.categoria || 'DOCES').toUpperCase();
+
+                const imgEl = document.getElementById('modalSaborImg');
+                if (imgEl) {
+                    imgEl.src = grupo.imagem || '';
+                    imgEl.alt = grupo.nome;
+                }
+
+                const qtdInput = document.getElementById('modalSaborQtd');
+                if (qtdInput) qtdInput.value = 1;
+
+                const opcoesContainer = document.getElementById('modalSaborOpcoes');
+                if (opcoesContainer) {
+                    opcoesContainer.innerHTML = grupo.variantes.map((v, idx) => `
+                        <div class="flavor-option-card ${idx === 0 ? 'selected' : ''}" id="flavorCard_${v.id}" onclick="selecionarVariante(${v.id}, ${v.preco})">
+                            <div style="display: flex; align-items: center; gap: 12px;">
+                                <div class="flavor-radio-indicator"></div>
+                                <div>
+                                    <div style="font-weight: 800; font-size: 1rem; color: #0f172a;">${v.sabor}</div>
+                                    <div style="font-size: 0.78rem; color: #64748b;">${v.nomeCompleto}</div>
+                                </div>
+                            </div>
+                            <div style="font-weight: 900; color: var(--dp-emerald); font-size: 1.05rem;">
+                                R$ ${v.preco.toFixed(2).replace('.', ',')}
+                            </div>
+                        </div>
+                    `).join('');
+                }
+
+                atualizarBotaoModalSabor();
+
+                const modalEl = document.getElementById('modalEscolhaSabor');
+                if (modalEl) {
+                    modalEl.classList.add('active');
+                    modalEl.style.display = 'flex';
+                }
+            } catch (err) {
+                console.error('Erro ao abrir modal de sabores:', err);
+            }
+        }
+
+        function selecionarVariante(id, preco) {
+            varianteSelecionadaId = id;
+            if (!produtoFamiliaAtual) return;
+            produtoFamiliaAtual.variantes.forEach(v => {
+                const card = document.getElementById(`flavorCard_${v.id}`);
+                if (card) {
+                    if (v.id === id) card.classList.add('selected');
+                    else card.classList.remove('selected');
+                }
+            });
+            atualizarBotaoModalSabor();
+        }
+
+        function alterarQtdModalSabor(delta) {
+            const input = document.getElementById('modalSaborQtd');
+            if (!input) return;
+            let val = parseInt(input.value) || 1;
+            val = Math.max(1, Math.min(99, val + delta));
+            input.value = val;
+            atualizarBotaoModalSabor();
+        }
+
+        function atualizarBotaoModalSabor() {
+            const btn = document.getElementById('btnConfirmarSabor');
+            if (!btn || !produtoFamiliaAtual) return;
+            const variante = produtoFamiliaAtual.variantes.find(v => v.id === varianteSelecionadaId);
+            const qtd = parseInt(document.getElementById('modalSaborQtd')?.value) || 1;
+            const preco = (variante ? variante.preco : produtoFamiliaAtual.preco) * qtd;
+            btn.innerHTML = `<i class="fas fa-plus"></i> Adicionar à Sacola · R$ ${preco.toFixed(2).replace('.', ',')}`;
+        }
+
+        function confirmarEscolhaSabor() {
+            if (!produtoFamiliaAtual || !varianteSelecionadaId) return;
+            const variante = produtoFamiliaAtual.variantes.find(v => v.id === varianteSelecionadaId);
+            if (!variante) return;
+
+            const qtd = parseInt(document.getElementById('modalSaborQtd')?.value) || 1;
+            adicionarAoCarrinhoComDados(variante.id, variante.nomeCompleto, variante.preco, qtd);
+            fecharModal('modalEscolhaSabor');
+        }
+
+        function renderCardProduto(p) {
+            const imagemUrl = p.imagem || getImagemUrl(p);
+            const imagemHtml = imagemUrl
+                ? `<img src="${imagemUrl}" alt="${p.nome}" loading="lazy" decoding="async" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="img-fallback-emoji" style="display:none; align-items:center; justify-content:center; height:100%; font-size:3.5rem; background:#f1f5f9;">${getEmoji(p.categoria)}</div>`
+                : `<div style="display:flex; align-items:center; justify-content:center; height:100%; font-size:3.5rem; background:#f1f5f9;">${getEmoji(p.categoria)}</div>`;
+
+            // SE FOR GRUPO DE SABORES / VARIANTES
+            if (p.isGrupo) {
+                return `
+                    <div class="product-mc-card">
+                        <span class="badge-sabores-pill"><i class="fas fa-layer-group"></i> ${p.qtdSabores} Opções</span>
+                        <div class="product-mc-media" onclick="abrirModalEscolhaSabor('${p.grupoId}')">
+                            ${imagemHtml}
+                        </div>
+                        <div class="product-mc-content">
+                            <div>
+                                <div class="product-mc-cat">${p.categoria}</div>
+                                <div class="product-mc-title">${p.nome}</div>
+                            </div>
+                            <div class="product-mc-footer">
+                                <div class="product-mc-price">${p.precoTexto}</div>
+                                <div class="product-mc-actions">
+                                    <button class="btn-mc-add" onclick="abrirModalEscolhaSabor('${p.grupoId}')" style="background: linear-gradient(135deg, #121619, #1e293b);">
+                                        <i class="fas fa-sliders-h"></i> Escolher Opção
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+
+            // PRODUTO INDIVIDUAL CONVENCIONAL
+            const preco = parseFloat(p.preco) || 0;
+            return `
+                <div class="product-mc-card">
+                    <div class="product-mc-media" onclick="adicionarAoCarrinho(${p.id}, event)">
+                        ${imagemHtml}
+                    </div>
+                    <div class="product-mc-content">
+                        <div>
+                            <div class="product-mc-cat">${p.categoria}</div>
+                            <div class="product-mc-title">${p.nome}</div>
+                        </div>
+                        <div class="product-mc-footer">
+                            <div class="product-mc-price">R$ ${preco.toFixed(2).replace('.', ',')}</div>
+                            <div class="product-mc-actions">
+                                <div class="product-qty-selector" onclick="event.stopPropagation()">
+                                    <button class="btn-card-qty" onclick="alterarQtdCard(${p.id}, -1, event)">−</button>
+                                    <input type="text" id="cardQty_${p.id}" class="card-qty-input" value="1" readonly>
+                                    <button class="btn-card-qty" onclick="alterarQtdCard(${p.id}, 1, event)">+</button>
+                                </div>
+                                <button class="btn-mc-add" data-id="${p.id}" onclick="adicionarAoCarrinho(${p.id}, event)">
+                                    <i class="fas fa-plus"></i> Adicionar
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Hierarquia lógica de categorias e tipos de produtos
+        const prioridadeCategorias = {
+            'refrigerantes': 1,
+            'água': 2,
+            'agua': 2,
+            'cafés': 3,
+            'cafes': 3,
+            'bebidas': 4,
+            'sucos': 5,
+            'salgados': 10,
+            'frituras': 11,
+            'lanches': 12,
+            'caldos': 13,
+            'doces': 20,
+            'sorvetes': 21,
+            'combos': 40,
+            'outros': 99
+        };
+
+        function obterPrioridadeItem(item) {
+            const cat = (item.categoria || '').toLowerCase().trim();
+            const nome = (item.nome || '').toLowerCase().trim();
+
+            if (nome.includes('coca') || nome.includes('guaraná') || nome.includes('guarana') || nome.includes('sprite') || nome.includes('fanta') || nome.includes('refrigerante')) {
+                return 1;
+            }
+            if (nome.includes('água') || nome.includes('agua')) return 2;
+            if (nome.includes('café') || nome.includes('cafe')) return 3;
+            if (cat === 'bebidas') return 4;
+            if (cat === 'salgados') {
+                if (nome.includes('coxinha') || nome.includes('pastel') || nome.includes('risolis') || nome.includes('kibe') || nome.includes('enroladinho frito')) {
+                    return 11;
+                }
+                return 10;
+            }
+            if (cat === 'caldos') return 13;
+            if (cat === 'doces') return 20;
+
+            return prioridadeCategorias[cat] || 50;
+        }
+
+        function ordenarListaProdutos(lista) {
+            return [...lista].sort((a, b) => {
+                const prioA = obterPrioridadeItem(a);
+                const prioB = obterPrioridadeItem(b);
+                if (prioA !== prioB) return prioA - prioB;
+                return (a.nome || '').localeCompare(b.nome || '');
+            });
+        }
+
+        async function carregarProdutos() {
+            try {
+                const res = await fetch(API_URL + '/produtos');
+                if (res.ok) {
+                    const dados = await res.json();
+                    produtos = Array.isArray(dados) ? dados : (dados.dados || []);
+                }
+            } catch (e) { }
+            // Filtra produtos inativos e itens expressamente removidos (Brigadeiro, Açaí no Copo)
+            produtos = produtos.filter(p => {
+                if (!p) return false;
+                if (p.ativo === 0 || p.ativo === false) return false;
+                const nomeL = (p.nome || '').toLowerCase();
+                if (nomeL === 'brigadeiro' || nomeL.includes('açaí no copo') || nomeL.includes('acai no copo')) {
+                    return false;
+                }
+                return true;
+            });
+
+            produtos.forEach(p => { 
+                p.preco = parseFloat(p.preco) || 0;
+                // Garante que qualquer resquício de Cremosinho ou Snacks seja exibido em Doces
+                if (p.categoria === 'Cremosinho' || p.categoria === 'Snacks') {
+                    p.categoria = 'Doces';
+                }
+            });
+            // Agrupa as variantes em cards únicos
+            produtos = agruparProdutosPorFamilia(produtos);
+            // Ordena com lógica gastronômica: Bebidas, Salgados, Caldos, Doces...
+            produtos = ordenarListaProdutos(produtos);
+            renderCategorias();
+            renderProdutos();
+        }
+
+        function renderCategorias() {
+            // Categorias limpas sem Cremosinho e sem Snacks (todos consolidados em Doces)
+            const ordemDesejada = ['Todos', 'Bebidas', 'Salgados', 'Caldos', 'Doces', 'Combos', 'Outros'];
+            const categoriasPresentes = [...new Set(produtos.map(p => p.categoria).filter(Boolean))];
+            
+            const cats = ['Todos', ...ordemDesejada.filter(c => c !== 'Todos' && categoriasPresentes.includes(c))];
+            categoriasPresentes.forEach(c => {
+                if (!cats.includes(c) && c !== 'Cremosinho' && c !== 'Snacks') cats.push(c);
+            });
+
+            const container = document.getElementById('categories');
+            if (!container) return;
+            container.innerHTML = cats.map(c => `
+                <button class="cat-mc-btn ${categoriaAtiva === c ? 'active' : ''}" onclick="filtrarCategoria('${c}')">
+                    <span>${c}</span>
+                </button>
+            `).join('');
+        }
+
+        function filtrarCategoria(cat) {
+            categoriaAtiva = cat;
+            paginaAtualCardapio = 1;
+            renderCategorias();
+            renderProdutos();
+        }
+
+        function onBuscaInput() {
+            paginaAtualCardapio = 1;
+            filtrarProdutos();
+        }
+
+        function filtrarProdutos() {
+            const termo = (document.getElementById('buscaProduto').value || '').toLowerCase().trim();
+            const grid = document.getElementById('productsGrid');
+            const paginationWrap = document.getElementById('cardapioPagination');
+            if (!grid) return;
+
+            let filtrados = produtos;
+            if (categoriaAtiva !== 'Todos') {
+                filtrados = filtrados.filter(p => p.categoria === categoriaAtiva);
+            }
+            if (termo) {
+                filtrados = filtrados.filter(p => (p.nome || '').toLowerCase().includes(termo) || (p.categoria || '').toLowerCase().includes(termo));
+            }
+
+            const total = filtrados.length;
+            if (total === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 4rem; color: #64748b;">
+                    <i class="fas fa-search" style="font-size: 2.5rem; opacity: 0.3; margin-bottom: 1rem; display:block;"></i>
+                    <h3 style="font-weight: 800; color: #1e293b;">Nenhum produto encontrado</h3>
+                    <p style="font-size: 0.95rem;">Tente buscar com outras palavras ou selecione outra categoria.</p>
+                </div>`;
+                if (paginationWrap) paginationWrap.style.display = 'none';
+                return;
+            }
+
+            const totalPaginas = Math.ceil(total / ITENS_POR_PAGINA_CARDAPIO) || 1;
+            if (paginaAtualCardapio > totalPaginas) paginaAtualCardapio = totalPaginas;
+            if (paginaAtualCardapio < 1) paginaAtualCardapio = 1;
+
+            const inicio = (paginaAtualCardapio - 1) * ITENS_POR_PAGINA_CARDAPIO;
+            const fim = inicio + ITENS_POR_PAGINA_CARDAPIO;
+            const paginaItens = filtrados.slice(inicio, fim);
+
+            grid.innerHTML = paginaItens.map(p => renderCardProduto(p)).join('');
+
+            renderCardapioPaginacao(total, totalPaginas, inicio, Math.min(fim, total));
+        }
+
+        function renderCardapioPaginacao(total, totalPaginas, inicio, fim) {
+            const paginationWrap = document.getElementById('cardapioPagination');
+            if (!paginationWrap) return;
+
+            if (total <= ITENS_POR_PAGINA_CARDAPIO) {
+                paginationWrap.style.display = 'none';
+                return;
+            }
+
+            paginationWrap.style.display = 'flex';
+            const infoEl = document.getElementById('cardapioPaginationInfo');
+            if (infoEl) {
+                infoEl.textContent = `Mostrando ${inicio + 1} - ${fim} de ${total} produtos`;
+            }
+
+            const btnsContainer = document.getElementById('cardapioPaginationBtns');
+            if (!btnsContainer) return;
+
+            let html = `
+                <button class="btn-cardapio-page" ${paginaAtualCardapio === 1 ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''} onclick="mudarPaginaCardapio(${paginaAtualCardapio - 1})" title="Página Anterior">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            `;
+
+            for (let i = 1; i <= totalPaginas; i++) {
+                html += `
+                    <button class="btn-cardapio-page ${i === paginaAtualCardapio ? 'active' : ''}" onclick="mudarPaginaCardapio(${i})">${i}</button>
+                `;
+            }
+
+            html += `
+                <button class="btn-cardapio-page" ${paginaAtualCardapio === totalPaginas ? 'disabled style="opacity:0.4;cursor:not-allowed;"' : ''} onclick="mudarPaginaCardapio(${paginaAtualCardapio + 1})" title="Próxima Página">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            `;
+
+            btnsContainer.innerHTML = html;
+        }
+
+        function mudarPaginaCardapio(num) {
+            paginaAtualCardapio = num;
+            filtrarProdutos();
+            const categoriesBar = document.getElementById('categories');
+            if (categoriesBar) {
+                categoriesBar.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        function renderProdutos() {
+            filtrarProdutos();
+        }
+
+        function adicionarAoCarrinhoComDados(id, nome, preco, qtd) {
+            const qtdParaAdicionar = Math.max(1, parseInt(qtd) || 1);
+
+            const cartFab = document.getElementById('cartFab');
+            if (cartFab) {
+                cartFab.classList.remove('cart-bump');
+                void cartFab.offsetWidth;
+                cartFab.classList.add('cart-bump');
+            }
+
+            const itemExistente = carrinho.find(i => i.produtoId === id);
+            if (itemExistente) {
+                itemExistente.quantidade += qtdParaAdicionar;
+            } else {
+                carrinho.push({
+                    produtoId: id,
+                    nome: nome,
+                    precoUnitario: parseFloat(preco) || 0,
+                    quantidade: qtdParaAdicionar
+                });
+            }
+
+            atualizarCarrinhoUI();
+        }
+
+        function adicionarAoCarrinho(id, event, qtdCustom = null) {
+            const prod = produtos.find(p => p.id === id);
+            if (!prod) return;
+
+            // Determina a quantidade a adicionar (pela seleção do card ou parâmetro)
+            let qtdParaAdicionar = 1;
+            if (qtdCustom !== null && !isNaN(qtdCustom) && qtdCustom > 0) {
+                qtdParaAdicionar = parseInt(qtdCustom);
+            } else {
+                const cardQtyInput = document.getElementById(`cardQty_${id}`);
+                if (cardQtyInput) {
+                    qtdParaAdicionar = Math.max(1, parseInt(cardQtyInput.value) || 1);
+                }
+            }
+
+            // Animação de feedback no botão clicado
+            const targetBtn = (event && event.currentTarget && event.currentTarget.classList.contains('btn-mc-add')) 
+                ? event.currentTarget 
+                : document.querySelector(`.btn-mc-add[data-id="${id}"]`);
+            if (targetBtn) {
+                targetBtn.classList.remove('btn-pulsing');
+                void targetBtn.offsetWidth; // trigger reflow
+                targetBtn.classList.add('btn-pulsing');
+            }
+
+            // Animação na sacola / botão flutuante
+            const cartFab = document.getElementById('cartFab');
+            if (cartFab) {
+                cartFab.classList.remove('cart-bump');
+                void cartFab.offsetWidth;
+                cartFab.classList.add('cart-bump');
+            }
+
+            const itemExistente = carrinho.find(i => i.produtoId === id);
+            if (itemExistente) {
+                itemExistente.quantidade += qtdParaAdicionar;
+            } else {
+                carrinho.push({
+                    produtoId: prod.id,
+                    nome: prod.nome,
+                    precoUnitario: prod.preco,
+                    quantidade: qtdParaAdicionar
+                });
+            }
+
+            // Reseta o input do card de volta para 1 após adicionar
+            const cardQtyInput = document.getElementById(`cardQty_${id}`);
+            if (cardQtyInput) cardQtyInput.value = 1;
+
+            atualizarCarrinhoUI();
+        }
+
+        function limparTodoCarrinho() {
+            if (carrinho.length === 0) return;
+            if (confirm('Deseja realmente remover todos os itens da sua sacola?')) {
+                carrinho = [];
+                atualizarCarrinhoUI();
+            }
+        }
+
+        function removerDoCarrinho(id) {
+            const idx = carrinho.findIndex(i => i.produtoId === id);
+            if (idx !== -1) {
+                if (carrinho[idx].quantidade > 1) {
+                    carrinho[idx].quantidade--;
+                } else {
+                    carrinho.splice(idx, 1);
+                }
+            }
+            atualizarCarrinhoUI();
+        }
+
+        let clientePontos = 0;
+        let usarPontosNoCarrinho = false;
+
+        function alternarUsoPontos() {
+            const chk = document.getElementById('chkUsarPontos');
+            usarPontosNoCarrinho = chk ? chk.checked : false;
+            atualizarCarrinhoUI();
+        }
+
+        function abrirModalFidelidade() {
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) {
+                irParaLogin();
+                return;
+            }
+            const modal = document.getElementById('modalFidelidade');
+            if (modal) {
+                modal.classList.add('active');
+                modal.style.display = 'flex';
+                carregarExtratoFidelidade();
+            }
+        }
+
+        async function carregarExtratoFidelidade() {
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) return;
+
+            const saldoEl = document.getElementById('modalFidelidadePontos');
+            const listaEl = document.getElementById('listaExtratoFidelidade');
+            if (listaEl) {
+                listaEl.innerHTML = `<div style="text-align:center; padding: 2rem; color: #64748b;"><i class="fas fa-spinner fa-spin"></i> Carregando extrato...</div>`;
+            }
+
+            try {
+                const res = await fetch(`${API_URL}/clientes/fidelidade/extrato`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    clientePontos = parseInt(data.pontosFidelidade || 0);
+                    if (saldoEl) saldoEl.textContent = clientePontos;
+
+                    // Atualiza badges em tempo real
+                    const badges = [document.getElementById('navUserPoints'), document.getElementById('drawerUserPoints')];
+                    badges.forEach(b => { if (b) b.textContent = `${clientePontos} pts`; });
+
+                    const nivelEl = document.getElementById('modalFidelidadeNivel');
+                    if (nivelEl) {
+                        if (clientePontos >= 150) nivelEl.textContent = '👑 Cliente VIP Ouro Doutor Paladar';
+                        else if (clientePontos >= 80) nivelEl.textContent = '🥈 Cliente Prata Doutor Paladar';
+                        else nivelEl.textContent = '⭐ Cliente Fidelidade Doutor Paladar';
+                    }
+
+                    if (listaEl) {
+                        if (!data.historico || data.historico.length === 0) {
+                            listaEl.innerHTML = `<div style="text-align:center; padding: 2rem; color: #64748b;"><i class="fas fa-receipt" style="font-size:1.8rem; opacity:0.3; margin-bottom:8px; display:block;"></i><p>Nenhuma movimentação de pontos registrada ainda.</p></div>`;
+                        } else {
+                            listaEl.innerHTML = data.historico.map(h => {
+                                const isPositivo = (h.pontos > 0);
+                                const cor = isPositivo ? '#16a34a' : '#dc2626';
+                                const sinal = isPositivo ? '+' : '';
+                                const icone = isPositivo ? 'fa-arrow-down' : 'fa-arrow-up';
+                                const dataFormatada = h.data ? new Date(h.data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : '';
+                                return `
+                                    <div style="display:flex; justify-content:space-between; align-items:center; padding: 12px 16px; border-bottom: 1px solid #f1f5f9;">
+                                        <div style="display:flex; align-items:center; gap:12px;">
+                                            <div style="width:34px; height:34px; border-radius:50%; background:${isPositivo ? '#f0fdf4' : '#fef2f2'}; color:${cor}; display:flex; align-items:center; justify-content:center; font-size:0.85rem;">
+                                                <i class="fas ${icone}"></i>
+                                            </div>
+                                            <div>
+                                                <div style="font-weight:700; font-size:0.88rem; color:#1e293b;">${h.descricao || (isPositivo ? 'Pontos Ganhos' : 'Resgate de Pontos')}</div>
+                                                <div style="font-size:0.75rem; color:#94a3b8;">${dataFormatada}</div>
+                                            </div>
+                                        </div>
+                                        <div style="font-weight:900; font-size:1rem; color:${cor};">
+                                            ${sinal}${h.pontos} pts
+                                        </div>
+                                    </div>
+                                `;
+                            }).join('');
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Erro ao carregar extrato de fidelidade:', err);
+                if (listaEl) listaEl.innerHTML = `<div style="text-align:center; padding:1.5rem; color:#ef4444;">Erro ao carregar extrato de pontos.</div>`;
+            }
+        }
+
+        function atualizarCarrinhoUI() {
+            const totalItens = carrinho.reduce((sum, i) => sum + i.quantidade, 0);
+            const subtotal = carrinho.reduce((sum, i) => sum + (i.quantidade * i.precoUnitario), 0);
+            
+            // Cálculo do Desconto de Fidelidade
+            const boxFidelidade = document.getElementById('boxFidelidadeCart');
+            const chkUsarPontos = document.getElementById('chkUsarPontos');
+            const lblUsarPontos = document.getElementById('lblUsarPontos');
+            const avisoDesconto = document.getElementById('avisoDescontoAplicado');
+            const ptsEstimadosEl = document.getElementById('ptsEstimadosCart');
+
+            let desconto = 0;
+            let pontosUsados = 0;
+
+            if (subtotal > 0) {
+                const ptsEst = 10 + Math.floor(subtotal);
+                if (ptsEstimadosEl) ptsEstimadosEl.textContent = `+${ptsEst} pts`;
+            }
+
+            if (boxFidelidade) {
+                const token = sessionStorage.getItem('cliente_token');
+                if (token && clientePontos >= 50 && subtotal >= 5.00) {
+                    boxFidelidade.style.display = 'block';
+                    if (chkUsarPontos) chkUsarPontos.disabled = false;
+                    if (lblUsarPontos) lblUsarPontos.innerHTML = `Trocar <strong>50 pontos</strong> por <strong>R$ 5,00 de desconto</strong> (Saldo: ${clientePontos} pts)`;
+                    
+                    if (chkUsarPontos && chkUsarPontos.checked) {
+                        desconto = 5.00;
+                        pontosUsados = 50;
+                        if (avisoDesconto) avisoDesconto.style.display = 'block';
+                    } else {
+                        if (avisoDesconto) avisoDesconto.style.display = 'none';
+                    }
+                } else if (token && clientePontos < 50) {
+                    boxFidelidade.style.display = 'block';
+                    if (chkUsarPontos) { chkUsarPontos.disabled = true; chkUsarPontos.checked = false; }
+                    if (lblUsarPontos) lblUsarPontos.innerHTML = `Acumule 50 pontos para trocar por R$ 5 de desconto (Você tem <strong>${clientePontos} pts</strong>)`;
+                    if (avisoDesconto) avisoDesconto.style.display = 'none';
+                } else {
+                    boxFidelidade.style.display = 'none';
+                    if (avisoDesconto) avisoDesconto.style.display = 'none';
+                }
+            }
+
+            const totalFinal = Math.max(0, subtotal - desconto);
+
+            const navCount = document.getElementById('navCartCount');
+            if (navCount) navCount.textContent = totalItens;
+            const fabCount = document.getElementById('cartCount');
+            if (fabCount) fabCount.textContent = totalItens;
+            const totalEl = document.getElementById('cartTotal');
+            if (totalEl) {
+                if (desconto > 0) {
+                    totalEl.innerHTML = `<span style="text-decoration:line-through; font-size:1.1rem; color:#94a3b8; margin-right:8px;">R$ ${subtotal.toFixed(2).replace('.', ',')}</span> R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
+                } else {
+                    totalEl.textContent = `R$ ${totalFinal.toFixed(2).replace('.', ',')}`;
+                }
+            }
+
+            const container = document.getElementById('cartItems');
+            if (carrinho.length === 0) {
+                container.innerHTML = `<div style="text-align: center; padding: 3rem 1rem; color: #64748b;">
+                    <i class="fas fa-shopping-bag" style="font-size: 2.5rem; opacity: 0.25; margin-bottom: 0.8rem; display:block;"></i>
+                    <p style="font-weight: 700; color: #1e293b; margin-bottom: 4px;">Sua sacola está vazia</p>
+                    <small>Selecione os produtos desejados no cardápio.</small>
+                </div>`;
+            } else {
+                container.innerHTML = carrinho.map(i => `
+                    <div class="cart-item">
+                        <div style="max-width: 65%;">
+                            <strong style="font-size: 0.95rem; color: #1e293b; display: block; line-height: 1.2;">${i.nome}</strong>
+                            <small style="color: var(--dp-emerald); font-weight: 800;">R$ ${(parseFloat(i.precoUnitario) || 0).toFixed(2).replace('.', ',')}</small>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <button onclick="removerDoCarrinho(${i.produtoId})" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #cbd5e1; cursor: pointer; background: #ffffff; font-weight: 800; display: flex; align-items: center; justify-content: center;">−</button>
+                            <span style="font-weight: 800; font-size: 0.95rem; min-width: 18px; text-align: center;">${i.quantidade}</span>
+                            <button onclick="adicionarAoCarrinho(${i.produtoId}, event, 1)" style="width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid #cbd5e1; cursor: pointer; background: #ffffff; font-weight: 800; display: flex; align-items: center; justify-content: center;">+</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+            document.getElementById('orderBtn').disabled = (carrinho.length === 0);
+        }
+
+        function toggleCart() { 
+            const sidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('cartOverlay');
+            if (!sidebar || !overlay) return;
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('active');
+            atualizarCarrinhoUI();
+        }
+
+        function fecharCarrinho() {
+            const sidebar = document.getElementById('cartSidebar');
+            const overlay = document.getElementById('cartOverlay');
+            if (sidebar) sidebar.classList.remove('open');
+            if (overlay) overlay.classList.remove('active');
+        }
+
+        function fecharModal(id) { 
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.remove('active');
+            el.style.display = '';
+        }
+
+        function finalizarPedido() {
+            if (carrinho.length === 0) return;
+            // Fecha explicitamente o carrinho e seu overlay para não cobrir os modais
+            fecharCarrinho();
+
+            const clienteLogadoToken = sessionStorage.getItem('cliente_token');
+            if (!clienteLogadoToken) {
+                document.getElementById('modalEscolhaCheckout').classList.add('active');
+            } else {
+                abrirCheckoutVisitante();
+            }
+        }
+
+        function abrirCheckoutVisitante() {
+            fecharCarrinho();
+            document.getElementById('convidadoNome').value = sessionStorage.getItem('cliente_nome') || '';
+            document.getElementById('convidadoTelefone').value = sessionStorage.getItem('cliente_telefone') || '';
+            document.getElementById('modalConvidado').classList.add('active');
+        }
+
+        async function confirmarPedidoConvidado() {
+            const nome = document.getElementById('convidadoNome').value.trim();
+            const sobrenome = document.getElementById('convidadoSobrenome').value.trim();
+            const telefone = document.getElementById('convidadoTelefone').value.trim();
+            const formaPagamento = document.getElementById('convidadoFormaPagamento').value;
+            const err = document.getElementById('convidadoError');
+
+            if (!nome) { err.textContent = 'Por favor, informe seu Nome'; err.style.display = 'block'; return; }
+
+            const nomeCompleto = `${nome} ${sobrenome}`.trim();
+            const subtotal = carrinho.reduce((s, i) => s + i.quantidade * i.precoUnitario, 0);
+            const chkUsarPontos = document.getElementById('chkUsarPontos');
+            const usarPontos = chkUsarPontos && chkUsarPontos.checked && clientePontos >= 50 && subtotal >= 5.00;
+            const pontosUsados = usarPontos ? 50 : 0;
+            const descontoPontos = usarPontos ? 5.00 : 0.00;
+            const total = Math.max(0, subtotal - descontoPontos);
+            const itensCopia = [...carrinho];
+
+            const clienteAppId = sessionStorage.getItem('cliente_id') ? parseInt(sessionStorage.getItem('cliente_id')) : null;
+
+            try {
+                const res = await fetch(API_URL + '/pedidos', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        clienteAppId: clienteAppId,
+                        nomeCliente: nomeCompleto,
+                        formaPagamento: formaPagamento,
+                        horarioRetirada: 'Em breve',
+                        itens: [...carrinho],
+                        total: total,
+                        pontosUsados: pontosUsados,
+                        descontoPontos: descontoPontos,
+                        observacao: telefone ? `Telefone: ${telefone}` : null
+                    })
+                });
+                if (res.ok) {
+                    const pedidoCriado = await res.json();
+                    const pedidoId = pedidoCriado.id || (pedidoCriado.pedido && pedidoCriado.pedido.id) || '';
+                    
+                    // Limpa carrinho e checkbox de pontos
+                    carrinho = [];
+                    if (chkUsarPontos) chkUsarPontos.checked = false;
+                    atualizarCarrinhoUI();
+                    fecharCarrinho();
+                    fecharModal('modalConvidado');
+                    fecharModal('modalEscolhaCheckout');
+
+                    // Preencher e exibir o modal de sucesso do pedido com z-index alto
+                    const sucessoModal = document.getElementById('modalSucessoPedido');
+                    if (sucessoModal) {
+                        const tituloEl = document.getElementById('sucessoPedidoTitulo');
+                        const clienteEl = document.getElementById('sucessoPedidoCliente');
+                        const totalEl = document.getElementById('sucessoPedidoTotal');
+                        const itensEl = document.getElementById('sucessoPedidoItens');
+                        const pagEl = document.getElementById('sucessoPedidoPagamento');
+
+                        if (tituloEl) tituloEl.textContent = `Pedido #${pedidoId}`;
+                        if (clienteEl) clienteEl.textContent = `Obrigado, ${nomeCompleto}! Seu pedido foi enviado para preparo.`;
+                        if (totalEl) totalEl.textContent = `R$ ${total.toFixed(2).replace('.', ',')}`;
+                        
+                        const mapaPagamento = {
+                            'pix': '📱 PIX',
+                            'dinheiro': '💵 Dinheiro no Balcão',
+                            'cartao': '💳 Cartão Débito / Crédito'
+                        };
+                        if (pagEl) pagEl.textContent = mapaPagamento[formaPagamento] || formaPagamento;
+
+                        if (itensEl) {
+                            itensEl.innerHTML = itensCopia.map(i => `
+                                <div style="display:flex; justify-content:space-between; align-items:center;">
+                                    <span><strong>${i.quantidade}x</strong> ${i.nome}</span>
+                                    <span style="font-weight:700; color:#0f172a;">R$ ${(i.quantidade * i.precoUnitario).toFixed(2).replace('.', ',')}</span>
+                                </div>
+                            `).join('');
+                        }
+
+                        sucessoModal.classList.add('active');
+                        sucessoModal.style.display = 'flex';
+                    } else {
+                        alert(`✅ Pedido #${pedidoId} de ${nomeCompleto} realizado com sucesso!`);
+                    }
+
+                    // Atualiza dados de fidelidade após compra
+                    sincronizarEstadoUsuario();
+                } else {
+                    const data = await res.json();
+                    alert('Erro ao enviar pedido: ' + (data.erro || 'Tente novamente'));
+                }
+            } catch (e) {
+                alert('Erro de conexão ao enviar pedido');
+            }
+        }
+
+        async function abrirModalAgendamentoCliente() {
+            fecharDrawer();
+            document.getElementById('modalAgendamentoCliente').classList.add('active');
+            const grid = document.getElementById('listaAgendamentosClienteGrid');
+            grid.innerHTML = `<div style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;"><i class="fas fa-spinner fa-spin"></i> Carregando pratos do dia...</div>`;
+            try {
+                const res = await fetch(API_URL + '/agendamentos');
+                if (!res.ok) throw new Error('Erro ao buscar pratos do dia');
+                const agendamentos = await res.json();
+                const disponiveis = agendamentos.filter(a => a.status === 'disponivel' || (!a.bloqueado && (a.vagasDisponiveis > 0 || (a.vagasTotais - (a.vagasOcupadas || 0)) > 0)));
+
+                if (disponiveis.length === 0) {
+                    grid.innerHTML = `<p style="text-align: center; color: var(--text-muted); grid-column: 1/-1; padding: 2rem;">Nenhum prato do dia disponível para agendamento no momento.</p>`;
+                    return;
+                }
+
+                grid.innerHTML = disponiveis.map(a => `
+                    <div style="background: var(--bg-card, #ffffff); border: 1.5px solid var(--border); border-radius: var(--radius-lg); padding: 1.2rem; display: flex; flex-direction: column; justify-content: space-between; box-shadow: 0 4px 12px rgba(0,0,0,0.03);">
+                        <div>
+                            <span class="badge badge-green" style="background: var(--green-50); color: var(--dp-emerald); font-weight:700;">📅 ${a.data} · ${a.horario}</span>
+                            <h4 style="font-size: 1.05rem; margin: 0.8rem 0 0.2rem; font-weight: 800; color: #0f172a;">${a.pratoDoDia || a.pratoNome || 'Prato do Dia'}</h4>
+                            <p style="font-size: 1.15rem; font-weight: 800; color: var(--dp-emerald); margin-bottom: 0.6rem;">R$ ${parseFloat(a.preco || 0).toFixed(2).replace('.', ',')}</p>
+                        </div>
+                        <button onclick="adicionarPratoAoCarrinho('${(a.pratoDoDia || a.pratoNome || 'Prato do Dia').replace(/'/g, "\\'")}', ${parseFloat(a.preco || 0)})" class="btn btn-primary" style="margin-top: 1rem; width: 100%; text-align:center; font-weight: 700; border-radius: var(--radius-full);">
+                            <i class="fas fa-plus"></i> Adicionar à Sacola
+                        </button>
+                    </div>
+                `).join('');
+            } catch (e) {
+                grid.innerHTML = `<p style="text-align: center; color: var(--danger); grid-column: 1/-1; padding: 2rem;">Não foi possível carregar os pratos do dia no momento.</p>`;
+            }
+        }
+
+        function adicionarPratoAoCarrinho(nome, preco) {
+            const itemExistente = carrinho.find(i => i.nome === nome);
+            if (itemExistente) {
+                itemExistente.quantidade++;
+            } else {
+                carrinho.push({
+                    id: 'prato_' + Date.now(),
+                    nome: nome,
+                    precoUnitario: preco,
+                    quantidade: 1,
+                    categoria: 'Prato do Dia'
+                });
+            }
+            atualizarCarrinhoUI();
+            fecharModal('modalAgendamentoCliente');
+            toggleCart();
+        }
+
+        async function abrirModalMeusPedidos() {
+            const popover = document.getElementById('userMenuPopover');
+            if (popover) popover.classList.remove('active');
+            
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) {
+                irParaLogin();
+                return;
+            }
+            document.getElementById('modalMeusPedidos')?.classList.add('active');
+            await carregarMeusPedidos();
+        }
+
+        function getStatusBadge(status) {
+            const s = (status || 'pendente').toLowerCase();
+            const config = {
+                'pendente': { label: 'Pendente', icon: 'clock', class: 'pendente' },
+                'confirmado': { label: 'Confirmado', icon: 'check', class: 'confirmado' },
+                'preparando': { label: 'Preparando', icon: 'fire', class: 'preparando' },
+                'pronto': { label: 'Pronto p/ Retirada', icon: 'bell', class: 'pronto' },
+                'entregue': { label: 'Entregue', icon: 'check-double', class: 'entregue' },
+                'cancelado': { label: 'Cancelado', icon: 'times', class: 'cancelado' },
+                'recusado': { label: 'Recusado', icon: 'ban', class: 'recusado' }
+            };
+            const c = config[s] || { label: status, icon: 'info-circle', class: 'pendente' };
+            return `<span class="order-status-pill ${c.class}"><i class="fas fa-${c.icon}"></i> ${c.label}</span>`;
+        }
+
+        async function carregarMeusPedidos() {
+            const container = document.getElementById('listaMeusPedidosContainer');
+            if (!container) return;
+            const token = sessionStorage.getItem('cliente_token');
+            if (!token) return;
+
+            container.innerHTML = `
+                <div style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">
+                    <i class="fas fa-spinner fa-spin" style="font-size: 2rem; color: var(--dp-emerald); margin-bottom: 0.8rem; display:block;"></i>
+                    <p style="font-weight: 700;">Atualizando status dos seus pedidos...</p>
+                </div>
+            `;
+
+            try {
+                const res = await fetch(`${API_URL}/clientes/historico-pedidos`, {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                if (!res.ok) throw new Error('Erro ao carregar histórico');
+                const pedidos = await res.json();
+
+                if (!pedidos || pedidos.length === 0) {
+                    container.innerHTML = `
+                        <div style="text-align: center; padding: 3.5rem 1rem; color: #64748b;">
+                            <div style="width: 60px; height: 60px; background: #f8fafc; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 1.8rem; color: #94a3b8; margin-bottom: 1rem;">
+                                <i class="fas fa-shopping-basket"></i>
+                            </div>
+                            <h3 style="font-weight: 800; color: #1e293b; margin-bottom: 6px;">Nenhum pedido encontrado</h3>
+                            <p style="font-size: 0.92rem; margin-bottom: 1.2rem;">Você ainda não fez nenhum pedido conosco.</p>
+                            <button onclick="fecharModal('modalMeusPedidos')" class="btn btn-primary" style="padding: 10px 22px; font-weight: 700; border-radius: var(--radius-full);">
+                                <i class="fas fa-utensils"></i> Explorar Cardápio
+                            </button>
+                        </div>
+                    `;
+                    return;
+                }
+
+                container.innerHTML = pedidos.map(p => {
+                    const dataFormatada = p.data ? new Date(p.data).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) : 'Data não informada';
+                    const itensFormatados = (p.itens && p.itens.length > 0)
+                        ? p.itens.map(i => `<div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span><strong>${i.quantidade}x</strong> ${i.nome}</span> <span>R$ ${(i.quantidade * (parseFloat(i.precoUnitario) || 0)).toFixed(2).replace('.', ',')}</span></div>`).join('')
+                        : '<div style="color:#94a3b8; font-style:italic;">Itens do pedido não detalhados</div>';
+
+                    const ptsGanhoEst = 10 + Math.floor(parseFloat(p.total || 0));
+
+                    return `
+                        <div class="client-order-card">
+                            <div class="client-order-header">
+                                <div>
+                                    <span style="font-weight: 800; font-size: 1.05rem; color: #0f172a;">Pedido #${p.id}</span>
+                                    <div style="font-size: 0.78rem; color: #64748b; margin-top: 2px;">
+                                        <i class="far fa-calendar-alt"></i> ${dataFormatada}
+                                    </div>
+                                </div>
+                                <div>
+                                    ${getStatusBadge(p.status)}
+                                </div>
+                            </div>
+                            <div class="client-order-items">
+                                ${itensFormatados}
+                            </div>
+                            <div class="client-order-footer">
+                                <span><i class="fas fa-wallet"></i> ${p.formaPagamento ? p.formaPagamento.replace('_', ' ').toUpperCase() : 'BALCÃO'} · <span style="color:#d97706; font-weight:700;"><i class="fas fa-award"></i> +${ptsGanhoEst} pts</span></span>
+                                <span style="font-size: 1.05rem; font-weight: 900; color: var(--dp-emerald);">Total: R$ ${(parseFloat(p.total) || 0).toFixed(2).replace('.', ',')}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+
+            } catch (err) {
+                console.error(err);
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 2.5rem; color: #ef4444;">
+                        <i class="fas fa-exclamation-circle" style="font-size: 2rem; margin-bottom: 0.5rem; display:block;"></i>
+                        <p style="font-weight: 700;">Não foi possível carregar seus pedidos no momento.</p>
+                        <button onclick="carregarMeusPedidos()" class="btn btn-secondary" style="margin-top: 10px; font-weight: 700;">Tentar Novamente</button>
+                    </div>
+                `;
+            }
+        }
+
+        function toggleMenuUsuario(e) {
+            if (e) e.stopPropagation();
+            const popover = document.getElementById('userMenuPopover');
+            if (popover) popover.classList.toggle('active');
+        }
+
+        function deslogarCliente() {
+            sessionStorage.removeItem('cliente_token');
+            sessionStorage.removeItem('cliente_nome');
+            sessionStorage.removeItem('cliente_id');
+            sessionStorage.removeItem('cliente_telefone');
+            window.location.reload();
+        }
+
+        // Fechar menu se clicar fora
+        document.addEventListener('click', (e) => {
+            const wrap = document.getElementById('userMenuWrapper');
+            const popover = document.getElementById('userMenuPopover');
+            if (wrap && popover && !wrap.contains(e.target)) {
+                popover.classList.remove('active');
+            }
+        });
+
+        // Sincronizar estado do usuário (nome, pontos e menu de logout)
+        async function sincronizarEstadoUsuario() {
+            const token = sessionStorage.getItem('cliente_token');
+            const loginBtn = document.getElementById('loginBtn');
+            const btnTopCad = document.getElementById('btnTopCadastro');
+            const nomeMenu = document.getElementById('userMenuNome');
+            const gestorToken = sessionStorage.getItem('token');
+            const adminLink = document.getElementById('userMenuAdminLink');
+
+            if (adminLink && gestorToken) {
+                adminLink.style.display = 'flex';
+            }
+
+            if (token) {
+                try {
+                    const res = await fetch(`${API_URL}/clientes/perfil`, {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+                    if (res.ok) {
+                        const perfil = await res.json();
+                        sessionStorage.setItem('cliente_nome', perfil.nome);
+                        if (perfil.id) sessionStorage.setItem('cliente_id', perfil.id);
+                        if (perfil.telefone) sessionStorage.setItem('cliente_telefone', perfil.telefone);
+
+                        clientePontos = parseInt(perfil.pontosFidelidade || 0);
+
+                        // Atualiza badges de pontos
+                        const navPts = document.getElementById('navUserPoints');
+                        const drawerPts = document.getElementById('drawerUserPoints');
+                        if (navPts) navPts.textContent = `${clientePontos} pts`;
+                        if (drawerPts) drawerPts.textContent = `${clientePontos} pts`;
+
+                        if (btnTopCad) btnTopCad.style.display = 'none';
+                        if (nomeMenu) nomeMenu.textContent = perfil.nome;
+
+                        if (loginBtn) {
+                            loginBtn.innerHTML = `<i class="fas fa-user-circle" style="color:var(--dp-emerald)"></i> <span>${perfil.nome.split(' ')[0]}</span> <i class="fas fa-chevron-down" style="font-size:0.7rem; opacity:0.7;"></i>`;
+                            loginBtn.onclick = (e) => toggleMenuUsuario(e);
+                            loginBtn.title = 'Minha Conta';
+                        }
+                        return;
+                    }
+                } catch(e) {}
+            }
+
+            if (btnTopCad) btnTopCad.style.display = 'inline-flex';
+            if (loginBtn) {
+                loginBtn.innerHTML = '<i class="fas fa-user"></i> <span>Entrar</span>';
+                loginBtn.onclick = () => irParaLogin();
+            }
+        }
+
+        // Conectar Socket.io para atualização em tempo real de pontos e pedidos
+        try {
+            if (typeof io !== 'undefined') {
+                const socket = io();
+                socket.on('fidelidade_atualizada', (data) => {
+                    const meuId = sessionStorage.getItem('cliente_id');
+                    if (meuId && parseInt(meuId) === parseInt(data.clienteId)) {
+                        clientePontos = parseInt(data.pontos);
+                        const navPts = document.getElementById('navUserPoints');
+                        const drawerPts = document.getElementById('drawerUserPoints');
+                        const modalPts = document.getElementById('modalFidelidadePontos');
+                        if (navPts) navPts.textContent = `${clientePontos} pts`;
+                        if (drawerPts) drawerPts.textContent = `${clientePontos} pts`;
+                        if (modalPts) modalPts.textContent = clientePontos;
+                        atualizarCarrinhoUI();
+                    }
+                });
+            }
+        } catch(sockErr) {
+            console.warn('Socket indisponível:', sockErr);
+        }
+
+        // Suporte a parâmetro de categoria na URL (ex: cardapio.html?cat=Bebidas)
+        window.addEventListener('DOMContentLoaded', () => {
+            const params = new URLSearchParams(window.location.search);
+            const catUrl = params.get('cat');
+            if (catUrl) categoriaAtiva = catUrl;
+            carregarProdutos();
+            sincronizarEstadoUsuario();
+        });
+    </script>
+    <script src="js/auth.js"></script>
+</body>
+
+</html>

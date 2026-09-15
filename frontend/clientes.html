@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes & Fidelidade · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #2d7d52;
+            --primary-dark: #1b4332;
+            --primary-light: #52b788;
+            --accent: #ffbc0d;
+            --brown: #4a2810;
+            --bg: #f4f7fa;
+            --card: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --danger: #e53e3e;
+            --warning: #dd6b20;
+            --success: #2d7d52;
+            --shadow-card: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        body { font-family: var(--font-sans, 'Inter', sans-serif); background: var(--bg); color: var(--text); overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6, .logo, .page-title { font-family: var(--font-display, 'Playfair Display', serif); letter-spacing: -0.02em; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 1.25rem;
+            border-radius: 14px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .stat-value { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
+        }
+
+        table { width: 100%; border-collapse: collapse; }
+        th, td { padding: 11px 16px; text-align: left; font-size: 0.88rem; border-bottom: 1px solid var(--border); }
+        th { background: #f8fafc; color: var(--text); font-weight: 700; font-size: 0.8rem; }
+
+        .selo-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: #fef3c7;
+            color: #92400e;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.72rem;
+            font-weight: 700;
+        }
+
+        .action-btn {
+            padding: 6px 10px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            color: var(--text);
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .action-btn:hover { background: #f0fdf4; color: var(--primary); border-color: var(--primary); }
+
+        .user-badge-avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            color: var(--primary);
+            font-size: 0.95rem;
+            border: 1.5px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        /* MODAL */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal.active { display: flex; }
+        .modal-card {
+            background: #fff;
+            border-radius: 18px;
+            padding: 1.8rem;
+            max-width: 440px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="admin.html" class="sidebar-brand">
+                    <div class="brand-icon"><img src="imagens/logo_icone.jpg" alt="Doutor Paladar"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">Doutor Paladar</div>
+                        <div class="brand-sub">Painel Admin</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
+                <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="produtos.html" class="nav-item"><i class="fas fa-camera"></i> Catálogo & Fotos</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos & Estoque</a>
+                <a href="clientes.html" class="nav-item active"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Configurações & Refeições</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div style="flex:1;overflow:hidden"><div class="user-name" id="adminBadge">Gestor</div><div class="user-role">Administrador</div></div>
+                    <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <div class="topbar">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title"><i class="fas fa-users" style="color:var(--primary);"></i> Clientes & Programa Fidelidade</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Central de contas de alunos, pontuação e limites de consumo</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button class="btn btn-primary btn-sm" onclick="abrirModalNovoCliente()" style="background:var(--primary); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-user-plus"></i> Novo Cliente</button>
+                </div>
+            </div>
+
+            <main class="page-content" style="padding: 1.5rem;">
+                <!-- STATS -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#f0fdf4; color:var(--primary);"><i class="fas fa-users"></i></div>
+                        <div>
+                            <div class="stat-value" id="totalClientes">0</div>
+                            <div class="stat-label">Clientes Cadastrados</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fef3c7; color:#d97706;"><i class="fas fa-award"></i></div>
+                        <div>
+                            <div class="stat-value" id="totalPontos" style="color:#d97706;">0 pts</div>
+                            <div class="stat-label">Pontos Acumulados</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#e0f2fe; color:#0284c7;"><i class="fas fa-shopping-bag"></i></div>
+                        <div>
+                            <div class="stat-value" id="totalPedidosGeral">0</div>
+                            <div class="stat-label">Pedidos Concluídos</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fdf2f8; color:var(--brown);"><i class="fas fa-wallet"></i></div>
+                        <div>
+                            <div class="stat-value" id="totalGastoGeral" style="color:var(--primary);">R$ 0,00</div>
+                            <div class="stat-label">Receita de Clientes Logados</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABELA -->
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem; flex-wrap:wrap; gap:1rem;">
+                        <div style="font-size:1.05rem; font-weight:700; color:var(--text); display:flex; align-items:center; gap:8px;">
+                            <i class="fas fa-address-book" style="color:var(--primary);"></i> Base de Clientes
+                        </div>
+                        <div style="position:relative; width:320px;">
+                            <i class="fas fa-search" style="position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text-muted);"></i>
+                            <input type="text" id="buscaCliente" placeholder="Pesquisar por nome, turma ou usuário..." onkeyup="filtrarClientesLocal()" style="width:100%; padding:9px 12px 9px 36px; border-radius:10px; border:1.5px solid var(--border); font-size:0.88rem; outline:none;">
+                        </div>
+                    </div>
+
+                    <div style="overflow-x:auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Cliente</th>
+                                    <th>Usuário / Telefone</th>
+                                    <th>Data Cadastro</th>
+                                    <th>Pedidos / Total Gasto</th>
+                                    <th>Fidelidade</th>
+                                    <th>Crédito / Débito</th>
+                                    <th style="text-align:right;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaClientes">
+                                <tr><td colspan="7" style="text-align:center; padding:2.5rem; color:var(--text-muted);">Carregando clientes...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO CLIENTE -->
+    <div id="modalNovoCliente" class="modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem;">
+                <h3 style="font-size: 1.2rem; color: var(--text); font-weight: 800;"><i class="fas fa-user-plus" style="color:var(--primary);"></i> Cadastrar Novo Cliente</h3>
+                <button onclick="fecharModalNovoCliente()" style="font-size: 1.3rem; background:none; border:none; cursor:pointer; color:#94a3b8;">&times;</button>
+            </div>
+            <form id="formNovoCliente" onsubmit="salvarNovoCliente(event)">
+                <div style="margin-bottom: 0.9rem;">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Nome Completo *</label>
+                    <input type="text" id="novoNome" required placeholder="Ex: Gabriel Souza" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                </div>
+                <div style="margin-bottom: 0.9rem;">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Turma / Identificação</label>
+                    <input type="text" id="novoTurma" placeholder="Ex: 2º Ano A, Professor..." style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalNovoCliente()" style="padding:9px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background:var(--primary); color:#fff; border:none; padding:9px 20px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-save"></i> Salvar Cliente</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <!-- MODAL AJUSTAR PONTOS DE FIDELIDADE -->
+    <div id="modalAjustarPontos" class="modal">
+        <div class="modal-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.2rem; border-bottom: 1px solid var(--border); padding-bottom: 0.8rem;">
+                <h3 style="font-size: 1.2rem; color: var(--text); font-weight: 800;"><i class="fas fa-award" style="color:#d97706;"></i> Ajustar Pontos de Fidelidade</h3>
+                <button onclick="fecharModalAjustarPontos()" style="font-size: 1.3rem; background:none; border:none; cursor:pointer; color:#94a3b8;">&times;</button>
+            </div>
+            <form id="formAjustarPontos" onsubmit="confirmarAjustePontos(event)">
+                <input type="hidden" id="ajusteClienteId">
+                <div style="background: #fffbeb; border: 1px solid #fde68a; border-radius: 12px; padding: 12px 14px; margin-bottom: 1rem;">
+                    <div style="font-size: 0.82rem; color: #92400e; font-weight: 600;">Cliente Selecionado:</div>
+                    <div style="font-size: 1.05rem; font-weight: 800; color: #78350f;" id="ajusteClienteNome">Nome do Cliente</div>
+                    <div style="font-size: 0.82rem; color: #b45309; margin-top: 4px;">Saldo Atual: <strong id="ajusteSaldoAtual">0</strong> pts <span style="color:var(--primary); font-weight:700;">(1 ponto = R$ 1,00 em créditos)</span></div>
+                </div>
+                <div style="margin-bottom: 0.9rem;">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Quantidade de Pontos (Use negativo para subtrair) *</label>
+                    <input type="number" id="ajustePontos" required placeholder="Ex: 50 ou -50" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.95rem; font-weight:700; outline:none;">
+                </div>
+                <div style="margin-bottom: 0.9rem;">
+                    <label style="display:block; font-size:0.8rem; font-weight:700; margin-bottom:4px;">Motivo do Ajuste *</label>
+                    <input type="text" id="ajusteMotivo" required placeholder="Ex: Promoção de Aniversário, Bônus..." style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 10px; border-top: 1px solid var(--border); padding-top: 1rem; margin-top: 1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalAjustarPontos()" style="padding:9px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background:#d97706; color:#fff; border:none; padding:9px 20px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-check-circle"></i> Aplicar Ajuste</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let clientes = [];
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        window.addEventListener('DOMContentLoaded', carregarClientes);
+
+        async function carregarClientes() {
+            try {
+                // Tenta carregar os clientes autenticados do app
+                const res = await fetch(`${API_URL}/clientes/admin/listar`, {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                
+                if (res.ok) {
+                    clientes = await res.json();
+                } else {
+                    // Fallback para fiado clientes se não houver token ou se expirar
+                    const resFiado = await fetch(`${API_URL}/fiado/clientes`);
+                    if (resFiado.ok) {
+                        const data = await resFiado.json();
+                        const listaFiado = data.clientes || data || [];
+                        clientes = listaFiado.map(c => ({
+                            id: c.id,
+                            nome: c.nome,
+                            usuario: c.usuario || c.username || c.nome.toLowerCase().replace(/\s+/g, '.'),
+                            turma: c.turma || '',
+                            telefone: c.telefone || '',
+                            dataCadastro: c.dataCadastro || c.criado_em || new Date().toISOString(),
+                            totalPedidos: parseInt(c.totalPedidos || 0, 10),
+                            totalGasto: parseFloat(c.totalGasto || 0),
+                            pontosFidelidade: parseInt(c.pontosFidelidade || 0, 10),
+                            saldoDevedor: parseFloat(c.saldoDevedor || c.saldo_devedor || 0),
+                            limiteCredito: parseFloat(c.limite || c.limiteCredito || 50.00)
+                        }));
+                    }
+                }
+
+                renderEstatisticas();
+                renderTabela();
+            } catch(e) {
+                console.error('Erro ao carregar clientes:', e);
+            }
+        }
+
+        function renderEstatisticas() {
+            document.getElementById('totalClientes').textContent = clientes.length;
+            const pts = clientes.reduce((s, c) => s + (parseInt(c.pontosFidelidade || 0)), 0);
+            document.getElementById('totalPontos').innerHTML = `${pts} <span style="font-size:0.9rem; font-weight:600; color:var(--primary);">(R$ ${pts.toFixed(2).replace('.', ',')})</span>`;
+            const pds = clientes.reduce((s, c) => s + (parseInt(c.totalPedidos || 0)), 0);
+            document.getElementById('totalPedidosGeral').textContent = pds;
+            const gst = clientes.reduce((s, c) => s + (parseFloat(c.totalGasto || 0)), 0);
+            document.getElementById('totalGastoGeral').textContent = `R$ ${gst.toFixed(2).replace('.', ',')}`;
+        }
+
+        function renderTabela() {
+            const tbody = document.getElementById('tabelaClientes');
+            if(!clientes.length) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2.5rem;color:var(--text-muted);">Nenhum cliente cadastrado até o momento.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = clientes.map(c => {
+                const pts = c.pontosFidelidade || 0;
+                const saldo = parseFloat(c.saldoDevedor || 0);
+                const inicial = (c.nome || 'C').charAt(0).toUpperCase();
+
+                const creditoStatus = saldo > 0
+                    ? `<span style="color:var(--danger);font-weight:700;">Débito: R$ ${saldo.toFixed(2).replace('.', ',')}</span>`
+                    : `<span style="color:var(--primary);font-weight:600;">Em dia</span>`;
+
+                return `
+                    <tr>
+                        <td style="vertical-align:middle;">
+                            <div style="display:flex; align-items:center; gap:10px;">
+                                <div class="user-badge-avatar">${inicial}</div>
+                                <div>
+                                    <strong style="color:var(--text); font-size:0.92rem;">${c.nome}</strong>
+                                    ${c.turma ? `<div style="font-size:0.75rem; color:var(--text-muted);">Turma: ${c.turma}</div>` : ''}
+                                </div>
+                            </div>
+                        </td>
+                        <td style="vertical-align:middle;">
+                            <div style="font-weight:600; color:var(--text);">@${c.usuario || 'cliente'}</div>
+                            <div style="font-size:0.75rem; color:var(--text-muted);">${c.telefone || 'Sem fone'}</div>
+                        </td>
+                        <td style="vertical-align:middle; color:var(--text-muted); font-size:0.82rem;">
+                            ${c.dataCadastro ? new Date(c.dataCadastro).toLocaleDateString('pt-BR') : 'Recente'}
+                        </td>
+                        <td style="vertical-align:middle;">
+                            <strong>${c.totalPedidos} pedidos</strong>
+                            <div style="font-size:0.75rem; color:var(--primary); font-weight:700;">R$ ${parseFloat(c.totalGasto || 0).toFixed(2).replace('.', ',')}</div>
+                        </td>
+                        <td style="vertical-align:middle;">
+                            <div style="display:flex; flex-direction:column; gap:3px;">
+                                <div><strong style="color:var(--primary); font-size:1rem;">${pts} pts</strong> <span style="font-size:0.78rem; font-weight:700; color:var(--text-muted);">= R$ ${pts.toFixed(2).replace('.', ',')}</span></div>
+                                <div class="selo-pill" style="font-size:0.72rem; padding:3px 8px;"><i class="fas fa-gift"></i> R$ ${pts.toFixed(2).replace('.', ',')} em créditos</div>
+                            </div>
+                        </td>
+                        <td style="vertical-align:middle;">${creditoStatus}</td>
+                        <td style="text-align:right; vertical-align:middle;">
+                            <button onclick="abrirModalAjustarPontos(${c.id}, '${c.nome.replace(/'/g, "\\'")}', ${pts})" class="action-btn" title="Ajustar Pontos de Fidelidade" style="background:#fffbeb; color:#b45309; border-color:#fde68a;"><i class="fas fa-star"></i> Ajustar</button>
+                            <a href="pedidos-admin.html?nome=${encodeURIComponent(c.nome)}" class="action-btn" title="Ver Pedidos"><i class="fas fa-receipt"></i> Pedidos</a>
+                            <a href="contas-receber.html" class="action-btn" title="Ver Crédito"><i class="fas fa-hand-holding-usd"></i> Conta</a>
+                        </td>
+                    </tr>`;
+            }).join('');
+        }
+
+        function filtrarClientesLocal() {
+            const q = document.getElementById('buscaCliente').value.toLowerCase();
+            const rows = document.querySelectorAll('#tabelaClientes tr');
+            rows.forEach(r => {
+                r.style.display = r.textContent.toLowerCase().includes(q) ? '' : 'none';
+            });
+        }
+
+        function abrirModalNovoCliente() {
+            document.getElementById('modalNovoCliente').classList.add('active');
+        }
+        function fecharModalNovoCliente() {
+            document.getElementById('modalNovoCliente').classList.remove('active');
+        }
+
+        function abrirModalAjustarPontos(id, nome, pts) {
+            document.getElementById('ajusteClienteId').value = id;
+            document.getElementById('ajusteClienteNome').textContent = nome;
+            document.getElementById('ajusteSaldoAtual').textContent = pts;
+            document.getElementById('ajustePontos').value = 50;
+            document.getElementById('ajusteMotivo').value = 'Bônus / Ajuste Administrativo';
+            document.getElementById('modalAjustarPontos').classList.add('active');
+        }
+
+        function fecharModalAjustarPontos() {
+            document.getElementById('modalAjustarPontos').classList.remove('active');
+        }
+
+        async function confirmarAjustePontos(e) {
+            e.preventDefault();
+            const clienteId = document.getElementById('ajusteClienteId').value;
+            const deltaPontos = parseInt(document.getElementById('ajustePontos').value);
+            const motivo = document.getElementById('ajusteMotivo').value.trim();
+
+            if (!clienteId || isNaN(deltaPontos)) return;
+
+            try {
+                const res = await fetch(`${API_URL}/clientes/fidelidade/ajustar`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        Authorization: `Bearer ${sessionStorage.getItem('token') || ''}`
+                    },
+                    body: JSON.stringify({ clienteId, deltaPontos, motivo })
+                });
+                if (res.ok) {
+                    const data = await res.json();
+                    alert(`✅ Pontos atualizados com sucesso! Novo saldo: ${data.pontosFidelidade} pts`);
+                    fecharModalAjustarPontos();
+                    await carregarClientes();
+                } else {
+                    const err = await res.json();
+                    alert(`Erro ao ajustar pontos: ${err.erro || 'Falha na requisição'}`);
+                }
+            } catch(e) {
+                alert('Erro de conexão ao ajustar pontos');
+            }
+        }
+
+        async function salvarNovoCliente(e) {
+            e.preventDefault();
+            const nome = document.getElementById('novoNome').value.trim();
+            const turma = document.getElementById('novoTurma').value.trim();
+            if (!nome) return;
+
+            try {
+                const res = await fetch(`${API_URL}/fiado/clientes`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ nome, turma })
+                });
+                if (res.ok) {
+                    fecharModalNovoCliente();
+                    document.getElementById('formNovoCliente').reset();
+                    await carregarClientes();
+                } else {
+                    alert('Erro ao cadastrar cliente');
+                }
+            } catch(e) {
+                alert('Erro de conexão');
+            }
+        }
+    </script>
+</body>
+</html>
