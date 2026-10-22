@@ -1,0 +1,594 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Despesas · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #2d7d52;
+            --primary-dark: #1b4332;
+            --primary-light: #52b788;
+            --accent: #ffbc0d;
+            --brown: #4a2810;
+            --bg: #f4f7fa;
+            --card: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --danger: #e53e3e;
+            --warning: #dd6b20;
+            --success: #2d7d52;
+            --shadow-card: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        body { font-family: var(--font-sans, 'Inter', sans-serif); background: var(--bg); color: var(--text); overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6, .logo, .page-title { font-family: var(--font-display, 'Playfair Display', serif); letter-spacing: -0.02em; }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .stat-card {
+            background: #fff;
+            padding: 1.2rem;
+            border-radius: 14px;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+
+        .stat-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .stat-value { font-size: 1.4rem; font-weight: 800; color: var(--text); }
+        .stat-label { font-size: 0.75rem; color: var(--text-muted); font-weight: 600; margin-top: 2px; }
+
+        .card {
+            background: #fff;
+            border-radius: 14px;
+            padding: 1.25rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
+            margin-bottom: 1.5rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr auto;
+            gap: 10px;
+            align-items: flex-end;
+        }
+        @media (max-width: 900px) { .form-row { grid-template-columns: 1fr; } }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.4rem;
+            font-weight: 700;
+            font-size: 0.8rem;
+            color: var(--text);
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 9px 12px;
+            border: 1.5px solid var(--border);
+            border-radius: 10px;
+            background: #fff;
+            color: var(--text);
+            font-family: inherit;
+            font-size: 0.88rem;
+            outline: none;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+
+        .table-container {
+            overflow-x: auto;
+            background: #fff;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow-card);
+        }
+
+        table { width: 100%; border-collapse: collapse; text-align: left; font-size: 0.88rem; }
+        th, td { padding: 11px 16px; border-bottom: 1px solid var(--border); }
+        th { background: #f8fafc; color: var(--text); font-weight: 700; font-size: 0.8rem; }
+
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: 1px solid var(--border);
+            background: #fff;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-muted);
+            transition: all 0.2s;
+        }
+        .btn-action:hover { color: var(--primary); border-color: var(--primary); background: #f0fdf4; }
+        .btn-action.delete:hover { color: var(--danger); border-color: var(--danger); background: #fef2f2; }
+
+        .tag-categoria {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 3px 9px;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            background: #f1f5f9;
+            color: #334155;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 18px;
+            padding: 1.8rem;
+            max-width: 480px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 1100;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            font-size: 0.88rem;
+        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="admin.html" class="sidebar-brand">
+                    <div class="brand-icon"><img src="imagens/logo_icone.jpg" alt="Doutor Paladar"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">Doutor Paladar</div>
+                        <div class="brand-sub">Painel Admin</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
+                <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="produtos.html" class="nav-item"><i class="fas fa-camera"></i> Catálogo & Fotos</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos & Estoque</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item active"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Configurações & Refeições</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div style="flex:1;overflow:hidden"><div class="user-name" id="adminBadge">Gestor</div><div class="user-role">Administrador</div></div>
+                    <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <header class="topbar">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title"><i class="fas fa-receipt" style="color:var(--primary);"></i> Controle de Despesas & Custos</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Registro e projeção de custos operacionais da cantina</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button class="btn btn-secondary btn-sm" onclick="exportarDespesasCSV()" style="padding:8px 14px; border-radius:8px; cursor:pointer;"><i class="fas fa-file-csv"></i> Exportar CSV</button>
+                </div>
+            </header>
+
+            <main class="page-content" style="padding: 1.5rem;">
+                <!-- STATS CARDS -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fee2e2; color:#991b1b;"><i class="fas fa-wallet"></i></div>
+                        <div>
+                            <div class="stat-value" id="statTotalDespesas" style="color:#991b1b;">R$ 0,00</div>
+                            <div class="stat-label">Total de Despesas</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#f0fdf4; color:var(--primary);"><i class="fas fa-boxes"></i></div>
+                        <div>
+                            <div class="stat-value" id="statInsumos" style="color:var(--primary);">R$ 0,00</div>
+                            <div class="stat-label">Insumos & Mercadorias</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#fef3c7; color:#d97706;"><i class="fas fa-bolt"></i></div>
+                        <div>
+                            <div class="stat-value" id="statOperacional" style="color:#d97706;">R$ 0,00</div>
+                            <div class="stat-label">Gás, Energia & Fixos</div>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background:#f1f5f9; color:var(--text);"><i class="fas fa-list-check"></i></div>
+                        <div>
+                            <div class="stat-value" id="statRegistros">0</div>
+                            <div class="stat-label">Lançamentos no Período</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- FORMULÁRIO DE LANÇAMENTO -->
+                <div class="card">
+                    <div style="font-size:1.05rem; font-weight:700; color:var(--text); margin-bottom:1rem; display:flex; align-items:center; gap:8px;">
+                        <i class="fas fa-plus-circle" style="color:var(--primary);"></i> Lançar Nova Despesa
+                    </div>
+                    <form id="formDespesa" onsubmit="salvarDespesa(event)">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label>Descrição do Gasto *</label>
+                                <input type="text" id="descricao" required placeholder="Ex: Fornecedor de Pães e Salgados">
+                            </div>
+                            <div class="form-group">
+                                <label>Categoria *</label>
+                                <select id="categoria">
+                                    <option value="Insumos">Insumos & Salgados</option>
+                                    <option value="Bebidas">Bebidas & Refrigerantes</option>
+                                    <option value="Hortifruti">Hortifruti & Feira</option>
+                                    <option value="Energia / Gás">Gás & Energia</option>
+                                    <option value="Embalagens">Embalagens & Descartáveis</option>
+                                    <option value="Manutenção">Manutenção & Limpeza</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Valor (R$) *</label>
+                                <input type="number" id="valor" step="0.01" min="0.01" required placeholder="0.00">
+                            </div>
+                            <div class="form-group">
+                                <label>Data *</label>
+                                <input type="date" id="data" required>
+                            </div>
+                            <div>
+                                <button type="submit" class="btn btn-primary" style="background:var(--primary); color:#fff; border:none; padding:10px 18px; border-radius:10px; font-weight:700; cursor:pointer; height:40px; display:flex; align-items:center; gap:6px;">
+                                    <i class="fas fa-check"></i> Lançar
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+
+                <!-- FILTROS & TABELA -->
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; flex-wrap:wrap; gap:1rem;">
+                        <div style="font-size:1.05rem; font-weight:700; color:var(--text);"><i class="fas fa-history" style="color:var(--primary);"></i> Extrato de Despesas</div>
+                        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                            <select id="categoriaFiltro" onchange="aplicarFiltros()" style="padding:8px 12px; border-radius:8px; border:1.5px solid var(--border); font-size:0.85rem; outline:none; background:#fff;">
+                                <option value="todas">Todas as Categorias</option>
+                                <option value="Insumos">Insumos & Salgados</option>
+                                <option value="Bebidas">Bebidas & Refrigerantes</option>
+                                <option value="Hortifruti">Hortifruti & Feira</option>
+                                <option value="Energia / Gás">Gás & Energia</option>
+                                <option value="Embalagens">Embalagens & Descartáveis</option>
+                                <option value="Manutenção">Manutenção & Limpeza</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th style="width:130px;">Data</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Valor</th>
+                                    <th style="text-align:right; width:100px;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="despesasTable">
+                                <tr><td colspan="5" style="text-align:center; padding:2rem; color:var(--text-muted);">Carregando lançamentos...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL EDITAR DESPESA -->
+    <div class="modal-overlay" id="modalEditar">
+        <div class="modal-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; border-bottom:1px solid var(--border); padding-bottom:0.8rem;">
+                <h3 style="font-size:1.2rem; font-weight:800; color:var(--text);"><i class="fas fa-edit" style="color:var(--primary);"></i> Editar Despesa</h3>
+                <button onclick="fecharModalEditar()" style="background:none; border:none; font-size:1.3rem; color:#94a3b8; cursor:pointer;">&times;</button>
+            </div>
+            <form onsubmit="atualizarDespesa(event)">
+                <input type="hidden" id="editId">
+                <div class="form-group" style="margin-bottom:0.9rem;">
+                    <label>Descrição *</label>
+                    <input type="text" id="editDescricao" required style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                </div>
+                <div class="form-group" style="margin-bottom:0.9rem;">
+                    <label>Categoria *</label>
+                    <select id="editCategoria" style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none; background:#fff;">
+                        <option value="Insumos">Insumos & Salgados</option>
+                        <option value="Bebidas">Bebidas & Refrigerantes</option>
+                        <option value="Hortifruti">Hortifruti & Feira</option>
+                        <option value="Energia / Gás">Gás & Energia</option>
+                        <option value="Embalagens">Embalagens & Descartáveis</option>
+                        <option value="Manutenção">Manutenção & Limpeza</option>
+                    </select>
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:1.2rem;">
+                    <div class="form-group">
+                        <label>Valor (R$) *</label>
+                        <input type="number" id="editValor" step="0.01" min="0.01" required style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                    </div>
+                    <div class="form-group">
+                        <label>Data *</label>
+                        <input type="date" id="editData" required style="width:100%; padding:9px 12px; border:1.5px solid var(--border); border-radius:10px; font-size:0.88rem; outline:none;">
+                    </div>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border); padding-top:1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModalEditar()" style="padding:8px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background:var(--primary); color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-save"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let despesas = [];
+        let despesasFiltradas = [];
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('data').value = new Date().toISOString().split('T')[0];
+            carregarDespesas();
+        });
+
+        function despesasSimuladasCantina() {
+            const hoje = new Date();
+            const formatarData = (diasAtras) => {
+                const d = new Date(hoje);
+                d.setDate(d.getDate() - diasAtras);
+                return d.toISOString().split('T')[0];
+            };
+
+            return [
+                { id: 1, descricao: 'Distribuidora Bella Vista (Pães de Queijo, Massa & Enroladinhos)', categoria: 'Insumos', valor: 420.00, data: formatarData(1) },
+                { id: 2, descricao: 'Femsa Brasil (Lote Coca-Cola lata, zero & pet 600ml)', categoria: 'Bebidas', valor: 650.00, data: formatarData(3) },
+                { id: 3, descricao: 'Hortifruti Central (Tomate, Cebola, Mandioca & Frutas)', categoria: 'Hortifruti', valor: 185.50, data: formatarData(4) },
+                { id: 4, descricao: 'Ultragaz (2 Botijões P45 para Cozinha Industrial)', categoria: 'Energia / Gás', valor: 540.00, data: formatarData(7) },
+                { id: 5, descricao: 'Distribuidora Pack (Guardanapos, Copos 300ml & Embalagens)', categoria: 'Embalagens', valor: 145.00, data: formatarData(9) },
+                { id: 6, descricao: 'Fábrica Trento / Doces (Caixas Trento Chocolate & Branco)', categoria: 'Insumos', valor: 198.00, data: formatarData(12) },
+                { id: 7, descricao: 'Manutenção Preventiva Forno e Estufa Térmica', categoria: 'Manutenção', valor: 220.00, data: formatarData(15) },
+                { id: 8, descricao: 'Distribuidora K-Mais (Sucos integrais lata & garrafa)', categoria: 'Bebidas', valor: 310.00, data: formatarData(18) }
+            ];
+        }
+
+        async function carregarDespesas() {
+            try {
+                const res = await fetch(`${API_URL}/despesas`, {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if(res.ok) {
+                    despesas = await res.json();
+                }
+            } catch(e) {}
+
+            if(!despesas || !despesas.length) {
+                despesas = despesasSimuladasCantina();
+            }
+
+            despesas.forEach(d => { d.valor = parseFloat(d.valor) || 0; });
+            despesasFiltradas = [...despesas];
+            atualizarStats();
+            renderizarTabela();
+        }
+
+        function atualizarStats() {
+            const totalGeral = despesas.reduce((s, d) => s + d.valor, 0);
+            const totalInsumos = despesas.filter(d => d.categoria === 'Insumos' || d.categoria === 'Bebidas' || d.categoria === 'Hortifruti').reduce((s, d) => s + d.valor, 0);
+            const totalOperacional = despesas.filter(d => d.categoria === 'Energia / Gás' || d.categoria === 'Manutenção' || d.categoria === 'Embalagens').reduce((s, d) => s + d.valor, 0);
+
+            document.getElementById('statTotalDespesas').textContent = `R$ ${totalGeral.toFixed(2).replace('.', ',')}`;
+            document.getElementById('statInsumos').textContent = `R$ ${totalInsumos.toFixed(2).replace('.', ',')}`;
+            document.getElementById('statOperacional').textContent = `R$ ${totalOperacional.toFixed(2).replace('.', ',')}`;
+            document.getElementById('statRegistros').textContent = despesas.length;
+        }
+
+        function aplicarFiltros() {
+            const cat = document.getElementById('categoriaFiltro').value;
+            despesasFiltradas = despesas.filter(d => cat === 'todas' || d.categoria === cat);
+            renderizarTabela();
+        }
+
+        function renderizarTabela() {
+            const tbody = document.getElementById('despesasTable');
+            if(!despesasFiltradas.length) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:2.5rem; color:var(--text-muted);">Nenhuma despesa registrada.</td></tr>';
+                return;
+            }
+
+            const ordenadas = [...despesasFiltradas].sort((a, b) => new Date(b.data) - new Date(a.data));
+            tbody.innerHTML = ordenadas.map(d => `
+                <tr>
+                    <td style="vertical-align:middle; color:var(--text-muted); font-size:0.82rem;">${new Date(d.data).toLocaleDateString('pt-BR')}</td>
+                    <td style="vertical-align:middle;"><strong style="color:var(--text);">${d.descricao}</strong></td>
+                    <td style="vertical-align:middle;"><span class="tag-categoria">${d.categoria}</span></td>
+                    <td style="vertical-align:middle; font-weight:800; color:var(--danger);">R$ ${d.valor.toFixed(2).replace('.', ',')}</td>
+                    <td style="vertical-align:middle; text-align:right;">
+                        <button class="btn-action" onclick="editarDespesa(${d.id})" title="Editar"><i class="fas fa-edit"></i></button>
+                        <button class="btn-action delete" onclick="excluirDespesa(${d.id})" title="Excluir"><i class="fas fa-trash"></i></button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function salvarDespesa(e) {
+            e.preventDefault();
+            const descricao = document.getElementById('descricao').value.trim();
+            const categoria = document.getElementById('categoria').value;
+            const valor = parseFloat(document.getElementById('valor').value);
+            const data = document.getElementById('data').value || new Date().toISOString().split('T')[0];
+
+            if(!descricao || isNaN(valor)) return;
+
+            try {
+                const res = await fetch(`${API_URL}/despesas`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify({ descricao, categoria, valor, data })
+                });
+                if(res.ok) {
+                    mostrarToast('Despesa registrada com sucesso!', 'success');
+                } else {
+                    despesas.unshift({ id: Date.now(), descricao, categoria, valor, data });
+                    mostrarToast('Despesa registrada localmente!', 'success');
+                }
+            } catch(err) {
+                despesas.unshift({ id: Date.now(), descricao, categoria, valor, data });
+                mostrarToast('Despesa registrada!', 'success');
+            }
+
+            document.getElementById('formDespesa').reset();
+            document.getElementById('data').value = new Date().toISOString().split('T')[0];
+            await carregarDespesas();
+        }
+
+        function editarDespesa(id) {
+            const d = despesas.find(x => x.id === id);
+            if(!d) return;
+            document.getElementById('editId').value = d.id;
+            document.getElementById('editDescricao').value = d.descricao;
+            document.getElementById('editCategoria').value = d.categoria;
+            document.getElementById('editValor').value = d.valor;
+            document.getElementById('editData').value = d.data ? d.data.slice(0, 10) : '';
+            document.getElementById('modalEditar').classList.add('active');
+        }
+
+        function fecharModalEditar() { document.getElementById('modalEditar').classList.remove('active'); }
+
+        async function atualizarDespesa(e) {
+            e.preventDefault();
+            const id = parseInt(document.getElementById('editId').value);
+            const descricao = document.getElementById('editDescricao').value.trim();
+            const categoria = document.getElementById('editCategoria').value;
+            const valor = parseFloat(document.getElementById('editValor').value);
+            const data = document.getElementById('editData').value;
+
+            try {
+                await fetch(`${API_URL}/despesas/${id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify({ descricao, categoria, valor, data })
+                });
+            } catch(err) {}
+
+            const idx = despesas.findIndex(x => x.id === id);
+            if(idx !== -1) {
+                despesas[idx] = { id, descricao, categoria, valor, data };
+            }
+
+            fecharModalEditar();
+            mostrarToast('Despesa atualizada com sucesso!', 'success');
+            atualizarStats();
+            aplicarFiltros();
+        }
+
+        async function excluirDespesa(id) {
+            if(!confirm('Deseja excluir este lançamento de despesa?')) return;
+            try {
+                await fetch(`${API_URL}/despesas/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+            } catch(e) {}
+
+            despesas = despesas.filter(x => x.id !== id);
+            mostrarToast('Despesa excluída!', 'success');
+            atualizarStats();
+            aplicarFiltros();
+        }
+
+        function exportarDespesasCSV() {
+            if(!despesas.length) { alert('Sem despesas para exportar'); return; }
+            let csv = 'Data,Descricao,Categoria,Valor\n';
+            despesas.forEach(d => {
+                csv += `"${d.data}","${d.descricao.replace(/"/g, '""')}","${d.categoria}","${d.valor.toFixed(2)}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `despesas_cantina_${new Date().toISOString().slice(0,10)}.csv`;
+            a.click();
+        }
+
+        function mostrarToast(msg, tipo='success') {
+            const el = document.createElement('div');
+            el.className = `toast ${tipo}`;
+            el.innerHTML = `<i class="fas fa-${tipo==='success'?'check-circle':'exclamation-circle'}"></i> ${msg}`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

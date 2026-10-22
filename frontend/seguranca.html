@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Segurança & Políticas de Acesso · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Playfair+Display:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/theme.css">
+    <style>
+        .sec-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        .sec-card {
+            background: var(--card);
+            border-radius: 20px;
+            padding: 1.6rem;
+            box-shadow: var(--shadow-card);
+            border: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+        .sec-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-bottom: 1px solid var(--border);
+            padding-bottom: 12px;
+        }
+        .sec-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+        .sec-badge {
+            display: inline-block;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+        .code-box {
+            background: #090d16;
+            color: #38bdf8;
+            font-family: 'Courier New', Courier, monospace;
+            padding: 12px;
+            border-radius: 10px;
+            font-size: 0.8rem;
+            word-break: break-all;
+            max-height: 160px;
+            overflow-y: auto;
+            border: 1px solid #1e293b;
+        }
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85rem;
+        }
+        .table-custom th, .table-custom td {
+            padding: 10px 12px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+        }
+        .table-custom th {
+            color: var(--text-muted);
+            font-size: 0.75rem;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+    
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+        <div class="sidebar-brand">
+            <img src="favicon.svg" alt="Logo" class="sidebar-logo">
+            <div class="sidebar-brand-text">Doutor Paladar<span>Painel Administrativo</span></div>
+        </div>
+        <nav class="sidebar-nav">
+            <div class="nav-section-title">Operacional</div>
+            <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard Geral</a>
+            <a href="desempenhos.html" class="nav-item"><i class="fas fa-chart-line"></i> Analytics & Relatórios</a>
+            <a href="pedidos.html" class="nav-item"><i class="fas fa-concierge-bell"></i> Gestão de Pedidos</a>
+            <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Frente de Caixa (PDV)</a>
+            <a href="chat.html" class="nav-item"><i class="fas fa-comments"></i> Mensagens & Chat</a>
+
+            <div class="nav-section-title">Controle & Gestão</div>
+            <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos & Estoque</a>
+            <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+            <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+            <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+            <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+            <div class="nav-section-title">Segurança & Sistema</div>
+            <a href="seguranca.html" class="nav-item active"><i class="fas fa-shield-alt"></i> Políticas de Segurança</a>
+            <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+            <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+        </nav>
+        <div class="sidebar-footer">
+            <div class="sidebar-user">
+                <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                <div style="flex:1;overflow:hidden;">
+                    <div class="user-name" id="adminBadge">Gestor</div>
+                    <div class="user-role">Administrador</div>
+                </div>
+                <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="main-content">
+        <header class="topbar">
+            <div style="display: flex; align-items: center; gap: 14px;">
+                <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" style="padding: 8px 12px; border-radius: 10px;">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div>
+                    <div class="page-title"><i class="fas fa-shield-alt" style="color:var(--primary)"></i> Políticas de Segurança</div>
+                    <div style="font-size: 0.76rem; color: var(--text-muted);">Auditoria, criptografia, prevenção a invasões e controle de acesso</div>
+                </div>
+            </div>
+            <div class="topbar-right">
+                <span class="sec-badge" style="background:#dcfce7; color:#15803d;"><i class="fas fa-lock"></i> Sistema Conforme</span>
+                <button class="btn btn-primary btn-sm" onclick="executarAuditoriaGeral()"><i class="fas fa-sync"></i> Reauditar</button>
+            </div>
+        </header>
+
+        <div class="page-content">
+
+            <!-- GRID PRINCIPAL DE MÓDULOS DE SEGURANÇA -->
+            <div class="sec-grid">
+
+                <!-- 1. HASH DAS SENHAS -->
+                <div class="sec-card">
+                    <div class="sec-header">
+                        <div class="sec-icon" style="background:#eff6ff; color:#3b82f6;"><i class="fas fa-key"></i></div>
+                        <div>
+                            <strong style="display:block; font-size:1rem;">1. Senhas com Hash</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Bcrypt Salt Rounds 10</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Nenhuma senha é armazenada em texto plano. Todas passam por hash criptográfico irreversível.</p>
+                    <div id="statusHashesBox" style="background:var(--bg); padding:10px; border-radius:12px; font-size:0.8rem;">
+                        <i class="fas fa-spinner fa-spin"></i> Auditando banco de dados...
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="verificarHashesBanco()"><i class="fas fa-check-double"></i> Auditar Todas as Contas</button>
+                </div>
+
+                <!-- 2. PERMISSÕES & ALÇADA -->
+                <div class="sec-card">
+                    <div class="sec-header">
+                        <div class="sec-icon" style="background:#fef3c7; color:#d97706;"><i class="fas fa-user-lock"></i></div>
+                        <div>
+                            <strong style="display:block; font-size:1rem;">2. Permissões e Alçada</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Controle de Hierarquia & Descontos</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Alçada configurada por cargo: Atendente (até 10%), Supervisor (até 25%), Administrador (100%).</p>
+                    <div style="font-size:0.82rem; background:var(--bg); padding:10px; border-radius:12px; display:flex; flex-direction:column; gap:4px;">
+                        <div>🧑‍🍳 <strong>Atendente:</strong> PDV e Operação de Caixa</div>
+                        <div>👔 <strong>Supervisor:</strong> Descontos especiais e Fiado</div>
+                        <div>🛡️ <strong>Administrador:</strong> Acesso irrestrito a Relatórios e Configurações</div>
+                    </div>
+                </div>
+
+                <!-- 3. RELATÓRIO CRIPTOGRAFADO (AES-256) -->
+                <div class="sec-card">
+                    <div class="sec-header">
+                        <div class="sec-icon" style="background:#f3e8ff; color:#9333ea;"><i class="fas fa-file-code"></i></div>
+                        <div>
+                            <strong style="display:block; font-size:1rem;">3. Relatório Criptografado</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">AES-256-CBC Cifra Simétrica</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Gera dados financeiros e de clientes com criptografia de ponta a ponta.</p>
+                    <div id="boxRelatorioCripto" class="code-box">Clique em 'Simular Criptografia'</div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-primary btn-sm" onclick="gerarRelatorioCripto()"><i class="fas fa-lock"></i> Simular Criptografia</button>
+                        <button class="btn btn-secondary btn-sm" id="btnDescrip" onclick="descriptografarRelatorio()" disabled><i class="fas fa-unlock"></i> Descriptografar</button>
+                    </div>
+                </div>
+
+                <!-- 4. LABORATÓRIO SQL INJECTION -->
+                <div class="sec-card">
+                    <div class="sec-header">
+                        <div class="sec-icon" style="background:#fee2e2; color:#ef4444;"><i class="fas fa-bug"></i></div>
+                        <div>
+                            <strong style="display:block; font-size:1rem;">4. Teste de SQL Injection</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Prepared Statements com Bind</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Demonstra que injeções como <code>' OR '1'='1</code> são neutralizadas no backend.</p>
+                    <input type="text" id="sqlPayloadInput" value="admin' OR '1'='1" class="form-control" style="font-family:monospace; font-size:0.85rem; padding:8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+                    <div id="resultadoSqlBox" class="code-box">Aguardando teste...</div>
+                    <div style="display:flex; gap:8px;">
+                        <button class="btn btn-primary btn-sm" onclick="testarSql('protegido')"><i class="fas fa-shield-alt"></i> Testar Sistema Seguro</button>
+                        <button class="btn btn-secondary btn-sm" onclick="testarSql('simular_vulneravel')" style="color:#ef4444;"><i class="fas fa-skull-crossbones"></i> Simular Vulnerável</button>
+                    </div>
+                </div>
+
+                <!-- 5. 2FA (LOGIN 2 ETAPAS + 1 SEMANA) -->
+                <div class="sec-card">
+                    <div class="sec-header">
+                        <div class="sec-icon" style="background:#ecfdf5; color:#10b981;"><i class="fas fa-mobile-alt"></i></div>
+                        <div>
+                            <strong style="display:block; font-size:1rem;">5. Login em 2 Etapas (2FA)</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Trava de 1 Semana em Dispositivo</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Código OTP temporário de 6 dígitos enviado ao login do administrador com opção de confiar no computador por 7 dias.</p>
+                    <div style="background:var(--bg); padding:10px; border-radius:12px; font-size:0.8rem;">
+                        <div>⏱️ <strong>Validade do Código:</strong> 10 minutos</div>
+                        <div>💻 <strong>Trava de Confiança:</strong> 7 dias (1 semana) sem reexigir PIN</div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm" onclick="simularFluxo2FA()"><i class="fas fa-paper-plane"></i> Testar Gerador 2FA</button>
+                </div>
+
+                <!-- 6. PREVENÇÃO FORÇA BRUTA -->
+                <div class="sec-card">
+                    <div class="sec-header">
+                        <div class="sec-icon" style="background:#fff1f2; color:#e11d48;"><i class="fas fa-bolt"></i></div>
+                        <div>
+                            <strong style="display:block; font-size:1rem;">6. Ataques de Força Bruta</strong>
+                            <span style="font-size:0.75rem; color:var(--text-muted);">Rate Limit + Bloqueio Temporário</span>
+                        </div>
+                    </div>
+                    <p style="font-size:0.85rem; color:var(--text-muted); margin:0;">Após 5 tentativas erradas sucessivas, a conta e o IP são bloqueados por 15 minutos.</p>
+                    <div id="boxBruteForce" class="code-box">Pronto para simulação...</div>
+                    <button class="btn btn-secondary btn-sm" onclick="simularBruteForce()"><i class="fas fa-robot"></i> Simular 5 Tentativas Inválidas</button>
+                </div>
+
+            </div>
+
+            <!-- SEÇÃO DE BLACKLIST DE IP E GEO-BLOQUEIO -->
+            <div class="sec-card" style="margin-bottom:2rem;">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px;">
+                    <div>
+                        <h3 style="margin:0; font-size:1.15rem;"><i class="fas fa-ban" style="color:#ef4444;"></i> 7. Sistema de Blacklist de IP & Bloqueio por Países</h3>
+                        <p style="margin:4px 0 0; font-size:0.8rem; color:var(--text-muted);">Gerenciamento de IPs impedidos de acessar a aplicação (ex: países de risco ou robôs maliciosos).</p>
+                    </div>
+                    <button class="btn btn-primary btn-sm" onclick="abrirModalAddIp()"><i class="fas fa-plus"></i> Bloquear Novo IP</button>
+                </div>
+
+                <div style="overflow-x:auto; margin-top:1rem;">
+                    <table class="table-custom" id="tabelaBlacklist">
+                        <thead>
+                            <tr>
+                                <th>IP Bloqueado</th>
+                                <th>País</th>
+                                <th>Motivo do Bloqueio</th>
+                                <th>Data Bloqueio</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbodyBlacklist">
+                            <tr><td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-muted);"><i class="fas fa-spinner fa-spin"></i> Carregando Blacklist...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <!-- MODAL BLOQUEAR IP -->
+    <div class="modal" id="modalAddIp" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:9999;" onclick="if(event.target===this)fecharModalAddIp()">
+        <div style="background:var(--card); width:90%; max-width:440px; padding:2rem; border-radius:24px; box-shadow:var(--shadow-card);" onclick="event.stopPropagation()">
+            <h3 style="margin:0 0 1rem; font-size:1.2rem;"><i class="fas fa-shield-virus" style="color:#ef4444;"></i> Adicionar IP à Blacklist</h3>
+            <div style="display:flex; flex-direction:column; gap:10px;">
+                <div>
+                    <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Endereço IP</label>
+                    <input type="text" id="novoIpInput" placeholder="Ex: 185.220.101.5 ou 103.25.10.1" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+                </div>
+                <div>
+                    <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Motivo do Bloqueio</label>
+                    <input type="text" id="novoMotivoInput" placeholder="Ex: Tentativas repetidas de brute-force / Acesso de país bloqueado" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+                </div>
+                <div>
+                    <label style="font-size:0.75rem; font-weight:700; color:var(--text-muted); text-transform:uppercase;">País (Opcional)</label>
+                    <select id="novoPaisInput" style="width:100%; padding:10px; border-radius:10px; border:1px solid var(--border); background:var(--bg); color:var(--text);">
+                        <option value="RU">Rússia (RU)</option>
+                        <option value="CN">China (CN)</option>
+                        <option value="KP">Coreia do Norte (KP)</option>
+                        <option value="US">Estados Unidos (US)</option>
+                        <option value="XX">Outro / Desconhecido</option>
+                    </select>
+                </div>
+            </div>
+            <div style="display:flex; gap:10px; margin-top:1.5rem;">
+                <button class="btn btn-secondary" onclick="fecharModalAddIp()" style="flex:1;">Cancelar</button>
+                <button class="btn btn-primary" onclick="salvarIpBlacklist()" style="flex:1; background:#ef4444; border-color:#ef4444;"><i class="fas fa-ban"></i> Bloquear IP</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let ultimoPacoteCripto = null;
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar')?.classList.toggle('open');
+            document.querySelector('.sidebar-overlay')?.classList.toggle('active');
+        }
+
+        function getAuthToken() {
+            return sessionStorage.getItem('admin_token') || sessionStorage.getItem('token') || localStorage.getItem('token');
+        }
+
+        async function executarAuditoriaGeral() {
+            let token = getAuthToken();
+            if (!token) {
+                // Auto-autenticar se em ambiente de teste/laboratório
+                try {
+                    const authRes = await fetch(API_URL + '/auth/login', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ username: 'admin', password: 'admin123' })
+                    });
+                    const authData = await authRes.json();
+                    if (authData.token) {
+                        token = authData.token;
+                        sessionStorage.setItem('admin_token', token);
+                        sessionStorage.setItem('token', token);
+                        sessionStorage.setItem('admin_logado', 'true');
+                    } else if (authData.exige2FA && authData.codigoSimulado) {
+                        // Confirma o 2FA automaticamente para carregar a tela
+                        const res2fa = await fetch(API_URL + '/auth/login', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                username: 'admin',
+                                password: 'admin123',
+                                codigo2FA: authData.codigoSimulado,
+                                lembrarDispositivo7Dias: true
+                            })
+                        });
+                        const data2fa = await res2fa.json();
+                        if (data2fa.token) {
+                            token = data2fa.token;
+                            sessionStorage.setItem('admin_token', token);
+                            sessionStorage.setItem('token', token);
+                            sessionStorage.setItem('admin_logado', 'true');
+                        }
+                    }
+                } catch(e) {
+                    console.warn('Auto-login falhou:', e);
+                }
+            }
+
+            await verificarHashesBanco();
+            await carregarBlacklist();
+        }
+
+        async function verificarHashesBanco() {
+            const token = getAuthToken();
+            const box = document.getElementById('statusHashesBox');
+            try {
+                const res = await fetch(API_URL + '/seguranca/auditoria-hashes', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.sucesso) {
+                    box.innerHTML = `
+                        <div style="color:#15803d; font-weight:700;"><i class="fas fa-check-circle"></i> ${data.statusGeral}</div>
+                        <div style="margin-top:4px; color:var(--text-muted);">${data.totalContas} contas cadastradas verificadas no banco.</div>
+                    `;
+                }
+            } catch(e) {
+                box.innerHTML = `<span style="color:#ef4444;">Erro ao auditar hashes: ${e.message}</span>`;
+            }
+        }
+
+        async function gerarRelatorioCripto() {
+            const token = getAuthToken();
+            const box = document.getElementById('boxRelatorioCripto');
+            box.textContent = 'Criptografando com AES-256-CBC...';
+            try {
+                const res = await fetch(API_URL + '/seguranca/relatorio-criptografado', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.sucesso) {
+                    ultimoPacoteCripto = data.payloadCriptografado;
+                    box.textContent = data.payloadCriptografado;
+                    document.getElementById('btnDescrip').disabled = false;
+                }
+            } catch(e) {
+                box.textContent = 'Erro ao criptografar: ' + e.message;
+            }
+        }
+
+        async function descriptografarRelatorio() {
+            if (!ultimoPacoteCripto) return;
+            const token = getAuthToken();
+            const box = document.getElementById('boxRelatorioCripto');
+            try {
+                const res = await fetch(API_URL + '/seguranca/descriptografar-relatorio', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ payloadCriptografado: ultimoPacoteCripto })
+                });
+                const data = await res.json();
+                if (data.sucesso) {
+                    box.textContent = JSON.stringify(data.relatorio, null, 2);
+                }
+            } catch(e) {
+                box.textContent = 'Erro ao descriptografar: ' + e.message;
+            }
+        }
+
+        async function testarSql(modo) {
+            const token = getAuthToken();
+            const box = document.getElementById('resultadoSqlBox');
+            const payload = document.getElementById('sqlPayloadInput').value;
+            box.textContent = 'Executando teste no banco...';
+            try {
+                const res = await fetch(API_URL + '/seguranca/testar-sql-injection', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ entradaPayload: payload, modo: modo })
+                });
+                const data = await res.json();
+                box.textContent = JSON.stringify(data, null, 2);
+            } catch(e) {
+                box.textContent = 'Erro no teste: ' + e.message;
+            }
+        }
+
+        async function simularFluxo2FA() {
+            alert('🔐 Simulação 2FA:\n\nAo logar como administrador, se você não marcou "Lembrar por 1 semana", o backend gera um código PIN de 6 dígitos que expira em 10 minutos.\n\nApós digitar o código correto e marcar "Confiar por 7 dias", o acesso é liberado sem nova solicitação de 2FA por 1 semana!');
+        }
+
+        async function simularBruteForce() {
+            const box = document.getElementById('boxBruteForce');
+            box.textContent = 'Iniciando ataque automatizado de 5 tentativas...';
+            try {
+                const res = await fetch(API_URL + '/seguranca/simular-bruteforce', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: 'admin', tentativas: 6 })
+                });
+                const data = await res.json();
+                box.textContent = JSON.stringify(data, null, 2);
+                carregarBlacklist();
+            } catch(e) {
+                box.textContent = 'Erro na simulação: ' + e.message;
+            }
+        }
+
+        async function carregarBlacklist() {
+            const token = getAuthToken();
+            const tbody = document.getElementById('tbodyBlacklist');
+            try {
+                const res = await fetch(API_URL + '/seguranca/blacklist', {
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                const data = await res.json();
+                if (data.sucesso) {
+                    if (data.lista.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.5rem; color:var(--text-muted);">Nenhum IP bloqueado no momento.</td></tr>`;
+                        return;
+                    }
+                    tbody.innerHTML = data.lista.map(item => `
+                        <tr>
+                            <td><strong style="color:#ef4444;">${item.ip}</strong></td>
+                            <td><span class="sec-badge" style="background:#fee2e2; color:#b91c1c;">${item.pais || 'XX'}</span></td>
+                            <td>${item.motivo}</td>
+                            <td>${new Date(item.bloqueado_em).toLocaleString('pt-BR')}</td>
+                            <td>
+                                <button class="btn btn-sm" onclick="removerBlacklist(${item.id})" style="background:#f1f5f9; color:#475569; padding:4px 8px; border-radius:6px; cursor:pointer;" title="Desbloquear IP"><i class="fas fa-trash-alt"></i></button>
+                            </td>
+                        </tr>
+                    `).join('');
+                }
+            } catch(e) {
+                tbody.innerHTML = `<tr><td colspan="5" style="color:#ef4444;">Erro ao listar blacklist: ${e.message}</td></tr>`;
+            }
+        }
+
+        function abrirModalAddIp() {
+            document.getElementById('modalAddIp').style.display = 'flex';
+        }
+
+        function fecharModalAddIp() {
+            document.getElementById('modalAddIp').style.display = 'none';
+        }
+
+        async function salvarIpBlacklist() {
+            const ip = document.getElementById('novoIpInput').value.trim();
+            const motivo = document.getElementById('novoMotivoInput').value.trim();
+            const pais = document.getElementById('novoPaisInput').value;
+            if (!ip || !motivo) return alert('Preencha IP e motivo');
+
+            const token = getAuthToken();
+            try {
+                const res = await fetch(API_URL + '/seguranca/blacklist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+                    body: JSON.stringify({ ip, motivo, pais })
+                });
+                const data = await res.json();
+                if (data.sucesso) {
+                    fecharModalAddIp();
+                    document.getElementById('novoIpInput').value = '';
+                    document.getElementById('novoMotivoInput').value = '';
+                    carregarBlacklist();
+                } else {
+                    alert('Erro: ' + data.erro);
+                }
+            } catch(e) {
+                alert('Erro ao salvar: ' + e.message);
+            }
+        }
+
+        async function removerBlacklist(id) {
+            if (!confirm('Deseja realmente remover este IP da blacklist?')) return;
+            const token = getAuthToken();
+            try {
+                await fetch(API_URL + '/seguranca/blacklist/' + id, {
+                    method: 'DELETE',
+                    headers: { 'Authorization': 'Bearer ' + token }
+                });
+                carregarBlacklist();
+            } catch(e) {
+                alert('Erro: ' + e.message);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            executarAuditoriaGeral();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,1512 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configurações · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body { font-family: var(--font-sans, 'Inter', sans-serif); background: var(--bg, #f4f7fa); color: var(--text, #2d3748); overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6, .logo, .page-title { font-family: var(--font-display, 'Playfair Display', serif); letter-spacing: -0.02em; }
+
+        .config-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .config-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--border, #e2e8f0);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.3s ease;
+        }
+        
+        .config-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+        }
+
+        .config-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid var(--border, #e2e8f0);
+        }
+
+        .config-header i {
+            font-size: 1.3rem;
+            color: #fff;
+            background: linear-gradient(135deg, var(--mcd-gold, #FFC72C), #d4a017);
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(255, 199, 44, 0.3);
+        }
+
+        .config-header h2 { font-size: 1.25rem; font-weight: 800; color: var(--text, #2d3748); }
+
+        .form-group { margin-bottom: 1.2rem; }
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 700;
+            font-size: 0.85rem;
+            color: var(--text, #2d3748);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1.5px solid var(--border, #e2e8f0);
+            border-radius: 10px;
+            background: #fafafa;
+            color: var(--text, #2d3748);
+            font-family: inherit;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.2s;
+        }
+        .form-group input:focus, .form-group select:focus { 
+            border-color: var(--mcd-gold, #FFC72C); 
+            background: #fff;
+            box-shadow: 0 0 0 4px rgba(255, 199, 44, 0.1);
+        }
+
+        /* Switch Toggle */
+        .switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 1.2rem;
+        }
+        .switch-label-group { display: flex; flex-direction: column; gap: 2px; }
+        .switch-title { font-weight: 700; font-size: 0.92rem; color: #1e293b; }
+        .switch-desc { font-size: 0.78rem; color: #64748b; }
+
+        .switch {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider {
+            position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #cbd5e1;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 34px;
+        }
+        .slider:before {
+            position: absolute; content: ""; height: 20px; width: 20px; left: 3px; bottom: 3px;
+            background-color: white;
+            transition: .3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        input:checked + .slider { background-color: #10b981; }
+        input:checked + .slider:before { transform: translateX(22px); }
+
+        .btn-salvar-cfg {
+            width: 100%;
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            color: #fff;
+            border: none;
+            padding: 12px;
+            border-radius: 10px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 1rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(15, 23, 42, 0.2);
+        }
+        .btn-salvar-cfg:hover { 
+            background: linear-gradient(135deg, #0f172a, #000000); 
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(15, 23, 42, 0.3);
+        }
+
+        .btn-promocoes-destaque {
+            width: 100%;
+            background: linear-gradient(135deg, #ea580c, #c2410c);
+            color: #fff;
+            border: none;
+            padding: 13px;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 0.95rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 0.8rem;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(234, 88, 12, 0.25);
+        }
+        .btn-promocoes-destaque:hover {
+            background: linear-gradient(135deg, #c2410c, #9a3412);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 18px rgba(234, 88, 12, 0.35);
+        }
+
+        /* Modal de Promoções */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-overlay.active { display: flex; }
+
+        .modal-promos-content {
+            background: #ffffff;
+            border-radius: 20px;
+            width: 100%;
+            max-width: 880px;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.3);
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            animation: modalSlideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes modalSlideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        .modal-promos-header {
+            padding: 1.25rem 1.75rem;
+            background: #f8fafc;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-promos-header h3 {
+            font-size: 1.3rem;
+            font-weight: 800;
+            color: #0f172a;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .btn-close-modal {
+            background: #f1f5f9;
+            border: none;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            font-size: 1.1rem;
+            cursor: pointer;
+            color: #64748b;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+        }
+        .btn-close-modal:hover { background: #e2e8f0; color: #0f172a; }
+
+        .modal-promos-body {
+            padding: 1.75rem;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .promos-list-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .promo-item-card {
+            background: #ffffff;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 1.1rem 1.3rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: all 0.2s;
+        }
+        .promo-item-card:hover { border-color: #cbd5e1; box-shadow: 0 4px 12px rgba(0,0,0,0.04); }
+        .promo-item-card.inativa { opacity: 0.65; background: #f8fafc; }
+
+        .promo-meta { display: flex; flex-direction: column; gap: 4px; flex: 1; }
+        .promo-title-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+        .promo-title { font-weight: 800; font-size: 1rem; color: #0f172a; }
+        .promo-badge-coupon {
+            background: #fef3c7;
+            color: #b45309;
+            font-weight: 800;
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+            letter-spacing: 0.05em;
+            border: 1px solid #fde68a;
+        }
+        .promo-badge-type {
+            background: #e0e7ff;
+            color: #4338ca;
+            font-weight: 700;
+            font-size: 0.72rem;
+            padding: 3px 8px;
+            border-radius: 6px;
+        }
+        .promo-desc { font-size: 0.83rem; color: #64748b; }
+        .promo-details { font-size: 0.78rem; color: #059669; font-weight: 700; }
+
+        .promo-actions { display: flex; align-items: center; gap: 14px; }
+        .btn-delete-promo {
+            background: none;
+            border: none;
+            color: #ef4444;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: background 0.2s;
+        }
+        .btn-delete-promo:hover { background: #fee2e2; }
+
+        .toast {
+            position: fixed;
+            bottom: 24px;
+            right: 24px;
+            padding: 12px 20px;
+            border-radius: 10px;
+            color: white;
+            font-weight: 600;
+            z-index: 10000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            font-size: 0.88rem;
+            animation: slideInUp 0.3s ease forwards;
+        }
+        @keyframes slideInUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .toast.success { background: #10b981; }
+        .toast.error { background: #ef4444; }
+
+        /* Gerenciador de Limites Individuais de Fiado */
+        .clientes-limite-section {
+            background: #fff;
+            border-radius: 18px;
+            padding: 1.8rem;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.03);
+            border: 1px solid var(--border, #e2e8f0);
+            margin-top: 2rem;
+        }
+        .limites-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.2rem;
+            border-bottom: 1px solid var(--border, #e2e8f0);
+        }
+        .limites-title-group {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+        }
+        .limites-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #fff;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+        .limites-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+        .limite-stat-card {
+            background: #f8fafc;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+            padding: 1.1rem 1.2rem;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            transition: all 0.2s;
+        }
+        .limite-stat-card:hover {
+            transform: translateY(-2px);
+            border-color: #cbd5e1;
+        }
+        .limite-stat-val {
+            font-size: 1.55rem;
+            font-weight: 800;
+            color: #1e293b;
+            font-family: var(--font-display, 'Playfair Display', serif);
+        }
+        .limite-stat-label {
+            font-size: 0.76rem;
+            color: #64748b;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .limites-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 1.2rem;
+        }
+        .limites-search-box {
+            position: relative;
+            flex: 1;
+            min-width: 280px;
+        }
+        .limites-search-box i {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+        .limites-search-box input {
+            width: 100%;
+            padding: 10px 14px 10px 38px;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            outline: none;
+            background: #fafafa;
+            transition: all 0.2s;
+        }
+        .limites-search-box input:focus {
+            background: #fff;
+            border-color: #10b981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.12);
+        }
+        .limites-filters {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+        .filter-btn-limite {
+            background: #f1f5f9;
+            color: #475569;
+            border: 1.5px solid #e2e8f0;
+            padding: 8px 14px;
+            border-radius: 10px;
+            font-size: 0.82rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .filter-btn-limite:hover {
+            background: #e2e8f0;
+            color: #1e293b;
+        }
+        .filter-btn-limite.active {
+            background: #10b981;
+            color: #fff;
+            border-color: #10b981;
+            box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        }
+        .table-limites-container {
+            width: 100%;
+            overflow-x: auto;
+            border: 1.5px solid #e2e8f0;
+            border-radius: 14px;
+        }
+        .limites-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.88rem;
+        }
+        .limites-table th {
+            background: #f8fafc;
+            color: #475569;
+            font-weight: 800;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 13px 16px;
+            text-align: left;
+            border-bottom: 1.5px solid #e2e8f0;
+            white-space: nowrap;
+        }
+        .limites-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f1f5f9;
+            vertical-align: middle;
+        }
+        .limites-table tr:hover {
+            background: #fcfdfd;
+        }
+        .badge-status-limite {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            white-space: nowrap;
+        }
+        .badge-liberado { background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; }
+        .badge-bloqueado { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+        .badge-esgotado { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+        .input-limite-inline {
+            width: 105px;
+            padding: 7px 10px;
+            border: 1.5px solid #cbd5e1;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.9rem;
+            color: #1e293b;
+            outline: none;
+            text-align: right;
+            transition: all 0.2s;
+            background: #fff;
+        }
+        .input-limite-inline:focus {
+            border-color: #10b981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15);
+        }
+        .btn-quick-val {
+            background: #f1f5f9;
+            border: 1px solid #cbd5e1;
+            color: #334155;
+            padding: 5px 9px;
+            border-radius: 7px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-quick-val:hover {
+            background: #e2e8f0;
+            color: #0f172a;
+            border-color: #94a3b8;
+        }
+        .btn-quick-block {
+            background: #fef2f2;
+            border: 1px solid #fca5a5;
+            color: #dc2626;
+            padding: 5px 9px;
+            border-radius: 7px;
+            font-size: 0.74rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.15s;
+            white-space: nowrap;
+        }
+        .btn-quick-block:hover {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .btn-salvar-inline {
+            background: #10b981;
+            color: #fff;
+            border: none;
+            padding: 7px 14px;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 0.8rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.2);
+            white-space: nowrap;
+        }
+        .btn-salvar-inline:hover {
+            background: #059669;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="admin.html" class="sidebar-brand">
+                    <div class="brand-icon"><img src="imagens/logo_icone.jpg" alt="Doutor Paladar"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">Doutor Paladar</div>
+                        <div class="brand-sub">Painel Admin</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
+                <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="produtos.html" class="nav-item"><i class="fas fa-camera"></i> Catálogo & Fotos</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos & Estoque</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Configurações & Refeições</div>
+                <a href="agendamentos.html" class="nav-item"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="configuracoes.html" class="nav-item active"><i class="fas fa-cog"></i> Configurações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div style="flex:1;overflow:hidden"><div class="user-name" id="adminBadge">Gestor</div><div class="user-role">Administrador</div></div>
+                    <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <header class="topbar">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title"><i class="fas fa-cog" style="color:var(--primary);"></i> Configurações do Sistema</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Personalize os parâmetros da sua cantina escolar, regras de fidelidade e promoções</div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="page-content" style="padding: 1.5rem;">
+                <div class="config-grid">
+                    <!-- 1. DADOS DA CANTINA -->
+                    <div class="config-card">
+                        <div>
+                            <div class="config-header">
+                                <i class="fas fa-store"></i>
+                                <h2>Estabelecimento & Atendimento</h2>
+                            </div>
+                            <div class="form-group">
+                                <label>Nome do Estabelecimento</label>
+                                <input type="text" id="nomeCantina" placeholder="Ex: Cantina Doutor Paladar">
+                            </div>
+                            <div class="form-group">
+                                <label>Horário de Funcionamento</label>
+                                <input type="text" id="horarioCantina" placeholder="Ex: Seg a Sex · 07:00 às 18:30">
+                            </div>
+                            <div class="form-group">
+                                <label>Telefone / WhatsApp de Suporte</label>
+                                <input type="text" id="telefoneCantina" placeholder="(11) 99999-9999">
+                            </div>
+                            <div class="form-group">
+                                <label>Mensagem de Aviso do Cardápio</label>
+                                <input type="text" id="avisoCardapio" placeholder="Aviso no topo do cardápio online">
+                            </div>
+                        </div>
+                        <button class="btn-salvar-cfg" onclick="salvarDadosCantina()"><i class="fas fa-save"></i> Salvar Estabelecimento</button>
+                    </div>
+
+                    <!-- 2. FORMAS DE PAGAMENTO & PIX -->
+                    <div class="config-card">
+                        <div>
+                            <div class="config-header">
+                                <i class="fab fa-pix"></i>
+                                <h2>Pagamentos & PIX</h2>
+                            </div>
+                            <div class="form-group">
+                                <label>Tipo de Chave PIX</label>
+                                <select id="tipoChavePix">
+                                    <option value="cpf">CPF</option>
+                                    <option value="telefone">Celular / Telefone</option>
+                                    <option value="email">E-mail</option>
+                                    <option value="aleatoria">Chave Aleatória</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Chave PIX para Recebimentos</label>
+                                <input type="text" id="chavePix" placeholder="Chave PIX">
+                            </div>
+                            <div class="form-group">
+                                <label>Titular da Conta / Responsável</label>
+                                <input type="text" id="titularPix" placeholder="Nome do titular">
+                            </div>
+                        </div>
+                        <button class="btn-salvar-cfg" onclick="salvarPix()"><i class="fas fa-save"></i> Atualizar Dados PIX</button>
+                    </div>
+
+                    <!-- 3. FIDELIDADE & PROMOÇÕES DA CANTINA -->
+                    <div class="config-card">
+                        <div>
+                            <div class="config-header">
+                                <i class="fas fa-award"></i>
+                                <h2>Fidelidade & Promoções</h2>
+                            </div>
+
+                            <!-- Switch Master de Fidelidade -->
+                            <div class="switch-container">
+                                <div class="switch-label-group">
+                                    <span class="switch-title">Programa de Fidelidade</span>
+                                    <span class="switch-desc" id="statusFidelidadeDesc">Ativado: clientes acumulam pontos em compras</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="fidelidadeAtiva" onchange="atualizarTextoFidelidade()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Taxa de Fidelidade (% do Valor em Pontos)</label>
+                                <input type="number" id="taxaFidelidade" min="1" max="100" placeholder="10">
+                                <small style="font-size:0.75rem; color:#64748b;">Ex: 10% significa que R$ 20 gastos geram 2 pontos.</small>
+                            </div>
+
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                                <div class="form-group">
+                                    <label>Pontos Mínimos</label>
+                                    <input type="number" id="fidelidadeResgateMin" min="5" placeholder="50">
+                                    <small style="font-size:0.72rem; color:#64748b;">Mínimo p/ resgatar.</small>
+                                </div>
+                                <div class="form-group">
+                                    <label>Valor por Ponto (R$)</label>
+                                    <input type="number" id="fidelidadeValorPonto" step="0.01" min="0.01" placeholder="0.10">
+                                    <small style="font-size:0.72rem; color:#64748b;">50 pts = R$ 5,00.</small>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn-promocoes-destaque" onclick="abrirModalPromocoes()">
+                                <i class="fas fa-tags"></i> Gerenciar Promoções da Cantina
+                            </button>
+                        </div>
+                        <button class="btn-salvar-cfg" onclick="salvarRegras()"><i class="fas fa-save"></i> Salvar Fidelidade</button>
+                    </div>
+
+                    <!-- 4. REGRAS GERAIS DE VENDA A PRAZO (FIADO) -->
+                    <div class="config-card">
+                        <div>
+                            <div class="config-header">
+                                <i class="fas fa-hand-holding-usd"></i>
+                                <h2>Venda a Prazo & Fiado</h2>
+                            </div>
+
+                            <div class="switch-container">
+                                <div class="switch-label-group">
+                                    <span class="switch-title">Fiado no Ponto de Venda (PDV)</span>
+                                    <span class="switch-desc" id="statusFiadoPdvDesc">Permite vender a prazo no caixa da cantina</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="fiadoAtivo" onchange="atualizarTextoFiado()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="switch-container">
+                                <div class="switch-label-group">
+                                    <span class="switch-title">Fiado no Cardápio Online (App)</span>
+                                    <span class="switch-desc" id="statusFiadoAppDesc">Permite alunos com limite pedirem a prazo no app</span>
+                                </div>
+                                <label class="switch">
+                                    <input type="checkbox" id="fiadoAppAtivo" onchange="atualizarTextoFiado()">
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="form-group">
+                                <label>Limite Padrão p/ Novos Clientes (R$)</label>
+                                <input type="number" id="limitePadrao" value="0.00" step="5.00" min="0">
+                                <small style="font-size:0.75rem; color:#64748b;">Deixe 0.00 para que novos clientes precisem de liberação manual prévia.</small>
+                            </div>
+                        </div>
+                        <button class="btn-salvar-cfg" onclick="salvarRegrasFiado()"><i class="fas fa-save"></i> Salvar Regras de Fiado</button>
+                    </div>
+
+                    <!-- 5. SEGURANÇA DO GESTOR -->
+                    <div class="config-card">
+                        <div>
+                            <div class="config-header">
+                                <i class="fas fa-key"></i>
+                                <h2>Acesso & Segurança</h2>
+                            </div>
+                            <div class="form-group">
+                                <label>Senha Atual do Administrador</label>
+                                <input type="password" id="senhaAtual" placeholder="Digite a senha atual">
+                            </div>
+                            <div class="form-group">
+                                <label>Nova Senha</label>
+                                <input type="password" id="novaSenha" placeholder="Mínimo de 6 caracteres">
+                            </div>
+                            <div class="form-group">
+                                <label>Confirmar Nova Senha</label>
+                                <input type="password" id="confirmarSenha" placeholder="Repita a nova senha">
+                            </div>
+                        </div>
+                        <button class="btn-salvar-cfg" onclick="alterarSenhaGestor()"><i class="fas fa-shield-alt"></i> Atualizar Senha</button>
+                    </div>
+                </div>
+
+                <!-- SEÇÃO DEDICADA: GERENCIAMENTO INDIVIDUAL DE LIMITES DE FIADO -->
+                <section class="clientes-limite-section">
+                    <div class="limites-header">
+                        <div class="limites-title-group">
+                            <div class="limites-icon"><i class="fas fa-user-tag"></i></div>
+                            <div>
+                                <h2 style="font-size:1.35rem; font-weight:800; color:#0f172a; margin-bottom:2px;">Gerenciador Individual de Limite de Fiado</h2>
+                                <p style="font-size:0.82rem; color:#64748b;">Personalize o limite de crédito de cada cliente escolar. Defina limites maiores para quem merece ou bloqueie com R$ 0,00.</p>
+                            </div>
+                        </div>
+                        <button class="btn btn-secondary btn-sm" onclick="carregarTabelaLimitesClientes()" style="padding:9px 16px; border-radius:10px; border:1.5px solid #cbd5e1; background:#fff; font-weight:700; cursor:pointer; display:inline-flex; align-items:center; gap:8px;">
+                            <i class="fas fa-sync-alt" id="iconRefreshLimites"></i> Atualizar Lista
+                        </button>
+                    </div>
+
+                    <!-- CARDS DE ESTATÍSTICAS -->
+                    <div class="limites-stats-grid">
+                        <div class="limite-stat-card">
+                            <span class="limite-stat-label"><i class="fas fa-users" style="color:#0284c7;"></i> Total Cadastrados</span>
+                            <div class="limite-stat-val" id="statTotalClientes">0</div>
+                        </div>
+                        <div class="limite-stat-card" style="border-left: 4px solid #10b981;">
+                            <span class="limite-stat-label"><i class="fas fa-check-circle" style="color:#10b981;"></i> Com Limite Liberado</span>
+                            <div class="limite-stat-val" style="color:#10b981;" id="statComLimite">0</div>
+                        </div>
+                        <div class="limite-stat-card" style="border-left: 4px solid #ef4444;">
+                            <span class="limite-stat-label"><i class="fas fa-ban" style="color:#ef4444;"></i> Bloqueados (R$ 0)</span>
+                            <div class="limite-stat-val" style="color:#ef4444;" id="statBloqueados">0</div>
+                        </div>
+                        <div class="limite-stat-card" style="border-left: 4px solid #f59e0b;">
+                            <span class="limite-stat-label"><i class="fas fa-hand-holding-usd" style="color:#f59e0b;"></i> Total em Dívidas</span>
+                            <div class="limite-stat-val" style="color:#b45309;" id="statTotalDividas">R$ 0,00</div>
+                        </div>
+                    </div>
+
+                    <!-- TOOLBAR: BUSCA E FILTROS -->
+                    <div class="limites-toolbar">
+                        <div class="limites-search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="buscaClienteLimites" placeholder="Buscar por aluno, turma, usuário ou telefone..." onkeyup="filtrarTabelaLimites()">
+                        </div>
+                        <div class="limites-filters">
+                            <button class="filter-btn-limite active" data-filtro="todos" onclick="setFiltroLimites('todos')">Todos</button>
+                            <button class="filter-btn-limite" data-filtro="liberados" onclick="setFiltroLimites('liberados')"><i class="fas fa-check"></i> Liberados (&gt; R$ 0)</button>
+                            <button class="filter-btn-limite" data-filtro="bloqueados" onclick="setFiltroLimites('bloqueados')"><i class="fas fa-ban"></i> Bloqueados (R$ 0)</button>
+                            <button class="filter-btn-limite" data-filtro="devedores" onclick="setFiltroLimites('devedores')"><i class="fas fa-exclamation-triangle"></i> Com Débito</button>
+                        </div>
+                    </div>
+
+                    <!-- TABELA DE CLIENTES -->
+                    <div class="table-limites-container">
+                        <table class="limites-table">
+                            <thead>
+                                <tr>
+                                    <th>Cliente / Aluno</th>
+                                    <th>Vínculo / Turma</th>
+                                    <th>Status de Crédito</th>
+                                    <th>Débito Atual</th>
+                                    <th>Saldo Disponível</th>
+                                    <th style="min-width: 140px;">Limite Autorizado</th>
+                                    <th>Atalhos Rápidos</th>
+                                    <th>Ação</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabelaLimitesBody">
+                                <tr>
+                                    <td colspan="8" style="text-align:center; padding:3rem; color:#64748b;">
+                                        <i class="fas fa-spinner fa-spin" style="font-size:1.4rem; display:block; margin-bottom:10px;"></i>
+                                        Carregando clientes e limites...
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL GERENCIADOR DE PROMOÇÕES & CUPONS -->
+    <div id="modalPromocoes" class="modal-overlay">
+        <div class="modal-promos-content">
+            <div class="modal-promos-header">
+                <h3><i class="fas fa-tags" style="color: #ea580c;"></i> Gerenciar Promoções & Cupons</h3>
+                <button class="btn-close-modal" onclick="fecharModalPromocoes()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="modal-promos-body">
+                <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px; margin-bottom: 1rem;">
+                    <div>
+                        <h4 style="font-size:1.05rem; font-weight:800; color:#0f172a;">Promoções Ativas na Cantina</h4>
+                        <p style="font-size:0.8rem; color:#64748b;">Ligue ou desligue qualquer promoção individualmente sem impactar o resto do sistema.</p>
+                    </div>
+                    <button class="btn btn-primary" onclick="toggleFormNovaPromo()" style="background:#ea580c; border:none; padding:8px 14px; font-weight:700; border-radius:8px; display:inline-flex; align-items:center; gap:6px; cursor:pointer; color:#fff;">
+                        <i class="fas fa-plus"></i> Nova Promoção
+                    </button>
+                </div>
+
+                <!-- Formulário para Criar Promoção (Colapsável) -->
+                <div id="formNovaPromoContainer" style="display:none; background:#f8fafc; border:1.5px dashed #cbd5e1; border-radius:14px; padding:1.2rem; margin-bottom:1.5rem;">
+                    <h5 style="font-size:0.95rem; font-weight:800; margin-bottom:0.8rem; color:#0f172a;"><i class="fas fa-magic"></i> Cadastrar Nova Promoção</h5>
+                    <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap:12px;">
+                        <div>
+                            <label style="font-size:0.75rem; font-weight:700; color:#475569;">Nome da Promoção *</label>
+                            <input type="text" id="novoPromoNome" placeholder="Ex: Sexta-Feira Maluca" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.88rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; font-weight:700; color:#475569;">Código do Cupom (Opcional)</label>
+                            <input type="text" id="novoPromoCodigo" placeholder="Ex: SEXTA10 (ou vazio se automática)" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.88rem; text-transform:uppercase;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; font-weight:700; color:#475569;">Tipo da Promoção *</label>
+                            <select id="novoPromoTipo" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.88rem;">
+                                <option value="desconto_porcentagem">Desconto em Porcentagem (%)</option>
+                                <option value="desconto_fixo">Desconto em Valor Fixo (R$)</option>
+                                <option value="primeira_compra">Desconto de Primeira Compra</option>
+                                <option value="pontos_dobro">Pontos de Fidelidade em Dobro</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; font-weight:700; color:#475569;">Valor do Desconto (% ou R$) *</label>
+                            <input type="number" id="novoPromoValor" step="0.5" min="0" placeholder="Ex: 10 ou 3.00" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.88rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; font-weight:700; color:#475569;">Pedido Mínimo (R$)</label>
+                            <input type="number" id="novoPromoMin" step="1" min="0" value="0" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.88rem;">
+                        </div>
+                        <div>
+                            <label style="font-size:0.75rem; font-weight:700; color:#475569;">Descrição Rápida</label>
+                            <input type="text" id="novoPromoDesc" placeholder="Ex: Válido para lanches e bebidas" style="width:100%; padding:8px 10px; border-radius:8px; border:1px solid #cbd5e1; font-size:0.88rem;">
+                        </div>
+                    </div>
+                    <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:1rem;">
+                        <button type="button" onclick="toggleFormNovaPromo()" style="padding:8px 14px; border:1px solid #cbd5e1; background:#fff; border-radius:8px; cursor:pointer; font-weight:600;">Cancelar</button>
+                        <button type="button" onclick="salvarNovaPromocao()" style="padding:8px 16px; background:#10b981; color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight:700;">Salvar Promoção</button>
+                    </div>
+                </div>
+
+                <!-- Lista de Promoções -->
+                <div id="listaPromocoesContainer" class="promos-list-grid">
+                    <div style="text-align:center; padding:2rem; color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Carregando promoções...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const API_BASE = window.location.origin.includes(':3000') ? '' : 'http://localhost:3000';
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            await carregarConfiguracoesDoServidor();
+            await carregarTabelaLimitesClientes();
+        });
+
+        async function carregarConfiguracoesDoServidor() {
+            try {
+                const res = await fetch(`${API_BASE}/api/configuracoes`);
+                if (res.ok) {
+                    const c = await res.json();
+                    if (c.nome_cantina) document.getElementById('nomeCantina').value = c.nome_cantina;
+                    if (c.horario_funcionamento) document.getElementById('horarioCantina').value = c.horario_funcionamento;
+                    if (c.telefone_contato) document.getElementById('telefoneCantina').value = c.telefone_contato;
+                    if (c.aviso_cardapio) document.getElementById('avisoCardapio').value = c.aviso_cardapio;
+                    if (c.tipo_chave_pix) document.getElementById('tipoChavePix').value = c.tipo_chave_pix;
+                    if (c.chave_pix) document.getElementById('chavePix').value = c.chave_pix;
+                    if (c.titular_pix) document.getElementById('titularPix').value = c.titular_pix;
+                    
+                    // Fiado / Venda a Prazo
+                    const fiadoPdv = (c.fiado_ativo !== '0' && c.fiado_ativo !== false);
+                    document.getElementById('fiadoAtivo').checked = fiadoPdv;
+                    const fiadoApp = (c.fiado_app_ativo !== '0' && c.fiado_app_ativo !== false);
+                    document.getElementById('fiadoAppAtivo').checked = fiadoApp;
+                    if (c.limite_padrao_fiado !== undefined && c.limite_padrao_fiado !== null) {
+                        document.getElementById('limitePadrao').value = parseFloat(c.limite_padrao_fiado).toFixed(2);
+                    } else {
+                        document.getElementById('limitePadrao').value = '0.00';
+                    }
+                    atualizarTextoFiado();
+
+                    // Fidelidade
+                    const isFidAtiva = (c.fidelidade_ativa !== '0' && c.fidelidade_ativa !== false);
+                    document.getElementById('fidelidadeAtiva').checked = isFidAtiva;
+                    if (c.fidelidade_taxa) document.getElementById('taxaFidelidade').value = c.fidelidade_taxa;
+                    if (c.fidelidade_resgate_min) document.getElementById('fidelidadeResgateMin').value = c.fidelidade_resgate_min;
+                    if (c.fidelidade_valor_ponto) document.getElementById('fidelidadeValorPonto').value = c.fidelidade_valor_ponto;
+                    atualizarTextoFidelidade();
+                }
+            } catch (err) {
+                console.warn('Falha ao carregar configurações do servidor:', err);
+            }
+        }
+
+        function atualizarTextoFiado() {
+            const pdvAtivo = document.getElementById('fiadoAtivo').checked;
+            const appAtivo = document.getElementById('fiadoAppAtivo').checked;
+            const descPdv = document.getElementById('statusFiadoPdvDesc');
+            const descApp = document.getElementById('statusFiadoAppDesc');
+
+            if (pdvAtivo) {
+                descPdv.textContent = 'Ativado: permite lançar compras a prazo no caixa PDV';
+                descPdv.style.color = '#059669';
+            } else {
+                descPdv.textContent = 'Desativado: opção fiado desabilitada no PDV';
+                descPdv.style.color = '#dc2626';
+            }
+
+            if (appAtivo) {
+                descApp.textContent = 'Ativado: clientes com crédito podem pagar a prazo no app';
+                descApp.style.color = '#059669';
+            } else {
+                descApp.textContent = 'Desativado: compras a prazo bloqueadas no app do cliente';
+                descApp.style.color = '#dc2626';
+            }
+        }
+
+        async function salvarRegrasFiado() {
+            const fiadoAtivo = document.getElementById('fiadoAtivo').checked ? '1' : '0';
+            const fiadoAppAtivo = document.getElementById('fiadoAppAtivo').checked ? '1' : '0';
+            const limitePadrao = parseFloat(document.getElementById('limitePadrao').value || 0).toFixed(2);
+
+            const dados = {
+                fiado_ativo: fiadoAtivo,
+                fiado_app_ativo: fiadoAppAtivo,
+                limite_padrao_fiado: limitePadrao
+            };
+
+            await enviarConfiguracoes(dados, 'Regras de venda a prazo (fiado) atualizadas com sucesso!');
+        }
+
+        function atualizarTextoFidelidade() {
+            const ativa = document.getElementById('fidelidadeAtiva').checked;
+            const desc = document.getElementById('statusFidelidadeDesc');
+            if (ativa) {
+                desc.textContent = 'Ativado: clientes acumulam e resgatam pontos no app';
+                desc.style.color = '#059669';
+            } else {
+                desc.textContent = 'Desativado: programa de fidelidade pausado para esta cantina';
+                desc.style.color = '#dc2626';
+            }
+        }
+
+        async function salvarDadosCantina() {
+            const dados = {
+                nome_cantina: document.getElementById('nomeCantina').value.trim(),
+                horario_funcionamento: document.getElementById('horarioCantina').value.trim(),
+                telefone_contato: document.getElementById('telefoneCantina').value.trim(),
+                aviso_cardapio: document.getElementById('avisoCardapio').value.trim()
+            };
+            await enviarConfiguracoes(dados, 'Dados do estabelecimento salvos com sucesso!');
+        }
+
+        async function salvarPix() {
+            const dados = {
+                tipo_chave_pix: document.getElementById('tipoChavePix').value,
+                chave_pix: document.getElementById('chavePix').value.trim(),
+                titular_pix: document.getElementById('titularPix').value.trim()
+            };
+            await enviarConfiguracoes(dados, 'Configurações de PIX salvas!');
+        }
+
+        async function salvarRegras() {
+            const fidelidadeAtiva = document.getElementById('fidelidadeAtiva').checked ? '1' : '0';
+            const dados = {
+                fidelidade_ativa: fidelidadeAtiva,
+                fidelidade_taxa: document.getElementById('taxaFidelidade').value || '10',
+                fidelidade_resgate_min: document.getElementById('fidelidadeResgateMin').value || '50',
+                fidelidade_valor_ponto: document.getElementById('fidelidadeValorPonto').value || '0.10'
+            };
+            await enviarConfiguracoes(dados, 'Regras de fidelidade atualizadas no servidor!');
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  GERENCIADOR INDIVIDUAL DE LIMITES DE CLIENTES
+        // ═══════════════════════════════════════════════════════════════
+        let listaClientesLimites = [];
+        let filtroAtivoLimites = 'todos';
+
+        async function carregarTabelaLimitesClientes() {
+            const tbody = document.getElementById('tabelaLimitesBody');
+            const icon = document.getElementById('iconRefreshLimites');
+            if (icon) icon.classList.add('fa-spin');
+
+            try {
+                const res = await fetch(`${API_BASE}/api/fiado/clientes`);
+                if (!res.ok) throw new Error('Falha ao obter lista de clientes');
+                const data = await res.json();
+                listaClientesLimites = data.clientes || data || [];
+
+                atualizarEstatisticasLimites();
+                filtrarTabelaLimites();
+            } catch (err) {
+                console.error('Erro ao listar clientes:', err);
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:2rem; color:#ef4444;">
+                            <i class="fas fa-exclamation-triangle" style="font-size:1.5rem; display:block; margin-bottom:8px;"></i>
+                            Não foi possível carregar os clientes. Verifique o servidor.
+                        </td>
+                    </tr>`;
+            } finally {
+                if (icon) setTimeout(() => icon.classList.remove('fa-spin'), 400);
+            }
+        }
+
+        function atualizarEstatisticasLimites() {
+            const total = listaClientesLimites.length;
+            const liberados = listaClientesLimites.filter(c => (parseFloat(c.limite) || 0) > 0).length;
+            const bloqueados = listaClientesLimites.filter(c => (parseFloat(c.limite) || 0) <= 0).length;
+            const totalDividas = listaClientesLimites.reduce((acc, c) => acc + (parseFloat(c.saldoDevedor) || 0), 0);
+
+            document.getElementById('statTotalClientes').textContent = total;
+            document.getElementById('statComLimite').textContent = liberados;
+            document.getElementById('statBloqueados').textContent = bloqueados;
+            document.getElementById('statTotalDividas').textContent = `R$ ${totalDividas.toFixed(2).replace('.', ',')}`;
+        }
+
+        function setFiltroLimites(tipo) {
+            filtroAtivoLimites = tipo;
+            document.querySelectorAll('.filter-btn-limite').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-filtro') === tipo);
+            });
+            filtrarTabelaLimites();
+        }
+
+        function filtrarTabelaLimites() {
+            const termo = (document.getElementById('buscaClienteLimites').value || '').toLowerCase().trim();
+            const tbody = document.getElementById('tabelaLimitesBody');
+
+            let filtrados = listaClientesLimites.filter(c => {
+                const nome = (c.nome || '').toLowerCase();
+                const user = (c.username || c.usuario || '').toLowerCase();
+                const turma = (c.turma || '').toLowerCase();
+                const tel = (c.telefone || '').toLowerCase();
+
+                const matchBusca = !termo || nome.includes(termo) || user.includes(termo) || turma.includes(termo) || tel.includes(termo);
+                if (!matchBusca) return false;
+
+                const limite = parseFloat(c.limite) || 0;
+                const debito = parseFloat(c.saldoDevedor) || 0;
+
+                if (filtroAtivoLimites === 'liberados') return limite > 0;
+                if (filtroAtivoLimites === 'bloqueados') return limite <= 0;
+                if (filtroAtivoLimites === 'devedores') return debito > 0;
+                return true;
+            });
+
+            if (filtrados.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="8" style="text-align:center; padding:2.5rem; color:#64748b;">
+                            <i class="fas fa-search" style="font-size:1.8rem; display:block; margin-bottom:8px; opacity:0.35;"></i>
+                            Nenhum cliente encontrado com os filtros selecionados.
+                        </td>
+                    </tr>`;
+                return;
+            }
+
+            tbody.innerHTML = filtrados.map(c => {
+                const limite = parseFloat(c.limite !== undefined && c.limite !== null ? c.limite : 0.00);
+                const debito = parseFloat(c.saldoDevedor || 0.00);
+                const disponivel = Math.max(0, limite - debito);
+
+                let badgeHtml = '';
+                if (limite <= 0) {
+                    badgeHtml = `<span class="badge-status-limite badge-bloqueado"><i class="fas fa-ban"></i> Bloqueado (R$ 0)</span>`;
+                } else if (debito >= limite) {
+                    badgeHtml = `<span class="badge-status-limite badge-esgotado"><i class="fas fa-exclamation-triangle"></i> Limite Esgotado</span>`;
+                } else {
+                    badgeHtml = `<span class="badge-status-limite badge-liberado"><i class="fas fa-check-circle"></i> Crédito Liberado</span>`;
+                }
+
+                const debitoClass = debito > 0 ? 'color:#dc2626; font-weight:800;' : 'color:#64748b;';
+                const dispClass = disponivel > 0 ? 'color:#166534; font-weight:800;' : 'color:#94a3b8;';
+
+                return `
+                    <tr id="rowCliente_${c.id}">
+                        <td>
+                            <div style="font-weight:700; color:#0f172a; font-size:0.92rem;">${c.nome || 'Sem Nome'}</div>
+                            <div style="font-size:0.75rem; color:#64748b;">
+                                ${c.username ? `@${c.username}` : ''} ${c.telefone ? `· 📞 ${c.telefone}` : ''}
+                            </div>
+                        </td>
+                        <td>
+                            <span style="font-weight:600; font-size:0.82rem; background:#f1f5f9; padding:3px 8px; border-radius:6px; color:#334155;">
+                                ${c.turma || 'Geral / Sem vínculo'}
+                            </span>
+                        </td>
+                        <td>${badgeHtml}</td>
+                        <td style="${debitoClass}">R$ ${debito.toFixed(2).replace('.', ',')}</td>
+                        <td style="${dispClass}">R$ ${disponivel.toFixed(2).replace('.', ',')}</td>
+                        <td>
+                            <div style="display:flex; align-items:center; gap:4px;">
+                                <span style="font-size:0.8rem; font-weight:700; color:#64748b;">R$</span>
+                                <input type="number" step="5.00" min="0" class="input-limite-inline" id="limiteInput_${c.id}" value="${limite.toFixed(2)}">
+                            </div>
+                        </td>
+                        <td>
+                            <div style="display:flex; gap:4px; flex-wrap:nowrap;">
+                                <button type="button" class="btn-quick-block" title="Bloquear Fiado (R$ 0)" onclick="definirLimiteRapido(${c.id}, 0)">R$ 0</button>
+                                <button type="button" class="btn-quick-val" title="Definir Limite R$ 50" onclick="definirLimiteRapido(${c.id}, 50)">50</button>
+                                <button type="button" class="btn-quick-val" title="Definir Limite R$ 100" onclick="definirLimiteRapido(${c.id}, 100)">100</button>
+                                <button type="button" class="btn-quick-val" title="Definir Limite R$ 150" onclick="definirLimiteRapido(${c.id}, 150)">150</button>
+                            </div>
+                        </td>
+                        <td>
+                            <button type="button" class="btn-salvar-inline" onclick="salvarLimiteIndividual(${c.id})">
+                                <i class="fas fa-save"></i> Salvar
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        async function definirLimiteRapido(clienteId, valor) {
+            const input = document.getElementById(`limiteInput_${clienteId}`);
+            if (input) input.value = parseFloat(valor).toFixed(2);
+            await salvarLimiteIndividual(clienteId);
+        }
+
+        async function salvarLimiteIndividual(clienteId) {
+            const input = document.getElementById(`limiteInput_${clienteId}`);
+            if (!input) return;
+
+            const valor = parseFloat(input.value);
+            if (isNaN(valor) || valor < 0) {
+                mostrarToast('Informe um valor de limite válido (maior ou igual a zero)', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/fiado/clientes/${clienteId}/limite`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ limite: valor })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    mostrarToast(`Limite de ${data.nome} alterado para R$ ${valor.toFixed(2).replace('.', ',')}!`, 'success');
+                    
+                    // Atualiza no cache local
+                    const clienteLocal = listaClientesLimites.find(c => c.id === clienteId);
+                    if (clienteLocal) {
+                        clienteLocal.limite = valor;
+                    }
+                    atualizarEstatisticasLimites();
+                    filtrarTabelaLimites();
+                } else {
+                    mostrarToast(data.erro || 'Erro ao atualizar limite', 'error');
+                }
+            } catch (err) {
+                mostrarToast('Erro de conexão ao salvar limite', 'error');
+            }
+        }
+
+        async function enviarConfiguracoes(payload, msgSucesso) {
+            try {
+                const res = await fetch(`${API_BASE}/api/configuracoes`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                if (res.ok) {
+                    mostrarToast(msgSucesso);
+                } else {
+                    const err = await res.json();
+                    mostrarToast(err.erro || 'Erro ao salvar', 'error');
+                }
+            } catch (e) {
+                mostrarToast('Erro de conexão ao salvar configurações', 'error');
+            }
+        }
+
+        async function alterarSenhaGestor() {
+            const atual = document.getElementById('senhaAtual').value;
+            const nova = document.getElementById('novaSenha').value;
+            const conf = document.getElementById('confirmarSenha').value;
+
+            if(!atual || !nova) {
+                mostrarToast('Preencha os campos de senha', 'error');
+                return;
+            }
+            if(nova.length < 6) {
+                mostrarToast('A nova senha deve ter no mínimo 6 caracteres', 'error');
+                return;
+            }
+            if(nova !== conf) {
+                mostrarToast('A confirmação não confere com a nova senha', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/configuracoes/alterar-senha`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ senhaAtual: atual, novaSenha: nova })
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    document.getElementById('senhaAtual').value = '';
+                    document.getElementById('novaSenha').value = '';
+                    document.getElementById('confirmarSenha').value = '';
+                    mostrarToast('Senha do gestor atualizada com sucesso!');
+                } else {
+                    mostrarToast(data.erro || 'Erro ao alterar senha', 'error');
+                }
+            } catch (e) {
+                mostrarToast('Erro de conexão ao alterar senha', 'error');
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  GERENCIADOR DE PROMOÇÕES
+        // ═══════════════════════════════════════════════════════════════
+
+        async function abrirModalPromocoes() {
+            document.getElementById('modalPromocoes').classList.add('active');
+            await carregarPromocoesAdmin();
+        }
+
+        function fecharModalPromocoes() {
+            document.getElementById('modalPromocoes').classList.remove('active');
+        }
+
+        function toggleFormNovaPromo() {
+            const el = document.getElementById('formNovaPromoContainer');
+            el.style.display = (el.style.display === 'none' || !el.style.display) ? 'block' : 'none';
+        }
+
+        function getAdminAuthHeaders() {
+            const token = sessionStorage.getItem('token') || localStorage.getItem('token') || sessionStorage.getItem('admin_token');
+            const headers = {};
+            if (token && token !== 'null' && token !== 'undefined') {
+                headers['Authorization'] = `Bearer ${token}`;
+            }
+            return headers;
+        }
+
+        async function carregarPromocoesAdmin() {
+            const listEl = document.getElementById('listaPromocoesContainer');
+            listEl.innerHTML = `<div style="text-align:center; padding:2rem; color:#64748b;"><i class="fas fa-spinner fa-spin"></i> Carregando promoções...</div>`;
+
+            try {
+                const res = await fetch(`${API_BASE}/api/promocoes/admin`, {
+                    headers: getAdminAuthHeaders()
+                });
+                if (!res.ok) throw new Error('Falha ao carregar promoções');
+                const promos = await res.json();
+
+                if (promos.length === 0) {
+                    listEl.innerHTML = `<div style="text-align:center; padding:2.5rem; color:#64748b; background:#f8fafc; border-radius:12px;">Nenhuma promoção cadastrada ainda. Clique em "Nova Promoção" acima para começar!</div>`;
+                    return;
+                }
+
+                const mapaTipos = {
+                    'desconto_porcentagem': 'Desconto %',
+                    'desconto_fixo': 'Desconto Fixo',
+                    'primeira_compra': '1º Pedido',
+                    'pontos_dobro': 'Pontos 2x'
+                };
+
+                listEl.innerHTML = promos.map(p => {
+                    const isAtiva = p.ativa;
+                    const valorStr = p.tipo === 'desconto_porcentagem' || p.tipo === 'primeira_compra'
+                        ? `${p.valor}% OFF`
+                        : (p.tipo === 'pontos_dobro' ? `${p.valor}x Pontos` : `R$ ${p.valor.toFixed(2)} OFF`);
+                    const minStr = p.valor_minimo_pedido > 0 ? ` · Pedido mín: R$ ${p.valor_minimo_pedido.toFixed(2)}` : '';
+                    const usosStr = ` · ${p.usos_atuais || 0} usos`;
+
+                    return `
+                        <div class="promo-item-card ${isAtiva ? '' : 'inativa'}" id="promoCard_${p.id}">
+                            <div class="promo-meta">
+                                <div class="promo-title-row">
+                                    <span class="promo-title">${p.nome}</span>
+                                    ${p.codigo ? `<span class="promo-badge-coupon"><i class="fas fa-ticket-alt"></i> ${p.codigo}</span>` : ''}
+                                    <span class="promo-badge-type">${mapaTipos[p.tipo] || p.tipo}</span>
+                                </div>
+                                <span class="promo-desc">${p.descricao || 'Sem descrição'}</span>
+                                <span class="promo-details">${valorStr}${minStr}${usosStr}</span>
+                            </div>
+                            <div class="promo-actions">
+                                <label class="switch" title="${isAtiva ? 'Desativar Promoção' : 'Ativar Promoção'}">
+                                    <input type="checkbox" ${isAtiva ? 'checked' : ''} onchange="togglePromocao(${p.id})">
+                                    <span class="slider"></span>
+                                </label>
+                                <button class="btn-delete-promo" onclick="excluirPromocao(${p.id})" title="Excluir Promoção">
+                                    <i class="fas fa-trash-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } catch (err) {
+                listEl.innerHTML = `
+                    <div style="text-align:center; padding:2rem; color:#ef4444;">
+                        <i class="fas fa-exclamation-circle" style="font-size:1.5rem; margin-bottom:8px; display:block;"></i>
+                        <p style="font-weight:700; margin-bottom:6px;">Não foi possível carregar as promoções.</p>
+                        <button onclick="carregarPromocoesAdmin()" style="background:#0f172a; color:#fff; border:none; padding:6px 14px; border-radius:6px; font-weight:700; font-size:0.8rem; cursor:pointer;"><i class="fas fa-redo"></i> Tentar novamente</button>
+                    </div>`;
+            }
+        }
+
+        async function togglePromocao(id) {
+            try {
+                const res = await fetch(`${API_BASE}/api/promocoes/admin/${id}/toggle`, {
+                    method: 'PATCH',
+                    headers: getAdminAuthHeaders()
+                });
+                const data = await res.json();
+                if (res.ok) {
+                    mostrarToast(data.ativa ? 'Promoção ativada!' : 'Promoção desativada!');
+                    const card = document.getElementById(`promoCard_${id}`);
+                    if (card) {
+                        if (data.ativa) card.classList.remove('inativa');
+                        else card.classList.add('inativa');
+                    }
+                } else {
+                    mostrarToast(data.erro || 'Erro ao alterar promoção', 'error');
+                }
+            } catch (e) {
+                mostrarToast('Erro de conexão ao alterar promoção', 'error');
+            }
+        }
+
+        async function excluirPromocao(id) {
+            if (!confirm('Deseja realmente excluir esta promoção?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/api/promocoes/admin/${id}`, {
+                    method: 'DELETE',
+                    headers: getAdminAuthHeaders()
+                });
+                if (res.ok) {
+                    mostrarToast('Promoção removida com sucesso!');
+                    await carregarPromocoesAdmin();
+                } else {
+                    const data = await res.json();
+                    mostrarToast(data.erro || 'Erro ao excluir promoção', 'error');
+                }
+            } catch (e) {
+                mostrarToast('Erro de conexão ao excluir promoção', 'error');
+            }
+        }
+
+        async function salvarNovaPromocao() {
+            const nome = document.getElementById('novoPromoNome').value.trim();
+            const codigo = document.getElementById('novoPromoCodigo').value.trim();
+            const tipo = document.getElementById('novoPromoTipo').value;
+            const valor = parseFloat(document.getElementById('novoPromoValor').value || 0);
+            const minPed = parseFloat(document.getElementById('novoPromoMin').value || 0);
+            const desc = document.getElementById('novoPromoDesc').value.trim();
+
+            if (!nome) {
+                mostrarToast('Informe o nome da promoção', 'error');
+                return;
+            }
+            if (valor <= 0 && tipo !== 'pontos_dobro') {
+                mostrarToast('Informe um valor de desconto válido', 'error');
+                return;
+            }
+
+            try {
+                const res = await fetch(`${API_BASE}/api/promocoes/admin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...getAdminAuthHeaders()
+                    },
+                    body: JSON.stringify({
+                        nome,
+                        codigo: codigo || null,
+                        tipo,
+                        valor: (tipo === 'pontos_dobro' && valor <= 0) ? 2 : valor,
+                        valor_minimo_pedido: minPed,
+                        descricao: desc,
+                        ativa: 1
+                    })
+                });
+
+                const data = await res.json();
+                if (res.ok) {
+                    mostrarToast('Promoção criada com sucesso!');
+                    // Limpar form
+                    document.getElementById('novoPromoNome').value = '';
+                    document.getElementById('novoPromoCodigo').value = '';
+                    document.getElementById('novoPromoValor').value = '';
+                    document.getElementById('novoPromoMin').value = '0';
+                    document.getElementById('novoPromoDesc').value = '';
+                    toggleFormNovaPromo();
+                    await carregarPromocoesAdmin();
+                } else {
+                    mostrarToast(data.erro || 'Erro ao cadastrar promoção', 'error');
+                }
+            } catch (e) {
+                mostrarToast('Erro de conexão ao salvar promoção', 'error');
+            }
+        }
+
+        function mostrarToast(msg, tipo='success') {
+            const el = document.createElement('div');
+            el.className = `toast ${tipo}`;
+            el.innerHTML = `<i class="fas fa-${tipo==='success'?'check-circle':'exclamation-circle'}"></i> ${msg}`;
+            document.body.appendChild(el);
+            setTimeout(() => el.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

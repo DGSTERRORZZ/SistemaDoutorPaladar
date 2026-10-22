@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamentos · Doutor Paladar</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/theme.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        :root {
+            --primary: #2d7d52;
+            --primary-dark: #1b4332;
+            --primary-light: #52b788;
+            --accent: #ffbc0d;
+            --brown: #4a2810;
+            --bg: #f4f7fa;
+            --card: #ffffff;
+            --text: #2d3748;
+            --text-muted: #718096;
+            --border: #e2e8f0;
+            --danger: #e53e3e;
+            --warning: #dd6b20;
+            --success: #2d7d52;
+            --shadow-card: 0 4px 15px rgba(0,0,0,0.05);
+        }
+
+        body { font-family: var(--font-sans, 'Inter', sans-serif); background: var(--bg); color: var(--text); overflow-x: hidden; }
+        h1, h2, h3, h4, h5, h6, .logo, .page-title { font-family: var(--font-display, 'Playfair Display', serif); letter-spacing: -0.02em; }
+
+        .grade-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+            gap: 1.25rem;
+        }
+
+        .slot-card {
+            background: #fff;
+            border-radius: 16px;
+            padding: 1.3rem;
+            border: 1.5px solid var(--border);
+            box-shadow: var(--shadow-card);
+            transition: all 0.2s ease;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .slot-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(45,125,82,0.12);
+        }
+        .slot-card.disponivel { border-top: 4px solid var(--primary); }
+        .slot-card.esgotado { border-top: 4px solid var(--danger); opacity: 0.85; }
+        .slot-card.bloqueado { border-top: 4px solid #94a3b8; opacity: 0.75; }
+
+        .badge-data {
+            background: #f0fdf4;
+            color: var(--primary);
+            font-size: 0.75rem;
+            padding: 3px 9px;
+            border-radius: 12px;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .slot-horario { font-size: 1.3rem; font-weight: 800; color: var(--text); margin-top: 4px; }
+        .slot-prato { font-size: 0.98rem; font-weight: 700; color: var(--primary); margin: 0.4rem 0 0.2rem 0; }
+        .slot-preco { font-size: 1.1rem; font-weight: 800; color: var(--brown); }
+
+        .vagas-bar-container {
+            background: #f1f5f9;
+            border-radius: 10px;
+            height: 8px;
+            overflow: hidden;
+            margin: 0.7rem 0 0.3rem 0;
+        }
+        .vagas-bar-fill { height: 100%; transition: width 0.3s; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(4px);
+            z-index: 999;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-box {
+            background: #fff;
+            border-radius: 18px;
+            padding: 1.8rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.15);
+        }
+
+        .form-group { margin-bottom: 0.9rem; }
+        .form-group label { display: block; margin-bottom: 0.4rem; font-weight: 700; font-size: 0.8rem; color: var(--text); }
+        .form-group input, .form-group select {
+            width: 100%; padding: 9px 12px; border: 1.5px solid var(--border);
+            border-radius: 10px; font-size: 0.88rem; outline: none; background: #fff;
+        }
+        .form-group input:focus, .form-group select:focus { border-color: var(--primary); }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="admin.html" class="sidebar-brand">
+                    <div class="brand-icon"><img src="imagens/logo_icone.jpg" alt="Doutor Paladar"></div>
+                    <div class="brand-text">
+                        <div class="brand-name">Doutor Paladar</div>
+                        <div class="brand-sub">Painel Admin</div>
+                    </div>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section-title">Principal</div>
+                <a href="admin.html" class="nav-item"><i class="fas fa-chart-pie"></i> Dashboard</a>
+                <a href="pedidos-admin.html" class="nav-item"><i class="fas fa-clipboard-list"></i> Pedidos</a>
+
+                <div class="nav-section-title">Gestão</div>
+                <a href="pdv.html" class="nav-item"><i class="fas fa-cash-register"></i> Ponto de Venda</a>
+                <a href="produtos.html" class="nav-item"><i class="fas fa-camera"></i> Catálogo & Fotos</a>
+                <a href="estoque.html" class="nav-item"><i class="fas fa-box"></i> Produtos & Estoque</a>
+                <a href="clientes.html" class="nav-item"><i class="fas fa-users"></i> Clientes & Fidelidade</a>
+                <a href="contas-receber.html" class="nav-item"><i class="fas fa-hand-holding-usd"></i> Vendas a Prazo</a>
+                <a href="despesas.html" class="nav-item"><i class="fas fa-receipt"></i> Despesas</a>
+                <a href="fornecedores.html" class="nav-item"><i class="fas fa-truck"></i> Fornecedores</a>
+
+                <div class="nav-section-title">Configurações & Refeições</div>
+                <a href="agendamentos.html" class="nav-item active"><i class="fas fa-calendar-alt"></i> Agendamentos</a>
+                <a href="configuracoes.html" class="nav-item"><i class="fas fa-cog"></i> Configurações</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="sidebar-user">
+                    <div class="user-avatar"><i class="fas fa-user-shield"></i></div>
+                    <div style="flex:1;overflow:hidden"><div class="user-name" id="adminBadge">Gestor</div><div class="user-role">Administrador</div></div>
+                    <button class="btn-logout" onclick="sessionStorage.clear();window.location.href='index.html'" title="Sair"><i class="fas fa-sign-out-alt"></i></button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <header class="topbar">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <button class="btn btn-secondary btn-sm" onclick="toggleSidebar()" title="Menu" style="padding: 8px 12px; border-radius: 10px;">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div>
+                        <div class="page-title"><i class="fas fa-calendar-alt" style="color:var(--primary);"></i> Agendamentos de Refeições</div>
+                        <div style="font-size: 0.78rem; color: var(--text-muted);">Prato do dia, controle de vagas por horário e reservas antecipadas</div>
+                    </div>
+                </div>
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <button class="btn btn-primary btn-sm" onclick="abrirModalNovo()" style="background:var(--primary); color:#fff; border:none; padding:8px 16px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-plus"></i> Novo Horário / Refeição</button>
+                </div>
+            </header>
+
+            <main class="page-content" style="padding: 1.5rem;">
+                <!-- FILTROS DE DATA -->
+                <div class="card" style="background:#fff; border-radius:14px; border:1px solid var(--border); padding:1rem; margin-bottom:1.5rem; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                    <div style="display:flex; align-items:center; gap:10px;">
+                        <label style="font-size:0.85rem; font-weight:700; color:var(--text);">Data:</label>
+                        <input type="date" id="filtroData" onchange="carregarAgendamentos()" style="padding:8px 12px; border-radius:8px; border:1.5px solid var(--border); font-size:0.85rem; outline:none; background:#fff;">
+                        <button class="btn btn-secondary btn-sm" onclick="limparFiltroData()" style="padding:8px 12px; border-radius:8px; cursor:pointer;">Ver Todos</button>
+                    </div>
+                    <span id="badgeContador" style="font-size:0.8rem; color:var(--text-muted); font-weight:600;">0 horários cadastrados</span>
+                </div>
+
+                <!-- GRADE DE SLOTS -->
+                <div class="grade-grid" id="gradeAgendamentos">
+                    <div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">Carregando agendamentos...</div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- MODAL NOVO / EDITAR SLOT -->
+    <div class="modal-overlay" id="modalSlot">
+        <div class="modal-box">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.2rem; border-bottom:1px solid var(--border); padding-bottom:0.8rem;">
+                <h3 id="modalTitulo" style="font-size:1.2rem; font-weight:800; color:var(--text);"><i class="fas fa-calendar-plus" style="color:var(--primary);"></i> Horário de Refeição</h3>
+                <button onclick="fecharModal('modalSlot')" style="background:none; border:none; font-size:1.3rem; color:#94a3b8; cursor:pointer;">&times;</button>
+            </div>
+            <form id="formSlot" onsubmit="salvarSlot(event)">
+                <input type="hidden" id="slotId">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div class="form-group">
+                        <label>Data *</label>
+                        <input type="date" id="slotData" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Horário *</label>
+                        <input type="time" id="slotHorario" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Cardápio / Prato do Dia *</label>
+                    <input type="text" id="slotPrato" required placeholder="Ex: Filé de Frango Grelhado com Legumes e Arroz Integral">
+                </div>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                    <div class="form-group">
+                        <label>Preço da Refeição (R$) *</label>
+                        <input type="number" id="slotPreco" step="0.50" min="0" required placeholder="18.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Capacidade (Vagas) *</label>
+                        <input type="number" id="slotVagas" min="1" required placeholder="30">
+                    </div>
+                </div>
+                <div style="margin-bottom:1.2rem; display:flex; align-items:center; gap:8px;">
+                    <input type="checkbox" id="slotBloqueado" style="width:16px; height:16px; accent-color:var(--primary); cursor:pointer;">
+                    <label for="slotBloqueado" style="font-size:0.85rem; font-weight:600; color:var(--text); cursor:pointer;">Bloquear agendamentos para este horário</label>
+                </div>
+                <div style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid var(--border); padding-top:1rem;">
+                    <button type="button" class="btn btn-secondary" onclick="fecharModal('modalSlot')" style="padding:8px 16px; border-radius:8px; cursor:pointer;">Cancelar</button>
+                    <button type="submit" class="btn btn-primary" style="background:var(--primary); color:#fff; border:none; padding:8px 20px; border-radius:8px; font-weight:700; cursor:pointer;"><i class="fas fa-save"></i> Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- MODAL VER INSCRITOS -->
+    <div class="modal-overlay" id="modalParticipantes">
+        <div class="modal-box" style="max-width:560px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.8rem;">
+                <div>
+                    <h3 style="font-size:1.15rem; font-weight:800; color:var(--text);"><i class="fas fa-users" style="color:var(--primary);"></i> Alunos Inscritos</h3>
+                    <div id="subtituloParticipantes" style="font-size:0.8rem; color:var(--text-muted); margin-top:2px;"></div>
+                </div>
+                <button onclick="fecharModal('modalParticipantes')" style="background:none; border:none; font-size:1.3rem; color:#94a3b8; cursor:pointer;">&times;</button>
+            </div>
+            <div id="listaParticipantes" style="max-height:360px; overflow-y:auto; display:flex; flex-direction:column; gap:8px; padding-right:4px;"></div>
+            <div style="display:flex; justify-content:flex-end; margin-top:1.2rem; border-top:1px solid var(--border); padding-top:0.8rem;">
+                <button class="btn btn-secondary" onclick="fecharModal('modalParticipantes')" style="padding:8px 16px; border-radius:8px; cursor:pointer;">Fechar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth.js"></script>
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        let agendamentos = [];
+
+        function toggleSidebar() {
+            document.querySelector('.sidebar').classList.toggle('collapsed');
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            carregarAgendamentos();
+        });
+
+        function dadosDemoAgendamentos() {
+            const hoje = new Date().toISOString().slice(0, 10);
+            return [
+                { id: 1, data: hoje, horario: '11:45', pratoDoDia: 'Prato Feito: Arroz, Feijão, Frango Grelhado & Salada', preco: 18.00, vagasTotais: 30, vagasOcupadas: 14, bloqueado: 0 },
+                { id: 2, data: hoje, horario: '12:30', pratoDoDia: 'Almoço Completo: Estrogonofe de Carne & Batata Palha', preco: 22.00, vagasTotais: 35, vagasOcupadas: 28, bloqueado: 0 },
+                { id: 3, data: hoje, horario: '13:15', pratoDoDia: 'Caldo Verde com Carne & Pão Batata Especial', preco: 20.00, vagasTotais: 20, vagasOcupadas: 8, bloqueado: 0 }
+            ];
+        }
+
+        async function carregarAgendamentos() {
+            const container = document.getElementById('gradeAgendamentos');
+            const dataFiltro = document.getElementById('filtroData').value;
+
+            try {
+                let url = `${API_URL}/agendamentos`;
+                if(dataFiltro) url += `?data=${dataFiltro}`;
+                const res = await fetch(url, {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+
+                if(res.ok) {
+                    agendamentos = await res.json();
+                }
+            } catch(e) {}
+
+            if(!agendamentos || !agendamentos.length) {
+                agendamentos = dadosDemoAgendamentos();
+            }
+
+            document.getElementById('badgeContador').textContent = `${agendamentos.length} horários cadastrados`;
+            renderizarGrade();
+        }
+
+        function limparFiltroData() {
+            document.getElementById('filtroData').value = '';
+            carregarAgendamentos();
+        }
+
+        function renderizarGrade() {
+            const container = document.getElementById('gradeAgendamentos');
+            if(!agendamentos.length) {
+                container.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:3rem; color:var(--text-muted);">Nenhum horário cadastrado para este dia.</div>';
+                return;
+            }
+
+            container.innerHTML = agendamentos.map(a => {
+                const ocupadas = parseInt(a.vagasOcupadas || 0, 10);
+                const totais = parseInt(a.vagasTotais || 20, 10);
+                const pct = Math.min(100, Math.round((ocupadas / (totais || 1)) * 100));
+
+                let statusClasse = 'disponivel';
+                let statusBadge = `<span style="background:#dcfce7; color:#166534; padding:3px 8px; border-radius:12px; font-size:0.72rem; font-weight:700;">🟢 Disponível</span>`;
+
+                if(a.bloqueado) {
+                    statusClasse = 'bloqueado';
+                    statusBadge = `<span style="background:#f1f5f9; color:#475569; padding:3px 8px; border-radius:12px; font-size:0.72rem; font-weight:700;">🔒 Bloqueado</span>`;
+                } else if(ocupadas >= totais) {
+                    statusClasse = 'esgotado';
+                    statusBadge = `<span style="background:#fee2e2; color:#991b1b; padding:3px 8px; border-radius:12px; font-size:0.72rem; font-weight:700;">🔴 Esgotado</span>`;
+                }
+
+                const dataFmt = a.data ? a.data.slice(0, 10).split('-').reverse().join('/') : 'Hoje';
+
+                return `
+                    <div class="slot-card ${statusClasse}">
+                        <div>
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <span class="badge-data"><i class="far fa-calendar-alt"></i> ${dataFmt}</span>
+                                ${statusBadge}
+                            </div>
+                            <div class="slot-horario"><i class="far fa-clock" style="font-size:1.1rem; color:var(--primary); margin-right:4px;"></i> ${a.horario}</div>
+                            <div class="slot-prato">${a.pratoDoDia}</div>
+                            <div class="slot-preco">R$ ${parseFloat(a.preco || 0).toFixed(2).replace('.', ',')}</div>
+
+                            <div style="margin-top:0.8rem;">
+                                <div style="display:flex; justify-content:space-between; font-size:0.78rem; font-weight:700; color:var(--text-muted);">
+                                    <span>Vagas Reservadas: ${ocupadas} / ${totais}</span>
+                                    <span>${pct}%</span>
+                                </div>
+                                <div class="vagas-bar-container">
+                                    <div class="vagas-bar-fill" style="width:${pct}%; background:${pct >= 100 ? 'var(--danger)' : 'var(--primary)'};"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:1.1rem; border-top:1px solid var(--border); padding-top:0.8rem;">
+                            <button onclick="verParticipantes(${a.id}, '${a.pratoDoDia}', '${dataFmt} às ${a.horario}')" style="padding:6px 12px; border-radius:8px; border:1px solid var(--border); background:#fff; cursor:pointer; font-size:0.78rem; font-weight:700; color:var(--text);">
+                                <i class="fas fa-users" style="color:var(--primary);"></i> Inscritos (${ocupadas})
+                            </button>
+                            <div style="display:flex; gap:6px;">
+                                <button onclick="editarSlot(${a.id})" style="padding:6px 10px; border-radius:8px; border:1px solid var(--border); background:#fff; color:var(--text); cursor:pointer;"><i class="fas fa-edit"></i></button>
+                                <button onclick="excluirSlot(${a.id})" style="padding:6px 10px; border-radius:8px; border:none; background:#fee2e2; color:#991b1b; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function abrirModalNovo() {
+            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-calendar-plus" style="color:var(--primary);"></i> Novo Horário de Refeição';
+            document.getElementById('formSlot').reset();
+            document.getElementById('slotId').value = '';
+            document.getElementById('slotData').value = new Date().toISOString().slice(0, 10);
+            document.getElementById('slotHorario').value = '12:00';
+            document.getElementById('modalSlot').classList.add('active');
+        }
+
+        function editarSlot(id) {
+            const a = agendamentos.find(x => x.id === id);
+            if(!a) return;
+            document.getElementById('modalTitulo').innerHTML = '<i class="fas fa-edit" style="color:var(--primary);"></i> Editar Horário de Refeição';
+            document.getElementById('slotId').value = a.id;
+            document.getElementById('slotData').value = a.data ? a.data.slice(0, 10) : '';
+            document.getElementById('slotHorario').value = a.horario;
+            document.getElementById('slotPrato').value = a.pratoDoDia;
+            document.getElementById('slotPreco').value = a.preco;
+            document.getElementById('slotVagas').value = a.vagasTotais;
+            document.getElementById('slotBloqueado').checked = !!a.bloqueado;
+            document.getElementById('modalSlot').classList.add('active');
+        }
+
+        function fecharModal(id) { document.getElementById(id).classList.remove('active'); }
+
+        async function salvarSlot(e) {
+            e.preventDefault();
+            const id = document.getElementById('slotId').value;
+            const body = {
+                data: document.getElementById('slotData').value,
+                horario: document.getElementById('slotHorario').value,
+                pratoDoDia: document.getElementById('slotPrato').value.trim(),
+                preco: parseFloat(document.getElementById('slotPreco').value),
+                vagasTotais: parseInt(document.getElementById('slotVagas').value, 10),
+                bloqueado: document.getElementById('slotBloqueado').checked
+            };
+
+            const url = id ? `${API_URL}/agendamentos/${id}` : `${API_URL}/agendamentos`;
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                const res = await fetch(url, {
+                    method,
+                    headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` },
+                    body: JSON.stringify(body)
+                });
+                if(res.ok) {
+                    fecharModal('modalSlot');
+                    await carregarAgendamentos();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert(`Erro ao salvar horário: ${err.erro || 'Tente novamente'}`);
+                }
+            } catch(e) {
+                alert('Erro de conexão ao salvar horário.');
+            }
+        }
+
+        async function excluirSlot(id) {
+            if(!confirm('Deseja realmente excluir este horário de refeição?')) return;
+            try {
+                const res = await fetch(`${API_URL}/agendamentos/${id}`, {
+                    method: 'DELETE',
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if(res.ok || res.status === 204) {
+                    await carregarAgendamentos();
+                } else {
+                    const err = await res.json().catch(() => ({}));
+                    alert(`Erro ao excluir horário: ${err.erro || 'Tente novamente'}`);
+                }
+            } catch(e) {
+                alert('Erro de conexão ao excluir horário.');
+            }
+        }
+
+        async function verParticipantes(id, prato, horarioInfo) {
+            document.getElementById('subtituloParticipantes').textContent = `${prato} (${horarioInfo})`;
+            const container = document.getElementById('listaParticipantes');
+            container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1rem;">Buscando alunos agendados...</p>';
+            document.getElementById('modalParticipantes').classList.add('active');
+
+            try {
+                const res = await fetch(`${API_URL}/agendamentos/${id}/participantes`, {
+                    headers: { Authorization: `Bearer ${sessionStorage.getItem('token') || ''}` }
+                });
+                if(res.ok) {
+                    const lista = await res.json();
+                    if(!lista.length) {
+                        container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1.5rem;font-size:0.85rem;">Nenhum aluno agendado ainda para este horário.</p>';
+                        return;
+                    }
+                    container.innerHTML = lista.map((p, idx) => `
+                        <div style="background:#f8fafc; padding:10px 14px; border-radius:10px; display:flex; align-items:center; justify-content:space-between; border:1px solid var(--border);">
+                            <div>
+                                <strong style="font-size:0.88rem; color:var(--text);">${idx + 1}. ${p.nomeCliente}</strong>
+                                <div style="font-size:0.75rem; color:var(--text-muted);">${p.turma ? `Turma: ${p.turma}` : 'Aluno Regular'}</div>
+                            </div>
+                            <span style="background:#dcfce7; color:#166534; padding:3px 8px; border-radius:6px; font-size:0.72rem; font-weight:700;">Confirmado</span>
+                        </div>
+                    `).join('');
+                }
+            } catch(e) {
+                container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1.5rem;font-size:0.85rem;">Nenhum aluno agendado no momento.</p>';
+            }
+        }
+    </script>
+</body>
+</html>
