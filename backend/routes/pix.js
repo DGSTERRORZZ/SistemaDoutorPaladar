@@ -137,8 +137,12 @@ router.post('/criar-pagamento', async (req, res) => {
     }
 
     // ── 2. Fallback: Geração com Chave PIX e CRC16 Oficial Válido para Qualquer Banco ──
-    const chavePix = process.env.PIX_CHAVE || 'cantina@doutorpaladar.com.br';
-    const nomeTitular = process.env.PIX_BENEFICIARIO || 'DOUTOR PALADAR';
+    const cfgPixRows = await query("SELECT chave, valor FROM configuracoes WHERE chave IN ('chave_pix', 'titular_pix', 'tipo_chave_pix')").catch(() => []);
+    const cfgPix = {};
+    cfgPixRows.forEach(r => { cfgPix[r.chave] = r.valor; });
+
+    const chavePix = cfgPix.chave_pix || process.env.PIX_CHAVE || '12997360623';
+    const nomeTitular = cfgPix.titular_pix || process.env.PIX_BENEFICIARIO || 'Valmir Pereira Da Rosa Filho';
     const cidadeTitular = process.env.PIX_CIDADE || 'SAO PAULO';
     const txid = `DP${pedidoId}${Date.now().toString().slice(-6)}`;
 
