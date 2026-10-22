@@ -141,7 +141,17 @@ router.post('/criar-pagamento', async (req, res) => {
     const cfgPix = {};
     cfgPixRows.forEach(r => { cfgPix[r.chave] = r.valor; });
 
-    const chavePix = cfgPix.chave_pix || process.env.PIX_CHAVE || '12997360623';
+    let chavePix = (cfgPix.chave_pix || process.env.PIX_CHAVE || '12997360623').trim();
+    const tipoChave = (cfgPix.tipo_chave_pix || 'telefone').toLowerCase();
+
+    // Banco Central exige formato internacional +55DDDNUMERO para chaves do tipo celular
+    const apenasDigitos = chavePix.replace(/\D/g, '');
+    if ((tipoChave === 'telefone' || tipoChave === 'celular' || apenasDigitos.length === 11 || apenasDigitos.length === 10) && !chavePix.includes('@') && !chavePix.startsWith('+')) {
+      if (apenasDigitos.length === 11 || apenasDigitos.length === 10) {
+        chavePix = `+55${apenasDigitos}`;
+      }
+    }
+
     const nomeTitular = cfgPix.titular_pix || process.env.PIX_BENEFICIARIO || 'Valmir Pereira Da Rosa Filho';
     const cidadeTitular = process.env.PIX_CIDADE || 'SAO PAULO';
     const txid = `DP${pedidoId}${Date.now().toString().slice(-6)}`;

@@ -1414,14 +1414,18 @@
                 <div style="width:180px; height:180px; margin:0 auto 12px; background:#fff; padding:8px; border-radius:14px; box-shadow:0 4px 12px rgba(0,0,0,0.06); display:flex; align-items:center; justify-content:center;">
                     <img id="sucessoPixQrImg" src="" alt="QR Code PIX" style="width:100%; height:100%; object-fit:contain; border-radius:8px;">
                 </div>
+                <div style="background:#fff; border:1px solid #bbf7d0; border-radius:14px; padding:10px; margin-bottom:12px; font-size:0.83rem; text-align:left; color:#14532d;">
+                    <div><strong>Beneficiário:</strong> <span id="pixBeneficiarioTxt">Valmir Pereira Da Rosa Filho</span></div>
+                    <div><strong>Chave (Celular):</strong> <span id="pixChaveTxt">(12) 99736-0623</span></div>
+                </div>
                 <div style="display:flex; gap:8px; align-items:center; background:#fff; border:1px solid #cbd5e1; border-radius:12px; padding:6px 10px; margin-bottom:10px;">
                     <input type="text" id="sucessoPixCopiaCola" readonly style="border:none; background:transparent; font-size:0.75rem; color:#475569; width:100%; outline:none; font-family:monospace;" value="">
-                    <button type="button" id="btnCopiarPix" onclick="copiarPixChave()" class="btn btn-sm" style="background:#10b981; color:#fff; border:none; padding:6px 12px; border-radius:8px; font-weight:700; font-size:0.75rem; cursor:pointer; white-space:nowrap;">
+                    <button type="button" id="btnCopiarPix" onclick="copiarPixChave()" class="btn btn-sm" style="background:#10b981; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:800; font-size:0.78rem; cursor:pointer; white-space:nowrap;">
                         <i class="fas fa-copy"></i> Copiar Código
                     </button>
                 </div>
                 <div style="font-size:0.75rem; color:#15803d; font-weight:600; display:flex; align-items:center; justify-content:center; gap:6px;">
-                    <i class="fas fa-sync fa-spin" style="font-size:0.7rem;"></i> Aguardando aprovação bancária em tempo real...
+                    <i class="fas fa-clock" style="font-size:0.75rem;"></i> Pedido aguardando confirmação do pagamento
                 </div>
             </div>
 
