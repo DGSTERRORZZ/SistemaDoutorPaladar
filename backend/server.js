@@ -2,7 +2,9 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
+const fs = require('fs');
 const http = require('http');
+const https = require('https');
 const os = require('os');
 const { Server } = require('socket.io');
 
@@ -24,7 +26,24 @@ const { verifyAdmin } = require('./authMiddleware');
 // ═══════════════════════════════════════════════════════════════════
 
 const app = express();
-const server = http.createServer(app);
+
+// Verifica se há certificados SSL configurados
+const certKeyPath = path.join(__dirname, 'certs', 'server.key');
+const certCrtPath = path.join(__dirname, 'certs', 'server.crt');
+let server;
+let isHttps = false;
+
+if (fs.existsSync(certKeyPath) && fs.existsSync(certCrtPath)) {
+  const sslOptions = {
+    key: fs.readFileSync(certKeyPath),
+    cert: fs.readFileSync(certCrtPath)
+  };
+  server = https.createServer(sslOptions, app);
+  isHttps = true;
+} else {
+  server = http.createServer(app);
+}
+
 const io = new Server(server, {
   cors: { origin: '*' },
   pingTimeout: 60000,
@@ -224,9 +243,10 @@ async function start() {
     await getDatabase();
     server.listen(PORT, '0.0.0.0', () => {
       const localIp = getLocalIpAddress();
+      const proto = isHttps ? 'https' : 'http';
       logger.startup('DOUTOR PALADAR — SERVIDOR v3.0');
-      logger.success(`Servidor rodando em http://localhost:${PORT}`);
-      logger.success(`Rede local (QR Codes): http://${localIp}:${PORT}`);
+      logger.success(`Servidor rodando em ${proto}://localhost:${PORT}`);
+      logger.success(`Rede local (QR Codes / Celular): ${proto}://${localIp}:${PORT}`);
       logger.info(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
       logger.info(`PID: ${process.pid} | Node: ${process.version}`);
     });

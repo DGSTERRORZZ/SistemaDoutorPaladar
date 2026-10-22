@@ -56,7 +56,7 @@ async function carregarResumoMes() {
 
 async function excluirDespesa(id) {
     if (confirm('Excluir esta despesa?')) {
-        await fetch(`http://localhost:3000/api/despesas/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } });
+        await fetch(`/api/despesas/${id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` } });
         await carregarDespesasTabela();
         await carregarResumoMes();
     }

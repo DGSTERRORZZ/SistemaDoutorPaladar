@@ -1,0 +1,273 @@
+/* =====================================================
+   DOUTOR PALADAR — OTIMIZAÇÃO PC / CELULAR (DEVICE SELECTOR)
+   ===================================================== */
+
+/* Modal Backdrop */
+.device-select-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999999;
+  background: rgba(10, 14, 18, 0.78);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1.25rem;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.35s cubic-bezier(0.16, 1, 0.3, 1), visibility 0.35s;
+}
+
+.device-select-overlay.active {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Modal Card */
+.device-select-card {
+  background: #ffffff;
+  border-radius: 28px;
+  width: 100%;
+  max-width: 520px;
+  padding: 2.2rem 2rem;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.05);
+  text-align: center;
+  transform: translateY(24px) scale(0.96);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.device-select-overlay.active .device-select-card {
+  transform: translateY(0) scale(1);
+}
+
+.device-select-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 6px;
+  background: linear-gradient(90deg, #2d7d52, #52b788, #ffbc0d, #2d7d52);
+  background-size: 200% 100%;
+  animation: shineLine 4s linear infinite;
+}
+
+@keyframes shineLine {
+  0% { background-position: 0% 0%; }
+  100% { background-position: 200% 0%; }
+}
+
+.device-select-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #2d7d52;
+  background: #eefbf4;
+  padding: 0.35rem 0.85rem;
+  border-radius: 999px;
+  margin-bottom: 0.9rem;
+}
+
+.device-select-title {
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+  font-size: 1.65rem;
+  font-weight: 800;
+  color: #0f172a;
+  margin: 0 0 0.5rem 0;
+  letter-spacing: -0.02em;
+}
+
+.device-select-subtitle {
+  font-size: 0.92rem;
+  color: #64748b;
+  margin: 0 0 1.8rem 0;
+  line-height: 1.45;
+}
+
+/* Options Grid */
+.device-select-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+  margin-bottom: 1.4rem;
+}
+
+.device-option-btn {
+  background: #f8fafc;
+  border: 2px solid #e2e8f0;
+  border-radius: 20px;
+  padding: 1.5rem 1rem;
+  cursor: pointer;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.65rem;
+  position: relative;
+  outline: none;
+  text-decoration: none;
+  color: inherit;
+}
+
+.device-option-btn:hover {
+  border-color: #2d7d52;
+  background: #ffffff;
+  transform: translateY(-4px);
+  box-shadow: 0 12px 28px -6px rgba(45, 125, 82, 0.18);
+}
+
+.device-option-btn:active {
+  transform: translateY(-1px) scale(0.98);
+}
+
+.device-option-icon {
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: #eefbf4;
+  color: #2d7d52;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+  transition: transform 0.22s ease, background 0.22s ease;
+}
+
+.device-option-btn:hover .device-option-icon {
+  transform: scale(1.1);
+  background: #2d7d52;
+  color: #ffffff;
+}
+
+.device-option-name {
+  font-family: 'Outfit', sans-serif;
+  font-size: 1.08rem;
+  font-weight: 700;
+  color: #1e293b;
+  margin: 0;
+}
+
+.device-option-desc {
+  font-size: 0.78rem;
+  color: #64748b;
+  margin: 0;
+  line-height: 1.35;
+}
+
+/* Footer / Switch Button */
+.device-select-footer {
+  font-size: 0.8rem;
+  color: #94a3b8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.4rem;
+}
+
+/* ══════════════════════════════════════════════════════
+   CLASSES DE OTIMIZAÇÃO ESPECÍFICA (MODO CELULAR E PC)
+   ══════════════════════════════════════════════════════ */
+
+/* Botão flutuante discreto para trocar de modo a qualquer momento */
+.floating-device-switch {
+  position: fixed;
+  bottom: 1.2rem;
+  left: 1.2rem;
+  z-index: 9999;
+  background: rgba(15, 23, 42, 0.85);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  padding: 0.45rem 0.85rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.2);
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.floating-device-switch:hover {
+  background: #2d7d52;
+  transform: translateY(-2px);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ── MODO CELULAR ATIVADO (body.mode-mobile) ── */
+body.mode-mobile {
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+
+body.mode-mobile .mcd-hero {
+  min-height: 380px !important;
+}
+
+body.mode-mobile .mcd-hero h1 {
+  font-size: 2.2rem !important;
+  line-height: 1.15 !important;
+}
+
+body.mode-mobile .mcd-hero-content {
+  padding: 2.5rem 1.2rem !important;
+}
+
+/* Botões com área de toque mínima confortável para polegares (48px) */
+body.mode-mobile button,
+body.mode-mobile .btn,
+body.mode-mobile .mcd-cat-pill,
+body.mode-mobile .nav-btn {
+  min-height: 46px;
+  touch-action: manipulation;
+}
+
+/* Grid de produtos otimizada para celular: 2 colunas fluidas e cartões compactos */
+body.mode-mobile .mcd-product-grid,
+body.mode-mobile #gridProdutos,
+body.mode-mobile .grid-produtos {
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)) !important;
+  gap: 0.85rem !important;
+}
+
+body.mode-mobile .mcd-product-card,
+body.mode-mobile .card-produto {
+  border-radius: 18px !important;
+}
+
+body.mode-mobile .mcd-card-img-wrap,
+body.mode-mobile .card-produto-img {
+  height: 140px !important;
+}
+
+/* ── MODO PC ATIVADO (body.mode-desktop) ── */
+body.mode-desktop {
+  font-size: 16px;
+}
+
+body.mode-desktop .mcd-hero {
+  min-height: 520px;
+}
+
+body.mode-desktop .mcd-product-grid,
+body.mode-desktop #gridProdutos,
+body.mode-desktop .grid-produtos {
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
+  gap: 1.5rem !important;
+}
+
+body.mode-desktop .mcd-product-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.12);
+}

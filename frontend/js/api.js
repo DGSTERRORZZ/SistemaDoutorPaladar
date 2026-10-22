@@ -1,7 +1,7 @@
 // =============================================
 // API.JS - Conexão com o backend
 // =============================================
-const API_URL = 'http://localhost:3000/api';
+const API_URL = (typeof window !== 'undefined' && window.location.origin.startsWith('http') ? window.location.origin : 'http://localhost:3000') + '/api';
 
 function getToken() {
   return sessionStorage.getItem('token');

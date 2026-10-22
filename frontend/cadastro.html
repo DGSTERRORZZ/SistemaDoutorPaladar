@@ -360,7 +360,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = (typeof window !== 'undefined' && window.location.origin.startsWith('http') ? window.location.origin : 'http://localhost:3000') + '/api';
 
         function getReturnUrl() {
             const params = new URLSearchParams(window.location.search);

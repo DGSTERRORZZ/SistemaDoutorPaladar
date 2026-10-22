@@ -8,7 +8,7 @@ const ADMIN_PASSWORD_HASH = 'admin123'; // Em produção, isso viria do backend
 
 async function autenticarAdmin(username, password) {
   try {
-    const res = await fetch('http://localhost:3000/api/auth/login', {
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -86,7 +86,7 @@ function logoutCliente() {
 // ===== ADMIN AUTH (via token do backend) =====
 async function autenticarUsuario(username, password) {
   try {
-    const res = await fetch('http://localhost:3000/api/auth/login', {
+    const res = await fetch('/api/auth/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ username, password })
@@ -135,7 +135,7 @@ function getUsuarioLogado() {
 // ===== CLIENTE AUTH (via API do backend) =====
 async function loginCliente(telefone, senha) {
   try {
-    const res = await fetch('http://localhost:3000/api/clientes/login', {
+    const res = await fetch('/api/clientes/login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ login: telefone, senha })
@@ -161,7 +161,7 @@ async function loginCliente(telefone, senha) {
 
 async function cadastrarCliente(nome, telefone, turma, senha) {
   try {
-    const res = await fetch('http://localhost:3000/api/clientes/cadastrar', {
+    const res = await fetch('/api/clientes/cadastrar', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ nome, telefone, turma, senha })

@@ -12,6 +12,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
         crossorigin="anonymous" referrerpolicy="no-referrer">
     <link rel="stylesheet" href="css/theme.css">
+    <link rel="stylesheet" href="css/device-mode.css">
+    <script src="js/device-selector.js"></script>
     <style>
         /* ── HERO BANNER — Cinematic Widescreen ── */
         .mcd-hero {
@@ -486,7 +488,7 @@
     <!-- SCRIPTS -->
     <script src="js/auth.js"></script>
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = (typeof window !== 'undefined' && window.location.origin.startsWith('http') ? window.location.origin : 'http://localhost:3000') + '/api';
         let dadosRanking = { comidas: [], bebidas: [] };
         let abaAtiva = 'comidas';
 

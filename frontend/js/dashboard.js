@@ -194,7 +194,7 @@ async function carregarPedidosDoDia() {
     if (!container) return;
     try {
         const hoje = getDataAtual();
-        const res = await fetch(`http://localhost:3000/api/pedidos?data=${hoje}`, {
+        const res = await fetch(`/api/pedidos?data=${hoje}`, {
             headers: { Authorization: `Bearer ${sessionStorage.getItem('token')}` }
         });
         const pedidos = await res.json();

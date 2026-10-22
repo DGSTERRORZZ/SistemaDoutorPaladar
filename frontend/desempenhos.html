@@ -302,7 +302,7 @@
 
     <script src="js/export.js"></script>
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = (typeof window !== 'undefined' && window.location.origin.startsWith('http') ? window.location.origin : 'http://localhost:3000') + '/api';
         let dadosAnaliticos = null;
         let abaAtiva = 'geral';
 

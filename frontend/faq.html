@@ -491,7 +491,7 @@
     </div>
 
     <script>
-        const API_URL = 'http://localhost:3000/api';
+        const API_URL = (typeof window !== 'undefined' && window.location.origin.startsWith('http') ? window.location.origin : 'http://localhost:3000') + '/api';
 
         function fecharModal(id) {
             document.getElementById(id)?.classList.remove('active');
@@ -745,7 +745,7 @@
 
             if (token) {
                 try {
-                    const res = await fetch(`http://localhost:3000/api/clientes/perfil`, {
+                    const res = await fetch(`/api/clientes/perfil`, {
                         headers: { Authorization: `Bearer ${token}` }
                     });
                     if (res.ok) {
