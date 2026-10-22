@@ -6,42 +6,42 @@
 
 /* ── MODAL SELETOR INICIAL DE DISPOSITIVO ── */
 .device-select-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 999999;
-  background: rgba(10, 14, 18, 0.85);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 1rem;
+  position: fixed !important;
+  inset: 0 !important;
+  z-index: 999999 !important;
+  background: rgba(10, 14, 18, 0.88) !important;
+  backdrop-filter: blur(12px) !important;
+  -webkit-backdrop-filter: blur(12px) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  padding: 1rem !important;
   opacity: 0;
   visibility: hidden;
-  transition: opacity 0.35s ease, visibility 0.35s ease;
+  transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .device-select-overlay.active {
-  opacity: 1;
-  visibility: visible;
+  opacity: 1 !important;
+  visibility: visible !important;
 }
 
 .device-select-card {
-  background: #ffffff;
-  border-radius: 24px;
-  width: 100%;
-  max-width: 440px;
-  padding: 1.8rem 1.4rem;
-  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.4);
-  text-align: center;
+  background: #ffffff !important;
+  border-radius: 24px !important;
+  width: 100% !important;
+  max-width: 440px !important;
+  padding: 1.8rem 1.4rem !important;
+  box-shadow: 0 25px 60px -15px rgba(0, 0, 0, 0.5) !important;
+  text-align: center !important;
   transform: translateY(20px) scale(0.96);
-  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-  position: relative;
-  overflow: hidden;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative !important;
+  overflow: hidden !important;
 }
 
 .device-select-overlay.active .device-select-card {
-  transform: translateY(0) scale(1);
+  transform: translateY(0) scale(1) !important;
 }
 
 .device-select-card::before {
@@ -62,146 +62,144 @@
 }
 
 .device-select-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #2d7d52;
-  background: #eefbf4;
-  padding: 0.3rem 0.75rem;
-  border-radius: 999px;
-  margin-bottom: 0.8rem;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.35rem !important;
+  font-size: 0.72rem !important;
+  font-weight: 800 !important;
+  text-transform: uppercase !important;
+  letter-spacing: 0.08em !important;
+  color: #2d7d52 !important;
+  background: #eefbf4 !important;
+  padding: 0.3rem 0.75rem !important;
+  border-radius: 999px !important;
+  margin-bottom: 0.8rem !important;
 }
 
 .device-select-title {
-  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif;
-  font-size: 1.45rem;
-  font-weight: 800;
-  color: #0f172a;
-  margin: 0 0 0.4rem 0;
-  letter-spacing: -0.02em;
+  font-family: 'Outfit', 'Plus Jakarta Sans', sans-serif !important;
+  font-size: 1.45rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important;
+  margin: 0 0 0.4rem 0 !important;
+  letter-spacing: -0.02em !important;
 }
 
 .device-select-subtitle {
-  font-size: 0.86rem;
-  color: #64748b;
-  margin: 0 0 1.5rem 0;
-  line-height: 1.4;
+  font-size: 0.86rem !important;
+  color: #64748b !important;
+  margin: 0 0 1.4rem 0 !important;
+  line-height: 1.4 !important;
 }
 
 .device-select-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.85rem;
-  margin-bottom: 1.2rem;
+  display: grid !important;
+  grid-template-columns: 1fr 1fr !important;
+  gap: 0.85rem !important;
+  margin-bottom: 1.2rem !important;
 }
 
 .device-option-btn {
-  background: #f8fafc;
-  border: 2px solid #e2e8f0;
-  border-radius: 18px;
-  padding: 1.2rem 0.8rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.5rem;
-  outline: none;
-  text-decoration: none;
-  color: inherit;
+  background: #f8fafc !important;
+  border: 2px solid #e2e8f0 !important;
+  border-radius: 18px !important;
+  padding: 1.2rem 0.8rem !important;
+  cursor: pointer !important;
+  transition: all 0.2s ease !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  outline: none !important;
+  text-decoration: none !important;
+  color: inherit !important;
 }
 
-.device-option-btn:hover {
-  border-color: #2d7d52;
-  background: #ffffff;
-  transform: translateY(-3px);
-  box-shadow: 0 10px 24px -6px rgba(45, 125, 82, 0.2);
+.device-option-btn:hover,
+.device-option-btn.active-choice {
+  border-color: #2d7d52 !important;
+  background: #ffffff !important;
+  transform: translateY(-3px) !important;
+  box-shadow: 0 10px 24px -6px rgba(45, 125, 82, 0.2) !important;
 }
 
 .device-option-icon {
-  width: 50px;
-  height: 50px;
-  border-radius: 14px;
-  background: #eefbf4;
-  color: #2d7d52;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.4rem;
-  transition: transform 0.2s ease, background 0.2s ease;
+  width: 50px !important;
+  height: 50px !important;
+  border-radius: 14px !important;
+  background: #eefbf4 !important;
+  color: #2d7d52 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  font-size: 1.4rem !important;
+  transition: transform 0.2s ease, background 0.2s ease !important;
 }
 
-.device-option-btn:hover .device-option-icon {
-  transform: scale(1.08);
-  background: #2d7d52;
-  color: #ffffff;
+.device-option-btn:hover .device-option-icon,
+.device-option-btn.active-choice .device-option-icon {
+  transform: scale(1.08) !important;
+  background: #2d7d52 !important;
+  color: #ffffff !important;
 }
 
 .device-option-name {
-  font-family: 'Outfit', sans-serif;
-  font-size: 0.98rem;
-  font-weight: 800;
-  color: #1e293b;
-  margin: 0;
+  font-family: 'Outfit', sans-serif !important;
+  font-size: 0.98rem !important;
+  font-weight: 800 !important;
+  color: #1e293b !important;
+  margin: 0 !important;
 }
 
 .device-option-desc {
-  font-size: 0.72rem;
-  color: #64748b;
-  margin: 0;
-  line-height: 1.3;
+  font-size: 0.72rem !important;
+  color: #64748b !important;
+  margin: 0 !important;
+  line-height: 1.3 !important;
 }
 
 .device-select-footer {
-  font-size: 0.75rem;
-  color: #94a3b8;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
+  font-size: 0.75rem !important;
+  color: #94a3b8 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 0.35rem !important;
 }
 
 /* ── BOTÃO FLUTUANTE PARA TROCAR DE MODO ── */
 .floating-device-switch {
-  position: fixed;
-  bottom: 16px;
-  left: 16px;
-  z-index: 9998;
-  background: rgba(15, 23, 42, 0.92);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  border-radius: 999px;
-  padding: 0.4rem 0.8rem;
-  font-size: 0.72rem;
-  font-weight: 700;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  cursor: pointer;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
-  transition: all 0.2s ease;
-  user-select: none;
+  position: fixed !important;
+  bottom: 16px !important;
+  left: 16px !important;
+  z-index: 9998 !important;
+  background: rgba(15, 23, 42, 0.94) !important;
+  backdrop-filter: blur(8px) !important;
+  -webkit-backdrop-filter: blur(8px) !important;
+  color: #ffffff !important;
+  border: 1px solid rgba(255, 255, 255, 0.25) !important;
+  border-radius: 999px !important;
+  padding: 0.45rem 0.85rem !important;
+  font-size: 0.74rem !important;
+  font-weight: 700 !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.4rem !important;
+  cursor: pointer !important;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3) !important;
+  transition: all 0.2s ease !important;
+  user-select: none !important;
 }
 
 .floating-device-switch:hover {
-  background: #2d7d52;
-  transform: translateY(-2px);
+  background: #2d7d52 !important;
+  transform: translateY(-2px) !important;
 }
 
 /* ═════════════════════════════════════════════════════════════
-   OTIMIZAÇÃO PARA CELULAR (TELA EM PÉ / PORTRAIT / SCREEN <= 768px)
-   Ativada quando:
-   1) body tem classe .mode-mobile OU
-   2) tela é menor ou igual a 768px (modo retrato nativo)
+   ESTILOS ATIVOS QUANDO EM MODO CELULAR OU EM TELAS VERTICAIS
    ═════════════════════════════════════════════════════════════ */
-
-@media (max-width: 768px), (orientation: portrait) {
+@media (max-width: 900px), (orientation: portrait) {
   html, body {
     overflow-x: hidden !important;
     width: 100% !important;
@@ -209,228 +207,244 @@
   }
 }
 
+/* Regra aplicada por CLASSE (body.mode-mobile) */
 body.mode-mobile,
-@media (max-width: 768px) {
+body.mode-mobile * {
+  box-sizing: border-box !important;
+}
 
-  /* 1. Navbar compacta sem quebrar elementos */
-  .mcd-navbar {
-    padding: 0 12px !important;
-  }
+body.mode-mobile {
+  overflow-x: hidden !important;
+  width: 100% !important;
+  max-width: 100vw !important;
+}
 
-  .mcd-navbar-inner {
-    height: 60px !important;
-    padding: 0 !important;
-  }
+body.mode-mobile .mcd-navbar {
+  padding: 0 10px !important;
+  width: 100% !important;
+}
 
-  .mcd-logo-title {
-    font-size: 0.92rem !important;
-  }
+body.mode-mobile .mcd-navbar-inner {
+  height: 56px !important;
+  padding: 0 !important;
+}
 
-  .mcd-logo-sub {
-    font-size: 0.58rem !important;
-  }
+body.mode-mobile .mcd-logo-title {
+  font-size: 0.88rem !important;
+}
 
-  .btn-register-top {
-    display: none !important; /* Esconde texto longo no topo para caber nome do cliente e menu */
-  }
+body.mode-mobile .mcd-logo-sub {
+  font-size: 0.55rem !important;
+}
 
-  .btn-account-pill {
-    padding: 6px 12px !important;
-    font-size: 0.78rem !important;
-  }
+body.mode-mobile .btn-register-top {
+  display: none !important;
+}
 
-  /* 2. Banner Hero adaptado para formato vertical */
-  .mcd-hero {
-    min-height: 260px !important;
-    max-height: 320px !important;
-  }
+body.mode-mobile .btn-account-pill {
+  padding: 5px 10px !important;
+  font-size: 0.74rem !important;
+}
 
-  .mcd-hero-content {
-    padding: 1.8rem 1rem !important;
-  }
+/* Hero vertical compacto */
+body.mode-mobile .mcd-hero {
+  min-height: 240px !important;
+  max-height: 290px !important;
+  width: 100% !important;
+}
 
-  .mcd-hero h1 {
-    font-size: 1.85rem !important;
-    line-height: 1.15 !important;
-    margin-bottom: 0.6rem !important;
-  }
+body.mode-mobile .mcd-hero-content {
+  padding: 1.5rem 1rem !important;
+}
 
-  .mcd-hero p {
-    font-size: 0.85rem !important;
-    line-height: 1.35 !important;
-    max-width: 90% !important;
-  }
+body.mode-mobile .mcd-hero h1 {
+  font-size: 1.65rem !important;
+  line-height: 1.15 !important;
+  margin-bottom: 0.4rem !important;
+}
 
-  .btn-order-pill {
-    padding: 10px 20px !important;
-    font-size: 0.85rem !important;
-    width: 100% !important;
-    justify-content: center !important;
-  }
+body.mode-mobile .mcd-hero p {
+  font-size: 0.8rem !important;
+  line-height: 1.35 !important;
+  max-width: 100% !important;
+}
 
-  /* 3. Container da página sem margens laterais gigantes */
-  .cardapio-page-container,
-  .mcd-section {
-    padding: 0 12px !important;
-    margin-top: 1rem !important;
-    margin-bottom: 5rem !important; /* Espaço para o botão de pedido não cobrir os últimos produtos */
-  }
+body.mode-mobile .btn-order-pill {
+  padding: 8px 16px !important;
+  font-size: 0.82rem !important;
+  width: 100% !important;
+  justify-content: center !important;
+}
 
-  .cardapio-header-bar {
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 12px !important;
-  }
+/* Container de Conteúdo */
+body.mode-mobile .cardapio-page-container,
+body.mode-mobile .mcd-section {
+  padding: 0 10px !important;
+  margin-top: 1rem !important;
+  margin-bottom: 5.5rem !important;
+  width: 100% !important;
+}
 
-  .cardapio-header-bar h2 {
-    font-size: 1.4rem !important;
-  }
+body.mode-mobile .cardapio-header-bar {
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 10px !important;
+}
 
-  .cardapio-header-bar p {
-    font-size: 0.8rem !important;
-  }
+body.mode-mobile .cardapio-header-bar h2 {
+  font-size: 1.35rem !important;
+}
 
-  .cardapio-header-bar input#buscaProduto {
-    width: 100% !important;
-    font-size: 0.85rem !important;
-    padding: 10px 16px !important;
-  }
+body.mode-mobile .cardapio-header-bar p {
+  font-size: 0.78rem !important;
+}
 
-  /* Barra de acessibilidade compacta */
-  #barraAcessibilidade {
-    padding: 8px 12px !important;
-    gap: 6px !important;
-  }
+body.mode-mobile .cardapio-header-bar input#buscaProduto {
+  width: 100% !important;
+  font-size: 0.82rem !important;
+  padding: 9px 14px !important;
+}
 
-  /* 4. Categorias em carrossel horizontal deslizável suave (Touch-friendly) */
-  .categories-mc-bar {
-    display: flex !important;
-    overflow-x: auto !important;
-    -webkit-overflow-scrolling: touch;
-    gap: 8px !important;
-    padding-bottom: 10px !important;
-    margin-bottom: 1.2rem !important;
-    scrollbar-width: none; /* Esconde scrollbar feia no celular */
-  }
+/* Categorias em Pílulas Deslizáveis */
+body.mode-mobile .categories-mc-bar {
+  display: flex !important;
+  overflow-x: auto !important;
+  -webkit-overflow-scrolling: touch !important;
+  gap: 6px !important;
+  padding-bottom: 8px !important;
+  margin-bottom: 1rem !important;
+  scrollbar-width: none !important;
+}
 
-  .categories-mc-bar::-webkit-scrollbar {
-    display: none;
-  }
+body.mode-mobile .categories-mc-bar::-webkit-scrollbar {
+  display: none !important;
+}
 
-  .cat-mc-btn {
-    padding: 8px 14px !important;
-    font-size: 0.8rem !important;
-    flex-shrink: 0 !important;
-  }
+body.mode-mobile .cat-mc-btn {
+  padding: 7px 12px !important;
+  font-size: 0.76rem !important;
+  flex-shrink: 0 !important;
+}
 
-  /* 5. GRID DE PRODUTOS PERFEITO EM PÉ (2 COLUNAS COMPACTAS E ALINHADAS) */
-  .products-mc-grid,
-  .mcd-cards-grid,
-  #gridProdutos {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important; /* 2 colunas lado a lado como iFood / McDonald's */
-    gap: 10px !important;
-    width: 100% !important;
-  }
+/* ── GRID EM PÉ: 2 COLUNAS COMPACTAS (ESTILO APP IFOOD / MCDONALD'S) ── */
+body.mode-mobile .products-mc-grid,
+body.mode-mobile .mcd-cards-grid,
+body.mode-mobile #productsGrid,
+body.mode-mobile #rankingGrid {
+  display: grid !important;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  gap: 8px !important;
+  width: 100% !important;
+}
 
-  .product-mc-card,
-  .mcd-product-card {
-    border-radius: 16px !important;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05) !important;
-    display: flex !important;
-    flex-direction: column !important;
-  }
+body.mode-mobile .product-mc-card,
+body.mode-mobile .mcd-card {
+  border-radius: 14px !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
+  display: flex !important;
+  flex-direction: column !important;
+  overflow: hidden !important;
+}
 
-  /* Imagem com proporção vertical adequada */
-  .product-mc-media,
-  .mcd-card-img-wrap {
-    height: 125px !important;
-  }
+body.mode-mobile .product-mc-media,
+body.mode-mobile .mcd-card-img-container {
+  height: 110px !important;
+  width: 100% !important;
+}
 
-  .product-mc-content {
-    padding: 0.75rem !important;
-    display: flex !important;
-    flex-direction: column !important;
-    justify-content: space-between !important;
-    flex: 1 !important;
-  }
+body.mode-mobile .product-mc-content,
+body.mode-mobile .mcd-card-body {
+  padding: 0.6rem !important;
+  display: flex !important;
+  flex-direction: column !important;
+  justify-content: space-between !important;
+  flex: 1 !important;
+}
 
-  .product-mc-cat {
-    font-size: 0.62rem !important;
-    padding: 2px 6px !important;
-    margin-bottom: 4px !important;
-  }
+body.mode-mobile .product-mc-cat,
+body.mode-mobile .mcd-card-cat-badge {
+  font-size: 0.6rem !important;
+  padding: 2px 5px !important;
+  margin-bottom: 3px !important;
+}
 
-  .product-mc-title {
-    font-size: 0.88rem !important;
-    line-height: 1.25 !important;
-    margin-bottom: 0.4rem !important;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-    min-height: 2.2rem;
-  }
+body.mode-mobile .product-mc-title,
+body.mode-mobile .mcd-card-heading {
+  font-size: 0.82rem !important;
+  line-height: 1.2 !important;
+  margin-bottom: 0.3rem !important;
+  display: -webkit-box !important;
+  -webkit-line-clamp: 2 !important;
+  -webkit-box-orient: vertical !important;
+  overflow: hidden !important;
+  min-height: 2rem !important;
+}
 
-  .product-mc-footer {
-    padding-top: 0.5rem !important;
-    margin-top: 0.4rem !important;
-    flex-direction: column !important;
-    align-items: stretch !important;
-    gap: 6px !important;
-  }
+body.mode-mobile .product-mc-footer,
+body.mode-mobile .mcd-card-footer {
+  padding-top: 0.4rem !important;
+  margin-top: 0.3rem !important;
+  flex-direction: column !important;
+  align-items: stretch !important;
+  gap: 5px !important;
+  border-top: 1px solid #f1f5f9 !important;
+}
 
-  .product-mc-price {
-    font-size: 1.15rem !important;
-    text-align: left !important;
-  }
+body.mode-mobile .product-mc-price,
+body.mode-mobile .mcd-card-price {
+  font-size: 1.05rem !important;
+  text-align: left !important;
+}
 
-  .product-mc-actions {
-    width: 100% !important;
-    justify-content: space-between !important;
-  }
+body.mode-mobile .product-mc-actions {
+  width: 100% !important;
+  justify-content: space-between !important;
+}
 
-  .product-qty-selector {
-    padding: 2px 6px !important;
-    gap: 2px !important;
-  }
+body.mode-mobile .btn-mc-add,
+body.mode-mobile .btn-card-action {
+  width: 100% !important;
+  padding: 7px 10px !important;
+  font-size: 0.74rem !important;
+  justify-content: center !important;
+  border-radius: 999px !important;
+}
 
-  .btn-mc-add {
-    width: 100% !important;
-    padding: 8px 12px !important;
-    font-size: 0.78rem !important;
-    justify-content: center !important;
-  }
+/* Barra inferior flutuante para sacola / pedido no celular */
+body.mode-mobile .cart-mc-fab {
+  position: fixed !important;
+  bottom: 10px !important;
+  left: 10px !important;
+  right: 10px !important;
+  border-radius: 16px !important;
+  padding: 11px 16px !important;
+  justify-content: space-between !important;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45) !important;
+  z-index: 2000 !important;
+  width: calc(100% - 20px) !important;
+}
 
-  /* 6. Botão Flutuante de Pedido / Carrinho em Barra Inferior (Estilo App Nativo) */
-  .cart-mc-fab {
-    position: fixed !important;
-    bottom: 12px !important;
-    left: 12px !important;
-    right: 12px !important;
-    border-radius: 18px !important;
-    padding: 12px 18px !important;
-    justify-content: space-between !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4) !important;
-    z-index: 2000 !important;
-    width: calc(100% - 24px) !important;
-  }
+body.mode-mobile .cart-sidebar {
+  width: 100% !important;
+  max-width: 100vw !important;
+}
 
-  /* Drawer do Carrinho ocupa quase toda a tela vertical */
-  .cart-sidebar {
-    width: 100% !important;
-    max-width: 100vw !important;
-  }
+body.mode-mobile .floating-device-switch {
+  bottom: 68px !important; /* Fica acima da barra de pedido */
+  left: 10px !important;
+}
 
-  /* Modal de seleção de sabores no celular */
-  .modal-content {
-    width: 95% !important;
-    max-width: 95% !important;
-    padding: 1.5rem 1.2rem !important;
-    margin: auto !important;
-  }
+/* ═════════════════════════════════════════════════════════════
+   ESTILOS ATIVOS EM MODO PC / DESKTOP (body.mode-desktop)
+   ═════════════════════════════════════════════════════════════ */
+body.mode-desktop .products-mc-grid,
+body.mode-desktop .mcd-cards-grid,
+body.mode-desktop #productsGrid,
+body.mode-desktop #rankingGrid {
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)) !important;
+  gap: 1.8rem !important;
+}
 
-  #modalSaborImgWrap {
-    height: 130px !important;
-  }
+body.mode-desktop .mcd-hero {
+  min-height: 520px !important;
 }

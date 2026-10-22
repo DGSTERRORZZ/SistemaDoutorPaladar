@@ -8,11 +8,19 @@
 
   function aplicarModo(modo) {
     if (modo === 'mobile') {
-      document.body.classList.add('mode-mobile');
-      document.body.classList.remove('mode-desktop');
+      document.documentElement.classList.add('mode-mobile');
+      document.documentElement.classList.remove('mode-desktop');
+      if (document.body) {
+        document.body.classList.add('mode-mobile');
+        document.body.classList.remove('mode-desktop');
+      }
     } else {
-      document.body.classList.add('mode-desktop');
-      document.body.classList.remove('mode-mobile');
+      document.documentElement.classList.add('mode-desktop');
+      document.documentElement.classList.remove('mode-mobile');
+      if (document.body) {
+        document.body.classList.add('mode-desktop');
+        document.body.classList.remove('mode-mobile');
+      }
     }
     atualizarBotaoFlutuante(modo);
   }
@@ -24,7 +32,7 @@
     const overlay = document.getElementById('deviceSelectOverlay');
     if (overlay) {
       overlay.classList.remove('active');
-      setTimeout(() => overlay.remove(), 400);
+      setTimeout(() => overlay.remove(), 350);
     }
   }
 
@@ -41,34 +49,34 @@
     overlay.innerHTML = `
       <div class="device-select-card" role="dialog" aria-modal="true">
         <div class="device-select-badge">
-          <i class="fas fa-sparkles"></i> Personalize sua Experiência
+          <i class="fas fa-sparkles"></i> Bem-vindo ao Doutor Paladar
         </div>
-        <h2 class="device-select-title">Como você está acessando?</h2>
+        <h2 class="device-select-title">Você está no Celular ou no PC?</h2>
         <p class="device-select-subtitle">
-          Adaptamos o cardápio, tamanho das fotos, fontes e botões para a melhor usabilidade no seu dispositivo.
+          Escolha como prefere visualizar o cardápio para ajustarmos a tela, botões e imagens perfeitamente.
         </p>
 
         <div class="device-select-grid">
-          <button type="button" class="device-option-btn" id="btnEscolherCelular">
+          <button type="button" class="device-option-btn ${isProvavelMobile ? 'active-choice' : ''}" id="btnEscolherCelular">
             <div class="device-option-icon">
               <i class="fas fa-mobile-screen-button"></i>
             </div>
             <h3 class="device-option-name">Celular</h3>
-            <p class="device-option-desc">Cards verticais, botões de toque rápido e sacola móvel.</p>
+            <p class="device-option-desc">Tela em pé vertical, 2 colunas e botões fáceis de tocar.</p>
           </button>
 
-          <button type="button" class="device-option-btn" id="btnEscolherPC">
+          <button type="button" class="device-option-btn ${!isProvavelMobile ? 'active-choice' : ''}" id="btnEscolherPC">
             <div class="device-option-icon">
               <i class="fas fa-laptop"></i>
             </div>
             <h3 class="device-option-name">Computador / PC</h3>
-            <p class="device-option-desc">Grid panorâmica, filtros expansivos e visual cinematográfico.</p>
+            <p class="device-option-desc">Layout panorâmico largo para monitores e notebooks.</p>
           </button>
         </div>
 
         <div class="device-select-footer">
           <i class="fas fa-rotate"></i>
-          <span>Você poderá alternar a qualquer momento no canto inferior.</span>
+          <span>Você poderá alternar a qualquer momento no botão inferior.</span>
         </div>
       </div>
     `;
@@ -77,18 +85,11 @@
 
     document.getElementById('btnEscolherCelular').addEventListener('click', () => selecionarModo('mobile'));
     document.getElementById('btnEscolherPC').addEventListener('click', () => selecionarModo('desktop'));
-
-    // Destacar o botão sugerido
-    if (isProvavelMobile) {
-      document.getElementById('btnEscolherCelular').style.borderColor = '#2d7d52';
-    } else {
-      document.getElementById('btnEscolherPC').style.borderColor = '#2d7d52';
-    }
   }
 
   function atualizarBotaoFlutuante(modoAtual) {
     let btn = document.getElementById('floatingDeviceSwitch');
-    if (!btn) {
+    if (!btn && document.body) {
       btn = document.createElement('button');
       btn.id = 'floatingDeviceSwitch';
       btn.className = 'floating-device-switch';
@@ -101,21 +102,44 @@
       document.body.appendChild(btn);
     }
 
-    if (modoAtual === 'mobile') {
-      btn.innerHTML = '<i class="fas fa-mobile-screen-button"></i> <span>Modo Celular</span> · <small style="opacity:0.8;">Trocar p/ PC</small>';
-    } else {
-      btn.innerHTML = '<i class="fas fa-laptop"></i> <span>Modo PC</span> · <small style="opacity:0.8;">Trocar p/ Celular</small>';
+    if (btn) {
+      if (modoAtual === 'mobile') {
+        btn.innerHTML = '<i class="fas fa-mobile-screen-button"></i> <span>Modo Celular (Em Pé)</span> · <small style="opacity:0.8;">Trocar p/ PC</small>';
+      } else {
+        btn.innerHTML = '<i class="fas fa-laptop"></i> <span>Modo PC</span> · <small style="opacity:0.8;">Trocar p/ Celular</small>';
+      }
     }
   }
 
   function inicializar() {
+    const params = new URLSearchParams(window.location.search);
+    const forcarModo = params.get('modo'); // Permite testar via ?modo=mobile ou ?modo=desktop
+
+    if (forcarModo) {
+      localStorage.setItem(STORAGE_KEY, forcarModo);
+      aplicarModo(forcarModo);
+      return;
+    }
+
     const modoSalvo = localStorage.getItem(STORAGE_KEY);
 
     if (modoSalvo) {
       aplicarModo(modoSalvo);
     } else {
+      // Se estiver no celular (largura <= 768px), aplica modo mobile por padrão e abre a pergunta para confirmar
+      const largura = window.innerWidth;
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || largura <= 768;
+      aplicarModo(isMobileDevice ? 'mobile' : 'desktop');
       renderizarModal();
     }
+  }
+
+  // Aplica classe imediatamente para evitar "FOUC"
+  const modoSalvoPrevio = localStorage.getItem(STORAGE_KEY);
+  if (modoSalvoPrevio) {
+    document.documentElement.classList.add(modoSalvoPrevio === 'mobile' ? 'mode-mobile' : 'mode-desktop');
+  } else if (/Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth <= 768) {
+    document.documentElement.classList.add('mode-mobile');
   }
 
   if (document.readyState === 'loading') {
