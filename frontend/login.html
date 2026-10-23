@@ -269,17 +269,17 @@
                 </div>
             </a>
             <h1 class="auth-title">Acessar Conta</h1>
-            <p class="auth-subtitle">Entre com seu usuário ou telefone para continuar</p>
+            <p class="auth-subtitle">Entre com seu e-mail, usuário ou telefone para continuar</p>
         </div>
 
         <div id="loginError" class="auth-error-msg"></div>
 
         <form id="loginForm" onsubmit="realizarLogin(event)" autocomplete="off">
             <div class="auth-form-group">
-                <label class="auth-label" for="loginUsuario">Usuário ou Telefone</label>
+                <label class="auth-label" for="loginUsuario">E-mail, Usuário ou Telefone</label>
                 <div class="auth-input-wrap">
                     <i class="fas fa-user input-icon"></i>
-                    <input type="text" id="loginUsuario" class="auth-input" placeholder="Seu usuário ou DDD + Número" required autofocus autocomplete="off" autocapitalize="none" spellcheck="false">
+                    <input type="text" id="loginUsuario" class="auth-input" placeholder="seu_email@dominio.com, usuário ou telefone" required autofocus autocomplete="off" autocapitalize="none" spellcheck="false">
                 </div>
             </div>
 
@@ -376,6 +376,8 @@
                     sessionStorage.setItem('cliente_nome', data.nome);
                     sessionStorage.setItem('cliente_id', data.id);
                     sessionStorage.setItem('cliente_usuario', data.usuario || data.username);
+                    sessionStorage.setItem('cliente_email', data.email || '');
+                    sessionStorage.setItem('cliente_telefone', data.telefone || '');
                     sessionStorage.setItem('cliente_pontos', data.pontosFidelidade || 0);
 
                     // Redireciona com sucesso
@@ -467,5 +469,6 @@
             if (senhaInput) senhaInput.value = '';
         });
     </script>
+    <script src="js/cliente-config.js"></script>
 </body>
 </html>

@@ -273,6 +273,15 @@
                 </div>
             </div>
 
+            <div class="auth-form-group">
+                <label class="auth-label" for="cadEmail">E-mail *</label>
+                <div class="auth-input-wrap">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="cadEmail" class="auth-input" placeholder="seu_email@dominio.com" required autocomplete="off" autocapitalize="none">
+                </div>
+                <div class="password-rules">Formato exigido: nome@dominio.com (único por usuário)</div>
+            </div>
+
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px;">
                 <div class="auth-form-group">
                     <label class="auth-label" for="cadUsuario">Usuário *</label>
@@ -283,10 +292,10 @@
                 </div>
 
                 <div class="auth-form-group">
-                    <label class="auth-label" for="cadTelefone">WhatsApp *</label>
+                    <label class="auth-label" for="cadTelefone">Telefone / WhatsApp *</label>
                     <div class="auth-input-wrap">
                         <i class="fas fa-phone input-icon"></i>
-                        <input type="tel" id="cadTelefone" class="auth-input" placeholder="(12) 99999-9999" required oninput="formatarTelefone(this)" autocomplete="off">
+                        <input type="tel" id="cadTelefone" class="auth-input" placeholder="12-99999-9999" required oninput="formatarTelefone(this)" autocomplete="off">
                     </div>
                 </div>
             </div>
@@ -392,9 +401,14 @@
             let v = input.value.replace(/\D/g, '');
             if (v.length > 11) v = v.slice(0, 11);
             if (v.length > 6) {
-                input.value = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+                // Formato xx-zzzzz-zzzz ou xx-zzzz-zzzz
+                if (v.length === 11) {
+                    input.value = `${v.slice(0,2)}-${v.slice(2,7)}-${v.slice(7)}`;
+                } else {
+                    input.value = `${v.slice(0,2)}-${v.slice(2,6)}-${v.slice(6)}`;
+                }
             } else if (v.length > 2) {
-                input.value = `(${v.slice(0,2)}) ${v.slice(2)}`;
+                input.value = `${v.slice(0,2)}-${v.slice(2)}`;
             } else {
                 input.value = v;
             }
@@ -415,8 +429,9 @@
         async function realizarCadastro(e) {
             e.preventDefault();
             const nome = document.getElementById('cadNome').value.trim();
+            const email = document.getElementById('cadEmail').value.trim().toLowerCase();
             const usuario = document.getElementById('cadUsuario').value.trim();
-            const telefone = document.getElementById('cadTelefone').value.replace(/\D/g, '');
+            const telefone = document.getElementById('cadTelefone').value.trim();
             const turmaSel = document.getElementById('cadTurma').value;
             const turmaOutro = document.getElementById('cadTurmaOutro') ? document.getElementById('cadTurmaOutro').value.trim() : '';
             const turma = (turmaSel === 'Outro' && turmaOutro) ? turmaOutro : (turmaSel || '');
@@ -428,9 +443,16 @@
             feedback.className = 'auth-feedback-msg';
             feedback.style.display = 'none';
 
-            if (!nome || !usuario || !telefone || !senha || !confirmarSenha) {
+            if (!nome || !email || !usuario || !telefone || !senha || !confirmarSenha) {
                 feedback.className = 'auth-feedback-msg error';
                 feedback.textContent = 'Por favor, preencha todos os campos obrigatórios (*).';
+                return;
+            }
+
+            const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+            if (!emailRegex.test(email)) {
+                feedback.className = 'auth-feedback-msg error';
+                feedback.textContent = 'E-mail inválido. Utilize o formato xxxxxxxxxxxxxx@yyyyyy.com';
                 return;
             }
 
@@ -453,7 +475,7 @@
                 const res = await fetch(`${API_URL}/clientes/cadastrar`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ nome, usuario, telefone, turma, senha, confirmarSenha })
+                    body: JSON.stringify({ nome, email, usuario, telefone, turma, senha, confirmarSenha })
                 });
 
                 const data = await res.json();
@@ -475,6 +497,7 @@
                             sessionStorage.setItem('cliente_nome', loginData.nome);
                             sessionStorage.setItem('cliente_id', loginData.id);
                             sessionStorage.setItem('cliente_usuario', loginData.usuario || usuario);
+                            sessionStorage.setItem('cliente_email', loginData.email || email);
                             sessionStorage.setItem('cliente_pontos', loginData.pontosFidelidade || 0);
 
                             setTimeout(() => {
@@ -516,5 +539,6 @@
             if (s2) s2.value = '';
         });
     </script>
+    <script src="js/cliente-config.js"></script>
 </body>
 </html>

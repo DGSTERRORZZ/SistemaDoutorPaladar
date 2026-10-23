@@ -3,49 +3,97 @@ const { query, execute } = require('../database');
 const { generateToken, SECRET } = require('../authMiddleware');
 const jwt = require('jsonwebtoken');
 
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
 async function cadastrar(req, res) {
-  const { nome, usuario, username, telefone, turma, senha, confirmarSenha, confirmaSenha, tipo } = req.body;
+  const { nome, usuario, username, email, telefone, turma, senha, confirmarSenha, confirmaSenha, tipo } = req.body;
   const userClean = String(username || usuario || '').toLowerCase().trim();
-  const telClean = String(telefone || '').replace(/\D/g, '').trim();
+  const emailClean = String(email || '').toLowerCase().trim();
+  const telDigits = String(telefone || '').replace(/\D/g, '').trim();
   const tipoUser = (tipo === 'visitante' || tipo === 'administrador') ? tipo : 'cliente';
   const confirmVal = confirmarSenha || confirmaSenha;
 
   if (!nome || !userClean || !senha) {
     return res.status(400).json({ erro: 'Nome, usuário e senha são obrigatórios' });
   }
+
+  // Validação de E-mail obrigatório e formato xxxxxxxxxxxxxx@yyyyyy.com
+  if (!emailClean || !EMAIL_REGEX.test(emailClean)) {
+    return res.status(400).json({ erro: 'E-mail inválido. Utilize o formato seu_email@dominio.com' });
+  }
+
+  // Validação do padrão de telefone / WhatsApp (10 ou 11 dígitos: DDD + número, ex: 11-99999-9999)
+  if (tipoUser === 'cliente' && (!telDigits || telDigits.length < 10 || telDigits.length > 11)) {
+    return res.status(400).json({ erro: 'Telefone inválido. Formato esperado com DDD (ex: 12-99999-9999)' });
+  }
+
+  // Formata telefone padronizado: xx-zzzzz-zzzz ou xx-zzzz-zzzz
+  let telFormatado = null;
+  if (telDigits) {
+    const ddd = telDigits.slice(0, 2);
+    if (telDigits.length === 11) {
+      telFormatado = `${ddd}-${telDigits.slice(2, 7)}-${telDigits.slice(7)}`;
+    } else {
+      telFormatado = `${ddd}-${telDigits.slice(2, 6)}-${telDigits.slice(6)}`;
+    }
+  }
+
   if (confirmVal && confirmVal !== senha) {
     return res.status(400).json({ erro: 'A confirmação de senha não coincide com a senha digitada' });
   }
-  if (tipoUser === 'cliente' && !telClean) {
-    return res.status(400).json({ erro: 'Telefone é obrigatório para cadastro de clientes' });
-  }
   if (senha.length < 6 || !/[0-9]/.test(senha) || !/[!@#$%^&*(),.?":{}|<>]/.test(senha)) {
-    return res.status(400).json({ erro: 'Senha deve ter mínimo 6 caracteres, 1 número e 1 símbolo' });
+    return res.status(400).json({ erro: 'Senha deve ter no mínimo 6 caracteres, 1 número e 1 símbolo' });
   }
-  try {
-    const usuarioExistente = await query('SELECT id FROM usuarios WHERE LOWER(username) = ?', [userClean]);
-    if (usuarioExistente.length > 0) return res.status(400).json({ erro: 'Nome de usuário já cadastrado' });
 
-    if (telClean) {
-      const telefoneExistente = await query('SELECT id FROM usuarios WHERE REPLACE(REPLACE(REPLACE(REPLACE(telefone, " ", ""), "-", ""), "(", ""), ")", "") = ? OR telefone = ?', [telClean, telClean]);
-      if (telefoneExistente.length > 0) return res.status(400).json({ erro: 'Telefone já cadastrado' });
+  try {
+    // 1. Não permitir usuários com o mesmo nome de usuário
+    const usuarioExistente = await query('SELECT id FROM usuarios WHERE LOWER(username) = ?', [userClean]);
+    if (usuarioExistente.length > 0) return res.status(400).json({ erro: 'Este nome de usuário já está cadastrado' });
+
+    // 2. Não permitir dois usuários com o mesmo e-mail
+    const emailExistente = await query('SELECT id FROM usuarios WHERE LOWER(email) = ?', [emailClean]);
+    if (emailExistente.length > 0) return res.status(400).json({ erro: 'Este e-mail já está sendo utilizado por outra conta' });
+
+    // 3. Não permitir telefone duplicado
+    if (telDigits) {
+      const telefoneExistente = await query('SELECT id FROM usuarios WHERE REPLACE(REPLACE(REPLACE(REPLACE(telefone, " ", ""), "-", ""), "(", ""), ")", "") = ?', [telDigits]);
+      if (telefoneExistente.length > 0) return res.status(400).json({ erro: 'Este número de telefone já está cadastrado' });
     }
 
     const senha_hash = bcrypt.hashSync(senha, 10);
     const dataCadastro = new Date().toISOString().slice(0, 19).replace('T', ' ');
 
-    // Obter limite padrão para novos clientes configurado pelo administrador
     const cfgLimRows = await query("SELECT valor FROM configuracoes WHERE chave = 'limite_padrao_fiado'");
     const limitePadrao = (cfgLimRows && cfgLimRows.length > 0) ? parseFloat(cfgLimRows[0].valor || 0) : 0.00;
 
     await execute(
-      'INSERT INTO usuarios (nome, username, telefone, turma, senha_hash, tipo, limiteCredito, saldoDevedor, dataCadastro) VALUES (?, ?, ?, ?, ?, ?, ?, 0.00, ?)',
-      [nome.trim(), userClean, telClean || null, turma || '', senha_hash, tipoUser, limitePadrao, dataCadastro]
+      'INSERT INTO usuarios (nome, username, email, telefone, turma, senha_hash, tipo, limiteCredito, saldoDevedor, dataCadastro) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 0.00, ?)',
+      [nome.trim(), userClean, emailClean, telFormatado, turma || '', senha_hash, tipoUser, limitePadrao, dataCadastro]
     );
     res.status(201).json({ sucesso: true, mensagem: 'Cadastro realizado com sucesso!' });
   } catch (error) {
     console.error('Erro no cadastro:', error);
-    res.status(500).json({ erro: 'Erro interno do servidor' });
+    res.status(500).json({ erro: 'Erro interno ao realizar cadastro' });
+  }
+}
+
+async function excluirConta(req, res) {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ erro: 'Não autorizado' });
+    const decoded = jwt.verify(token, SECRET);
+
+    // Verificar se tem dívida pendente antes de excluir
+    const [user] = await query('SELECT saldoDevedor FROM usuarios WHERE id = ?', [decoded.id]);
+    if (user && parseFloat(user.saldoDevedor || 0) > 0) {
+      return res.status(400).json({ erro: `Não é possível excluir a conta pois você possui um saldo devedor de R$ ${parseFloat(user.saldoDevedor).toFixed(2).replace('.', ',')}. Por favor, quite seu saldo na cantina antes.` });
+    }
+
+    await execute('DELETE FROM usuarios WHERE id = ?', [decoded.id]);
+    res.json({ sucesso: true, mensagem: 'Conta excluída com sucesso!' });
+  } catch (error) {
+    console.error('Erro ao excluir conta:', error);
+    res.status(500).json({ erro: 'Erro ao excluir conta' });
   }
 }
 
@@ -100,7 +148,7 @@ async function login(req, res) {
   const { login: loginField, senha } = req.body;
   if (!loginField || !senha) return res.status(400).json({ erro: 'Usuário/telefone e senha são obrigatórios' });
   try {
-    const users = await query('SELECT * FROM usuarios WHERE username = ? OR telefone = ?', [loginField, loginField]);
+    const users = await query('SELECT * FROM usuarios WHERE username = ? OR email = ? OR telefone = ?', [loginField, loginField, loginField]);
     if (users.length === 0) return res.status(401).json({ erro: 'Credenciais inválidas' });
     const user = users[0];
     const senhaValida = bcrypt.compareSync(senha, user.senha_hash);
@@ -116,6 +164,7 @@ async function login(req, res) {
       nome: user.nome,
       usuario: user.username,
       username: user.username,
+      email: user.email || '',
       telefone: user.telefone || '',
       turma: user.turma || '',
       foto: user.foto || '',
@@ -136,7 +185,7 @@ async function getPerfil(req, res) {
     const token = req.headers.authorization?.split(' ')[1];
     if (!token) return res.status(401).json({ erro: 'Token não fornecido' });
     const decoded = jwt.verify(token, SECRET);
-    const users = await query('SELECT id, nome, username as usuario, username, telefone, turma, foto, tipo, pontosFidelidade, dataCadastro, totalPedidos, limiteCredito, saldoDevedor FROM usuarios WHERE id = ?', [decoded.id]);
+    const users = await query('SELECT id, nome, username as usuario, username, email, telefone, turma, foto, tipo, pontosFidelidade, dataCadastro, totalPedidos, limiteCredito, saldoDevedor FROM usuarios WHERE id = ?', [decoded.id]);
     if (users.length === 0) return res.status(404).json({ erro: 'Usuário não encontrado' });
     const user = users[0];
     const limite = user.limiteCredito !== null && user.limiteCredito !== undefined ? parseFloat(user.limiteCredito) : 0.00;
@@ -171,14 +220,32 @@ async function alterarSenha(req, res) {
 }
 
 async function atualizarPerfil(req, res) {
-  const { nome, telefone, turma, foto } = req.body;
+  const { nome, email, telefone, turma, foto } = req.body;
   try {
     const token = req.headers.authorization?.split(' ')[1];
     const decoded = jwt.verify(token, SECRET);
     const updates = [];
     const params = [];
     if (nome) { updates.push('nome = ?'); params.push(nome); }
-    if (telefone) { updates.push('telefone = ?'); params.push(telefone); }
+    if (email) {
+      const emailClean = String(email).toLowerCase().trim();
+      if (!EMAIL_REGEX.test(emailClean)) {
+        return res.status(400).json({ erro: 'Formato de e-mail inválido' });
+      }
+      const [duplicado] = await query('SELECT id FROM usuarios WHERE LOWER(email) = ? AND id != ?', [emailClean, decoded.id]);
+      if (duplicado) return res.status(400).json({ erro: 'Este e-mail já está sendo utilizado por outra conta' });
+      updates.push('email = ?');
+      params.push(emailClean);
+    }
+    if (telefone) {
+      const telDigits = String(telefone).replace(/\D/g, '');
+      if (telDigits.length >= 10 && telDigits.length <= 11) {
+        const ddd = telDigits.slice(0, 2);
+        const formatado = telDigits.length === 11 ? `${ddd}-${telDigits.slice(2, 7)}-${telDigits.slice(7)}` : `${ddd}-${telDigits.slice(2, 6)}-${telDigits.slice(6)}`;
+        updates.push('telefone = ?');
+        params.push(formatado);
+      }
+    }
     if (turma !== undefined) { updates.push('turma = ?'); params.push(turma); }
     if (foto !== undefined) { updates.push('foto = ?'); params.push(foto); }
     if (updates.length === 0) return res.status(400).json({ erro: 'Nenhum campo para atualizar' });
@@ -337,5 +404,6 @@ module.exports = {
   listarClientesAdmin,
   recuperarSenha,
   getExtratoFidelidade,
-  ajustarPontosAdmin
+  ajustarPontosAdmin,
+  excluirConta
 };

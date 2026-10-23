@@ -143,6 +143,7 @@ app.get('/api/clientes/fidelidade/extrato', clientesAppRoutes.getExtratoFidelida
 app.post('/api/clientes/fidelidade/ajustar', verifyAdmin, clientesAppRoutes.ajustarPontosAdmin);
 app.put('/api/clientes/alterar-senha', clientesAppRoutes.alterarSenha);
 app.put('/api/clientes/atualizar-perfil', clientesAppRoutes.atualizarPerfil);
+app.delete('/api/clientes/excluir-conta', clientesAppRoutes.excluirConta);
 app.get('/api/clientes/historico-pedidos', clientesAppRoutes.getHistoricoPedidos);
 app.get('/api/clientes/admin/listar', verifyAdmin, clientesAppRoutes.listarClientesAdmin);
 

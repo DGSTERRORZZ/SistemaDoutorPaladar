@@ -318,6 +318,7 @@ async function criarTabelas() {
     )`);
 
     // Migrações dinâmicas seguras (via INFORMATION_SCHEMA)
+    await addColumnIfNotExists(conn, 'usuarios', 'email', 'VARCHAR(150) UNIQUE DEFAULT NULL');
     await addColumnIfNotExists(conn, 'usuarios', 'pontosFidelidade', 'INT DEFAULT 0');
     await addColumnIfNotExists(conn, 'usuarios', 'limiteCredito', 'DECIMAL(10,2) DEFAULT 50.00');
     await addColumnIfNotExists(conn, 'usuarios', 'cargo', "VARCHAR(50) DEFAULT 'atendente'");
