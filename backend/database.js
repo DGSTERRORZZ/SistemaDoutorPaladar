@@ -16,7 +16,8 @@ const dbConfig = {
   queueLimit: 0,
   enableKeepAlive: true,
   keepAliveInitialDelay: 30000,
-  timezone: '-03:00'
+  timezone: '-03:00',
+  ssl: process.env.DB_SSL === 'true' || process.env.DB_HOST?.includes('tidbcloud.com') ? { rejectUnauthorized: false } : undefined
 };
 
 /**
