@@ -98,6 +98,7 @@ async function criarTabelas() {
       nome VARCHAR(100) NOT NULL,
       username VARCHAR(50) UNIQUE NOT NULL,
       telefone VARCHAR(20) UNIQUE DEFAULT NULL,
+      email VARCHAR(150) DEFAULT NULL,
       turma VARCHAR(50) DEFAULT '',
       senha_hash VARCHAR(255) NOT NULL,
       tipo ENUM('cliente', 'visitante', 'administrador') NOT NULL DEFAULT 'cliente',
@@ -317,8 +318,7 @@ async function criarTabelas() {
       dataHora DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     )`);
 
-    // Migrações dinâmicas seguras (via INFORMATION_SCHEMA)
-    await addColumnIfNotExists(conn, 'usuarios', 'email', 'VARCHAR(150) UNIQUE DEFAULT NULL');
+    await addColumnIfNotExists(conn, 'usuarios', 'email', 'VARCHAR(150) DEFAULT NULL');
     await addColumnIfNotExists(conn, 'usuarios', 'pontosFidelidade', 'INT DEFAULT 0');
     await addColumnIfNotExists(conn, 'usuarios', 'limiteCredito', 'DECIMAL(10,2) DEFAULT 50.00');
     await addColumnIfNotExists(conn, 'usuarios', 'cargo', "VARCHAR(50) DEFAULT 'atendente'");
@@ -394,6 +394,7 @@ async function criarIndices() {
     await createIndexIfNotExists(conn, 'idx_promocoes_ativa', 'promocoes', 'ativa, codigo');
     await createIndexIfNotExists(conn, 'idx_usuarios_tipo', 'usuarios', 'tipo');
     await createIndexIfNotExists(conn, 'idx_usuarios_turma', 'usuarios', 'turma');
+    await createIndexIfNotExists(conn, 'idx_usuarios_email', 'usuarios', 'email');
     logger.success('Índices de performance verificados!');
   } catch (error) {
     logger.warn('Aviso ao criar índices:', error.message);
