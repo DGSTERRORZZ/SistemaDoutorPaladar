@@ -578,17 +578,13 @@
     if (overlay) overlay.classList.remove('active');
   }
 
-  // 5. Injetar o Container Fixo de Configurações e Ajuda no Canto Superior Direito
+  // 5. Injetar o Botão de Configurações e Ajuda
   function criarBotaoFixo() {
-    if (document.getElementById('dpTopActionsContainer')) return;
+    if (document.getElementById('dpBtnConfigFixed')) return;
 
     // Remover botão anterior de device se existir para não ficar disputando espaço
     const oldBtn = document.getElementById('floatingDeviceSwitch');
     if (oldBtn) oldBtn.style.display = 'none';
-
-    const container = document.createElement('div');
-    container.id = 'dpTopActionsContainer';
-    container.className = 'dp-top-actions-container';
 
     // 1. Botão de Ajuda (FAQ / Central de Dúvidas)
     const btnAjuda = document.createElement('a');
@@ -613,9 +609,21 @@
     `;
     btnConfig.addEventListener('click', abrirModal);
 
-    container.appendChild(btnAjuda);
-    container.appendChild(btnConfig);
-    document.body.appendChild(container);
+    // Verificar se a tela possui o navbar com a área da direita (.mcd-nav-right)
+    const navRight = document.querySelector('.mcd-nav-right');
+    if (navRight) {
+      // Inserir de forma nativa e alinhada dentro da barra superior no lado direito
+      navRight.appendChild(btnAjuda);
+      navRight.appendChild(btnConfig);
+    } else {
+      // Caso seja tela sem navbar (ex: login.html ou cadastro.html), criar container fixo no canto superior direito
+      const container = document.createElement('div');
+      container.id = 'dpTopActionsContainer';
+      container.className = 'dp-top-actions-container';
+      container.appendChild(btnAjuda);
+      container.appendChild(btnConfig);
+      document.body.appendChild(container);
+    }
   }
 
   // 6. Inicialização
