@@ -11,40 +11,71 @@
   const styleEl = document.createElement('style');
   styleEl.id = 'dp-client-config-styles';
   styleEl.textContent = `
-    /* Botão Fixo de Configurações no Canto Inferior */
-    .dp-btn-config-fixed {
+    /* Container Fixo no Canto Superior Direito para Configurações e Ajuda */
+    .dp-top-actions-container {
       position: fixed !important;
-      bottom: 18px !important;
-      left: 18px !important;
+      top: 14px !important;
+      right: 16px !important;
       z-index: 99990 !important;
-      background: linear-gradient(135deg, #0f172a, #1b4332) !important;
-      color: #ffffff !important;
-      border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
-      border-radius: 999px !important;
-      padding: 10px 16px !important;
-      font-size: 0.84rem !important;
-      font-weight: 800 !important;
       display: inline-flex !important;
       align-items: center !important;
       gap: 8px !important;
+      pointer-events: auto !important;
+    }
+
+    .dp-btn-action-pill {
+      background: rgba(15, 23, 42, 0.88) !important;
+      backdrop-filter: blur(10px) !important;
+      -webkit-backdrop-filter: blur(10px) !important;
+      color: #ffffff !important;
+      border: 1.5px solid rgba(255, 255, 255, 0.18) !important;
+      border-radius: 999px !important;
+      padding: 8px 14px !important;
+      font-size: 0.82rem !important;
+      font-weight: 800 !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 7px !important;
       cursor: pointer !important;
-      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.45), 0 0 12px rgba(45, 125, 82, 0.25) !important;
+      box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35) !important;
       transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
       user-select: none !important;
-      font-family: inherit !important;
+      text-decoration: none !important;
+      font-family: 'Plus Jakarta Sans', 'Outfit', -apple-system, sans-serif !important;
     }
-    .dp-btn-config-fixed:hover {
+    .dp-btn-action-pill:hover {
       background: linear-gradient(135deg, #1b4332, #2d7d52) !important;
+      border-color: rgba(255, 255, 255, 0.4) !important;
       transform: translateY(-2px) scale(1.02) !important;
-      box-shadow: 0 12px 28px rgba(45, 125, 82, 0.4) !important;
+      box-shadow: 0 10px 24px rgba(45, 125, 82, 0.45) !important;
+      color: #ffffff !important;
     }
-    .dp-btn-config-fixed i.gear-icon {
-      font-size: 1rem !important;
+    .dp-btn-action-pill i.gear-icon {
+      font-size: 0.95rem !important;
       color: #ffbc0d !important;
       transition: transform 0.4s ease !important;
     }
-    .dp-btn-config-fixed:hover i.gear-icon {
+    .dp-btn-action-pill:hover i.gear-icon {
       transform: rotate(90deg) !important;
+    }
+    .dp-btn-action-pill i.help-icon {
+      font-size: 0.95rem !important;
+      color: #38bdf8 !important;
+    }
+
+    @media (max-width: 640px) {
+      .dp-top-actions-container {
+        top: 10px !important;
+        right: 10px !important;
+        gap: 6px !important;
+      }
+      .dp-btn-action-pill {
+        padding: 7px 11px !important;
+        font-size: 0.76rem !important;
+      }
+      .dp-btn-action-pill span.btn-label-long {
+        display: none !important;
+      }
     }
 
     /* Modal Overlay */
@@ -547,26 +578,44 @@
     if (overlay) overlay.classList.remove('active');
   }
 
-  // 5. Injetar o Botão Fixo de Configurações
+  // 5. Injetar o Container Fixo de Configurações e Ajuda no Canto Superior Direito
   function criarBotaoFixo() {
-    if (document.getElementById('dpBtnConfigFixed')) return;
+    if (document.getElementById('dpTopActionsContainer')) return;
 
-    // Remover botão anterior de device se existir para não ficar dois botões disputando espaço
+    // Remover botão anterior de device se existir para não ficar disputando espaço
     const oldBtn = document.getElementById('floatingDeviceSwitch');
     if (oldBtn) oldBtn.style.display = 'none';
 
-    const btn = document.createElement('button');
-    btn.id = 'dpBtnConfigFixed';
-    btn.className = 'dp-btn-config-fixed';
-    btn.setAttribute('type', 'button');
-    btn.setAttribute('title', 'Configurações, Acessibilidade e Conta');
-    btn.innerHTML = `
+    const container = document.createElement('div');
+    container.id = 'dpTopActionsContainer';
+    container.className = 'dp-top-actions-container';
+
+    // 1. Botão de Ajuda (FAQ / Central de Dúvidas)
+    const btnAjuda = document.createElement('a');
+    btnAjuda.id = 'dpBtnAjudaTop';
+    btnAjuda.className = 'dp-btn-action-pill';
+    btnAjuda.href = 'faq.html';
+    btnAjuda.setAttribute('title', 'Perguntas Frequentes & Suporte');
+    btnAjuda.innerHTML = `
+      <i class="fas fa-circle-question help-icon"></i>
+      <span>Ajuda</span>
+    `;
+
+    // 2. Botão de Configurações
+    const btnConfig = document.createElement('button');
+    btnConfig.id = 'dpBtnConfigFixed';
+    btnConfig.className = 'dp-btn-action-pill';
+    btnConfig.setAttribute('type', 'button');
+    btnConfig.setAttribute('title', 'Configurações, Acessibilidade e Conta');
+    btnConfig.innerHTML = `
       <i class="fas fa-gear gear-icon"></i>
       <span>Configurações</span>
     `;
+    btnConfig.addEventListener('click', abrirModal);
 
-    btn.addEventListener('click', abrirModal);
-    document.body.appendChild(btn);
+    container.appendChild(btnAjuda);
+    container.appendChild(btnConfig);
+    document.body.appendChild(container);
   }
 
   // 6. Inicialização
