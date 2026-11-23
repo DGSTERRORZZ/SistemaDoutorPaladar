@@ -27,6 +27,14 @@ const { verifyAdmin } = require('./authMiddleware');
 
 const app = express();
 
+// O Render recebe requisições através de um proxy reverso.
+// Confiar somente no salto adjacente permite ao express-rate-limit identificar
+// clientes individualmente sem confiar em toda a cadeia X-Forwarded-For.
+// Revalidar a contagem de saltos se a topologia de proxy mudar.
+if (process.env.RENDER === 'true') {
+  app.set('trust proxy', 1);
+}
+
 // Verifica se há certificados SSL configurados
 const certKeyPath = path.join(__dirname, 'certs', 'server.key');
 const certCrtPath = path.join(__dirname, 'certs', 'server.crt');
