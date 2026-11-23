@@ -398,7 +398,7 @@
                     // Se o backend exigir 2FA (Autenticação em 2 Etapas)
                     if (adminData.exige2FA) {
                         const pinDigitado = prompt(
-                            `🔐 AUTENTICAÇÃO EM 2 ETAPAS (2FA)\n\n${adminData.mensagem}\n\n[CÓDIGO DE TESTE GERADO]: ${adminData.codigoSimulado || 'Verifique o terminal'}\n\nDigite o código de 6 dígitos:`
+                            `🔐 AUTENTICAÇÃO EM 2 ETAPAS (2FA)\n\n${adminData.mensagem}\n\nAbra seu aplicativo autenticador\n\nDigite o código de 6 dígitos:`
                         );
 
                         if (!pinDigitado) {

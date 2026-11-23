@@ -1,7 +1,10 @@
 require('dotenv').config();
 const jwt = require('jsonwebtoken');
 
-const SECRET = process.env.JWT_SECRET || 'doutor_paladar_secret_key_2026';
+const SECRET = process.env.JWT_SECRET;
+if (typeof SECRET !== 'string' || Buffer.byteLength(SECRET) < 32) {
+  throw new Error('JWT_SECRET deve conter no mínimo 32 bytes aleatórios');
+}
 
 function generateToken(payload) {
   return jwt.sign(payload, SECRET, { expiresIn: '8h' });
@@ -25,12 +28,15 @@ function verifyToken(req, res, next) {
 }
 
 function verifyAdmin(req, res, next) {
-  verifyToken(req, res, () => {
-    if (req.user && req.user.tipo === 'admin') {
+  verifyToken(req, res, async () => {
+    try {
+      const { query } = require('./database');
+      const [user] = await query('SELECT tipo, bloqueado FROM usuarios WHERE id = ?', [req.user.id]);
+      if (!user || user.tipo !== 'administrador' || user.bloqueado) {
+        return res.status(403).json({ erro: 'Acesso restrito ao administrador' });
+      }
       next();
-    } else {
-      res.status(403).json({ erro: 'Acesso restrito ao administrador' });
-    }
+    } catch (error) { next(error); }
   });
 }
 

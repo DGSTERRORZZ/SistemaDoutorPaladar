@@ -9,7 +9,7 @@ const dbConfig = {
   host: process.env.DB_HOST || 'localhost',
   port: parseInt(process.env.DB_PORT || '3306'),
   user: process.env.DB_USER || 'doutor_user',
-  password: process.env.DB_PASS || 'Doutor@2026',
+  password: process.env.DB_PASS,
   database: process.env.DB_NAME || 'doutor_paladar',
   waitForConnections: true,
   connectionLimit: 20,
@@ -17,7 +17,7 @@ const dbConfig = {
   enableKeepAlive: true,
   keepAliveInitialDelay: 30000,
   timezone: '-03:00',
-  ssl: process.env.DB_SSL === 'true' || process.env.DB_HOST?.includes('tidbcloud.com') ? { rejectUnauthorized: false } : undefined
+  ssl: process.env.DB_SSL === 'true' ? { rejectUnauthorized: true } : undefined
 };
 
 /**
@@ -323,7 +323,17 @@ async function criarTabelas() {
     await addColumnIfNotExists(conn, 'usuarios', 'limiteCredito', 'DECIMAL(10,2) DEFAULT 50.00');
     await addColumnIfNotExists(conn, 'usuarios', 'cargo', "VARCHAR(50) DEFAULT 'atendente'");
     await addColumnIfNotExists(conn, 'usuarios', 'alçada_max_desconto', 'DECIMAL(5,2) DEFAULT 10.00');
-    await addColumnIfNotExists(conn, 'usuarios', 'two_factor_code', 'VARCHAR(10) DEFAULT NULL');
+    await addColumnIfNotExists(conn, 'usuarios', 'two_factor_secret', 'TEXT DEFAULT NULL');
+     await addColumnIfNotExists(conn, 'usuarios', 'two_factor_last_step', 'BIGINT DEFAULT NULL');
+     await conn.execute(`CREATE TABLE IF NOT EXISTS dispositivos_confiaveis_2fa (
+       id INT PRIMARY KEY AUTO_INCREMENT,
+       usuario_id INT NOT NULL,
+       token_hash CHAR(64) NOT NULL UNIQUE,
+       expira_em DATETIME NOT NULL,
+       INDEX idx_2fa_usuario (usuario_id),
+       INDEX idx_2fa_expira (expira_em)
+     )`);
+     await addColumnIfNotExists(conn, 'usuarios', 'two_factor_code', 'VARCHAR(10) DEFAULT NULL');
     await addColumnIfNotExists(conn, 'usuarios', 'two_factor_expira', 'DATETIME DEFAULT NULL');
     await addColumnIfNotExists(conn, 'usuarios', 'two_factor_remember_until', 'DATETIME DEFAULT NULL');
     await addColumnIfNotExists(conn, 'usuarios', 'tentativas_login', 'INT DEFAULT 0');
@@ -406,17 +416,8 @@ async function criarIndices() {
 async function inserirDadosPadrao() {
   const conn = await pool.getConnection();
   try {
-    // ─── ADMIN PADRÃO ───────────────────────────────────────────────────────────
-    const [admin] = await conn.execute("SELECT id FROM usuarios WHERE username = 'admin' OR tipo = 'administrador'");
-    if (admin.length === 0) {
-      const hash = bcrypt.hashSync('admin123', 10);
-      const now = new Date().toISOString().slice(0, 19).replace('T', ' ');
-      await conn.execute(
-        "INSERT INTO usuarios (username, senha_hash, nome, tipo, dataCadastro) VALUES ('admin', ?, 'Deyse Nayana', 'administrador', ?)",
-        [hash, now]
-      );
-      logger.success('Admin criado na tabela usuarios: admin / admin123');
-    }
+    // Conta de administrador deve ser provisionada explicitamente;
+    // nunca criar automaticamente credenciais conhecidas.
 
     // ─── HORÁRIOS / AGENDAMENTOS PADRÃO ──────────────────────────────────────────
     const hoje = new Date().toISOString().slice(0, 10);

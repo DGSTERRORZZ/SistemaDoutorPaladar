@@ -423,7 +423,7 @@
             const token = getAuthToken();
             const box = document.getElementById('resultadoSqlBox');
             const payload = document.getElementById('sqlPayloadInput').value;
-            box.textContent = 'Executando teste no banco...';
+            box.textContent = 'Verificando consulta parametrizada...';
             try {
                 const res = await fetch(API_URL + '/seguranca/testar-sql-injection', {
                     method: 'POST',
@@ -438,17 +438,17 @@
         }
 
         async function simularFluxo2FA() {
-            alert('🔐 Simulação 2FA:\n\nAo logar como administrador, se você não marcou "Lembrar por 1 semana", o backend gera um código PIN de 6 dígitos que expira em 10 minutos.\n\nApós digitar o código correto e marcar "Confiar por 7 dias", o acesso é liberado sem nova solicitação de 2FA por 1 semana!');
+            alert('Use o aplicativo autenticador (TOTP). Um dispositivo só é lembrado por sete dias depois da validação correta e recebe um cookie HttpOnly.');
         }
 
         async function simularBruteForce() {
             const box = document.getElementById('boxBruteForce');
-            box.textContent = 'Iniciando ataque automatizado de 5 tentativas...';
+            box.textContent = 'Executando simulação sem autenticar contra contas reais...';
             try {
                 const res = await fetch(API_URL + '/seguranca/simular-bruteforce', {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ username: 'admin', tentativas: 6 })
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + getAuthToken() },
+                    body: JSON.stringify({ tentativas: 6 })
                 });
                 const data = await res.json();
                 box.textContent = JSON.stringify(data, null, 2);

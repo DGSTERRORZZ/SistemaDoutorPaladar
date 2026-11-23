@@ -3,8 +3,6 @@
 // =============================================
 
 // ===== ADMIN AUTH =====
-const ADMIN_USERNAME = 'admin';
-const ADMIN_PASSWORD_HASH = 'admin123'; // Em produção, isso viria do backend
 
 async function autenticarAdmin(username, password) {
   try {
@@ -14,7 +12,19 @@ async function autenticarAdmin(username, password) {
       body: JSON.stringify({ username, password })
     });
     if (!res.ok) return false;
-    const data = await res.json();
+    let data = await res.json();
+    if (data.exige2FA) {
+      const codigo2FA = prompt('Código de 6 dígitos do aplicativo autenticador:');
+      if (!codigo2FA) return false;
+      const lembrarDispositivo7Dias = confirm('Confiar neste dispositivo por 7 dias?');
+      const second = await fetch('/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, codigo2FA, lembrarDispositivo7Dias })
+      });
+      if (!second.ok) return false;
+      data = await second.json();
+    }
+    if (!data.token) return false;
     sessionStorage.setItem('token', data.token);
     sessionStorage.setItem('usuarioLogado', data.nome || username);
     sessionStorage.setItem('loginTime', new Date().toISOString());
@@ -92,7 +102,19 @@ async function autenticarUsuario(username, password) {
       body: JSON.stringify({ username, password })
     });
     if (!res.ok) return false;
-    const data = await res.json();
+    let data = await res.json();
+    if (data.exige2FA) {
+      const codigo2FA = prompt('Código de 6 dígitos do aplicativo autenticador:');
+      if (!codigo2FA) return false;
+      const lembrarDispositivo7Dias = confirm('Confiar neste dispositivo por 7 dias?');
+      const second = await fetch('/api/auth/login', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, password, codigo2FA, lembrarDispositivo7Dias })
+      });
+      if (!second.ok) return false;
+      data = await second.json();
+    }
+    if (!data.token) return false;
     sessionStorage.setItem('token', data.token);
     sessionStorage.setItem('usuarioLogado', data.nome || username);
     sessionStorage.setItem('loginTime', new Date().toISOString());
@@ -310,10 +332,8 @@ function inicializarKonamiCode() {
 
     if (match) {
       konamiBuffer = [];
-      sessionStorage.setItem('admin_logado', 'true');
-      sessionStorage.setItem('admin_nome', 'Gestor Master');
-      sessionStorage.setItem('tipo', 'administrador');
-      window.location.href = 'admin.html';
+      // Atalho visual nunca pode criar uma sessão autenticada.
+      window.location.href = 'login.html?returnUrl=admin.html';
     }
   });
 }
