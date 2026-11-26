@@ -10,7 +10,7 @@ async function cadastrar(req, res) {
   const userClean = String(username || usuario || '').toLowerCase().trim();
   const emailClean = String(email || '').toLowerCase().trim();
   const telDigits = String(telefone || '').replace(/\D/g, '').trim();
-  const tipoUser = (tipo === 'visitante' || tipo === 'administrador') ? tipo : 'cliente';
+  const tipoUser = tipo === 'visitante' ? 'visitante' : 'cliente';
   const confirmVal = confirmarSenha || confirmaSenha;
 
   if (!nome || !userClean || !senha) {
@@ -97,51 +97,12 @@ async function excluirConta(req, res) {
   }
 }
 
+// Recuperação sem prova de posse do e-mail/telefone permitia assumir contas.
+// Até existir um canal verificado com token de uso único, bloquear esse fluxo.
 async function recuperarSenha(req, res) {
-  const { login: loginField, usuario, telefone, novaSenha, confirmarSenha, confirmaSenha } = req.body;
-  const userIdent = String(usuario || loginField || '').toLowerCase().trim();
-  const telIdent = String(telefone || '').replace(/\D/g, '').trim();
-  const confirmVal = confirmarSenha || confirmaSenha;
-
-  if (!userIdent && !telIdent) {
-    return res.status(400).json({ erro: 'Informe seu usuário ou telefone cadastrado' });
-  }
-  if (!novaSenha) {
-    return res.status(400).json({ erro: 'Digite a nova senha' });
-  }
-  if (confirmVal && confirmVal !== novaSenha) {
-    return res.status(400).json({ erro: 'A confirmação de senha não coincide com a nova senha' });
-  }
-  if (novaSenha.length < 6 || !/[0-9]/.test(novaSenha) || !/[!@#$%^&*(),.?":{}|<>]/.test(novaSenha)) {
-    return res.status(400).json({ erro: 'A nova senha deve ter mínimo 6 caracteres, 1 número e 1 símbolo (ex: @, #, !)' });
-  }
-
-  try {
-    let users = [];
-    if (userIdent && telIdent) {
-      users = await query('SELECT id, nome, username, telefone FROM usuarios WHERE (LOWER(username) = ? OR REPLACE(REPLACE(REPLACE(REPLACE(telefone, " ", ""), "-", ""), "(", ""), ")", "") = ?) AND (REPLACE(REPLACE(REPLACE(REPLACE(telefone, " ", ""), "-", ""), "(", ""), ")", "") = ? OR LOWER(username) = ?)', [userIdent, telIdent, telIdent, userIdent]);
-    } else if (userIdent) {
-      users = await query('SELECT id, nome, username, telefone FROM usuarios WHERE LOWER(username) = ? OR REPLACE(REPLACE(REPLACE(REPLACE(telefone, " ", ""), "-", ""), "(", ""), ")", "") = ?', [userIdent, userIdent]);
-    } else if (telIdent) {
-      users = await query('SELECT id, nome, username, telefone FROM usuarios WHERE REPLACE(REPLACE(REPLACE(REPLACE(telefone, " ", ""), "-", ""), "(", ""), ")", "") = ?', [telIdent]);
-    }
-
-    if (!users || users.length === 0) {
-      return res.status(404).json({ erro: 'Conta não encontrada com os dados informados. Verifique o usuário ou telefone.' });
-    }
-
-    const targetUser = users[0];
-    const novaHash = bcrypt.hashSync(novaSenha, 10);
-    await execute('UPDATE usuarios SET senha_hash = ? WHERE id = ?', [novaHash, targetUser.id]);
-
-    res.json({
-      sucesso: true,
-      mensagem: `Senha redefinida com sucesso para o usuário ${targetUser.username || targetUser.nome}! Agora você pode acessar sua conta.`
-    });
-  } catch (error) {
-    console.error('Erro na recuperação de senha:', error);
-    res.status(500).json({ erro: 'Erro interno ao redefinir senha' });
-  }
+  return res.status(403).json({
+    erro: 'Recuperação automática temporariamente indisponível. Contate o suporte para validar sua identidade.'
+  });
 }
 
 async function login(req, res) {
@@ -153,6 +114,10 @@ async function login(req, res) {
     const user = users[0];
     const senhaValida = bcrypt.compareSync(senha, user.senha_hash);
     if (!senhaValida) return res.status(401).json({ erro: 'Credenciais inválidas' });
+    if (user.tipo === 'administrador') return res.status(403).json({ erro: 'Use o acesso administrativo com autenticação de dois fatores' });
+    if (user.bloqueado || (user.bloqueado_ate && new Date(user.bloqueado_ate) > new Date())) {
+      return res.status(429).json({ erro: 'Conta temporariamente bloqueada' });
+    }
     const token = generateToken({ id: user.id, nome: user.nome, tipo: user.tipo || 'cliente' });
     const limiteCredito = user.limiteCredito !== null && user.limiteCredito !== undefined ? parseFloat(user.limiteCredito) : 0.00;
     const saldoDevedor = parseFloat(user.saldoDevedor || 0.00);

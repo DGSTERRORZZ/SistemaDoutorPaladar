@@ -26,6 +26,8 @@ const { verifyAdmin } = require('./authMiddleware');
 // ═══════════════════════════════════════════════════════════════════
 
 const app = express();
+if (process.env.TRUST_PROXY === 'loopback') app.set('trust proxy', 'loopback');
+// Outros proxies só devem ser configurados após validar a topologia da rede.
 
 // O Render recebe requisições através de um proxy reverso.
 // Confiar somente no salto adjacente permite ao express-rate-limit identificar
@@ -102,7 +104,7 @@ app.use('/api/', globalLimiter);
 // Rate Limiting Específico para Login (brute force protection)
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutos
-  max: 10, // máx 10 tentativas
+  max: 5, // máx 5 tentativas por IP em 15 minutos
   standardHeaders: true,
   legacyHeaders: false,
   message: { erro: 'Muitas tentativas de login. Tente novamente em 15 minutos.', codigo: 429 }
@@ -141,7 +143,7 @@ const segurancaRoutes = require('./routes/seguranca');
 
 // --- Autenticação (com rate limiting) ---
 app.post('/api/auth/login', loginLimiter, authRoutes.loginAdmin);
-app.post('/api/clientes/cadastrar', clientesAppRoutes.cadastrar);
+app.post('/api/clientes/cadastrar', loginLimiter, clientesAppRoutes.cadastrar);
 app.post('/api/clientes/login', loginLimiter, clientesAppRoutes.login);
 app.post('/api/clientes/recuperar-senha', loginLimiter, clientesAppRoutes.recuperarSenha);
 
@@ -149,7 +151,7 @@ app.post('/api/clientes/recuperar-senha', loginLimiter, clientesAppRoutes.recupe
 app.get('/api/clientes/perfil', clientesAppRoutes.getPerfil);
 app.get('/api/clientes/fidelidade/extrato', clientesAppRoutes.getExtratoFidelidade);
 app.post('/api/clientes/fidelidade/ajustar', verifyAdmin, clientesAppRoutes.ajustarPontosAdmin);
-app.put('/api/clientes/alterar-senha', clientesAppRoutes.alterarSenha);
+app.put('/api/clientes/alterar-senha', loginLimiter, clientesAppRoutes.alterarSenha);
 app.put('/api/clientes/atualizar-perfil', clientesAppRoutes.atualizarPerfil);
 app.delete('/api/clientes/excluir-conta', clientesAppRoutes.excluirConta);
 app.get('/api/clientes/historico-pedidos', clientesAppRoutes.getHistoricoPedidos);

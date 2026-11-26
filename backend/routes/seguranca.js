@@ -1,4 +1,5 @@
 const express = require('express');
+const net = require('net');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const { query, execute } = require('../database');
@@ -25,7 +26,7 @@ router.get('/relatorio-criptografado', verifyAdmin, async (req, res) => {
     const pacoteRelatorio = {
       geradoEm: new Date().toISOString(),
       classificacao: 'CONFIDENCIAL / LGPD / DIRETORIA IFSP',
-      algoritmo: 'AES-256-CBC com Salt & IV Dinâmico',
+      algoritmo: 'AES-256-GCM com IV aleatório e tag de autenticação',
       dados: dadosSensiveis
     };
 
@@ -34,9 +35,9 @@ router.get('/relatorio-criptografado', verifyAdmin, async (req, res) => {
     res.json({
       sucesso: true,
       seguro: true,
-      algoritmo: 'AES-256-CBC',
+      algoritmo: 'AES-256-GCM',
       payloadCriptografado,
-      mensagem: 'Relatório gerado e protegido por criptografia de ponta a ponta.'
+      mensagem: 'Relatório criptografado em repouso com AES-256-GCM.'
     });
   } catch (err) {
     console.error('Erro ao gerar relatório criptografado:', err);
@@ -57,101 +58,33 @@ router.post('/descriptografar-relatorio', verifyAdmin, async (req, res) => {
       relatorio: relatorioAberto
     });
   } catch (err) {
-    res.status(400).json({ erro: 'Chave incorreta ou dados corrompidos: ' + err.message });
+    res.status(400).json({ erro: 'Relatório inválido ou corrompido' });
   }
 });
 
-// ── 2. TESTE DE VULNERABILIDADE SQL INJECTION (Vulnerável vs Seguro) ──
-// POST /api/seguranca/testar-sql-injection - Demonstra o efeito de injeção e como os Prepared Statements protegem
+// ── 2. Testes puramente simulados; nunca executar SQL injetado ou bloquear conta real. ──
 router.post('/testar-sql-injection', verifyAdmin, async (req, res) => {
-  const { entradaPayload, modo } = req.body;
-  const payload = entradaPayload || "admin' OR '1'='1";
-
-  if (modo === 'simular_vulneravel') {
-    // ⚠️ Demonstração didática: Concatenação pura sem sanitização (Vulnerável)
-    const sqlVulneravel = `SELECT id, nome, username, tipo FROM usuarios WHERE username = '${payload}'`;
-    try {
-      const [resultados] = await (await require('../database').getDatabase()).query(sqlVulneravel);
-      return res.json({
-        sucesso: true,
-        modo: 'vulneravel',
-        alerta: '🚨 ATAQUE BEM-SUCEDIDO: O banco executou a injeção SQL devido a concatenação direta!',
-        sqlExecutado: sqlVulneravel,
-        registrosVazadosOuAfetados: resultados.length,
-        dadosExpostos: resultados
-      });
-    } catch (sqlErr) {
-      return res.json({
-        sucesso: false,
-        modo: 'vulneravel',
-        erroSintaxeSql: sqlErr.message,
-        sqlExecutado: sqlVulneravel
-      });
-    }
-  } else {
-    // 🛡️ Modo Padrão Seguro: Prepared Statement com bind de parâmetros (?)
-    const sqlSeguro = `SELECT id, nome, username, tipo FROM usuarios WHERE username = ?`;
-    const resultados = await query(sqlSeguro, [payload]);
-
-    return res.json({
-      sucesso: true,
-      modo: 'protegido_prepared_statement',
-      status: '🛡️ PROTEGIDO: O Banco de Dados tratou as aspas e comandos SQL estritamente como texto literal!',
-      sqlExecutado: `${sqlSeguro} com param = "${payload}"`,
-      registrosRetornados: resultados.length,
-      dados: resultados,
-      explicacao: 'O Sistema Doutor Paladar usa mysql2/promise com execute() parametrizado, tornando injeções SQL impossíveis.'
-    });
-  }
+  const payload = typeof req.body?.entradaPayload === 'string' ? req.body.entradaPayload.slice(0, 150) : "admin' OR '1'='1";
+  const rows = await query('SELECT id FROM usuarios WHERE username = ? LIMIT 1', [payload]);
+  res.json({
+    sucesso: true, modo: 'protegido_prepared_statement', demonstracao: true,
+    consulta: 'SELECT id FROM usuarios WHERE username = ? LIMIT 1',
+    registrosRetornados: rows.length,
+    explicacao: 'O parâmetro é tratado como valor, não como instrução SQL. Este teste não comprova a ausência de SQL injection em toda a aplicação.'
+  });
 });
 
-// ── 3. SIMULAÇÃO DE ATAQUE DE FORÇA BRUTA & PREVENÇÃO ──
-// POST /api/seguranca/simular-bruteforce - Simula um robô tentando adivinhar senhas e bloqueio automático
-router.post('/simular-bruteforce', async (req, res) => {
-  const { username, tentativas } = req.body;
-  const alvo = username || 'admin';
-  const qtd = Math.min(20, parseInt(tentativas || 8));
-
-  const [usuario] = await query('SELECT * FROM usuarios WHERE username = ?', [alvo]);
-  if (!usuario) return res.status(404).json({ erro: 'Usuário alvo não existe' });
-
-  const ipAtacante = req.headers['x-forwarded-for'] || req.socket.remoteAddress || '185.220.101.5';
-  const logTentativas = [];
-  let bloqueado = false;
-  let bloqueioMinutos = 0;
-
-  for (let i = 1; i <= qtd; i++) {
-    const senhaFalsa = `senha_errada_${i}`;
-    const acertou = bcrypt.compareSync(senhaFalsa, usuario.senha_hash);
-
-    if (!acertou) {
-      logTentativas.push({ tentativa: i, senhaTestada: senhaFalsa, status: 'Falhou (401)' });
-      if (i >= 5) {
-        bloqueado = true;
-        bloqueioMinutos = 15;
-        // Aplica trava no banco
-        await execute(
-          'UPDATE usuarios SET tentativas_login = tentativas_login + ?, bloqueado_ate = DATE_ADD(NOW(), INTERVAL 15 MINUTE) WHERE id = ?',
-          [i, usuario.id]
-        );
-        // Registra log de incidente de segurança
-        await execute(
-          'INSERT INTO logs_seguranca (tipo, ip, detalhes, bloqueado) VALUES ("Ataque Força Bruta Detectado", ?, ?, 1)',
-          [ipAtacante, `Múltiplas tentativas de quebra de senha para o usuário '${alvo}'. Conta bloqueada temporariamente.`]
-        );
-        break;
-      }
-    }
-  }
-
+router.post('/simular-bruteforce', verifyAdmin, async (req, res) => {
+  const qtd = Math.min(20, Math.max(1, Number.parseInt(req.body?.tentativas, 10) || 8));
+  const historicoTentativas = Array.from({ length: Math.min(qtd, 5) }, (_, idx) => ({
+    tentativa: idx + 1,
+    status: idx === 4 ? 'Bloqueio simulado por 15 minutos' : 'Falha simulada'
+  }));
   res.json({
-    sucesso: true,
-    usuarioAlvo: alvo,
-    totalTentativasExecutadas: logTentativas.length,
-    historicoTentativas: logTentativas,
-    contaBloqueada: bloqueado,
-    tempoBloqueio: bloqueado ? `${bloqueioMinutos} minutos com reset automático` : 'Ainda não bloqueada (menos de 5 falhas)',
-    mecanismo: 'Defesa ativa por Rate Limiter e Trava de Conta por Excesso de Tentativas'
+    sucesso: true, demonstracao: true, totalTentativasExecutadas: historicoTentativas.length,
+    historicoTentativas, contaBloqueada: qtd >= 5,
+    tempoBloqueio: qtd >= 5 ? '15 minutos (simulação)' : 'Sem bloqueio',
+    observacao: 'Nenhuma senha foi testada e nenhuma conta real foi bloqueada.'
   });
 });
 
@@ -166,10 +99,12 @@ router.get('/blacklist', verifyAdmin, async (req, res) => {
 // POST /api/seguranca/blacklist - Adiciona IP ou país à blacklist
 router.post('/blacklist', verifyAdmin, async (req, res) => {
   const { ip, motivo, pais } = req.body;
-  if (!ip || !motivo) return res.status(400).json({ erro: 'IP e motivo são obrigatórios' });
+  if (typeof ip !== 'string' || !net.isIP(ip.trim()) || typeof motivo !== 'string' || motivo.trim().length < 3 || motivo.length > 255) {
+    return res.status(400).json({ erro: 'IP válido e motivo de 3 a 255 caracteres são obrigatórios' });
+  }
 
   try {
-    const paisDetectado = pais || identificarPaisPorIp(ip);
+    const paisDetectado = identificarPaisPorIp(ip);
     await execute(
       'INSERT INTO ip_blacklist (ip, motivo, pais, criado_por) VALUES (?, ?, ?, ?) ON DUPLICATE KEY UPDATE motivo = VALUES(motivo), pais = VALUES(pais)',
       [ip.trim(), motivo.trim(), paisDetectado, req.user?.nome || 'Admin']
